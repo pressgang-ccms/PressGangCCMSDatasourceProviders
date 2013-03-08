@@ -26,8 +26,10 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
         this.providerFactory = providerFactory;
         wrapperFactory = providerFactory.getWrapperFactory();
         this.collection = collection;
-        for (final RESTBaseCollectionItemV1<U, V, ?> item : collection.getItems()) {
-            entities.put((T) getWrapperFactory().create(item.getItem(), isRevisionCollection), item.getState());
+        if (collection.getItems() != null) {
+            for (final RESTBaseCollectionItemV1<U, V, ?> item : collection.getItems()) {
+                entities.put((T) getWrapperFactory().create(item.getItem(), isRevisionCollection), item.getState());
+            }
         }
     }
 
