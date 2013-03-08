@@ -13,8 +13,8 @@ import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionItemV
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 
-public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseCollectionV1<T, U,
-        V>, V extends RESTBaseCollectionItemV1<T, U, V>> implements MethodHandler {
+public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseCollectionV1<T, U, V>,
+        V extends RESTBaseCollectionItemV1<T, U, V>> implements MethodHandler {
 
     private final RESTProviderFactory providerFactory;
     private U proxyCollection;
@@ -38,7 +38,7 @@ public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T, U, V>, U
         return collection;
     }
 
-    protected RESTProviderFactory getProviderFactory () {
+    protected RESTProviderFactory getProviderFactory() {
         return providerFactory;
     }
 
@@ -48,6 +48,8 @@ public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T, U, V>, U
         if (thisMethod.getName().equals("getItems")) {
             // Change the list of items into a list of proxy objects
             final List<V> items = object.getItems();
+            if (items == null) return null;
+
             final List<V> newItems = new ArrayList<V>();
             for (final V item : items) {
                 final V newItem = item.clone(false);
@@ -58,17 +60,19 @@ public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T, U, V>, U
         } else if (thisMethod.getName().equals("returnItems")) {
             // Change the list of items into a list of proxy objects
             final List<T> items = object.returnItems();
+            if (items == null) return null;
+
             final List<T> newItems = new ArrayList<T>();
             for (final T item : items) {
                 newItems.add(RESTEntityProxyFactory.createProxy(getProviderFactory(), item, isRevision, parent));
             }
             return newItems;
-        } else if (thisMethod.getName().equals("addItem") || thisMethod.getName().equals("addNewItem")
-                || thisMethod.getName().equals("addRemoveItem") || thisMethod.getName().equals("addUpdateItem")) {
+        } else if (thisMethod.getName().equals("addItem") || thisMethod.getName().equals("addNewItem") || thisMethod.getName().equals(
+                "addRemoveItem") || thisMethod.getName().equals("addUpdateItem")) {
             // Ensure that we add the normal item and not the proxy
             final T item = (T) args[0];
             if (item instanceof ProxyObject) {
-                args[0] = ((RESTBaseEntityV1ProxyHandler<T>)((ProxyObject) item).getHandler()).getEntity();
+                args[0] = ((RESTBaseEntityV1ProxyHandler<T>) ((ProxyObject) item).getHandler()).getEntity();
             }
             return thisMethod.invoke(object, args);
         } else {

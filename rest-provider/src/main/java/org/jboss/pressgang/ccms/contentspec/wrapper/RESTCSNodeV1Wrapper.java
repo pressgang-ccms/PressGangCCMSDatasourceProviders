@@ -86,7 +86,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
 
     @Override
     public void setContentSpec(ContentSpecWrapper contentSpec) {
-        getEntity().setContentSpec(contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap());
+        getEntity().explicitSetContentSpec(contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap());
     }
 
     @Override
@@ -136,7 +136,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
 
     @Override
     public void setEntityId(Integer id) {
-        getEntity().setEntityId(id);
+        getEntity().explicitSetEntityId(id);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
 
     @Override
     public void setEntityRevision(Integer revision) {
-        getEntity().setEntityRevision(revision);
+        getEntity().explicitSetEntityRevision(revision);
     }
 
     @Override
