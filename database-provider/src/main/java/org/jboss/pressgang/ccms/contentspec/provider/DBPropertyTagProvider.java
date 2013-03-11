@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.pressgang.ccms.contentspec.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.contentspec.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.contentspec.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.contentspec.wrapper.PropertyTagInPropertyCategoryWrapper;
 import org.jboss.pressgang.ccms.contentspec.wrapper.PropertyTagInTagWrapper;
 import org.jboss.pressgang.ccms.contentspec.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.contentspec.wrapper.PropertyTagWrapper;
+import org.jboss.pressgang.ccms.contentspec.wrapper.TagWrapper;
+import org.jboss.pressgang.ccms.contentspec.wrapper.base.BaseTopicWrapper;
 import org.jboss.pressgang.ccms.contentspec.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.contentspec.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.model.PropertyTag;
@@ -63,36 +66,37 @@ public class DBPropertyTagProvider extends DBDataProvider implements PropertyTag
     }
 
     @Override
-    public PropertyTagInTopicWrapper newPropertyTagInTopic() {
+    public PropertyTagInTopicWrapper newPropertyTagInTopic(final BaseTopicWrapper<?> topic) {
         return getWrapperFactory().create(new TopicToPropertyTag(), false);
     }
 
     @Override
-    public PropertyTagInTagWrapper newPropertyTagInTag() {
+    public PropertyTagInTagWrapper newPropertyTagInTag(final TagWrapper tag) {
         return getWrapperFactory().create(new TagToPropertyTag(), false);
     }
 
     @Override
-    public PropertyTagInTopicWrapper newPropertyTagInTopic(final PropertyTagWrapper propertyTag) {
+    public PropertyTagInTopicWrapper newPropertyTagInTopic(final PropertyTagWrapper propertyTag, final BaseTopicWrapper<?> topic) {
         final TopicToPropertyTag ttp = new TopicToPropertyTag();
         ttp.setPropertyTag((PropertyTag) propertyTag.unwrap());
         return getWrapperFactory().create(ttp, false);
     }
 
     @Override
-    public PropertyTagInTagWrapper newPropertyTagInTag(final PropertyTagWrapper propertyTag) {
+    public PropertyTagInTagWrapper newPropertyTagInTag(final PropertyTagWrapper propertyTag, final TagWrapper tag) {
         final TagToPropertyTag ttp = new TagToPropertyTag();
         ttp.setPropertyTag((PropertyTag) propertyTag.unwrap());
         return getWrapperFactory().create(ttp, false);
     }
 
     @Override
-    public PropertyTagInContentSpecWrapper newPropertyTagInContentSpec() {
+    public PropertyTagInContentSpecWrapper newPropertyTagInContentSpec(final ContentSpecWrapper contentSpec) {
         return getWrapperFactory().create(new ContentSpecToPropertyTag(), false);
     }
 
     @Override
-    public PropertyTagInContentSpecWrapper newPropertyTagInContentSpec(PropertyTagWrapper propertyTag) {
+    public PropertyTagInContentSpecWrapper newPropertyTagInContentSpec(PropertyTagWrapper propertyTag,
+            final ContentSpecWrapper contentSpec) {
         final ContentSpecToPropertyTag cstp = new ContentSpecToPropertyTag();
         cstp.setPropertyTag((PropertyTag) propertyTag.unwrap());
         return getWrapperFactory().create(cstp, false);
@@ -109,21 +113,22 @@ public class DBPropertyTagProvider extends DBDataProvider implements PropertyTag
     }
 
     @Override
-    public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> newPropertyTagInTopicCollection() {
+    public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> newPropertyTagInTopicCollection(final BaseTopicWrapper<?> topic) {
         final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
                 new ArrayList<TopicToPropertyTag>(), TopicToPropertyTag.class, false);
         return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
     }
 
     @Override
-    public UpdateableCollectionWrapper<PropertyTagInTagWrapper> newPropertyTagInTagCollection() {
+    public UpdateableCollectionWrapper<PropertyTagInTagWrapper> newPropertyTagInTagCollection(final TagWrapper tag) {
         final CollectionWrapper<PropertyTagInTagWrapper> collection = getWrapperFactory().createCollection(
                 new ArrayList<TagToPropertyTag>(), TagToPropertyTag.class, false);
         return (UpdateableCollectionWrapper<PropertyTagInTagWrapper>) collection;
     }
 
     @Override
-    public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> newPropertyTagInContentSpecCollection() {
+    public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> newPropertyTagInContentSpecCollection(
+            final ContentSpecWrapper contentSpec) {
         final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
                 new ArrayList<ContentSpecToPropertyTag>(), ContentSpecToPropertyTag.class, false);
         return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
