@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.pressgang.ccms</groupId>
-            <artifactId>pressgang-ccms-contentspec</artifactId>
+            <artifactId>provider-commons</artifactId>
             <version>${pressgang.ccms.version}</version>
         </dependency>
 
