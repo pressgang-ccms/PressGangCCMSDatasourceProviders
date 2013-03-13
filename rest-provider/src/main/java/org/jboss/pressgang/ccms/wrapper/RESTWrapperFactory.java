@@ -23,9 +23,10 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCol
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTUserCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSTranslatedNodeCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSTranslatedNodeStringCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTCategoryInTagCollectionV1;
@@ -49,9 +50,10 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslatedNodeStringV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslatedNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
@@ -62,8 +64,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTBlobConstantCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCSNodeCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCSRelatedNodeCollectionV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCSTranslatedNodeCollectionV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCSTranslatedNodeStringCollectionV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedCSNodeCollectionV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedCSNodeStringCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCategoryCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCategoryInTagCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTContentSpecCollectionV1Wrapper;
@@ -79,6 +81,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.RESTTagCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTagInCategoryCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTopicCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTopicSourceURLCollectionV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedContentSpecCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedTopicCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedTopicStringCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTUserCollectionV1Wrapper;
@@ -157,10 +160,14 @@ public class RESTWrapperFactory extends WrapperFactory {
             wrapper = new RESTCSNodeV1Wrapper(getProviderFactory(), (RESTCSNodeV1) unwrappedEntity, isRevision);
         } else if (entity instanceof RESTCSRelatedNodeV1) {
             wrapper = new RESTCSRelatedNodeV1Wrapper(getProviderFactory(), (RESTCSRelatedNodeV1) unwrappedEntity, isRevision);
-        } else if (entity instanceof RESTCSRelatedNodeV1) {
+        } else if (entity instanceof RESTTranslatedContentSpecV1) {
+            // TRANSLATED CONTENT SPEC
+            wrapper = new RESTTranslatedContentSpecV1Wrapper(getProviderFactory(), (RESTTranslatedContentSpecV1) unwrappedEntity,
+                    isRevision);
+        } else if (entity instanceof RESTTranslatedCSNodeV1) {
             // CONTENT SPEC TRANSLATED NODE
-            wrapper = new RESTCSTranslatedNodeV1Wrapper(getProviderFactory(), (RESTCSTranslatedNodeV1) unwrappedEntity, isRevision);
-        } else if (entity instanceof RESTCSTranslatedNodeStringV1) {
+            wrapper = new RESTTranslatedCSNodeV1Wrapper(getProviderFactory(), (RESTTranslatedCSNodeV1) unwrappedEntity, isRevision);
+        } else if (entity instanceof RESTTranslatedCSNodeStringV1) {
             // CONTENT SPEC TRANSLATED NODE STRING
             throw new UnsupportedOperationException("A parent is needed to get CSTranslatedNodeStrings using V1 of the REST Interface.");
         } else {
@@ -240,11 +247,15 @@ public class RESTWrapperFactory extends WrapperFactory {
         } else if (collection instanceof RESTCSRelatedNodeCollectionV1) {
             wrapper = new RESTCSRelatedNodeCollectionV1Wrapper(getProviderFactory(), (RESTCSRelatedNodeCollectionV1) collection,
                     isRevisionCollection);
-        } else if (collection instanceof RESTCSTranslatedNodeCollectionV1) {
+        } else if (collection instanceof RESTTranslatedContentSpecCollectionV1) {
+            // TRANSLATED CONTENT SPEC
+            wrapper = new RESTTranslatedContentSpecCollectionV1Wrapper(getProviderFactory(),
+                    (RESTTranslatedContentSpecCollectionV1) collection, isRevisionCollection);
+        } else if (collection instanceof RESTTranslatedCSNodeCollectionV1) {
             // CONTENT SPEC TRANSLATED NODE
-            wrapper = new RESTCSTranslatedNodeCollectionV1Wrapper(getProviderFactory(), (RESTCSTranslatedNodeCollectionV1) collection,
+            wrapper = new RESTTranslatedCSNodeCollectionV1Wrapper(getProviderFactory(), (RESTTranslatedCSNodeCollectionV1) collection,
                     isRevisionCollection);
-        } else if (collection instanceof RESTCSTranslatedNodeStringCollectionV1) {
+        } else if (collection instanceof RESTTranslatedCSNodeStringCollectionV1) {
             // CONTENT SPEC TRANSLATED NODE STRING
             throw new UnsupportedOperationException("A parent is needed to get Translated Node Strings using V1 of the REST Interface.");
         } else {
@@ -352,10 +363,10 @@ public class RESTWrapperFactory extends WrapperFactory {
             // PROPERTY TAG TO CATEGORY
             wrapper = new RESTPropertyTagInPropertyCategoryV1Wrapper(getProviderFactory(),
                     (RESTPropertyTagInPropertyCategoryV1) unwrappedEntity, isRevision, (RESTPropertyCategoryV1) parent);
-        } else if (entity instanceof RESTCSTranslatedNodeStringV1 && parent instanceof RESTCSTranslatedNodeV1) {
+        } else if (entity instanceof RESTTranslatedCSNodeStringV1 && parent instanceof RESTTranslatedCSNodeV1) {
             // CONTENT SPEC TRANSLATED NODE STRING
-            wrapper = new RESTCSTranslatedNodeStringV1Wrapper(getProviderFactory(), (RESTCSTranslatedNodeStringV1) unwrappedEntity,
-                    isRevision, (RESTCSTranslatedNodeV1) parent);
+            wrapper = new RESTTranslatedCSNodeStringV1Wrapper(getProviderFactory(), (RESTTranslatedCSNodeStringV1) unwrappedEntity,
+                    isRevision, (RESTTranslatedCSNodeV1) parent);
         } else {
             wrapper = create(unwrappedEntity, isRevision);
         }
@@ -442,10 +453,10 @@ public class RESTWrapperFactory extends WrapperFactory {
             // PROPERTY TAG TO CATEGORY
             wrapper = new RESTPropertyTagInPropertyCategoryCollectionV1Wrapper(getProviderFactory(),
                     (RESTPropertyTagInPropertyCategoryCollectionV1) collection, isRevisionCollection, (RESTPropertyCategoryV1) parent);
-        } else if (collection instanceof RESTCSNodeCollectionV1 && parent instanceof RESTCSTranslatedNodeV1) {
+        } else if (collection instanceof RESTCSNodeCollectionV1 && parent instanceof RESTTranslatedCSNodeV1) {
             // CONTENT SPEC TRANSLATED NODE STRINGS
-            wrapper = new RESTCSTranslatedNodeStringCollectionV1Wrapper(getProviderFactory(),
-                    (RESTCSTranslatedNodeStringCollectionV1) collection, isRevisionCollection, (RESTCSTranslatedNodeV1) parent);
+            wrapper = new RESTTranslatedCSNodeStringCollectionV1Wrapper(getProviderFactory(),
+                    (RESTTranslatedCSNodeStringCollectionV1) collection, isRevisionCollection, (RESTTranslatedCSNodeV1) parent);
         } else {
             wrapper = createCollection(collection, entityClass, isRevisionCollection);
         }

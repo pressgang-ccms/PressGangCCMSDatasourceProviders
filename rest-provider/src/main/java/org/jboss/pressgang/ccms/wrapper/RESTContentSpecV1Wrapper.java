@@ -12,6 +12,7 @@ import org.jboss.pressgang.ccms.rest.v1.components.ComponentContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTContentSpecTypeV1;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
@@ -40,8 +41,10 @@ public class RESTContentSpecV1Wrapper extends RESTBaseWrapper<ContentSpecWrapper
     }
 
     @Override
-    public CollectionWrapper<CSNodeWrapper> getChildren() {
-        return getWrapperFactory().createCollection(getProxyEntity().getChildren_OTM(), RESTCSNodeV1.class, isRevisionEntity());
+    public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getProxyEntity().getChildren_OTM(),
+                RESTCSNodeV1.class, isRevisionEntity());
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
 
     @Override
@@ -60,6 +63,12 @@ public class RESTContentSpecV1Wrapper extends RESTBaseWrapper<ContentSpecWrapper
     @Override
     public void setProperties(UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> properties) {
         getEntity().explicitSetProperties(properties == null ? null : (RESTAssignedPropertyTagCollectionV1) properties.unwrap());
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecs() {
+        return getWrapperFactory().createCollection(getProxyEntity().getTranslatedContentSpecs(), RESTTranslatedContentSpecV1.class,
+                isRevisionEntity());
     }
 
     @Override

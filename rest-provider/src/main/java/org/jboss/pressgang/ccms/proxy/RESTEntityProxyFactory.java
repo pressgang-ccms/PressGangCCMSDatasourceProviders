@@ -21,9 +21,10 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslatedNodeStringV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslatedNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
@@ -122,13 +123,16 @@ public class RESTEntityProxyFactory {
             return new RESTCSNodeV1ProxyHandler(providerFactory, (RESTCSNodeV1) entity, isRevision);
         } else if (entity instanceof RESTCSRelatedNodeV1) {
             return new RESTCSRelatedNodeV1ProxyHandler(providerFactory, (RESTCSRelatedNodeV1) entity, isRevision, (RESTCSNodeV1) parent);
-        } else if (entity instanceof RESTCSTranslatedNodeV1) {
+        } else if (entity instanceof RESTTranslatedContentSpecV1) {
+            // TRANSLATED CONTENT SPEC
+            return new RESTTranslatedContentSpecV1ProxyHandler(providerFactory, (RESTTranslatedContentSpecV1) entity, isRevision);
+        } else if (entity instanceof RESTTranslatedCSNodeV1) {
             // CONTENT SPEC TRANSLATED NODE
-            return new RESTCSTranslatedNodeV1ProxyHandler(providerFactory, (RESTCSTranslatedNodeV1) entity, isRevision);
+            return new RESTTranslatedCSNodeV1ProxyHandler(providerFactory, (RESTTranslatedCSNodeV1) entity, isRevision);
         } else if (entity instanceof RESTCSNodeV1) {
             // CONTENT SPEC TRANSLATED NODE STRING
-            return new RESTCSTranslatedNodeStringV1ProxyHandler(providerFactory, (RESTCSTranslatedNodeStringV1) entity, isRevision,
-                    (RESTCSTranslatedNodeV1) parent);
+            return new RESTTranslatedCSNodeStringV1ProxyHandler(providerFactory, (RESTTranslatedCSNodeStringV1) entity, isRevision,
+                    (RESTTranslatedCSNodeV1) parent);
         }
 
         throw new IllegalArgumentException("Unable to find a proxy handler for the specified entity.");

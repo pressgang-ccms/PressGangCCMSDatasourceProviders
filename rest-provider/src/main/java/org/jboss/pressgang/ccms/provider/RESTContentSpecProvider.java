@@ -2,24 +2,26 @@ package org.jboss.pressgang.ccms.provider;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
+import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
+import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
+import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
+import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTContentSpecV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
+import org.jboss.pressgang.ccms.wrapper.TranslatedContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +144,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec = (RESTContentSpecV1) entityCache.get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getChildren_OTM() != null) {
-                    final CollectionWrapper<CSNodeWrapper> collection =  getWrapperFactory().createCollection(contentSpec.getChildren_OTM(),
+                    final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(contentSpec.getChildren_OTM(),
                             RESTCSNodeV1.class, revision != null);
                     return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
                 }
@@ -173,11 +175,59 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec.setChildren_OTM(tempContentSpec.getChildren_OTM());
             }
 
-            final CollectionWrapper<CSNodeWrapper> collection =  getWrapperFactory().createCollection(contentSpec.getChildren_OTM(),
+            final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(contentSpec.getChildren_OTM(),
                     RESTCSNodeV1.class, revision != null);
             return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
         } catch (Exception e) {
             log.error("Failed to retrieve the Children Nodes for Content Spec " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+        }
+        return null;
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedContentSpecWrapper> getContentSpecTranslations(int id, Integer revision) {
+        try {
+            RESTContentSpecV1 contentSpec = null;
+            // Check the cache first
+            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                contentSpec = (RESTContentSpecV1) entityCache.get(RESTContentSpecV1.class, id, revision);
+
+                if (contentSpec.getTranslatedContentSpecs() != null) {
+                    return getWrapperFactory().createCollection(contentSpec.getTranslatedContentSpecs(), RESTTranslatedContentSpecV1.class,
+                            revision != null);
+                }
+            }
+
+            // We need to expand the tags in the content spec collection
+            final ExpandDataTrunk expand = new ExpandDataTrunk();
+            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.TRANSLATED_CONTENT_SPECS_NAME));
+            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
+            final String expandString = mapper.writeValueAsString(expand);
+
+            // Load the content spec from the REST Interface
+            final RESTContentSpecV1 tempContentSpec;
+            if (revision == null) {
+                tempContentSpec = client.getJSONContentSpec(id, expandString);
+            } else {
+                tempContentSpec = client.getJSONContentSpecRevision(id, revision, expandString);
+            }
+
+            if (contentSpec == null) {
+                contentSpec = tempContentSpec;
+                if (revision == null) {
+                    entityCache.add(contentSpec);
+                } else {
+                    entityCache.add(contentSpec, revision);
+                }
+            } else {
+                contentSpec.setTranslatedContentSpecs(tempContentSpec.getTranslatedContentSpecs());
+            }
+
+            return getWrapperFactory().createCollection(contentSpec.getTranslatedContentSpecs(), RESTTranslatedContentSpecV1.class,
+                    revision != null);
+        } catch (Exception e) {
+            log.error("Failed to retrieve the Translations for Content Spec " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
         }
         return null;
@@ -333,8 +383,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                     topic.getProperties(), RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInContentSpecWrapper.class);
             return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
         } catch (Exception e) {
-            log.error("Failed to retrieve the Properties for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)),
-                    e);
+            log.error("Failed to retrieve the Properties for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
     }

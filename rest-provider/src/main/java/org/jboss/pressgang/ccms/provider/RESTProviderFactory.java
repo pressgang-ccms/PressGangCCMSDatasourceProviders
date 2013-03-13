@@ -145,17 +145,23 @@ public class RESTProviderFactory extends DataProviderFactory {
         providerMap.put(RESTCSRelatedNodeProvider.class, csRelatedNodeProvider);
         providerMap.put(CSRelatedNodeProvider.class, csRelatedNodeProvider);
 
-        // Content Spec Translated Node Provider
-        final RESTCSTranslatedNodeProvider csTranslatedNodeProvider = new RESTCSTranslatedNodeProvider(getRESTManager(),
+        // Translated Content Spec Node Provider
+        final RESTTranslatedContentSpecProvider translatedContentSpecNodeProvider = new RESTTranslatedContentSpecProvider(getRESTManager(),
                 getWrapperFactory());
-        providerMap.put(RESTCSTranslatedNodeProvider.class, csTranslatedNodeProvider);
-        providerMap.put(CSTranslatedNodeProvider.class, csTranslatedNodeProvider);
+        providerMap.put(RESTTranslatedContentSpecProvider.class, translatedContentSpecNodeProvider);
+        providerMap.put(TranslatedContentSpecProvider.class, translatedContentSpecNodeProvider);
 
-        // Content Spec Translated Node String Provider
-        final RESTCSTranslatedNodeStringProvider csTranslatedNodeStringProvider = new RESTCSTranslatedNodeStringProvider(getRESTManager(),
+        // Translated Content Spec Node Provider
+        final RESTTranslatedCSNodeProvider csTranslatedNodeProvider = new RESTTranslatedCSNodeProvider(getRESTManager(),
                 getWrapperFactory());
-        providerMap.put(RESTCSTranslatedNodeStringProvider.class, csTranslatedNodeStringProvider);
-        providerMap.put(CSTranslatedNodeStringProvider.class, csTranslatedNodeStringProvider);
+        providerMap.put(RESTTranslatedCSNodeProvider.class, csTranslatedNodeProvider);
+        providerMap.put(TranslatedCSNodeProvider.class, csTranslatedNodeProvider);
+
+        // Translated Content Spec Node String Provider
+        final RESTTranslatedCSNodeStringProvider csTranslatedNodeStringProvider = new RESTTranslatedCSNodeStringProvider(getRESTManager(),
+                getWrapperFactory());
+        providerMap.put(RESTTranslatedCSNodeStringProvider.class, csTranslatedNodeStringProvider);
+        providerMap.put(TranslatedCSNodeStringProvider.class, csTranslatedNodeStringProvider);
     }
 
     /**

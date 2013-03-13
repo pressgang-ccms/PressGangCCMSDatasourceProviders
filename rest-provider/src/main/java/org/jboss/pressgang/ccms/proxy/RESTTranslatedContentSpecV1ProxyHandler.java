@@ -2,41 +2,41 @@ package org.jboss.pressgang.ccms.proxy;
 
 import java.lang.reflect.Method;
 
-import org.jboss.pressgang.ccms.provider.RESTCSTranslatedNodeProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.provider.RESTTranslatedContentSpecProvider;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslatedNodeV1;
-import org.jboss.pressgang.ccms.wrapper.CSTranslatedNodeStringWrapper;
-import org.jboss.pressgang.ccms.wrapper.CSTranslatedNodeWrapper;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
+import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
+import org.jboss.pressgang.ccms.wrapper.TranslatedContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 
-public class RESTCSTranslatedNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTCSTranslatedNodeV1> {
-    public RESTCSTranslatedNodeV1ProxyHandler(final RESTProviderFactory providerFactory, final RESTCSTranslatedNodeV1 entity,
+public class RESTTranslatedContentSpecV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTranslatedContentSpecV1> {
+    public RESTTranslatedContentSpecV1ProxyHandler(final RESTProviderFactory providerFactory, final RESTTranslatedContentSpecV1 entity,
             boolean isRevisionEntity) {
         super(providerFactory, entity, isRevisionEntity);
     }
 
-    public RESTCSTranslatedNodeProvider getProvider() {
-        return getProviderFactory().getProvider(RESTCSTranslatedNodeProvider.class);
+    public RESTTranslatedContentSpecProvider getProvider() {
+        return getProviderFactory().getProvider(RESTTranslatedContentSpecProvider.class);
     }
 
     @Override
     public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTCSTranslatedNodeV1 csNode = getEntity();
+        final RESTTranslatedContentSpecV1 translatedContentSpec = getEntity();
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (csNode.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(csNode, args);
+        if (translatedContentSpec.getId() != null && thisMethod.getName().startsWith("get")) {
+            Object retValue = thisMethod.invoke(translatedContentSpec, args);
             if (retValue == null) {
                 final String methodName = thisMethod.getName();
 
-                if (methodName.equals("getTranslatedNodeStrings_OTM")) {
-                    final CollectionWrapper<CSTranslatedNodeStringWrapper> children = getProvider().getCSTranslatedNodeStrings(
-                            csNode.getId(), getEntityRevision(), getProxyEntity());
+                if (methodName.equals("getTranslatedNodes_OTM")) {
+                    final CollectionWrapper<TranslatedCSNodeWrapper> children = getProvider().getTranslatedNodes(translatedContentSpec.getId(),
+                            getEntityRevision());
                     retValue = children == null ? null : children.unwrap();
                 } else if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<CSTranslatedNodeWrapper> revisions = getProvider().getCSTranslatedNodeRevisions(csNode.getId(),
-                            getEntityRevision());
+                    final CollectionWrapper<TranslatedContentSpecWrapper> revisions = getProvider().getTranslatedContentSpecRevisions(
+                            translatedContentSpec.getId(), getEntityRevision());
                     retValue = revisions == null ? null : revisions.unwrap();
                 }
             }

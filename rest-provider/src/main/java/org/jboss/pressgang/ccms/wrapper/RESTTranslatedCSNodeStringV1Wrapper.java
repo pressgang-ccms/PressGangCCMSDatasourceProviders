@@ -2,35 +2,34 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslatedNodeStringV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslatedNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class RESTCSTranslatedNodeStringV1Wrapper extends RESTBaseWrapper<CSTranslatedNodeStringWrapper,
-        RESTCSTranslatedNodeStringV1> implements CSTranslatedNodeStringWrapper {
-    private final RESTCSTranslatedNodeStringV1 translatedTopicString;
-    private final RESTCSTranslatedNodeV1 parent;
+public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseWrapper<TranslatedCSNodeStringWrapper, RESTTranslatedCSNodeStringV1> implements TranslatedCSNodeStringWrapper {
+    private final RESTTranslatedCSNodeStringV1 translatedTopicString;
+    private final RESTTranslatedCSNodeV1 parent;
 
-    protected RESTCSTranslatedNodeStringV1Wrapper(final RESTProviderFactory providerFactory, final RESTCSTranslatedNodeStringV1 topic,
-            boolean isRevision, final RESTCSTranslatedNodeV1 parent) {
+    protected RESTTranslatedCSNodeStringV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeStringV1 topic,
+            boolean isRevision, final RESTTranslatedCSNodeV1 parent) {
         super(providerFactory, isRevision);
         this.translatedTopicString = RESTEntityProxyFactory.createProxy(providerFactory, topic, isRevision);
         this.parent = parent;
     }
 
     @Override
-    protected RESTCSTranslatedNodeStringV1 getProxyEntity() {
+    protected RESTTranslatedCSNodeStringV1 getProxyEntity() {
         return translatedTopicString;
     }
 
     @Override
-    public CollectionWrapper<CSTranslatedNodeStringWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTCSTranslatedNodeStringV1.class, true, parent);
+    public CollectionWrapper<TranslatedCSNodeStringWrapper> getRevisions() {
+        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTTranslatedCSNodeStringV1.class, true, parent);
     }
 
     @Override
-    public CSTranslatedNodeStringWrapper clone(boolean deepCopy) {
-        return new RESTCSTranslatedNodeStringV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent);
+    public TranslatedCSNodeStringWrapper clone(boolean deepCopy) {
+        return new RESTTranslatedCSNodeStringV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent);
     }
 
     @Override
