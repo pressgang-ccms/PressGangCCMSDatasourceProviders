@@ -11,13 +11,15 @@ public interface ContentSpecWrapper extends EntityWrapper<ContentSpecWrapper> {
 
     void setTags(CollectionWrapper<TagWrapper> tags);
 
-    CollectionWrapper<CSNodeWrapper> getChildren();
+    UpdateableCollectionWrapper<CSNodeWrapper> getChildren();
 
     void setChildren(CollectionWrapper<CSNodeWrapper> nodes);
 
     UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getProperties();
 
     void setProperties(UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> properties);
+
+    CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecs();
 
     String getTitle();
 

@@ -4,6 +4,7 @@ import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
+import org.jboss.pressgang.ccms.wrapper.TranslatedContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
@@ -19,6 +20,8 @@ public interface ContentSpecProvider {
     UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getContentSpecProperties(int id, Integer revision);
 
     UpdateableCollectionWrapper<CSNodeWrapper> getContentSpecNodes(int id, Integer revision);
+
+    CollectionWrapper<TranslatedContentSpecWrapper> getContentSpecTranslations(int id, Integer revision);
 
     CollectionWrapper<ContentSpecWrapper> getContentSpecRevisions(int id, Integer revision);
 
