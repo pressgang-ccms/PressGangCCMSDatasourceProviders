@@ -124,14 +124,14 @@ public class DBProviderFactory extends DataProviderFactory {
         providerMap.put(CSNodeProvider.class, csNodeProvider);
 
         // Content Spec Translated Node Provider
-        final DBCSTranslatedNodeProvider csTranslatedNodeProvider = new DBCSTranslatedNodeProvider(getEntityManager(), getWrapperFactory());
-        providerMap.put(DBCSTranslatedNodeProvider.class, csTranslatedNodeProvider);
-        providerMap.put(CSTranslatedNodeProvider.class, csTranslatedNodeProvider);
+        final DBTranslatedCSNodeProvider csTranslatedNodeProvider = new DBTranslatedCSNodeProvider(getEntityManager(), getWrapperFactory());
+        providerMap.put(DBTranslatedCSNodeProvider.class, csTranslatedNodeProvider);
+        providerMap.put(TranslatedCSNodeProvider.class, csTranslatedNodeProvider);
 
         // Content Spec Translated Node String Provider
-        final DBCSTranslatedNodeStringProvider csTranslatedNodeStringProvider = new DBCSTranslatedNodeStringProvider(getEntityManager(),
+        final DBTranslatedCSNodeStringProvider csTranslatedNodeStringProvider = new DBTranslatedCSNodeStringProvider(getEntityManager(),
                 getWrapperFactory());
-        providerMap.put(DBCSTranslatedNodeStringProvider.class, csTranslatedNodeStringProvider);
-        providerMap.put(CSTranslatedNodeStringProvider.class, csTranslatedNodeStringProvider);
+        providerMap.put(DBTranslatedCSNodeStringProvider.class, csTranslatedNodeStringProvider);
+        providerMap.put(TranslatedCSNodeStringProvider.class, csTranslatedNodeStringProvider);
     }
 }

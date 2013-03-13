@@ -7,6 +7,7 @@ import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedContentSpec;
 import org.jboss.pressgang.ccms.model.exceptions.CustomConstraintViolationException;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
@@ -58,8 +59,10 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper> impl
     }
 
     @Override
-    public CollectionWrapper<CSNodeWrapper> getChildren() {
-        return getWrapperFactory().createCollection(getContentSpec().getTopCSNodes(), CSNode.class, isRevisionEntity());
+    public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getContentSpec().getTopCSNodes(),
+                CSNode.class, isRevisionEntity());
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
 
     @Override
@@ -102,7 +105,7 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper> impl
          * There is no need to do update properties as when the original entities are altered they will automatically be updated when using
          * database entities.
          */
-        //final List<PropertyTagInContentSpecWrapper> updateMetaDatas = properties.getUpdateItems();
+        //final List<PropertyTagInContentSpecWrapper> updateProperties = properties.getUpdateItems();
 
         // Add Properties
         for (final PropertyTagInContentSpecWrapper addProperty : addProperties) {
@@ -113,6 +116,12 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper> impl
         for (final PropertyTagInContentSpecWrapper removeProperty : removeProperties) {
             getContentSpec().removePropertyTag((ContentSpecToPropertyTag) removeProperty.unwrap());
         }
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecs() {
+        return getWrapperFactory().createCollection(getContentSpec().getTranslatedContentSpecs(getEntityManager(), getRevision()),
+                TranslatedContentSpec.class, isRevisionEntity());
     }
 
     @Override

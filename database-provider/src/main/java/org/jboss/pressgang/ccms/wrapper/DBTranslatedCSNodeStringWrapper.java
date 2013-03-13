@@ -1,22 +1,22 @@
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.model.contentspec.CSTranslatedNode;
-import org.jboss.pressgang.ccms.model.contentspec.CSTranslatedNodeString;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBCSTranslatedNodeStringWrapper extends DBBaseWrapper<CSTranslatedNodeStringWrapper> implements CSTranslatedNodeStringWrapper {
-    private final CSTranslatedNodeString csTranslatedNodeString;
+public class DBTranslatedCSNodeStringWrapper extends DBBaseWrapper<TranslatedCSNodeStringWrapper> implements TranslatedCSNodeStringWrapper {
+    private final TranslatedCSNodeString translatedCSNodeString;
 
-    public DBCSTranslatedNodeStringWrapper(final DBProviderFactory providerFactory, final CSTranslatedNodeString csTranslatedNodeString,
+    public DBTranslatedCSNodeStringWrapper(final DBProviderFactory providerFactory, final TranslatedCSNodeString translatedCSNodeString,
             boolean isRevision) {
         super(providerFactory, isRevision);
-        this.csTranslatedNodeString = csTranslatedNodeString;
+        this.translatedCSNodeString = translatedCSNodeString;
     }
 
-    protected CSTranslatedNodeString getCSTranslatedNodeString() {
-        return csTranslatedNodeString;
+    protected TranslatedCSNodeString getCSTranslatedNodeString() {
+        return translatedCSNodeString;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class DBCSTranslatedNodeStringWrapper extends DBBaseWrapper<CSTranslatedN
 
     @Override
     public void setId(Integer id) {
-        getCSTranslatedNodeString().setCSTranslatedNodeStringId(id);
+        getCSTranslatedNodeString().setTranslatedCSNodeStringId(id);
     }
 
     @Override
@@ -35,14 +35,14 @@ public class DBCSTranslatedNodeStringWrapper extends DBBaseWrapper<CSTranslatedN
     }
 
     @Override
-    public CollectionWrapper<CSTranslatedNodeStringWrapper> getRevisions() {
+    public CollectionWrapper<TranslatedCSNodeStringWrapper> getRevisions() {
         return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getCSTranslatedNodeString()),
-                CSTranslatedNode.class, true);
+                TranslatedCSNode.class, true);
     }
 
     @Override
-    public CSTranslatedNodeString unwrap() {
-        return csTranslatedNodeString;
+    public TranslatedCSNodeString unwrap() {
+        return translatedCSNodeString;
     }
 
     @Override

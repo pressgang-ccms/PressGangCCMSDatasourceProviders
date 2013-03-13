@@ -22,8 +22,8 @@ import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.model.User;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
-import org.jboss.pressgang.ccms.model.contentspec.CSTranslatedNode;
-import org.jboss.pressgang.ccms.model.contentspec.CSTranslatedNodeString;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
@@ -33,8 +33,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBBlobConstantCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.DBCSTranslatedNodeCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.DBCSTranslatedNodeStringCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeStringCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecToPropertyTagCollectionWrapper;
@@ -127,12 +127,12 @@ public class DBWrapperFactory extends WrapperFactory {
             wrapper = new DBCSNodeWrapper(getProviderFactory(), (CSNode) entity, isRevision);
         } else if (entity instanceof CSNodeToCSNode) {
             wrapper = new DBCSRelatedNodeWrapper(getProviderFactory(), (CSNodeToCSNode) entity, isRevision);
-        } else if (entity instanceof CSTranslatedNode) {
+        } else if (entity instanceof TranslatedCSNode) {
             // CONTENT SPEC TRANSLATED NODE
-            wrapper = new DBCSTranslatedNodeWrapper(getProviderFactory(), (CSTranslatedNode) entity, isRevision);
-        } else if (entity instanceof CSTranslatedNodeString) {
+            wrapper = new DBTranslatedCSNodeWrapper(getProviderFactory(), (TranslatedCSNode) entity, isRevision);
+        } else if (entity instanceof TranslatedCSNodeString) {
             // CONTENT SPEC TRANSLATED NODE STRING
-            wrapper = new DBCSTranslatedNodeStringWrapper(getProviderFactory(), (CSTranslatedNodeString) entity, isRevision);
+            wrapper = new DBTranslatedCSNodeStringWrapper(getProviderFactory(), (TranslatedCSNodeString) entity, isRevision);
         } else {
             throw new IllegalArgumentException("Failed to create a Wrapper instance as there is no wrapper available for the Entity.");
         }
@@ -207,12 +207,12 @@ public class DBWrapperFactory extends WrapperFactory {
             wrapper = new DBCSNodeCollectionWrapper(this, (Collection<CSNode>) collection, isRevisionCollection);
         } else if (entityClass == CSNodeToCSNode.class) {
             wrapper = new DBCSRelatedNodeCollectionWrapper(this, (Collection<CSNodeToCSNode>) collection, isRevisionCollection);
-        } else if (entityClass == CSTranslatedNode.class) {
+        } else if (entityClass == TranslatedCSNode.class) {
             // CONTENT SPEC TRANSLATED NODE
-            wrapper = new DBCSTranslatedNodeCollectionWrapper(this, (Collection<CSTranslatedNode>) collection, isRevisionCollection);
-        } else if (entityClass == CSTranslatedNodeString.class) {
+            wrapper = new DBTranslatedCSNodeCollectionWrapper(this, (Collection<TranslatedCSNode>) collection, isRevisionCollection);
+        } else if (entityClass == TranslatedCSNodeString.class) {
             // CONTENT SPEC TRANSLATED NODE STRING
-            wrapper = new DBCSTranslatedNodeStringCollectionWrapper(this, (Collection<CSTranslatedNodeString>) collection,
+            wrapper = new DBTranslatedCSNodeStringCollectionWrapper(this, (Collection<TranslatedCSNodeString>) collection,
                     isRevisionCollection);
         } else {
             throw new IllegalArgumentException(

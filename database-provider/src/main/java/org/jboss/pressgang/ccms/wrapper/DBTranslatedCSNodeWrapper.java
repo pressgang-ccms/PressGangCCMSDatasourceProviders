@@ -3,21 +3,22 @@ package org.jboss.pressgang.ccms.wrapper;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
-import org.jboss.pressgang.ccms.model.contentspec.CSTranslatedNode;
-import org.jboss.pressgang.ccms.model.contentspec.CSTranslatedNodeString;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class DBCSTranslatedNodeWrapper extends DBBaseWrapper<CSTranslatedNodeWrapper> implements CSTranslatedNodeWrapper {
-    private final CSTranslatedNode csNode;
+public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWrapper> implements TranslatedCSNodeWrapper {
+    private final TranslatedCSNode csNode;
 
-    public DBCSTranslatedNodeWrapper(final DBProviderFactory providerFactory, final CSTranslatedNode csNode, boolean isRevision) {
+    public DBTranslatedCSNodeWrapper(final DBProviderFactory providerFactory, final TranslatedCSNode csNode, boolean isRevision) {
         super(providerFactory, isRevision);
         this.csNode = csNode;
     }
 
-    protected CSTranslatedNode getCSTranslatedNode() {
+    protected TranslatedCSNode getCSTranslatedNode() {
         return csNode;
     }
 
@@ -32,7 +33,7 @@ public class DBCSTranslatedNodeWrapper extends DBBaseWrapper<CSTranslatedNodeWra
 
     @Override
     public void setId(Integer id) {
-        getCSTranslatedNode().setCSTranslatedNodeId(id);
+        getCSTranslatedNode().setTranslatedCSNodeId(id);
     }
 
     @Override
@@ -41,13 +42,13 @@ public class DBCSTranslatedNodeWrapper extends DBBaseWrapper<CSTranslatedNodeWra
     }
 
     @Override
-    public CollectionWrapper<CSTranslatedNodeWrapper> getRevisions() {
+    public CollectionWrapper<TranslatedCSNodeWrapper> getRevisions() {
         return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getCSTranslatedNode()),
-                CSTranslatedNode.class, true);
+                TranslatedCSNode.class, true);
     }
 
     @Override
-    public CSTranslatedNode unwrap() {
+    public TranslatedCSNode unwrap() {
         return csNode;
     }
 
@@ -77,31 +78,33 @@ public class DBCSTranslatedNodeWrapper extends DBBaseWrapper<CSTranslatedNodeWra
     }
 
     @Override
-    public CollectionWrapper<CSTranslatedNodeStringWrapper> getTranslatedStrings() {
-        return getWrapperFactory().createCollection(getCSTranslatedNode().getCSTranslatedNodeStrings(), CSTranslatedNodeString.class,
-                isRevisionEntity(), CSTranslatedNodeStringWrapper.class);
+    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedStrings() {
+        final CollectionWrapper<TranslatedCSNodeStringWrapper> collection = getWrapperFactory().createCollection(
+                getCSTranslatedNode().getTranslatedCSNodeStrings(), TranslatedCSNodeString.class, isRevisionEntity(),
+                TranslatedCSNodeStringWrapper.class);
+        return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) collection;
     }
 
     @Override
-    public void setTranslatedStrings(CollectionWrapper<CSTranslatedNodeStringWrapper> translatedStrings) {
+    public void setTranslatedStrings(UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> translatedStrings) {
         if (translatedStrings == null) return;
 
-        final List<CSTranslatedNodeStringWrapper> addTranslatedStrings = translatedStrings.getAddItems();
-        final List<CSTranslatedNodeStringWrapper> removeTranslatedStrings = translatedStrings.getRemoveItems();
+        final List<TranslatedCSNodeStringWrapper> addTranslatedStrings = translatedStrings.getAddItems();
+        final List<TranslatedCSNodeStringWrapper> removeTranslatedStrings = translatedStrings.getRemoveItems();
         /*
          * There is no need to do update outgoing topics as when the original entities are altered they will automatically be updated when
          * using database entities.
          */
-        //final List<CSTranslatedNodeStringWrapper> updateTranslatedStrings = translatedStrings.getUpdateItems();
+        //final List<TranslatedCSNodeStringWrapper> updateTranslatedStrings = translatedStrings.getUpdateItems();
 
         // Add Translated Strings
-        for (final CSTranslatedNodeStringWrapper addTranslatedString : addTranslatedStrings) {
-            getCSTranslatedNode().addTranslatedString((CSTranslatedNodeString) addTranslatedString.unwrap());
+        for (final TranslatedCSNodeStringWrapper addTranslatedString : addTranslatedStrings) {
+            getCSTranslatedNode().addTranslatedString((TranslatedCSNodeString) addTranslatedString.unwrap());
         }
 
         // Remove Translated Strings
-        for (final CSTranslatedNodeStringWrapper removeTranslatedString : removeTranslatedStrings) {
-            getCSTranslatedNode().removeTranslatedString((CSTranslatedNodeString) removeTranslatedString.unwrap());
+        for (final TranslatedCSNodeStringWrapper removeTranslatedString : removeTranslatedStrings) {
+            getCSTranslatedNode().removeTranslatedString((TranslatedCSNodeString) removeTranslatedString.unwrap());
         }
     }
 
