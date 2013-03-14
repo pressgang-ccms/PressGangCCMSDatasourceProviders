@@ -6,13 +6,9 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public interface TranslatedCSNodeStringProvider {
-    CollectionWrapper<TranslatedCSNodeStringWrapper> getCSTranslatedNodeStringRevisions(int id, Integer revision);
+    CollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStringRevisions(int id, Integer revision);
 
-    TranslatedCSNodeStringWrapper newCSTranslatedNodeString();
-
-    TranslatedCSNodeStringWrapper newCSTranslatedNodeString(final TranslatedCSNodeWrapper parent);
-
-    UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection();
+    TranslatedCSNodeStringWrapper newTranslatedCSNodeString(final TranslatedCSNodeWrapper parent);
 
     UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection(final TranslatedCSNodeWrapper parent);
 }

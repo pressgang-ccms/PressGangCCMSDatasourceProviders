@@ -6,18 +6,18 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public interface TranslatedCSNodeProvider {
-    TranslatedCSNodeWrapper getCSTranslatedNode(int id);
+    TranslatedCSNodeWrapper getTranslatedCSNode(int id);
 
-    TranslatedCSNodeWrapper getCSTranslatedNode(int id, Integer revision);
+    TranslatedCSNodeWrapper getTranslatedCSNode(int id, Integer revision);
 
-    UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getCSTranslatedNodeStrings(int id, Integer revision);
+    UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStrings(int id, Integer revision);
 
-    CollectionWrapper<TranslatedCSNodeWrapper> getCSTranslatedNodeRevisions(int id, Integer revision);
+    CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedCSNodeRevisions(int id, Integer revision);
 
-    CollectionWrapper<TranslatedCSNodeWrapper> createCSTranslatedNodes(
-            CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes) throws Exception;
+    CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes) throws
+            Exception;
 
-    TranslatedCSNodeWrapper newCSTranslatedNode();
+    TranslatedCSNodeWrapper newTranslatedCSNode();
 
-    UpdateableCollectionWrapper<TranslatedCSNodeWrapper> newCSTranslatedNodeCollection();
+    UpdateableCollectionWrapper<TranslatedCSNodeWrapper> newTranslatedCSNodeCollection();
 }
