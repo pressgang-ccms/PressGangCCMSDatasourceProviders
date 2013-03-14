@@ -34,12 +34,12 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
     }
 
     @Override
-    public TranslatedCSNodeWrapper getCSTranslatedNode(int id) {
-        return getCSTranslatedNode(id, null);
+    public TranslatedCSNodeWrapper getTranslatedCSNode(int id) {
+        return getTranslatedCSNode(id, null);
     }
 
     @Override
-    public TranslatedCSNodeWrapper getCSTranslatedNode(int id, Integer revision) {
+    public TranslatedCSNodeWrapper getTranslatedCSNode(int id, Integer revision) {
         try {
             final RESTTranslatedCSNodeV1 node;
             if (entityCache.containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
@@ -61,11 +61,11 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
     }
 
     @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getCSTranslatedNodeStrings(int id, Integer revision) {
+    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStrings(int id, Integer revision) {
         throw new UnsupportedOperationException("A parent is needed to get Translated Node Strings using V1 of the REST Interface.");
     }
 
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getCSTranslatedNodeStrings(int id, Integer revision,
+    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStrings(int id, Integer revision,
             final RESTTranslatedCSNodeV1 parent) {
         try {
             RESTTranslatedCSNodeV1 node = null;
@@ -118,7 +118,7 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
     }
 
     @Override
-    public CollectionWrapper<TranslatedCSNodeWrapper> getCSTranslatedNodeRevisions(int id, Integer revision) {
+    public CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedCSNodeRevisions(int id, Integer revision) {
         try {
             RESTTranslatedCSNodeV1 contentSpec = null;
             // Check the cache first
@@ -164,8 +164,8 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
     }
 
     @Override
-    public CollectionWrapper<TranslatedCSNodeWrapper> createCSTranslatedNodes(
-            CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes) throws Exception {
+    public CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes)
+            throws Exception {
         final RESTTranslatedCSNodeCollectionV1 unwrappedNodes = ((RESTTranslatedCSNodeCollectionV1Wrapper) translatedNodes).unwrap();
 
         final ExpandDataTrunk expand = new ExpandDataTrunk();
@@ -185,12 +185,12 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
     }
 
     @Override
-    public TranslatedCSNodeWrapper newCSTranslatedNode() {
+    public TranslatedCSNodeWrapper newTranslatedCSNode() {
         return getWrapperFactory().create(new RESTTranslatedCSNodeV1(), false, TranslatedCSNodeWrapper.class);
     }
 
     @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> newCSTranslatedNodeCollection() {
+    public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> newTranslatedCSNodeCollection() {
         final CollectionWrapper<TranslatedCSNodeWrapper> collection = getWrapperFactory().createCollection(
                 new RESTTranslatedCSNodeCollectionV1(), RESTTranslatedCSNodeV1.class, false);
         return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) collection;

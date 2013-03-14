@@ -31,11 +31,11 @@ public class RESTTranslatedCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHan
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getTranslatedNodeStrings_OTM")) {
-                    final CollectionWrapper<TranslatedCSNodeStringWrapper> children = getProvider().getCSTranslatedNodeStrings(
+                    final CollectionWrapper<TranslatedCSNodeStringWrapper> children = getProvider().getTranslatedCSNodeStrings(
                             csNode.getId(), getEntityRevision(), getProxyEntity());
                     retValue = children == null ? null : children.unwrap();
                 } else if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<TranslatedCSNodeWrapper> revisions = getProvider().getCSTranslatedNodeRevisions(csNode.getId(),
+                    final CollectionWrapper<TranslatedCSNodeWrapper> revisions = getProvider().getTranslatedCSNodeRevisions(csNode.getId(),
                             getEntityRevision());
                     retValue = revisions == null ? null : revisions.unwrap();
                 }

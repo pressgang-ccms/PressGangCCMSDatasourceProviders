@@ -34,7 +34,7 @@ public class RESTTranslatedCSNodeStringV1ProxyHandler extends RESTBaseEntityV1Pr
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<TranslatedCSNodeStringWrapper> revisions = getProvider().getCSTranslatedNodeStringRevisions(
+                    final CollectionWrapper<TranslatedCSNodeStringWrapper> revisions = getProvider().getTranslatedCSNodeStringRevisions(
                             translatedTopicString.getId(), getEntityRevision(), parent);
                     retValue = revisions == null ? null : revisions.unwrap();
                 }

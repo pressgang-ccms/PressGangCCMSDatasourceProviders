@@ -6,10 +6,6 @@ import javassist.util.proxy.ProxyObject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTTranslatedTopicV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTTranslatedTopicStringCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
@@ -17,7 +13,12 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
+import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,22 +153,14 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
         return null;
     }
 
-    @Override
-    public TranslatedTopicStringWrapper newTranslatedTopicString() {
-        throw new UnsupportedOperationException("A parent is needed to get Translated Topic Strings using V1 of the REST Interface.");
+    public TranslatedTopicStringWrapper newTranslatedTopicString(final TranslatedTopicWrapper translatedTopic) {
+        return getWrapperFactory().create(new RESTTranslatedTopicStringV1(), false,
+                translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap());
     }
 
-    public TranslatedTopicStringWrapper newTranslatedTopicString(final RESTTranslatedTopicV1 translatedTopic) {
-        return getWrapperFactory().create(new RESTTranslatedTopicStringV1(), false, translatedTopic);
-    }
-
-    @Override
-    public CollectionWrapper<TranslatedTopicStringWrapper> newTranslatedTopicStringCollection() {
-        throw new UnsupportedOperationException("A parent is needed to get Translated Topic Strings using V1 of the REST Interface.");
-    }
-
-    public CollectionWrapper<TranslatedTopicStringWrapper> newTranslatedTopicStringCollection(final RESTTranslatedTopicV1 translatedTopic) {
+    public CollectionWrapper<TranslatedTopicStringWrapper> newTranslatedTopicStringCollection(
+            final TranslatedTopicWrapper translatedTopic) {
         return getWrapperFactory().createCollection(new RESTTranslatedTopicStringCollectionV1(), RESTTranslatedTopicStringV1.class, false,
-                translatedTopic);
+                translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap());
     }
 }

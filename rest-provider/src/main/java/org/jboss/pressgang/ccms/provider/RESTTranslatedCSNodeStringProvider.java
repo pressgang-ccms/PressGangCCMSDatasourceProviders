@@ -36,7 +36,7 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
         entityCache = restManager.getRESTEntityCache();
     }
 
-    public TranslatedCSNodeStringWrapper getCSTranslatedNodeString(int id, final Integer revision, final RESTTranslatedCSNodeV1 parent) {
+    public TranslatedCSNodeStringWrapper getTranslatedCSNodeString(int id, final Integer revision, final RESTTranslatedCSNodeV1 parent) {
         try {
             if (entityCache.containsKeyValue(RESTTranslatedCSNodeStringV1.class, id, revision)) {
                 return getWrapperFactory().create(entityCache.get(RESTTranslatedCSNodeStringV1.class, id, revision), revision != null,
@@ -58,17 +58,17 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
     }
 
     @Override
-    public CollectionWrapper<TranslatedCSNodeStringWrapper> getCSTranslatedNodeStringRevisions(int id, final Integer revision) {
+    public CollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStringRevisions(int id, final Integer revision) {
         throw new UnsupportedOperationException("A parent is needed to get Translated Topic Strings using V1 of the REST Interface.");
     }
 
-    public CollectionWrapper<TranslatedCSNodeStringWrapper> getCSTranslatedNodeStringRevisions(int id, final Integer revision,
+    public CollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStringRevisions(int id, final Integer revision,
             final RESTTranslatedCSNodeV1 parent) {
         final RESTTranslatedCSNodeV1ProxyHandler proxyHandler = (RESTTranslatedCSNodeV1ProxyHandler) ((ProxyObject) parent).getHandler();
         final Integer translatedTopicId = parent.getId();
         final Integer translatedTopicRevision = proxyHandler.getEntityRevision();
 
-        final RESTTranslatedCSNodeStringV1 translatedTopicString = (RESTTranslatedCSNodeStringV1) getCSTranslatedNodeString(id, revision,
+        final RESTTranslatedCSNodeStringV1 translatedTopicString = (RESTTranslatedCSNodeStringV1) getTranslatedCSNodeString(id, revision,
                 parent).unwrap();
         if (translatedTopicString.getRevisions() != null) {
             return getWrapperFactory().createCollection(translatedTopicString.getRevisions(), RESTTranslatedCSNodeStringV1.class,
@@ -155,19 +155,9 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
     }
 
     @Override
-    public TranslatedCSNodeStringWrapper newCSTranslatedNodeString() {
-        throw new UnsupportedOperationException("A parent is needed to get Translated Topic Strings using V1 of the REST Interface.");
-    }
-
-    @Override
-    public TranslatedCSNodeStringWrapper newCSTranslatedNodeString(final TranslatedCSNodeWrapper translatedNode) {
+    public TranslatedCSNodeStringWrapper newTranslatedCSNodeString(final TranslatedCSNodeWrapper translatedNode) {
         return getWrapperFactory().create(new RESTTranslatedCSNodeStringV1(), false,
                 translatedNode == null ? null : (RESTTranslatedCSNodeV1) translatedNode.unwrap());
-    }
-
-    @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection() {
-        throw new UnsupportedOperationException("A parent is needed to get Translated Topic Strings using V1 of the REST Interface.");
     }
 
     @Override
