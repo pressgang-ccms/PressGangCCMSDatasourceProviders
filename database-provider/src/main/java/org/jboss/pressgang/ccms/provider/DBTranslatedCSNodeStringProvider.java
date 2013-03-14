@@ -19,7 +19,7 @@ public class DBTranslatedCSNodeStringProvider extends DBDataProvider implements 
     }
 
     @Override
-    public CollectionWrapper<TranslatedCSNodeStringWrapper> getCSTranslatedNodeStringRevisions(int id, Integer revision) {
+    public CollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStringRevisions(int id, Integer revision) {
         final TranslatedCSNodeString translatedTopicString = new TranslatedCSNodeString();
         translatedTopicString.setTranslatedCSNodeStringId(id);
         final Map<Number, TranslatedCSNodeString> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(),
@@ -34,25 +34,15 @@ public class DBTranslatedCSNodeStringProvider extends DBDataProvider implements 
     }
 
     @Override
-    public TranslatedCSNodeStringWrapper newCSTranslatedNodeString() {
+    public TranslatedCSNodeStringWrapper newTranslatedCSNodeString(TranslatedCSNodeWrapper parent) {
         return getWrapperFactory().create(new TranslatedCSNodeString(), false);
     }
 
     @Override
-    public TranslatedCSNodeStringWrapper newCSTranslatedNodeString(TranslatedCSNodeWrapper parent) {
-        return newCSTranslatedNodeString();
-    }
-
-    @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection() {
+    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection(TranslatedCSNodeWrapper parent) {
         final CollectionWrapper<TranslatedCSNodeStringWrapper> collection = getWrapperFactory().createCollection(
                 new ArrayList<TranslatedCSNodeString>(), TranslatedCSNodeString.class, false);
 
         return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) collection;
-    }
-
-    @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection(TranslatedCSNodeWrapper parent) {
-        return newCSTranslatedNodeStringCollection();
     }
 }

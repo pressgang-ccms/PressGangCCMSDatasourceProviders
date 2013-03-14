@@ -9,6 +9,7 @@ import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
+import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class DBTranslatedTopicStringProvider extends DBDataProvider implements TranslatedTopicStringProvider {
@@ -32,12 +33,13 @@ public class DBTranslatedTopicStringProvider extends DBDataProvider implements T
     }
 
     @Override
-    public TranslatedTopicStringWrapper newTranslatedTopicString() {
+    public TranslatedTopicStringWrapper newTranslatedTopicString(final TranslatedTopicWrapper translatedTopic) {
         return getWrapperFactory().create(new TranslatedTopicString(), false);
     }
 
     @Override
-    public CollectionWrapper<TranslatedTopicStringWrapper> newTranslatedTopicStringCollection() {
+    public CollectionWrapper<TranslatedTopicStringWrapper> newTranslatedTopicStringCollection(
+            final TranslatedTopicWrapper translatedTopic) {
         return getWrapperFactory().createCollection(new ArrayList<TranslatedTopicString>(), TranslatedTopicString.class, false);
     }
 }

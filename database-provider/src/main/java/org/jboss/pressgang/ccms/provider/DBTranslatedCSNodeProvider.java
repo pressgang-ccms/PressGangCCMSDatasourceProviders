@@ -9,9 +9,9 @@ import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.DBTranslatedCSNodeWrapper;
+import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
@@ -21,15 +21,15 @@ public class DBTranslatedCSNodeProvider extends DBDataProvider implements Transl
     }
 
     @Override
-    public TranslatedCSNodeWrapper getCSTranslatedNode(int id) {
+    public TranslatedCSNodeWrapper getTranslatedCSNode(int id) {
         final TranslatedCSNode csNode = getEntityManager().find(TranslatedCSNode.class, id);
         return getWrapperFactory().create(csNode, false);
     }
 
     @Override
-    public TranslatedCSNodeWrapper getCSTranslatedNode(int id, Integer revision) {
+    public TranslatedCSNodeWrapper getTranslatedCSNode(int id, Integer revision) {
         if (revision == null) {
-            return getCSTranslatedNode(id);
+            return getTranslatedCSNode(id);
         } else {
             final TranslatedCSNode dummyTranslatedCSNode = new TranslatedCSNode();
             dummyTranslatedCSNode.setTranslatedCSNodeId(id);
@@ -39,8 +39,8 @@ public class DBTranslatedCSNodeProvider extends DBDataProvider implements Transl
     }
 
     @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getCSTranslatedNodeStrings(int id, Integer revision) {
-        final DBTranslatedCSNodeWrapper translatedNode = (DBTranslatedCSNodeWrapper) getCSTranslatedNode(id, revision);
+    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStrings(int id, Integer revision) {
+        final DBTranslatedCSNodeWrapper translatedNode = (DBTranslatedCSNodeWrapper) getTranslatedCSNode(id, revision);
         if (translatedNode == null) {
             return null;
         } else {
@@ -51,7 +51,7 @@ public class DBTranslatedCSNodeProvider extends DBDataProvider implements Transl
     }
 
     @Override
-    public CollectionWrapper<TranslatedCSNodeWrapper> getCSTranslatedNodeRevisions(int id, Integer revision) {
+    public CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedCSNodeRevisions(int id, Integer revision) {
         final TranslatedCSNode csNode = new TranslatedCSNode();
         csNode.setTranslatedCSNodeId(id);
         final Map<Number, TranslatedCSNode> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), csNode);
@@ -65,7 +65,7 @@ public class DBTranslatedCSNodeProvider extends DBDataProvider implements Transl
     }
 
     @Override
-    public CollectionWrapper<TranslatedCSNodeWrapper> createCSTranslatedNodes(
+    public CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(
             CollectionWrapper<TranslatedCSNodeWrapper> nodes) throws Exception {
         for (final TranslatedCSNodeWrapper topic : nodes.getItems()) {
             getEntityManager().persist(topic.unwrap());
@@ -78,12 +78,12 @@ public class DBTranslatedCSNodeProvider extends DBDataProvider implements Transl
     }
 
     @Override
-    public TranslatedCSNodeWrapper newCSTranslatedNode() {
+    public TranslatedCSNodeWrapper newTranslatedCSNode() {
         return getWrapperFactory().create(new TranslatedCSNode(), false, TranslatedCSNodeWrapper.class);
     }
 
     @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> newCSTranslatedNodeCollection() {
+    public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> newTranslatedCSNodeCollection() {
         final CollectionWrapper<TranslatedCSNodeWrapper> collection = getWrapperFactory().createCollection(
                 new ArrayList<TranslatedCSNode>(), TranslatedCSNode.class, false, TranslatedCSNodeWrapper.class);
         return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) collection;

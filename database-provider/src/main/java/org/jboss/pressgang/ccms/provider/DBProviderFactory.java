@@ -123,15 +123,21 @@ public class DBProviderFactory extends DataProviderFactory {
         providerMap.put(DBCSNodeProvider.class, csNodeProvider);
         providerMap.put(CSNodeProvider.class, csNodeProvider);
 
-        // Content Spec Translated Node Provider
-        final DBTranslatedCSNodeProvider csTranslatedNodeProvider = new DBTranslatedCSNodeProvider(getEntityManager(), getWrapperFactory());
-        providerMap.put(DBTranslatedCSNodeProvider.class, csTranslatedNodeProvider);
-        providerMap.put(TranslatedCSNodeProvider.class, csTranslatedNodeProvider);
-
-        // Content Spec Translated Node String Provider
-        final DBTranslatedCSNodeStringProvider csTranslatedNodeStringProvider = new DBTranslatedCSNodeStringProvider(getEntityManager(),
+        // Translated Content Spec Provider
+        final DBTranslatedContentSpecProvider translatedContentSpecProvider = new DBTranslatedContentSpecProvider(getEntityManager(),
                 getWrapperFactory());
-        providerMap.put(DBTranslatedCSNodeStringProvider.class, csTranslatedNodeStringProvider);
-        providerMap.put(TranslatedCSNodeStringProvider.class, csTranslatedNodeStringProvider);
+        providerMap.put(DBTranslatedContentSpecProvider.class, translatedContentSpecProvider);
+        providerMap.put(TranslatedContentSpecProvider.class, translatedContentSpecProvider);
+
+        // Translated Content Spec Node Provider
+        final DBTranslatedCSNodeProvider translatedCSNodeProvider = new DBTranslatedCSNodeProvider(getEntityManager(), getWrapperFactory());
+        providerMap.put(DBTranslatedCSNodeProvider.class, translatedCSNodeProvider);
+        providerMap.put(TranslatedCSNodeProvider.class, translatedCSNodeProvider);
+
+        // Translated Content Spec Node String Provider
+        final DBTranslatedCSNodeStringProvider translatedCSNodeStringProvider = new DBTranslatedCSNodeStringProvider(getEntityManager(),
+                getWrapperFactory());
+        providerMap.put(DBTranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
+        providerMap.put(TranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
     }
 }
