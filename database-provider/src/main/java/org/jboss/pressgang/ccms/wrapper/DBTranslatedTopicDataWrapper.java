@@ -299,18 +299,14 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
          * rules apply then link
          * to the standard topic.
          */
-        if (EntityUtilities.isDummyTopic(this)) {
-            return CommonConstants.SERVER_URL + "/TopicIndex/TranslatedTopic.seam?translatedTopicId=" + getTranslatedTopic()
-                    .getTranslatedTopicId() +
-                    "&amp;locale=" + getTranslatedTopicData().getTranslationLocale();
-        } else if (EntityUtilities.hasBeenPushedForTranslation(this)) {
-            return CommonConstants.SERVER_URL + "/TopicIndex/TranslatedTopic.seam?translatedTopicId=" + EntityUtilities
-                    .returnPushedTranslatedTopic(
-                    this) + "&amp;locale=" + this.getTopic().getLocale();
+        if (EntityUtilities.isDummyTopic(this) || EntityUtilities.hasBeenPushedForTranslation(this)) {
+            final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
+            return (serverUrl.endsWith(
+                    "/") ? serverUrl : (serverUrl + "/")) + "#TranslatedTopicResultsAndTranslatedTopicView;query;zanataIds=" +
+                    getZanataId();
         } else {
-            return CommonConstants.SERVER_URL + "/TopicIndex/Topic.seam?topicTopicId=" + getTopicId() + (getTopicRevision() != null ?
-                    ("&amp;" +
-                    "topicRevision=" + getTopicRevision()) : "");
+            final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
+            return (serverUrl.endsWith("/") ? serverUrl : (serverUrl + "/")) + "#SearchResultsAndTopicView;query;topicIds=" + getTopicId();
         }
     }
 
@@ -391,7 +387,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     }
 
     @Override
-    public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedStrings() {
+    public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
         return getWrapperFactory().createCollection(getTranslatedTopicData().getTranslatedTopicDataStringsArray(),
                 TranslatedTopicString.class, isRevisionEntity());
     }

@@ -281,13 +281,13 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
 
     @Override
     public String getPressGangURL() {
-        return CommonConstants.SERVER_URL + "/TopicIndex/Topic.seam?topicTopicId=" + getId() + (getRevision() != null ? ("&amp;" +
-                "topicRevision=" + getRevision()) : "");
+        final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
+        return (serverUrl.endsWith("/") ? serverUrl : (serverUrl + "/")) + "#SearchResultsAndTopicView;query;topicIds=" + getId();
     }
 
     @Override
     public String getEditorURL() {
-        return CommonConstants.SERVER_URL + "/TopicIndex/TopicEdit.seam?topicTopicId=" + getId();
+        return getPressGangURL();
     }
 
     @Override
