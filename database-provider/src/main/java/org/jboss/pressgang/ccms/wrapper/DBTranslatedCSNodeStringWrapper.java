@@ -46,16 +46,6 @@ public class DBTranslatedCSNodeStringWrapper extends DBBaseWrapper<TranslatedCSN
     }
 
     @Override
-    public String getOriginalString() {
-        return getCSTranslatedNodeString().getOriginalString();
-    }
-
-    @Override
-    public void setOriginalString(String originalString) {
-        getCSTranslatedNodeString().setOriginalString(originalString);
-    }
-
-    @Override
     public String getTranslatedString() {
         return getCSTranslatedNodeString().getTranslatedString();
     }

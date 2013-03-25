@@ -11,7 +11,6 @@ import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopic;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
-import org.jboss.pressgang.ccms.model.exceptions.CustomConstraintViolationException;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
@@ -142,18 +141,14 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
          */
         //final List<TagWrapper> updateTags = tags.getUpdateItems();
 
-        // Add Tags
-        for (final TagWrapper addTag : addTags) {
-            try {
-                getEnversTopic().addTag((Tag) addTag.unwrap());
-            } catch (CustomConstraintViolationException e) {
-                // TODO
-            }
-        }
-
         // Remove Tags
         for (final TagWrapper removeTag : removeTags) {
             getEnversTopic().removeTag((Tag) removeTag.unwrap());
+        }
+
+        // Add Tags
+        for (final TagWrapper addTag : addTags) {
+            getEnversTopic().addTag((Tag) addTag.unwrap());
         }
     }
 
@@ -387,9 +382,33 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     }
 
     @Override
-    public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
-        return getWrapperFactory().createCollection(getTranslatedTopicData().getTranslatedTopicDataStringsArray(),
-                TranslatedTopicString.class, isRevisionEntity());
+    public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
+        final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
+                getTranslatedTopicData().getTranslatedTopicDataStringsArray(), TranslatedTopicString.class, isRevisionEntity());
+        return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) collection;
+    }
+
+    @Override
+    public void setTranslatedTopicStrings(UpdateableCollectionWrapper<TranslatedTopicStringWrapper> translatedStrings) {
+        if (translatedStrings == null) return;
+
+        final List<TranslatedTopicStringWrapper> addTranslatedStrings = translatedStrings.getAddItems();
+        final List<TranslatedTopicStringWrapper> removeTranslatedStrings = translatedStrings.getRemoveItems();
+        /*
+         * There is no need to do update properties as when the original entities are altered they will automatically be updated when using
+         * database entities.
+         */
+        //final List<TranslatedTopicStringWrapper> updateTranslatedStrings = translatedStrings.getUpdateItems();
+
+        // Add Translated Strings
+        for (final TranslatedTopicStringWrapper addTranslatedString : addTranslatedStrings) {
+            getTranslatedTopicData().addTranslatedTopicString((TranslatedTopicString) addTranslatedString.unwrap());
+        }
+
+        // Remove Translated Strings
+        for (final TranslatedTopicStringWrapper removeTranslatedString : removeTranslatedStrings) {
+            getTranslatedTopicData().removeTranslatedTopicString((TranslatedTopicString) removeTranslatedString.unwrap());
+        }
     }
 
     @Override

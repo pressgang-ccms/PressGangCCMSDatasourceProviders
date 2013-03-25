@@ -51,13 +51,28 @@ public class DBTranslatedTopicStringWrapper extends DBBaseWrapper<TranslatedTopi
     }
 
     @Override
+    public void setOriginalString(String originalString) {
+        getTranslatedTopicString().setOriginalString(originalString);
+    }
+
+    @Override
     public String getTranslatedString() {
         return getTranslatedTopicString().getTranslatedString();
     }
 
     @Override
+    public void setTranslatedString(String translatedString) {
+        getTranslatedTopicString().setTranslatedString(translatedString);
+    }
+
+    @Override
     public Boolean isFuzzy() {
         return getTranslatedTopicString().getFuzzyTranslation();
+    }
+
+    @Override
+    public void setFuzzy(Boolean fuzzy) {
+        getTranslatedTopicString().setFuzzyTranslation(fuzzy);
     }
 
 }

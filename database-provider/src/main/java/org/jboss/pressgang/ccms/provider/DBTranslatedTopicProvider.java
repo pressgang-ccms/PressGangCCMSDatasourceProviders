@@ -1,16 +1,27 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.pressgang.ccms.filter.TopicFieldFilter;
+import org.jboss.pressgang.ccms.filter.builder.TranslatedTopicDataFilterQueryBuilder;
+import org.jboss.pressgang.ccms.filter.utils.EntityUtilities;
+import org.jboss.pressgang.ccms.filter.utils.FilterUtilities;
+import org.jboss.pressgang.ccms.model.Filter;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
+import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTranslatedTopicDataWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
@@ -125,6 +136,35 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
         }
 
         return getWrapperFactory().createCollection(revisions, TranslatedTopicData.class, revision != null);
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicsWithQuery(String query) {
+        final String fixedQuery = query.replace("query;", "");
+        final String[] queryValues = fixedQuery.split(";");
+        final Map<String, String> queryParameters = new HashMap<String, String>();
+        for (final String value : queryValues) {
+            if (value.trim().isEmpty()) continue;
+            String[] keyValue = value.split("=", 2);
+            try {
+                queryParameters.put(keyValue[0], URLDecoder.decode(keyValue[1], "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                // Should support UTF-8, if not throw a runtime error.
+                throw new RuntimeException(e);
+            }
+        }
+
+        final Filter filter = EntityUtilities.populateFilter(getEntityManager(), queryParameters, CommonFilterConstants.FILTER_ID,
+                CommonFilterConstants.MATCH_TAG, CommonFilterConstants.GROUP_TAG, CommonFilterConstants.CATEORY_INTERNAL_LOGIC,
+                CommonFilterConstants.CATEORY_EXTERNAL_LOGIC, CommonFilterConstants.MATCH_LOCALE, new TopicFieldFilter());
+
+        final TranslatedTopicDataFilterQueryBuilder queryBuilder = new TranslatedTopicDataFilterQueryBuilder(getEntityManager());
+        final CriteriaQuery<TranslatedTopicData> criteriaQuery = FilterUtilities.buildQuery(filter, queryBuilder);
+
+        final TypedQuery<TranslatedTopicData> typedQuery = getEntityManager().createQuery(criteriaQuery);
+        final List<TranslatedTopicData> translatedTopics = typedQuery.getResultList();
+
+        return getWrapperFactory().createCollection(translatedTopics, TranslatedTopicData.class, false);
     }
 
     @Override

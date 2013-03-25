@@ -9,7 +9,6 @@ import org.jboss.pressgang.ccms.model.Topic;
 import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopic;
-import org.jboss.pressgang.ccms.model.exceptions.CustomConstraintViolationException;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
@@ -128,18 +127,14 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
          */
         //final List<TagWrapper> updateTags = tags.getUpdateItems();
 
-        // Add Tags
-        for (final TagWrapper addTag : addTags) {
-            try {
-                getTopic().addTag((Tag) addTag.unwrap());
-            } catch (CustomConstraintViolationException e) {
-                // TODO
-            }
-        }
-
         // Remove Tags
         for (final TagWrapper removeTag : removeTags) {
             getTopic().removeTag((Tag) removeTag.unwrap());
+        }
+
+        // Add Tags
+        for (final TagWrapper addTag : addTags) {
+            getTopic().addTag((Tag) addTag.unwrap());
         }
     }
 

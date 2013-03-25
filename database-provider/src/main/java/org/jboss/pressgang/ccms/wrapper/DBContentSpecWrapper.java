@@ -8,7 +8,6 @@ import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedContentSpec;
-import org.jboss.pressgang.ccms.model.exceptions.CustomConstraintViolationException;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -43,18 +42,14 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper> impl
          */
         //final List<TagWrapper> updateTags = tags.getUpdateItems();
 
-        // Add Tags
-        for (final TagWrapper addTag : addTags) {
-            try {
-                getContentSpec().addTag((Tag) addTag.unwrap());
-            } catch (CustomConstraintViolationException e) {
-                // TODO
-            }
-        }
-
         // Remove Tags
         for (final TagWrapper removeTag : removeTags) {
             getContentSpec().removeTag((Tag) removeTag.unwrap());
+        }
+
+        // Add Tags
+        for (final TagWrapper addTag : addTags) {
+            getContentSpec().addTag((Tag) addTag.unwrap());
         }
     }
 

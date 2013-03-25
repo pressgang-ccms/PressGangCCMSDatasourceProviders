@@ -73,6 +73,16 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
     }
 
     @Override
+    public String getOriginalString() {
+        return getCSTranslatedNode().getOriginalString();
+    }
+
+    @Override
+    public void setOriginalString(String originalString) {
+        getCSTranslatedNode().setOriginalString(originalString);
+    }
+
+    @Override
     public String getZanataId() {
         return "CS" + getCSTranslatedNode().getCSNodeId() + "-" + getCSTranslatedNode().getCSNodeRevision();
     }
