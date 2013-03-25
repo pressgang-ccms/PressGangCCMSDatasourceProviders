@@ -12,6 +12,10 @@ public interface TranslatedCSNodeWrapper extends EntityWrapper<TranslatedCSNodeW
 
     void setNodeRevision(Integer revision);
 
+    String getOriginalString();
+
+    void setOriginalString(String originalString);
+
     String getZanataId();
 
     UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedStrings();

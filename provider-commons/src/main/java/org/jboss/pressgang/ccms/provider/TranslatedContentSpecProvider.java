@@ -14,6 +14,8 @@ public interface TranslatedContentSpecProvider {
 
     CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecRevisions(int id, Integer revision);
 
+    CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecsWithQuery(String query);
+
     TranslatedContentSpecWrapper createTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) throws Exception;
 
     TranslatedContentSpecWrapper updateTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) throws Exception;

@@ -3,7 +3,7 @@ package org.jboss.pressgang.ccms.wrapper;
 import java.util.Date;
 
 import org.jboss.pressgang.ccms.wrapper.base.BaseTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public interface TranslatedTopicWrapper extends BaseTopicWrapper<TranslatedTopicWrapper> {
     void setTopicId(Integer id);
@@ -26,7 +26,9 @@ public interface TranslatedTopicWrapper extends BaseTopicWrapper<TranslatedTopic
 
     void setHtmlUpdated(Date htmlUpdated);
 
-    CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedStrings();
+    UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings();
+
+    void setTranslatedTopicStrings(UpdateableCollectionWrapper<TranslatedTopicStringWrapper> translatedStrings);
 
     TopicWrapper getTopic();
 

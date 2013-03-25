@@ -29,6 +29,8 @@ public interface TranslatedTopicProvider {
 
     CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicRevisions(int id, Integer revision);
 
+    CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicsWithQuery(String query);
+
     TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic) throws Exception;
 
     CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(
