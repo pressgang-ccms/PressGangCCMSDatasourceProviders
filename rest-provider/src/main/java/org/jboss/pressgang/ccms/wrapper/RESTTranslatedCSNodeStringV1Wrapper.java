@@ -33,17 +33,6 @@ public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseWrapper<Transla
     }
 
     @Override
-    public String getOriginalString() {
-        return getProxyEntity().getOriginalString();
-    }
-
-    @Override
-    public void setOriginalString(String originalString) {
-        getEntity().explicitSetOriginalString(originalString);
-
-    }
-
-    @Override
     public String getTranslatedString() {
         return getProxyEntity().getTranslatedString();
     }

@@ -11,13 +11,14 @@ import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
-import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTTranslatedContentSpecV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedContentSpecCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,6 +157,31 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Translated Content Spec " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+        }
+        return null;
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecsWithQuery(String query) {
+        if (query == null || query.isEmpty()) return null;
+
+        try {
+            /* We need to expand the all the items in the topic collection */
+            final ExpandDataTrunk expand = new ExpandDataTrunk();
+            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(
+                    new ExpandDataDetails(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME));
+
+            expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
+
+            final String expandString = mapper.writeValueAsString(expand);
+
+            final RESTTranslatedContentSpecCollectionV1 contentSpecs = client.getJSONTranslatedContentSpecsWithQuery(
+                    new PathSegmentImpl(query, false), expandString);
+            entityCache.add(contentSpecs);
+
+            return getWrapperFactory().createCollection(contentSpecs, RESTTranslatedContentSpecV1.class, false);
+        } catch (Exception e) {
+            log.error("Failed to retrieve Translated Content Specs with a query", e);
         }
         return null;
     }

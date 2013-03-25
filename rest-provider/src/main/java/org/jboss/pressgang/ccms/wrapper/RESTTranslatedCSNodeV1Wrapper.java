@@ -54,6 +54,16 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSN
     }
 
     @Override
+    public String getOriginalString() {
+        return getProxyEntity().getOriginalString();
+    }
+
+    @Override
+    public void setOriginalString(String originalString) {
+        getEntity().explicitSetOriginalString(originalString);
+    }
+
+    @Override
     public String getZanataId() {
         return "CS" + getNodeId() + "-" + getNodeRevision();
     }

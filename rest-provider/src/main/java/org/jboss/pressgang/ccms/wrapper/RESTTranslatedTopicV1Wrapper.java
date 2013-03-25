@@ -7,6 +7,7 @@ import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
@@ -162,7 +163,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public String getPressGangURL() {
-        return ComponentTranslatedTopicV1.returnSkynetURL(getProxyEntity());
+        return ComponentTranslatedTopicV1.returnPressGangCCMSURL(getProxyEntity());
     }
 
     @Override
@@ -196,9 +197,16 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
     }
 
     @Override
-    public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedStrings() {
-        return getWrapperFactory().createCollection(getProxyEntity().getTranslatedTopicStrings_OTM(), RESTTranslatedTopicStringV1.class,
-                isRevisionEntity(), getProxyEntity());
+    public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
+        final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
+                getProxyEntity().getTranslatedTopicStrings_OTM(), RESTTranslatedTopicStringV1.class, isRevisionEntity(), getProxyEntity());
+        return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) collection;
+    }
+
+    @Override
+    public void setTranslatedTopicStrings(UpdateableCollectionWrapper<TranslatedTopicStringWrapper> translatedStrings) {
+        getProxyEntity().explicitSetTranslatedTopicString_OTM(
+                translatedStrings == null ? null : (RESTTranslatedTopicStringCollectionV1) translatedStrings.unwrap());
     }
 
     @Override

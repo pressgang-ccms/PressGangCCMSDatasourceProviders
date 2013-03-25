@@ -5,17 +5,6 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTTranslatedTopicV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.TagWrapper;
-import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
-import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
-import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedTopicCollectionV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
@@ -28,7 +17,18 @@ import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTTranslatedTopicV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.TagWrapper;
+import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
+import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
+import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedTopicCollectionV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -418,6 +418,30 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             return getWrapperFactory().createCollection(translatedTopic.getRevisions(), RESTTranslatedTopicV1.class, true);
         } catch (Exception e) {
             log.error("", e);
+        }
+        return null;
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicsWithQuery(String query) {
+        if (query == null || query.isEmpty()) return null;
+
+        try {
+            /* We need to expand the all the items in the topic collection */
+            final ExpandDataTrunk expand = new ExpandDataTrunk();
+            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME));
+
+            expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
+
+            final String expandString = mapper.writeValueAsString(expand);
+
+            final RESTTranslatedTopicCollectionV1 topics = client.getJSONTranslatedTopicsWithQuery(new PathSegmentImpl(query, false),
+                    expandString);
+            entityCache.add(topics);
+
+            return getWrapperFactory().createCollection(topics, RESTTranslatedTopicV1.class, false);
+        } catch (Exception e) {
+            log.error("Failed to retrieve Translated Topics with a query", e);
         }
         return null;
     }

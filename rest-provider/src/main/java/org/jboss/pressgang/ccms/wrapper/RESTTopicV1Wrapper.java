@@ -103,7 +103,7 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
 
     @Override
     public String getPressGangURL() {
-        return ComponentTopicV1.returnSkynetURL(getProxyEntity());
+        return ComponentTopicV1.returnPressGangCCMSURL(getProxyEntity());
     }
 
     @Override

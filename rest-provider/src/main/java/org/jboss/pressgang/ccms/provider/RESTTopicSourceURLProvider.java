@@ -7,23 +7,21 @@ import javassist.util.proxy.ProxyObject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
-import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTTopicSourceUrlCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.exceptions.InternalProcessingException;
-import org.jboss.pressgang.ccms.rest.v1.exceptions.InvalidParameterException;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
+import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +74,7 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
 
                 return getWrapperFactory().createCollection(sourceUrlRevisions, RESTTopicSourceUrlV1.class, true, topic);
             } catch (Exception e) {
-                log.error("", e);
+                log.error("Unable to retrieve Topic Source URLs", e);
             }
         }
 
@@ -90,7 +88,7 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
 
     @SuppressWarnings("unchecked")
     protected RESTTopicSourceUrlCollectionV1 getTopicSourceUrlRevisions(int id, final Integer revision,
-            final RESTBaseTopicV1<?, ?, ?> parent) throws IOException, InvalidParameterException, InternalProcessingException {
+            final RESTBaseTopicV1<?, ?, ?> parent) throws IOException {
         final Integer topicId = parent.getId();
         final Integer topicRevision = ((RESTBaseEntityV1ProxyHandler<RESTTopicV1>) ((ProxyObject) parent).getHandler()).getEntityRevision();
 
@@ -161,7 +159,7 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
 
     @SuppressWarnings("unchecked")
     protected RESTTopicSourceUrlCollectionV1 getTranslatedTopicSourceUrlRevisions(int id, final Integer revision,
-            final RESTBaseTopicV1<?, ?, ?> parent) throws IOException, InvalidParameterException, InternalProcessingException {
+            final RESTBaseTopicV1<?, ?, ?> parent) throws IOException {
         final Integer topicId = parent.getId();
         final Integer topicRevision = ((RESTBaseEntityV1ProxyHandler<RESTTranslatedTopicV1>) ((ProxyObject) parent).getHandler())
                 .getEntityRevision();

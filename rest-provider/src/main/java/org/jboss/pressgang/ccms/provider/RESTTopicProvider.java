@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
+import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTTopicV1Wrapper;
@@ -143,7 +144,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
                 // We need to expand the topic collection
                 final ExpandDataTrunk expand = new ExpandDataTrunk();
-                final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails("topics"));
+                final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.TOPICS_EXPANSION_NAME));
                 expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
                 final String expandString = mapper.writeValueAsString(expand);
 
@@ -174,7 +175,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         try {
             /* We need to expand the all the items in the topic collection */
             final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails("topics"));
+            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.TOPICS_EXPANSION_NAME));
 
             expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
 

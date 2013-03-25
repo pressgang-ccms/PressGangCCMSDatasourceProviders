@@ -39,12 +39,27 @@ public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseWrapper<Translat
     }
 
     @Override
+    public void setOriginalString(String originalString) {
+        getEntity().explicitSetOriginalString(originalString);
+    }
+
+    @Override
     public String getTranslatedString() {
         return getProxyEntity().getTranslatedString();
     }
 
     @Override
+    public void setTranslatedString(String translatedString) {
+        getEntity().explicitSetTranslatedString(translatedString);
+    }
+
+    @Override
     public Boolean isFuzzy() {
         return getProxyEntity().getFuzzyTranslation();
+    }
+
+    @Override
+    public void setFuzzy(Boolean fuzzy) {
+        getEntity().explicitSetFuzzyTranslation(fuzzy);
     }
 }
