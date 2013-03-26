@@ -145,23 +145,23 @@ public class RESTProviderFactory extends DataProviderFactory {
         providerMap.put(RESTCSRelatedNodeProvider.class, csRelatedNodeProvider);
         providerMap.put(CSRelatedNodeProvider.class, csRelatedNodeProvider);
 
-        // Translated Content Spec Node Provider
-        final RESTTranslatedContentSpecProvider translatedContentSpecNodeProvider = new RESTTranslatedContentSpecProvider(getRESTManager(),
+        // Translated Content Spec Provider
+        final RESTTranslatedContentSpecProvider translatedContentSpecProvider = new RESTTranslatedContentSpecProvider(getRESTManager(),
                 getWrapperFactory());
-        providerMap.put(RESTTranslatedContentSpecProvider.class, translatedContentSpecNodeProvider);
-        providerMap.put(TranslatedContentSpecProvider.class, translatedContentSpecNodeProvider);
+        providerMap.put(RESTTranslatedContentSpecProvider.class, translatedContentSpecProvider);
+        providerMap.put(TranslatedContentSpecProvider.class, translatedContentSpecProvider);
 
         // Translated Content Spec Node Provider
-        final RESTTranslatedCSNodeProvider csTranslatedNodeProvider = new RESTTranslatedCSNodeProvider(getRESTManager(),
+        final RESTTranslatedCSNodeProvider translatedCSNodeProvider = new RESTTranslatedCSNodeProvider(getRESTManager(),
                 getWrapperFactory());
-        providerMap.put(RESTTranslatedCSNodeProvider.class, csTranslatedNodeProvider);
-        providerMap.put(TranslatedCSNodeProvider.class, csTranslatedNodeProvider);
+        providerMap.put(RESTTranslatedCSNodeProvider.class, translatedCSNodeProvider);
+        providerMap.put(TranslatedCSNodeProvider.class, translatedCSNodeProvider);
 
         // Translated Content Spec Node String Provider
-        final RESTTranslatedCSNodeStringProvider csTranslatedNodeStringProvider = new RESTTranslatedCSNodeStringProvider(getRESTManager(),
+        final RESTTranslatedCSNodeStringProvider translatedCSNodeStringProvider = new RESTTranslatedCSNodeStringProvider(getRESTManager(),
                 getWrapperFactory());
-        providerMap.put(RESTTranslatedCSNodeStringProvider.class, csTranslatedNodeStringProvider);
-        providerMap.put(TranslatedCSNodeStringProvider.class, csTranslatedNodeStringProvider);
+        providerMap.put(RESTTranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
+        providerMap.put(TranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
     }
 
     /**
@@ -218,6 +218,6 @@ public class RESTProviderFactory extends DataProviderFactory {
 
     @Override
     public void rollback() {
-        return;
+        throw new UnsupportedOperationException("Rollback isn't supported using the REST API.");
     }
 }

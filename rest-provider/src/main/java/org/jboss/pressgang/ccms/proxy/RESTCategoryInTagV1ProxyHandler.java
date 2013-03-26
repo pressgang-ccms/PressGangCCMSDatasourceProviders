@@ -4,22 +4,14 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTCategoryInTagProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
-import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTCategoryInTagV1ProxyHandler<T extends RESTBaseCategoryV1<T, ?, ?>> extends RESTBaseEntityV1ProxyHandler<T> {
-    private final RESTBaseTagV1<?, ?, ?> parent;
 
     public RESTCategoryInTagV1ProxyHandler(RESTProviderFactory providerFactory, T entity, boolean isRevisionEntity,
             final RESTBaseTagV1<?, ?, ?> parent) {
-        super(providerFactory, entity, isRevisionEntity);
-        this.parent = parent;
+        super(providerFactory, entity, isRevisionEntity, parent);
     }
 
     public RESTCategoryInTagProvider getProvider() {
@@ -36,25 +28,21 @@ public class RESTCategoryInTagV1ProxyHandler<T extends RESTBaseCategoryV1<T, ?, 
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getTags")) {
-                    final UpdateableCollectionWrapper<TagInCategoryWrapper> tags = getProvider().getCategoryTags(category.getId(),
-                            getEntityRevision());
-                    retValue = tags == null ? null : tags.unwrap();
+                    retValue = getProvider().getRESTCategoryTags(category.getId(), getEntityRevision());
                 } else if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<CategoryInTagWrapper> revisions = getProvider().getCategoryInTagRevisions(category.getId(),
-                            getEntityRevision(), parent);
-                    retValue = revisions == null ? null : revisions.unwrap();
+                    retValue = getProvider().getRESTCategoryInTagRevisions(category.getId(), getEntityRevision(), getParent());
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
-                return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue, getEntityRevision() != null,
-                        parent);
-            } else {
-                return retValue;
-            }
+            return checkAndProxyReturnValue(retValue);
         }
 
         return super.invoke(proxy, thisMethod, proceed, args);
+    }
+
+    @Override
+    protected RESTBaseTagV1<?, ?, ?> getParent() {
+        return (RESTBaseTagV1<?, ?, ?>) super.getParent();
     }
 }

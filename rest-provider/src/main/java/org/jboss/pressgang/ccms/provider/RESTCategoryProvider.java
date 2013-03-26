@@ -2,18 +2,20 @@ package org.jboss.pressgang.ccms.provider;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTCategoryCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +32,16 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
         entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTCategoryV1 getRESTCategory(int id) {
+        return getRESTCategory(id, null);
+    }
+
     @Override
     public CategoryWrapper getCategory(int id) {
         return getCategory(id, null);
     }
 
-    @Override
-    public CategoryWrapper getCategory(int id, final Integer revision) {
+    public RESTCategoryV1 getRESTCategory(int id, final Integer revision) {
         try {
             final RESTCategoryV1 category;
             if (entityCache.containsKeyValue(RESTCategoryV1.class, id, revision)) {
@@ -50,7 +55,7 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
                     entityCache.add(category, revision);
                 }
             }
-            return getWrapperFactory().create(category, revision != null);
+            return category;
         } catch (Exception e) {
             log.error("Failed to retrieve Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -58,7 +63,11 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
     }
 
     @Override
-    public UpdateableCollectionWrapper<TagInCategoryWrapper> getCategoryTags(int id, final Integer revision) {
+    public CategoryWrapper getCategory(int id, final Integer revision) {
+        return getWrapperFactory().create(getRESTCategory(id, revision), revision != null);
+    }
+
+    public RESTTagInCategoryCollectionV1 getRESTCategoryTags(int id, final Integer revision) {
         try {
             RESTCategoryV1 category = null;
             // Check the cache first
@@ -66,9 +75,7 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
                 category = entityCache.get(RESTCategoryV1.class, id, revision);
 
                 if (category.getTags() != null) {
-                    final CollectionWrapper<TagInCategoryWrapper> collection = getWrapperFactory().createCollection(category.getTags(),
-                            RESTTagInCategoryV1.class, revision != null, TagInCategoryWrapper.class);
-                    return (UpdateableCollectionWrapper<TagInCategoryWrapper>) collection;
+                    return category.getTags();
                 }
             }
 
@@ -97,9 +104,7 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
                 category.setTags(tempCategory.getTags());
             }
 
-            final CollectionWrapper<TagInCategoryWrapper> collection = getWrapperFactory().createCollection(category.getTags(),
-                    RESTTagInCategoryV1.class, revision != null, TagInCategoryWrapper.class);
-            return (UpdateableCollectionWrapper<TagInCategoryWrapper>) collection;
+            return category.getTags();
         } catch (Exception e) {
             log.error("Failed to retrieve the Tags for Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -107,7 +112,13 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
     }
 
     @Override
-    public CollectionWrapper<CategoryWrapper> getCategoryRevisions(int id, final Integer revision) {
+    public UpdateableCollectionWrapper<TagInCategoryWrapper> getCategoryTags(int id, final Integer revision) {
+        final CollectionWrapper<TagInCategoryWrapper> collection = getWrapperFactory().createCollection(getRESTCategoryTags(id, revision),
+                RESTTagInCategoryV1.class, revision != null, TagInCategoryWrapper.class);
+        return (UpdateableCollectionWrapper<TagInCategoryWrapper>) collection;
+    }
+
+    public RESTCategoryCollectionV1 getRESTCategoryRevisions(int id, final Integer revision) {
         try {
             RESTCategoryV1 category = null;
             // Check the cache first
@@ -115,7 +126,7 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
                 category = entityCache.get(RESTCategoryV1.class, id, revision);
 
                 if (category.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(category.getRevisions(), RESTCategoryV1.class, true);
+                    return category.getRevisions();
                 }
             }
 
@@ -144,10 +155,15 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
                 category.setRevisions(tempCategory.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(category.getRevisions(), RESTCategoryV1.class, true);
+            return category.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<CategoryWrapper> getCategoryRevisions(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTCategoryRevisions(id, revision), RESTCategoryV1.class, true);
     }
 }

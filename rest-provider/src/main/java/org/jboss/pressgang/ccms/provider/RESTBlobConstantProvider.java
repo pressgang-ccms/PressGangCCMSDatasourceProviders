@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.provider;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTBlobConstantCollectionV1;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.wrapper.BlobConstantWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
@@ -27,13 +28,16 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
         entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTBlobConstantV1 getRESTBlobConstant(int id) {
+        return getRESTBlobConstant(id, null);
+    }
+
     @Override
     public BlobConstantWrapper getBlobConstant(int id) {
         return getBlobConstant(id, null);
     }
 
-    @Override
-    public BlobConstantWrapper getBlobConstant(int id, Integer revision) {
+    public RESTBlobConstantV1 getRESTBlobConstant(int id, Integer revision) {
         try {
             final RESTBlobConstantV1 blobConstant;
             if (entityCache.containsKeyValue(RESTBlobConstantV1.class, id, revision)) {
@@ -47,11 +51,16 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
                     entityCache.add(blobConstant, revision);
                 }
             }
-            return getWrapperFactory().create(blobConstant, revision != null);
+            return blobConstant;
         } catch (Exception e) {
             log.error("Failed to retrieve Blob Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
+    }
+
+    @Override
+    public BlobConstantWrapper getBlobConstant(int id, Integer revision) {
+        return getWrapperFactory().create(getRESTBlobConstant(id, revision), revision != null);
     }
 
     public byte[] getBlobConstantValue(int id, Integer revision) {
@@ -96,8 +105,7 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
         return null;
     }
 
-    @Override
-    public CollectionWrapper<BlobConstantWrapper> getBlobConstantRevisions(int id, Integer revision) {
+    public RESTBlobConstantCollectionV1 getRESTBlobConstantRevisions(int id, Integer revision) {
         try {
             RESTBlobConstantV1 blobConstant = null;
             // Check the cache first
@@ -105,7 +113,7 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
                 blobConstant = entityCache.get(RESTBlobConstantV1.class, id, revision);
 
                 if (blobConstant.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(blobConstant.getRevisions(), RESTBlobConstantV1.class, true);
+                    return blobConstant.getRevisions();
                 }
             }
             // We need to expand the revisions in the blob constant collection
@@ -133,10 +141,15 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
                 blobConstant.setRevisions(tempBlobConstant.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(blobConstant.getRevisions(), RESTBlobConstantV1.class, true);
+            return blobConstant.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Blob Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<BlobConstantWrapper> getBlobConstantRevisions(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTBlobConstantRevisions(id, revision), RESTBlobConstantV1.class, true);
     }
 }

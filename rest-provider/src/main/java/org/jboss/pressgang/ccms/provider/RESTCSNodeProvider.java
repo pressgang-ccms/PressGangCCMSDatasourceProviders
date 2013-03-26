@@ -6,14 +6,6 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTCSNodeV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCSNodeCollectionV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
@@ -24,7 +16,15 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedN
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
+import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTCSNodeV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCSNodeCollectionV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +42,16 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTCSNodeV1 getRESTCSNode(int id) {
+        return getRESTCSNode(id, null);
+    }
+
     @Override
     public CSNodeWrapper getCSNode(int id) {
         return getCSNode(id, null);
     }
 
-    @Override
-    public CSNodeWrapper getCSNode(int id, Integer revision) {
+    public RESTCSNodeV1 getRESTCSNode(int id, Integer revision) {
         try {
             final RESTCSNodeV1 node;
             if (entityCache.containsKeyValue(RESTCSNodeV1.class, id, revision)) {
@@ -62,7 +65,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                     entityCache.add(node, revision);
                 }
             }
-            return getWrapperFactory().create(node, revision != null);
+            return node;
         } catch (Exception e) {
             log.error("Failed to retrieve Content Spec Node " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -70,7 +73,11 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     }
 
     @Override
-    public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedToNodes(int id, Integer revision) {
+    public CSNodeWrapper getCSNode(int id, Integer revision) {
+        return getWrapperFactory().create(getRESTCSNode(id, revision), revision != null);
+    }
+
+    public RESTCSRelatedNodeCollectionV1 getRESTCSRelatedToNodes(int id, Integer revision) {
         try {
             RESTCSNodeV1 csNode = null;
             // Check the cache first
@@ -78,7 +85,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                 csNode = (RESTCSNodeV1) entityCache.get(RESTCSNodeV1.class, id, revision);
 
                 if (csNode.getRelatedToNodes() != null) {
-                    return getWrapperFactory().createCollection(csNode.getRelatedToNodes(), RESTCSRelatedNodeV1.class, revision != null);
+                    return csNode.getRelatedToNodes();
                 }
             }
 
@@ -107,7 +114,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                 csNode.setRelatedToNodes(tempNode.getRelatedToNodes());
             }
 
-            return getWrapperFactory().createCollection(csNode.getRelatedToNodes(), RESTCSRelatedNodeV1.class, revision != null);
+            return csNode.getRelatedToNodes();
         } catch (Exception e) {
             log.error("Failed to retrieve the Related To Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -116,7 +123,11 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     }
 
     @Override
-    public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedFromNodes(int id, Integer revision) {
+    public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedToNodes(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTCSRelatedToNodes(id, revision), RESTCSRelatedNodeV1.class, revision != null);
+    }
+
+    public RESTCSRelatedNodeCollectionV1 getRESTCSRelatedFromNodes(int id, Integer revision) {
         try {
             RESTCSNodeV1 csNode = null;
             // Check the cache first
@@ -124,7 +135,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                 csNode = (RESTCSNodeV1) entityCache.get(RESTCSNodeV1.class, id, revision);
 
                 if (csNode.getRelatedFromNodes() != null) {
-                    return getWrapperFactory().createCollection(csNode.getRelatedFromNodes(), RESTCSRelatedNodeV1.class, revision != null);
+                    return csNode.getRelatedFromNodes();
                 }
             }
 
@@ -153,7 +164,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                 csNode.setRelatedFromNodes(tempNode.getRelatedFromNodes());
             }
 
-            return getWrapperFactory().createCollection(csNode.getRelatedFromNodes(), RESTCSRelatedNodeV1.class, revision != null);
+            return csNode.getRelatedFromNodes();
         } catch (Exception e) {
             log.error("Failed to retrieve the Related From Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -162,7 +173,11 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     }
 
     @Override
-    public UpdateableCollectionWrapper<CSNodeWrapper> getCSNodeChildren(int id, Integer revision) {
+    public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedFromNodes(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTCSRelatedFromNodes(id, revision), RESTCSRelatedNodeV1.class, revision != null);
+    }
+
+    public RESTCSNodeCollectionV1 getRESTCSNodeChildren(int id, Integer revision) {
         try {
             RESTCSNodeV1 csNode = null;
             // Check the cache first
@@ -170,9 +185,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                 csNode = (RESTCSNodeV1) entityCache.get(RESTCSNodeV1.class, id, revision);
 
                 if (csNode.getChildren_OTM() != null) {
-                    final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(csNode.getChildren_OTM(),
-                            RESTCSNodeV1.class, revision != null);
-                    return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+                    return csNode.getChildren_OTM();
                 }
             }
 
@@ -201,9 +214,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                 csNode.setChildren_OTM(tempNode.getChildren_OTM());
             }
 
-            final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(csNode.getChildren_OTM(),
-                    RESTCSNodeV1.class, revision != null);
-            return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+            return csNode.getChildren_OTM();
         } catch (Exception e) {
             log.error("Failed to retrieve the Children Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -212,7 +223,13 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     }
 
     @Override
-    public CollectionWrapper<CSNodeWrapper> getCSNodeRevisions(int id, Integer revision) {
+    public UpdateableCollectionWrapper<CSNodeWrapper> getCSNodeChildren(int id, Integer revision) {
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getRESTCSNodeChildren(id, revision),
+                RESTCSNodeV1.class, revision != null);
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+    }
+
+    public RESTCSNodeCollectionV1 getRESTCSNodeRevisions(int id, Integer revision) {
         try {
             RESTCSNodeV1 contentSpec = null;
             // Check the cache first
@@ -220,7 +237,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                 contentSpec = entityCache.get(RESTCSNodeV1.class, id, revision);
 
                 if (contentSpec.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(contentSpec.getRevisions(), RESTCSNodeV1.class, true);
+                    return contentSpec.getRevisions();
                 }
             }
 
@@ -249,12 +266,17 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
                 contentSpec.setRevisions(tempCSNode.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(contentSpec.getRevisions(), RESTCSNodeV1.class, true);
+            return contentSpec.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<CSNodeWrapper> getCSNodeRevisions(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTCSNodeRevisions(id, revision), RESTCSNodeV1.class, true);
     }
 
     @Override

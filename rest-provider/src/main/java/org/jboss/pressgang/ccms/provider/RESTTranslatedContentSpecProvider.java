@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.provider;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
@@ -35,13 +36,16 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
         entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTTranslatedContentSpecV1 getRESTTranslatedContentSpec(int id) {
+        return getRESTTranslatedContentSpec(id, null);
+    }
+
     @Override
     public TranslatedContentSpecWrapper getTranslatedContentSpec(int id) {
         return getTranslatedContentSpec(id, null);
     }
 
-    @Override
-    public TranslatedContentSpecWrapper getTranslatedContentSpec(int id, Integer revision) {
+    public RESTTranslatedContentSpecV1 getRESTTranslatedContentSpec(int id, Integer revision) {
         try {
             final RESTTranslatedContentSpecV1 node;
             if (entityCache.containsKeyValue(RESTTranslatedContentSpecV1.class, id, revision)) {
@@ -55,7 +59,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                     entityCache.add(node, revision);
                 }
             }
-            return getWrapperFactory().create(node, revision != null);
+            return node;
         } catch (Exception e) {
             log.error("Failed to retrieve Translated Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -63,7 +67,11 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
     }
 
     @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes(int id, Integer revision) {
+    public TranslatedContentSpecWrapper getTranslatedContentSpec(int id, Integer revision) {
+        return getWrapperFactory().create(getRESTTranslatedContentSpec(id, revision), revision != null);
+    }
+
+    public RESTTranslatedCSNodeCollectionV1 getRESTTranslatedNodes(int id, Integer revision) {
         try {
             RESTTranslatedContentSpecV1 node = null;
             // Check the cache first
@@ -71,13 +79,11 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 node = entityCache.get(RESTTranslatedContentSpecV1.class, id, revision);
 
                 if (node.getTranslatedNodes_OTM() != null) {
-                    final CollectionWrapper<TranslatedCSNodeWrapper> collection = getWrapperFactory().createCollection(
-                            node.getTranslatedNodes_OTM(), RESTTranslatedCSNodeV1.class, revision != null);
-                    return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) collection;
+                    return node.getTranslatedNodes_OTM();
                 }
             }
 
-            /* We need to expand the all the translated nodes in the translated content collection */
+            // We need to expand the all the translated nodes in the translated content collection
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandTags = new ExpandDataTrunk(
                     new ExpandDataDetails(RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME));
@@ -104,9 +110,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 node.setTranslatedNodes_OTM(tempTopic.getTranslatedNodes_OTM());
             }
 
-            final CollectionWrapper<TranslatedCSNodeWrapper> collection = getWrapperFactory().createCollection(
-                    node.getTranslatedNodes_OTM(), RESTTranslatedCSNodeV1.class, revision != null);
-            return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) collection;
+            return node.getTranslatedNodes_OTM();
         } catch (Exception e) {
             log.error(
                     "Unable to retrieve the Translated ContentSpec Nodes for Translated ContentSpec " + id + (revision == null ? "" : ("," +
@@ -116,7 +120,13 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
     }
 
     @Override
-    public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecRevisions(int id, Integer revision) {
+    public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes(int id, Integer revision) {
+        final CollectionWrapper<TranslatedCSNodeWrapper> collection = getWrapperFactory().createCollection(
+                getRESTTranslatedNodes(id, revision), RESTTranslatedCSNodeV1.class, revision != null);
+        return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) collection;
+    }
+
+    public RESTTranslatedContentSpecCollectionV1 getRESTTranslatedContentSpecRevisions(int id, Integer revision) {
         try {
             RESTTranslatedContentSpecV1 contentSpec = null;
             // Check the cache first
@@ -124,7 +134,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 contentSpec = entityCache.get(RESTTranslatedContentSpecV1.class, id, revision);
 
                 if (contentSpec.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(contentSpec.getRevisions(), RESTTranslatedContentSpecV1.class, true);
+                    return contentSpec.getRevisions();
                 }
             }
 
@@ -153,7 +163,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 contentSpec.setRevisions(tempTranslatedContentSpec.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(contentSpec.getRevisions(), RESTTranslatedContentSpecV1.class, true);
+            return contentSpec.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Translated Content Spec " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -162,11 +172,16 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
     }
 
     @Override
-    public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecsWithQuery(String query) {
+    public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecRevisions(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTranslatedContentSpecRevisions(id, revision), RESTTranslatedContentSpecV1.class,
+                true);
+    }
+
+    public RESTTranslatedContentSpecCollectionV1 getRESTTranslatedContentSpecsWithQuery(String query) {
         if (query == null || query.isEmpty()) return null;
 
         try {
-            /* We need to expand the all the items in the topic collection */
+            // We need to expand the all the Translated Content Specs in the collection
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(
                     new ExpandDataDetails(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME));
@@ -179,11 +194,18 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                     new PathSegmentImpl(query, false), expandString);
             entityCache.add(contentSpecs);
 
-            return getWrapperFactory().createCollection(contentSpecs, RESTTranslatedContentSpecV1.class, false);
+            return contentSpecs;
         } catch (Exception e) {
             log.error("Failed to retrieve Translated Content Specs with a query", e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecsWithQuery(String query) {
+        if (query == null || query.isEmpty()) return null;
+
+        return getWrapperFactory().createCollection(getTranslatedContentSpecsWithQuery(query), RESTTranslatedContentSpecV1.class, false);
     }
 
     @Override

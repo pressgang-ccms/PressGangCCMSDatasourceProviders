@@ -6,17 +6,18 @@ import javassist.util.proxy.ProxyObject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTAssignedPropertyTagCollectionItemV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
                 "A parent is needed to get PropertyTagInContentSpec revisions using V1 of the REST Interface.");
     }
 
-    public CollectionWrapper<PropertyTagInContentSpecWrapper> getPropertyTagInContentSpecRevisions(int id, Integer revision,
+    public RESTAssignedPropertyTagCollectionV1 getRESTPropertyTagInContentSpecRevisions(int id, Integer revision,
             final RESTContentSpecV1 parent) {
         final Integer tagId = parent.getId();
         final Integer tagRevision = ((RESTBaseEntityV1ProxyHandler<RESTContentSpecV1>) ((ProxyObject) parent).getHandler())
@@ -104,7 +105,7 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
                 final RESTAssignedPropertyTagV1 propertyTag = propertyItem.getItem();
 
                 if (propertyTag.getId() == id && (revision == null || propertyTag.getRevision().equals(revision))) {
-                    return getWrapperFactory().createCollection(propertyTag.getRevisions(), RESTAssignedPropertyTagV1.class, true, parent);
+                    return propertyTag.getRevisions();
                 }
             }
 
@@ -114,5 +115,11 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
         }
 
         return null;
+    }
+
+    public CollectionWrapper<PropertyTagInContentSpecWrapper> getPropertyTagInContentSpecRevisions(int id, Integer revision,
+            final RESTContentSpecV1 parent) {
+        return getWrapperFactory().createCollection(getRESTPropertyTagInContentSpecRevisions(id, revision, parent),
+                RESTAssignedPropertyTagV1.class, true, parent);
     }
 }

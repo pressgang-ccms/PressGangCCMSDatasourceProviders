@@ -38,17 +38,17 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
         this.entityCache = restManager.getRESTEntityCache();
     }
 
-    public TopicSourceURLWrapper getTopicSourceUrl(int id, final Integer revision, final RESTBaseTopicV1<?, ?, ?> parent) {
+    public RESTTopicSourceUrlV1 getRESTTopicSourceUrl(int id, final Integer revision, final RESTBaseTopicV1<?, ?, ?> parent) {
         try {
             if (entityCache.containsKeyValue(RESTTopicSourceUrlV1.class, id, revision)) {
-                return getWrapperFactory().create(entityCache.get(RESTTopicSourceUrlV1.class, id, revision), revision != null);
+                return entityCache.get(RESTTopicSourceUrlV1.class, id, revision);
             } else {
                 final RESTTopicSourceUrlCollectionV1 topicSourceURLs = parent.getSourceUrls_OTM();
 
                 final List<RESTTopicSourceUrlV1> topicSourceURLItems = topicSourceURLs.returnItems();
                 for (final RESTTopicSourceUrlV1 sourceURL : topicSourceURLItems) {
-                    if (sourceURL.getId() == id && (revision == null || sourceURL.getRevision().equals(revision))) {
-                        return getWrapperFactory().create(sourceURL, revision != null);
+                    if (sourceURL.getId().equals(id) && (revision == null || sourceURL.getRevision().equals(revision))) {
+                        return sourceURL;
                     }
                 }
             }
@@ -58,21 +58,27 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
         return null;
     }
 
-    public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceURLRevisions(int id, final Integer revision,
+    public TopicSourceURLWrapper getTopicSourceUrl(int id, final Integer revision, final RESTBaseTopicV1<?, ?, ?> parent) {
+        return getWrapperFactory().create(getRESTTopicSourceUrl(id, revision, parent), revision != null);
+    }
+
+    public RESTTopicSourceUrlCollectionV1 getRESTTopicSourceURLRevisions(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> topic) {
-        final RESTTopicSourceUrlV1 topicSourceURL = (RESTTopicSourceUrlV1) getTopicSourceUrl(id, revision, topic).unwrap();
-        if (topicSourceURL.getRevisions() != null) {
-            return getWrapperFactory().createCollection(topicSourceURL.getRevisions(), RESTTopicSourceUrlV1.class, true, topic);
+        final RESTTopicSourceUrlV1 topicSourceURL = getRESTTopicSourceUrl(id, revision, topic);
+        if (topicSourceURL == null) {
+            return null;
+        } else if (topicSourceURL.getRevisions() != null) {
+            return topicSourceURL.getRevisions();
         } else {
             try {
                 final RESTTopicSourceUrlCollectionV1 sourceUrlRevisions;
                 if (topic instanceof RESTTranslatedTopicV1) {
-                    sourceUrlRevisions = getTranslatedTopicSourceUrlRevisions(id, revision, topic);
+                    sourceUrlRevisions = getRESTTranslatedTopicSourceUrlRevisions(id, revision, topic);
                 } else {
-                    sourceUrlRevisions = getTopicSourceUrlRevisions(id, revision, topic);
+                    sourceUrlRevisions = getRESTTopicSourceUrlRevisions(id, revision, topic);
                 }
 
-                return getWrapperFactory().createCollection(sourceUrlRevisions, RESTTopicSourceUrlV1.class, true, topic);
+                return sourceUrlRevisions;
             } catch (Exception e) {
                 log.error("Unable to retrieve Topic Source URLs", e);
             }
@@ -81,13 +87,19 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
         return null;
     }
 
+    public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceURLRevisions(int id, final Integer revision,
+            final RESTBaseTopicV1<?, ?, ?> topic) {
+        return getWrapperFactory().createCollection(getRESTTopicSourceURLRevisions(id, revision, topic), RESTTopicSourceUrlV1.class, true,
+                topic);
+    }
+
     @Override
     public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceURLRevisions(int id, final Integer revision) {
         throw new UnsupportedOperationException("A parent is needed to get Topic Source URLs using V1 of the REST Interface.");
     }
 
     @SuppressWarnings("unchecked")
-    protected RESTTopicSourceUrlCollectionV1 getTopicSourceUrlRevisions(int id, final Integer revision,
+    protected RESTTopicSourceUrlCollectionV1 getRESTTopicSourceUrlRevisions(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> parent) throws IOException {
         final Integer topicId = parent.getId();
         final Integer topicRevision = ((RESTBaseEntityV1ProxyHandler<RESTTopicV1>) ((ProxyObject) parent).getHandler()).getEntityRevision();
@@ -158,7 +170,7 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
     }
 
     @SuppressWarnings("unchecked")
-    protected RESTTopicSourceUrlCollectionV1 getTranslatedTopicSourceUrlRevisions(int id, final Integer revision,
+    protected RESTTopicSourceUrlCollectionV1 getRESTTranslatedTopicSourceUrlRevisions(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> parent) throws IOException {
         final Integer topicId = parent.getId();
         final Integer topicRevision = ((RESTBaseEntityV1ProxyHandler<RESTTranslatedTopicV1>) ((ProxyObject) parent).getHandler())

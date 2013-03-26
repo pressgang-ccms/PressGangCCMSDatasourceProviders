@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.provider;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTStringConstantCollectionV1;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.StringConstantWrapper;
@@ -27,13 +28,16 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
         entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTStringConstantV1 getRESTStringConstant(int id) {
+        return getRESTStringConstant(id, null);
+    }
+
     @Override
     public StringConstantWrapper getStringConstant(int id) {
         return getStringConstant(id, null);
     }
 
-    @Override
-    public StringConstantWrapper getStringConstant(int id, Integer revision) {
+    public RESTStringConstantV1 getRESTStringConstant(int id, Integer revision) {
         try {
             final RESTStringConstantV1 stringConstant;
             if (entityCache.containsKeyValue(RESTStringConstantV1.class, id, revision)) {
@@ -47,7 +51,7 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
                     entityCache.add(stringConstant, revision);
                 }
             }
-            return getWrapperFactory().create(stringConstant, revision != null);
+            return stringConstant;
         } catch (Exception e) {
             log.error("Failed to retrieve String Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -55,7 +59,11 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
     }
 
     @Override
-    public CollectionWrapper<StringConstantWrapper> getStringConstantRevisions(int id, Integer revision) {
+    public StringConstantWrapper getStringConstant(int id, Integer revision) {
+        return getWrapperFactory().create(getRESTStringConstant(id, revision), revision != null);
+    }
+
+    public RESTStringConstantCollectionV1 getRESTStringConstantRevisions(int id, Integer revision) {
         try {
             RESTStringConstantV1 stringConstant = null;
             // Check the cache first
@@ -63,8 +71,7 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
                 stringConstant = entityCache.get(RESTStringConstantV1.class, id, revision);
 
                 if (stringConstant.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(stringConstant.getRevisions(), RESTStringConstantV1.class,
-                            true);
+                    return stringConstant.getRevisions();
                 }
             }
             // We need to expand the revisions in the string constant collection
@@ -92,11 +99,16 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
                 stringConstant.setRevisions(tempStringConstant.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(stringConstant.getRevisions(), RESTStringConstantV1.class, true);
+            return stringConstant.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for String Constant " + id + (revision == null ? "" : (", Revision " + revision)),
                     e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<StringConstantWrapper> getStringConstantRevisions(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTStringConstantRevisions(id, revision), RESTStringConstantV1.class, true);
     }
 }

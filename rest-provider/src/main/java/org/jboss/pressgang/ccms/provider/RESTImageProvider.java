@@ -2,17 +2,19 @@ package org.jboss.pressgang.ccms.provider;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.ImageWrapper;
-import org.jboss.pressgang.ccms.wrapper.LanguageImageWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTImageCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.ImageWrapper;
+import org.jboss.pressgang.ccms.wrapper.LanguageImageWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,13 +31,16 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
         entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTImageV1 getRESTImage(int id) {
+        return getRESTImage(id, null);
+    }
+
     @Override
     public ImageWrapper getImage(int id) {
         return getImage(id, null);
     }
 
-    @Override
-    public ImageWrapper getImage(int id, Integer revision) {
+    public RESTImageV1 getRESTImage(int id, Integer revision) {
         try {
             final RESTImageV1 image;
             if (entityCache.containsKeyValue(RESTImageV1.class, id, revision)) {
@@ -50,7 +55,7 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
                 }
             }
 
-            return getWrapperFactory().create(image, revision != null);
+            return image;
         } catch (Exception e) {
             log.error("Failed to retrieve Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -58,11 +63,16 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
     }
 
     @Override
+    public ImageWrapper getImage(int id, Integer revision) {
+        return getWrapperFactory().create(getRESTImage(id, revision), revision != null);
+    }
+
+    @Override
     public CollectionWrapper<LanguageImageWrapper> getImageLanguageImages(int id, final Integer revision) {
         throw new UnsupportedOperationException("A parent is needed to get Language Images using V1 of the REST Interface.");
     }
 
-    public CollectionWrapper<LanguageImageWrapper> getImageLanguageImages(int id, final Integer revision, final RESTImageV1 parent) {
+    public RESTLanguageImageCollectionV1 getRESTImageLanguageImages(int id, final Integer revision, final RESTImageV1 parent) {
         try {
             RESTImageV1 image = null;
             // Check the cache first
@@ -70,8 +80,7 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
                 image = entityCache.get(RESTImageV1.class, id, revision);
 
                 if (image.getLanguageImages_OTM() != null) {
-                    return getWrapperFactory().createCollection(image.getLanguageImages_OTM(), RESTLanguageImageV1.class, revision != null,
-                            parent);
+                    return image.getLanguageImages_OTM();
                 }
             }
 
@@ -100,15 +109,19 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
                 image.setLanguageImages_OTM(tempImage.getLanguageImages_OTM());
             }
 
-            return getWrapperFactory().createCollection(image.getLanguageImages_OTM(), RESTLanguageImageV1.class, revision != null, parent);
+            return image.getLanguageImages_OTM();
         } catch (Exception e) {
             log.error("Failed to retrieve the Language Images for Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
     }
 
-    @Override
-    public CollectionWrapper<ImageWrapper> getImageRevisions(int id, final Integer revision) {
+    public CollectionWrapper<LanguageImageWrapper> getImageLanguageImages(int id, final Integer revision, final RESTImageV1 parent) {
+        return getWrapperFactory().createCollection(getRESTImageLanguageImages(id, revision, parent), RESTLanguageImageV1.class,
+                revision != null, parent);
+    }
+
+    public RESTImageCollectionV1 getRESTImageRevisions(int id, final Integer revision) {
         try {
             RESTImageV1 image = null;
             // Check the cache first
@@ -116,7 +129,7 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
                 image = entityCache.get(RESTImageV1.class, id, revision);
 
                 if (image.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(image.getRevisions(), RESTImageV1.class, true);
+                    return image.getRevisions();
                 }
             }
 
@@ -145,10 +158,15 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
                 image.setRevisions(tempImage.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(image.getRevisions(), RESTImageV1.class, true);
+            return image.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<ImageWrapper> getImageRevisions(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTImageRevisions(id, revision), RESTImageV1.class, true);
     }
 }

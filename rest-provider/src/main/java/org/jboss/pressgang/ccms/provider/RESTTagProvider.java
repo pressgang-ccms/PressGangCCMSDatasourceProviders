@@ -5,16 +5,9 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTCollectionCache;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
-import org.jboss.pressgang.ccms.wrapper.TagWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTCategoryInTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
@@ -24,7 +17,16 @@ import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTTagQueryBuilderV1;
+import org.jboss.pressgang.ccms.utils.RESTCollectionCache;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
+import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
+import org.jboss.pressgang.ccms.wrapper.TagWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +45,16 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
         this.collectionsCache = restManager.getRESTCollectionCache();
     }
 
+    public RESTTagV1 getRESTTag(int id) {
+        return getRESTTag(id, null);
+    }
+
     @Override
     public TagWrapper getTag(int id) {
         return getTag(id, null);
     }
 
-    @Override
-    public TagWrapper getTag(int id, Integer revision) {
+    public RESTTagV1 getRESTTag(int id, Integer revision) {
         try {
             final RESTTagV1 tag;
             if (entityCache.containsKeyValue(RESTTagV1.class, id, revision)) {
@@ -63,7 +68,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                     entityCache.add(tag, revision);
                 }
             }
-            return getWrapperFactory().create(tag, revision != null);
+            return tag;
         } catch (Exception e) {
             log.error("Failed to retrieve Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -71,7 +76,11 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getTagsByName(final String name) {
+    public TagWrapper getTag(int id, Integer revision) {
+        return getWrapperFactory().create(getRESTTag(id, revision), revision != null);
+    }
+
+    public RESTTagCollectionV1 getRESTTagsByName(final String name) {
         final List<String> keys = new ArrayList<String>();
         keys.add("name");
         keys.add(name);
@@ -95,7 +104,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 entityCache.add(tags);
             }
 
-            return getWrapperFactory().createCollection(tags, RESTTagV1.class, false);
+            return tags;
         } catch (Exception e) {
             log.error("", e);
         }
@@ -103,12 +112,11 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     }
 
     @Override
-    public UpdateableCollectionWrapper<CategoryInTagWrapper> getTagCategories(int id) {
-        return getTagCategories(id, null);
+    public CollectionWrapper<TagWrapper> getTagsByName(final String name) {
+        return getWrapperFactory().createCollection(getRESTTagsByName(name), RESTTagV1.class, false);
     }
 
-    @Override
-    public UpdateableCollectionWrapper<CategoryInTagWrapper> getTagCategories(int id, final Integer revision) {
+    public RESTCategoryInTagCollectionV1 getRESTTagCategories(int id, final Integer revision) {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
@@ -116,9 +124,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag = entityCache.get(RESTTagV1.class, id, revision);
 
                 if (tag.getCategories() != null) {
-                    final CollectionWrapper<CategoryInTagWrapper> collection = getWrapperFactory().createCollection(tag.getCategories(),
-                            RESTCategoryInTagV1.class, revision != null, CategoryInTagWrapper.class);
-                    return (UpdateableCollectionWrapper<CategoryInTagWrapper>) collection;
+                    return tag.getCategories();
                 }
             }
 
@@ -147,9 +153,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag.setCategories(tempTag.getCategories());
             }
 
-            final CollectionWrapper<CategoryInTagWrapper> collection = getWrapperFactory().createCollection(tag.getCategories(),
-                    RESTCategoryInTagV1.class, revision != null, CategoryInTagWrapper.class);
-            return (UpdateableCollectionWrapper<CategoryInTagWrapper>) collection;
+            return tag.getCategories();
         } catch (Exception e) {
             log.error("Failed to load the Categories for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -157,7 +161,13 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getTagChildTags(int id, final Integer revision) {
+    public UpdateableCollectionWrapper<CategoryInTagWrapper> getTagCategories(int id, final Integer revision) {
+        final CollectionWrapper<CategoryInTagWrapper> collection = getWrapperFactory().createCollection(getRESTTagCategories(id, revision),
+                RESTCategoryInTagV1.class, revision != null, CategoryInTagWrapper.class);
+        return (UpdateableCollectionWrapper<CategoryInTagWrapper>) collection;
+    }
+
+    public RESTTagCollectionV1 getRESTTagChildTags(int id, final Integer revision) {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
@@ -165,7 +175,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag = entityCache.get(RESTTagV1.class, id, revision);
 
                 if (tag.getChildTags() != null) {
-                    return getWrapperFactory().createCollection(tag.getChildTags(), RESTTagV1.class, revision != null);
+                    return tag.getChildTags();
                 }
             }
 
@@ -194,7 +204,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag.setChildTags(tempTag.getChildTags());
             }
 
-            return getWrapperFactory().createCollection(tag.getChildTags(), RESTTagV1.class, revision != null);
+            return tag.getChildTags();
         } catch (Exception e) {
             log.error("Failed to retrieve the Child Tags for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -202,7 +212,11 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getTagParentTags(int id, Integer revision) {
+    public CollectionWrapper<TagWrapper> getTagChildTags(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTagChildTags(id, revision), RESTTagV1.class, revision != null);
+    }
+
+    public RESTTagCollectionV1 getRESTTagParentTags(int id, Integer revision) {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
@@ -210,7 +224,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag = entityCache.get(RESTTagV1.class, id, revision);
 
                 if (tag.getParentTags() != null) {
-                    return getWrapperFactory().createCollection(tag.getParentTags(), RESTTagV1.class, revision != null);
+                    return tag.getParentTags();
                 }
             }
 
@@ -239,7 +253,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag.setParentTags(tempTag.getParentTags());
             }
 
-            return getWrapperFactory().createCollection(tag.getParentTags(), RESTTagV1.class, revision != null);
+            return tag.getParentTags();
         } catch (Exception e) {
             log.error("Failed to retrieve the Parent Tags for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -247,7 +261,11 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     }
 
     @Override
-    public UpdateableCollectionWrapper<PropertyTagInTagWrapper> getTagProperties(int id, Integer revision) {
+    public CollectionWrapper<TagWrapper> getTagParentTags(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTagParentTags(id, revision), RESTTagV1.class, revision != null);
+    }
+
+    public RESTAssignedPropertyTagCollectionV1 getRESTTagProperties(int id, Integer revision) {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
@@ -255,9 +273,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag = entityCache.get(RESTTagV1.class, id, revision);
 
                 if (tag.getProperties() != null) {
-                    final CollectionWrapper<PropertyTagInTagWrapper> collection = getWrapperFactory().createCollection(tag.getProperties(),
-                            RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInTagWrapper.class);
-                    return (UpdateableCollectionWrapper<PropertyTagInTagWrapper>) collection;
+                    return tag.getProperties();
                 }
             }
 
@@ -286,9 +302,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag.setProperties(tempTag.getProperties());
             }
 
-            final CollectionWrapper<PropertyTagInTagWrapper> collection = getWrapperFactory().createCollection(tag.getProperties(),
-                    RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInTagWrapper.class);
-            return (UpdateableCollectionWrapper<PropertyTagInTagWrapper>) collection;
+            return tag.getProperties();
         } catch (Exception e) {
             log.error("Failed to retrieve the Properties for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -296,7 +310,13 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getTagRevisions(int id, final Integer revision) {
+    public UpdateableCollectionWrapper<PropertyTagInTagWrapper> getTagProperties(int id, Integer revision) {
+        final CollectionWrapper<PropertyTagInTagWrapper> collection = getWrapperFactory().createCollection(
+                getRESTTagProperties(id, revision), RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInTagWrapper.class);
+        return (UpdateableCollectionWrapper<PropertyTagInTagWrapper>) collection;
+    }
+
+    public RESTTagCollectionV1 getRESTTagRevisions(int id, final Integer revision) {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
@@ -304,7 +324,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag = entityCache.get(RESTTagV1.class, id, revision);
 
                 if (tag.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(tag.getRevisions(), RESTTagV1.class, true);
+                    return tag.getRevisions();
                 }
             }
 
@@ -333,11 +353,16 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 tag.setRevisions(tempTag.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(tag.getRevisions(), RESTTagV1.class, true);
+            return tag.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<TagWrapper> getTagRevisions(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTagRevisions(id, revision), RESTTagV1.class, true);
     }
 
     @Override

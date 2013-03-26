@@ -4,20 +4,14 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTPropertyTagInPropertyCategoryProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyCategoryV1;
-import org.jboss.pressgang.ccms.wrapper.PropertyTagInPropertyCategoryWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 
 public class RESTPropertyTagInPropertyCategoryV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTPropertyTagInPropertyCategoryV1> {
-    private final RESTPropertyCategoryV1 parent;
 
     public RESTPropertyTagInPropertyCategoryV1ProxyHandler(RESTProviderFactory providerFactory, RESTPropertyTagInPropertyCategoryV1 entity,
             boolean isRevisionEntity, final RESTPropertyCategoryV1 parent) {
-        super(providerFactory, entity, isRevisionEntity);
-        this.parent = parent;
+        super(providerFactory, entity, isRevisionEntity, parent);
     }
 
     public RESTPropertyTagInPropertyCategoryProvider getProvider() {
@@ -34,22 +28,20 @@ public class RESTPropertyTagInPropertyCategoryV1ProxyHandler extends RESTBaseEnt
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<PropertyTagInPropertyCategoryWrapper> revisions = getProvider()
-                            .getPropertyTagInPropertyCategoryRevisions(
-                            propertyTag.getId(), getEntityRevision(), parent);
-                    retValue = revisions == null ? null : revisions.unwrap();
+                    retValue = getProvider().getRESTPropertyTagInPropertyCategoryRevisions(propertyTag.getId(), getEntityRevision(),
+                            getParent());
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
-                return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue, getEntityRevision() != null,
-                        parent);
-            } else {
-                return retValue;
-            }
+            return checkAndProxyReturnValue(retValue);
         }
 
         return super.invoke(proxy, thisMethod, proceed, args);
+    }
+
+    @Override
+    protected RESTPropertyCategoryV1 getParent() {
+        return (RESTPropertyCategoryV1) super.getParent();
     }
 }

@@ -8,19 +8,12 @@ import java.util.Set;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTTopicV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.TagWrapper;
-import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
-import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTTopicCollectionV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
@@ -31,7 +24,18 @@ import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTTopicQueryBuilderV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTTopicV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.TagWrapper;
+import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
+import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTTopicCollectionV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +53,16 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         this.entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTTopicV1 getRESTTopic(int id) {
+        return getRESTTopic(id, null);
+    }
+
     @Override
     public TopicWrapper getTopic(int id) {
         return getTopic(id, null);
     }
 
-    @Override
-    public TopicWrapper getTopic(int id, Integer revision) {
+    public RESTTopicV1 getRESTTopic(int id, Integer revision) {
         try {
             final RESTTopicV1 topic;
             if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
@@ -69,7 +76,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                     entityCache.add(topic, revision);
                 }
             }
-            return getWrapperFactory().create(topic, revision != null);
+            return topic;
         } catch (Exception e) {
             log.error("Failed to retrieve Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -77,7 +84,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getTopicTags(int id, final Integer revision) {
+    public TopicWrapper getTopic(int id, Integer revision) {
+        return getWrapperFactory().create(getRESTTopic(id, revision), revision != null);
+    }
+
+    public RESTTagCollectionV1 getRESTTopicTags(int id, final Integer revision) {
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
@@ -85,7 +96,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic = entityCache.get(RESTTopicV1.class, id, revision);
 
                 if (topic.getTags() != null) {
-                    return getWrapperFactory().createCollection(topic.getTags(), RESTTagV1.class, revision != null);
+                    return topic.getTags();
                 }
             }
 
@@ -114,15 +125,19 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic.setTags(tempTopic.getTags());
             }
 
-            return getWrapperFactory().createCollection(topic.getTags(), RESTTagV1.class, revision != null);
+            return topic.getTags();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Tags for topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.error("Failed to retrieve the Tags for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
     }
 
     @Override
-    public CollectionWrapper<TopicWrapper> getTopics(final List<Integer> ids) {
+    public CollectionWrapper<TagWrapper> getTopicTags(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTopicTags(id, revision), RESTTagV1.class, revision != null);
+    }
+
+    public RESTTopicCollectionV1 getRESTTopics(final List<Integer> ids) {
         if (ids.isEmpty()) return null;
 
         try {
@@ -161,9 +176,36 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 }
             }
 
-            return getWrapperFactory().createCollection(topics, RESTTopicV1.class, false);
+            return topics;
         } catch (Exception e) {
             log.error("Failed to retrieve all Topics for the specified ids", e);
+        }
+        return null;
+    }
+
+    @Override
+    public CollectionWrapper<TopicWrapper> getTopics(final List<Integer> ids) {
+        if (ids.isEmpty()) return null;
+
+        return getWrapperFactory().createCollection(getRESTTopics(ids), RESTTopicV1.class, false);
+    }
+
+    public RESTTopicCollectionV1 getRESTTopicsWithQuery(final String query) {
+        if (query == null || query.isEmpty()) return null;
+
+        try {
+            // We need to expand the all the topic in the collection
+            final ExpandDataTrunk expand = new ExpandDataTrunk();
+            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.TOPICS_EXPANSION_NAME));
+            expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
+            final String expandString = mapper.writeValueAsString(expand);
+
+            final RESTTopicCollectionV1 topics = client.getJSONTopicsWithQuery(new PathSegmentImpl(query, false), expandString);
+            entityCache.add(topics);
+
+            return topics;
+        } catch (Exception e) {
+            log.error("Failed to retrieve Topics with a query", e);
         }
         return null;
     }
@@ -172,27 +214,10 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     public CollectionWrapper<TopicWrapper> getTopicsWithQuery(final String query) {
         if (query == null || query.isEmpty()) return null;
 
-        try {
-            /* We need to expand the all the items in the topic collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.TOPICS_EXPANSION_NAME));
-
-            expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
-
-            final String expandString = mapper.writeValueAsString(expand);
-
-            final RESTTopicCollectionV1 topics = client.getJSONTopicsWithQuery(new PathSegmentImpl(query, false), expandString);
-            entityCache.add(topics);
-
-            return getWrapperFactory().createCollection(topics, RESTTopicV1.class, false);
-        } catch (Exception e) {
-            log.error("Failed to retrieve Topics with a query", e);
-        }
-        return null;
+        return getWrapperFactory().createCollection(getRESTTopicsWithQuery(query), RESTTopicV1.class, false);
     }
 
-    @Override
-    public CollectionWrapper<TranslatedTopicWrapper> getTopicTranslations(int id, final Integer revision) {
+    public RESTTranslatedTopicCollectionV1 getRESTTopicTranslations(int id, final Integer revision) {
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
@@ -200,8 +225,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic = entityCache.get(RESTTopicV1.class, id, revision);
 
                 if (topic.getTranslatedTopics_OTM() != null) {
-                    return getWrapperFactory().createCollection(topic.getTranslatedTopics_OTM(), RESTTranslatedTopicV1.class,
-                            revision != null);
+                    return topic.getTranslatedTopics_OTM();
                 }
             }
 
@@ -230,7 +254,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic.setTranslatedTopics_OTM(tempTopic.getTranslatedTopics_OTM());
             }
 
-            return getWrapperFactory().createCollection(topic.getTranslatedTopics_OTM(), RESTTranslatedTopicV1.class, revision != null);
+            return topic.getTranslatedTopics_OTM();
         } catch (Exception e) {
             log.error("Failed to retrieve the Translations for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -238,7 +262,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     }
 
     @Override
-    public CollectionWrapper<TopicWrapper> getTopicRevisions(int id, final Integer revision) {
+    public CollectionWrapper<TranslatedTopicWrapper> getTopicTranslations(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTopicTranslations(id, revision), RESTTranslatedTopicV1.class, revision != null);
+    }
+
+    public RESTTopicCollectionV1 getRESTTopicRevisions(int id, final Integer revision) {
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
@@ -246,7 +274,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic = entityCache.get(RESTTopicV1.class, id, revision);
 
                 if (topic.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(topic.getRevisions(), RESTTopicV1.class, true);
+                    return topic.getRevisions();
                 }
             }
 
@@ -275,7 +303,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic.setRevisions(tempTopic.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(topic.getRevisions(), RESTTopicV1.class, true);
+            return topic.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -283,7 +311,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     }
 
     @Override
-    public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> getTopicProperties(int id, final Integer revision) {
+    public CollectionWrapper<TopicWrapper> getTopicRevisions(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTopicRevisions(id, revision), RESTTopicV1.class, true);
+    }
+
+    public RESTAssignedPropertyTagCollectionV1 getRESTTopicProperties(int id, final Integer revision) {
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
@@ -291,9 +323,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic = entityCache.get(RESTTopicV1.class, id, revision);
 
                 if (topic.getProperties() != null) {
-                    final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
-                            topic.getProperties(), RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInTopicWrapper.class);
-                    return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
+                    return topic.getProperties();
                 }
             }
 
@@ -322,9 +352,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic.setProperties(tempTopic.getProperties());
             }
 
-            final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(topic.getProperties(),
-                    RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInTopicWrapper.class);
-            return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
+            return topic.getProperties();
         } catch (Exception e) {
             log.error("Failed to retrieve the Properties for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -332,7 +360,13 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     }
 
     @Override
-    public CollectionWrapper<TopicWrapper> getTopicOutgoingRelationships(int id, final Integer revision) {
+    public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> getTopicProperties(int id, final Integer revision) {
+        final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
+                getRESTTopicProperties(id, revision), RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInTopicWrapper.class);
+        return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
+    }
+
+    public RESTTopicCollectionV1 getRESTTopicOutgoingRelationships(int id, final Integer revision) {
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
@@ -340,11 +374,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic = entityCache.get(RESTTopicV1.class, id, revision);
 
                 if (topic.getOutgoingRelationships() != null) {
-                    return getWrapperFactory().createCollection(topic.getOutgoingRelationships(), RESTTopicV1.class, revision != null);
+                    return topic.getOutgoingRelationships();
                 }
             }
 
-            // We need to expand the outgoing topic relationships in the topic collection
+            // We need to expand the outgoing topic relationships in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandOutgoing = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.OUTGOING_NAME));
             expand.setBranches(CollectionUtilities.toArrayList(expandOutgoing));
@@ -369,7 +403,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic.setOutgoingRelationships(tempTopic.getOutgoingRelationships());
             }
 
-            return getWrapperFactory().createCollection(topic.getOutgoingRelationships(), RESTTopicV1.class, revision != null);
+            return topic.getOutgoingRelationships();
         } catch (Exception e) {
             log.error("Failed to retrieve the Outgoing Relationships for Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -378,7 +412,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     }
 
     @Override
-    public CollectionWrapper<TopicWrapper> getTopicIncomingRelationships(int id, final Integer revision) {
+    public CollectionWrapper<TopicWrapper> getTopicOutgoingRelationships(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTopicOutgoingRelationships(id, revision), RESTTopicV1.class, revision != null);
+    }
+
+    public RESTTopicCollectionV1 getRESTTopicIncomingRelationships(int id, final Integer revision) {
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
@@ -386,11 +424,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic = entityCache.get(RESTTopicV1.class, id, revision);
 
                 if (topic.getIncomingRelationships() != null) {
-                    return getWrapperFactory().createCollection(topic.getIncomingRelationships(), RESTTopicV1.class, revision != null);
+                    return topic.getIncomingRelationships();
                 }
             }
 
-            // We need to expand the incoming topic relationships in the topic collection
+            // We need to expand the incoming topic relationships in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandIncoming = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.INCOMING_NAME));
             expand.setBranches(CollectionUtilities.toArrayList(expandIncoming));
@@ -415,7 +453,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic.setIncomingRelationships(tempTopic.getIncomingRelationships());
             }
 
-            return getWrapperFactory().createCollection(topic.getIncomingRelationships(), RESTTopicV1.class, revision != null);
+            return topic.getIncomingRelationships();
         } catch (Exception e) {
             log.error("Failed to retrieve the Incoming Relationships for Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -424,12 +462,16 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     }
 
     @Override
+    public CollectionWrapper<TopicWrapper> getTopicIncomingRelationships(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTopicIncomingRelationships(id, revision), RESTTopicV1.class, revision != null);
+    }
+
+    @Override
     public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceUrls(int id, final Integer revision) {
         throw new UnsupportedOperationException("A parent is needed to get Topic Source URLs using V1 of the REST Interface.");
     }
 
-    public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceUrls(int id, final Integer revision,
-            final RESTBaseTopicV1<?, ?, ?> parent) {
+    public RESTTopicSourceUrlCollectionV1 getRESTTopicSourceUrls(int id, final Integer revision) {
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
@@ -437,8 +479,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic = entityCache.get(RESTTopicV1.class, id, revision);
 
                 if (topic.getSourceUrls_OTM() != null) {
-                    return getWrapperFactory().createCollection(topic.getSourceUrls_OTM(), RESTTopicSourceUrlV1.class, revision != null,
-                            parent);
+                    return topic.getSourceUrls_OTM();
                 }
             }
 
@@ -467,11 +508,17 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 topic.setSourceUrls_OTM(tempTopic.getSourceUrls_OTM());
             }
 
-            return getWrapperFactory().createCollection(topic.getSourceUrls_OTM(), RESTTopicSourceUrlV1.class, revision != null, parent);
+            return topic.getSourceUrls_OTM();
         } catch (Exception e) {
             log.error("Failed to retrieve the Source URLs for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
+    }
+
+    public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceUrls(int id, final Integer revision,
+            final RESTBaseTopicV1<?, ?, ?> parent) {
+        return getWrapperFactory().createCollection(getRESTTopicSourceUrls(id, revision), RESTTopicSourceUrlV1.class, revision != null,
+                parent);
     }
 
     @Override

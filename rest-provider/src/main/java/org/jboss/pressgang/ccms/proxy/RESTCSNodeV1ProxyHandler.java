@@ -4,12 +4,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTCSNodeProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
-import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 
 public class RESTCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTCSNodeV1> {
     public RESTCSNodeV1ProxyHandler(final RESTProviderFactory providerFactory, final RESTCSNodeV1 entity, boolean isRevisionEntity) {
@@ -30,31 +25,18 @@ public class RESTCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTC
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getRelatedFromNodes")) {
-                    final CollectionWrapper<CSRelatedNodeWrapper> relatedFromNodes = getProvider().getCSRelatedFromNodes(
-                            contentSpec.getId(), getEntityRevision());
-                    retValue = relatedFromNodes == null ? null : relatedFromNodes.unwrap();
+                    retValue = getProvider().getRESTCSRelatedFromNodes(contentSpec.getId(), getEntityRevision());
                 } else if (methodName.equals("getRelatedToNodes")) {
-                    final CollectionWrapper<CSRelatedNodeWrapper> relatedToNodes = getProvider().getCSRelatedToNodes(contentSpec.getId(),
-                            getEntityRevision());
-                    retValue = relatedToNodes == null ? null : relatedToNodes.unwrap();
+                    retValue = getProvider().getRESTCSRelatedToNodes(contentSpec.getId(), getEntityRevision());
                 } else if (methodName.equals("getChildren")) {
-                    final CollectionWrapper<CSNodeWrapper> children = getProvider().getCSNodeChildren(contentSpec.getId(),
-                            getEntityRevision());
-                    retValue = children == null ? null : children.unwrap();
+                    retValue = getProvider().getRESTCSNodeChildren(contentSpec.getId(), getEntityRevision());
                 } else if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<CSNodeWrapper> revisions = getProvider().getCSNodeRevisions(contentSpec.getId(),
-                            getEntityRevision());
-                    retValue = revisions == null ? null : revisions.unwrap();
+                    retValue = getProvider().getRESTCSNodeRevisions(contentSpec.getId(), getEntityRevision());
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
-                return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue,
-                        getEntityRevision() != null);
-            } else {
-                return retValue;
-            }
+            return checkAndProxyReturnValue(retValue);
         }
 
         return super.invoke(self, thisMethod, proceed, args);

@@ -13,6 +13,7 @@ import org.jboss.pressgang.ccms.rest.v1.components.ComponentTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseTopicV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
@@ -197,6 +198,16 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
     }
 
     @Override
+    public String getTranslatedXMLCondition() {
+        return getProxyEntity().getTranslatedXMLCondition();
+    }
+
+    @Override
+    public void setTranslatedXMLCondition(String translatedXMLCondition) {
+        getEntity().setTranslatedXMLCondition(translatedXMLCondition);
+    }
+
+    @Override
     public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
         final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
                 getProxyEntity().getTranslatedTopicStrings_OTM(), RESTTranslatedTopicStringV1.class, isRevisionEntity(), getProxyEntity());
@@ -217,5 +228,15 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
     @Override
     public void setTopic(TopicWrapper topic) {
         getProxyEntity().setTopic((RESTTopicV1) topic.unwrap());
+    }
+
+    @Override
+    public TranslatedCSNodeWrapper getTranslatedCSNode() {
+        return getWrapperFactory().create(getProxyEntity().getTranslatedCSNode(), isRevisionEntity(), TranslatedCSNodeWrapper.class);
+    }
+
+    @Override
+    public void setTranslatedCSNode(TranslatedCSNodeWrapper translatedCSNode) {
+        getEntity().setTranslatedCSNode(translatedCSNode == null ? null : (RESTTranslatedCSNodeV1) translatedCSNode.unwrap());
     }
 }

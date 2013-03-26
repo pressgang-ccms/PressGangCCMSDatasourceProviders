@@ -2,22 +2,16 @@ package org.jboss.pressgang.ccms.proxy;
 
 import java.lang.reflect.Method;
 
-import org.jboss.pressgang.ccms.provider.RESTTranslatedCSNodeStringProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
+import org.jboss.pressgang.ccms.provider.RESTTranslatedCSNodeStringProvider;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 
 public class RESTTranslatedCSNodeStringV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTranslatedCSNodeStringV1> {
-    private final RESTTranslatedCSNodeV1 parent;
 
     public RESTTranslatedCSNodeStringV1ProxyHandler(RESTProviderFactory providerFactory, RESTTranslatedCSNodeStringV1 entity,
             boolean isRevisionEntity, final RESTTranslatedCSNodeV1 parent) {
-        super(providerFactory, entity, isRevisionEntity);
-        this.parent = parent;
+        super(providerFactory, entity, isRevisionEntity, parent);
     }
 
     protected RESTTranslatedCSNodeStringProvider getProvider() {
@@ -34,21 +28,20 @@ public class RESTTranslatedCSNodeStringV1ProxyHandler extends RESTBaseEntityV1Pr
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<TranslatedCSNodeStringWrapper> revisions = getProvider().getTranslatedCSNodeStringRevisions(
-                            translatedTopicString.getId(), getEntityRevision(), parent);
-                    retValue = revisions == null ? null : revisions.unwrap();
+                    retValue = getProvider().getRESTTranslatedCSNodeStringRevisions(translatedTopicString.getId(), getEntityRevision(),
+                            getParent());
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
-                return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue, getEntityRevision() != null,
-                        parent);
-            } else {
-                return retValue;
-            }
+            return checkAndProxyReturnValue(retValue);
         }
 
         return super.invoke(self, thisMethod, proceed, args);
+    }
+
+    @Override
+    protected RESTTranslatedCSNodeV1 getParent() {
+        return (RESTTranslatedCSNodeV1) super.getParent();
     }
 }

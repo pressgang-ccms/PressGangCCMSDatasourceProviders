@@ -1,5 +1,8 @@
 package org.jboss.pressgang.ccms.proxy;
 
+import java.lang.reflect.Method;
+
+import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
@@ -44,6 +47,12 @@ public class RESTEntityProxyFactory {
         final Class<?> clazz = entity.getClass();
 
         final ProxyFactory factory = new ProxyFactory();
+        factory.setFilter(new MethodFilter() {
+            @Override
+            public boolean isHandled(Method method) {
+                return method.getName().startsWith("get");
+            }
+        });
         factory.setSuperclass(clazz);
 
         Class<?> cl = factory.createClass();
@@ -127,10 +136,10 @@ public class RESTEntityProxyFactory {
             // TRANSLATED CONTENT SPEC
             return new RESTTranslatedContentSpecV1ProxyHandler(providerFactory, (RESTTranslatedContentSpecV1) entity, isRevision);
         } else if (entity instanceof RESTTranslatedCSNodeV1) {
-            // CONTENT SPEC TRANSLATED NODE
+            // TRANSLATED CONTENT SPEC NODE
             return new RESTTranslatedCSNodeV1ProxyHandler(providerFactory, (RESTTranslatedCSNodeV1) entity, isRevision);
         } else if (entity instanceof RESTCSNodeV1) {
-            // CONTENT SPEC TRANSLATED NODE STRING
+            // TRANSLATED CONTENT SPEC NODE STRING
             return new RESTTranslatedCSNodeStringV1ProxyHandler(providerFactory, (RESTTranslatedCSNodeStringV1) entity, isRevision,
                     (RESTTranslatedCSNodeV1) parent);
         }

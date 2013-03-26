@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
@@ -13,6 +17,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
@@ -46,13 +51,16 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
         this.entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTTranslatedTopicV1 getRESTTranslatedTopic(int id) {
+        return getRESTTranslatedTopic(id, null);
+    }
+
     @Override
     public TranslatedTopicWrapper getTranslatedTopic(int id) {
         return getTranslatedTopic(id, null);
     }
 
-    @Override
-    public TranslatedTopicWrapper getTranslatedTopic(int id, final Integer revision) {
+    public RESTTranslatedTopicV1 getRESTTranslatedTopic(int id, final Integer revision) {
         try {
             final RESTTranslatedTopicV1 topic;
             if (entityCache.containsKeyValue(RESTTranslatedTopicV1.class, id, revision)) {
@@ -73,7 +81,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                     entityCache.add(topic, revision);
                 }
             }
-            return getWrapperFactory().create(topic, revision != null);
+            return topic;
         } catch (Exception e) {
             log.error("", e);
         }
@@ -81,7 +89,11 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getTranslatedTopicTags(int id, Integer revision) {
+    public TranslatedTopicWrapper getTranslatedTopic(int id, final Integer revision) {
+        return getWrapperFactory().create(getRESTTranslatedTopic(id, revision), revision != null);
+    }
+
+    public RESTTagCollectionV1 getRESTTranslatedTopicTags(int id, Integer revision) {
         try {
             RESTTranslatedTopicV1 topic = null;
             // Check the cache first
@@ -89,16 +101,14 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic = entityCache.get(RESTTranslatedTopicV1.class, id, revision);
 
                 if (topic.getTags() != null) {
-                    return getWrapperFactory().createCollection(topic.getTags(), RESTTagV1.class, revision != null);
+                    return topic.getTags();
                 }
             }
 
-            /* We need to expand the all the items in the topic collection */
+            // We need to expand the all the tags in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.TAGS_NAME));
-
             expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-
             final String expandString = mapper.writeValueAsString(expand);
 
             final RESTTranslatedTopicV1 tempTopic;
@@ -119,7 +129,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic.setTags(tempTopic.getTags());
             }
 
-            return getWrapperFactory().createCollection(topic.getTags(), RESTTagV1.class, revision != null);
+            return topic.getTags();
         } catch (Exception e) {
             log.error("", e);
         }
@@ -127,7 +137,11 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public CollectionWrapper<PropertyTagInTopicWrapper> getTranslatedTopicProperties(int id, Integer revision) {
+    public CollectionWrapper<TagWrapper> getTranslatedTopicTags(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTranslatedTopicTags(id, revision), RESTTagV1.class, revision != null);
+    }
+
+    public RESTAssignedPropertyTagCollectionV1 getRESTTranslatedTopicProperties(int id, Integer revision) {
         try {
             RESTTranslatedTopicV1 topic = null;
             // Check the cache first
@@ -135,17 +149,14 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic = entityCache.get(RESTTranslatedTopicV1.class, id, revision);
 
                 if (topic.getProperties() != null) {
-                    return getWrapperFactory().createCollection(topic.getProperties(), RESTAssignedPropertyTagV1.class, revision != null,
-                            PropertyTagInTopicWrapper.class);
+                    return topic.getProperties();
                 }
             }
 
-            /* We need to expand the all the items in the topic collection */
+            // We need to expand the all the properties in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.PROPERTIES_NAME));
-
             expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-
             final String expandString = mapper.writeValueAsString(expand);
 
             final RESTTranslatedTopicV1 tempTopic;
@@ -166,8 +177,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic.setProperties(tempTopic.getProperties());
             }
 
-            return getWrapperFactory().createCollection(topic.getProperties(), RESTAssignedPropertyTagV1.class, revision != null,
-                    PropertyTagInTopicWrapper.class);
+            return topic.getProperties();
         } catch (Exception e) {
             log.error("", e);
         }
@@ -175,7 +185,12 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicOutgoingRelationships(int id, Integer revision) {
+    public CollectionWrapper<PropertyTagInTopicWrapper> getTranslatedTopicProperties(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTranslatedTopicProperties(id, revision), RESTAssignedPropertyTagV1.class,
+                revision != null, PropertyTagInTopicWrapper.class);
+    }
+
+    public RESTTranslatedTopicCollectionV1 getRESTTranslatedTopicOutgoingRelationships(int id, Integer revision) {
         try {
             RESTTranslatedTopicV1 topic = null;
             // Check the cache first
@@ -183,17 +198,14 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic = entityCache.get(RESTTranslatedTopicV1.class, id, revision);
 
                 if (topic.getOutgoingRelationships() != null) {
-                    return getWrapperFactory().createCollection(topic.getOutgoingRelationships(), RESTTranslatedTopicV1.class,
-                            revision != null);
+                    return topic.getOutgoingRelationships();
                 }
             }
 
-            /* We need to expand the all the items in the topic collection */
+            // We need to expand the all the outgoing relationships in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandOutgoing = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.OUTGOING_NAME));
-
             expand.setBranches(CollectionUtilities.toArrayList(expandOutgoing));
-
             final String expandString = mapper.writeValueAsString(expand);
 
             final RESTTranslatedTopicV1 tempTopic;
@@ -214,7 +226,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic.setOutgoingRelationships(tempTopic.getOutgoingRelationships());
             }
 
-            return getWrapperFactory().createCollection(topic.getOutgoingRelationships(), RESTTranslatedTopicV1.class, revision != null);
+            return topic.getOutgoingRelationships();
         } catch (Exception e) {
             log.error("", e);
         }
@@ -222,7 +234,12 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicIncomingRelationships(int id, Integer revision) {
+    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicOutgoingRelationships(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTranslatedTopicOutgoingRelationships(id, revision), RESTTranslatedTopicV1.class,
+                revision != null);
+    }
+
+    public RESTTranslatedTopicCollectionV1 getRESTTranslatedTopicIncomingRelationships(int id, Integer revision) {
         try {
             RESTTranslatedTopicV1 topic = null;
             // Check the cache first
@@ -230,17 +247,14 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic = entityCache.get(RESTTranslatedTopicV1.class, id, revision);
 
                 if (topic.getIncomingRelationships() != null) {
-                    return getWrapperFactory().createCollection(topic.getIncomingRelationships(), RESTTranslatedTopicV1.class,
-                            revision != null);
+                    return topic.getIncomingRelationships();
                 }
             }
 
-            /* We need to expand the all the items in the topic collection */
+            // We need to expand the all the incoming relationships in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandIncoming = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.INCOMING_NAME));
-
             expand.setBranches(CollectionUtilities.toArrayList(expandIncoming));
-
             final String expandString = mapper.writeValueAsString(expand);
 
             final RESTTranslatedTopicV1 tempTopic;
@@ -261,7 +275,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic.setIncomingRelationships(tempTopic.getIncomingRelationships());
             }
 
-            return getWrapperFactory().createCollection(topic.getIncomingRelationships(), RESTTranslatedTopicV1.class, revision != null);
+            return topic.getIncomingRelationships();
         } catch (Exception e) {
             log.error("", e);
         }
@@ -269,12 +283,17 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
+    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicIncomingRelationships(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTranslatedTopicIncomingRelationships(id, revision), RESTTranslatedTopicV1.class,
+                revision != null);
+    }
+
+    @Override
     public CollectionWrapper<TopicSourceURLWrapper> getTranslatedTopicSourceUrls(int id, Integer revision) {
         throw new UnsupportedOperationException("A parent is needed to get Topic Source URLs using V1 of the REST Interface.");
     }
 
-    public CollectionWrapper<TopicSourceURLWrapper> getTranslatedTopicSourceUrls(int id, Integer revision,
-            RESTBaseTopicV1<?, ?, ?> parent) {
+    public RESTTopicSourceUrlCollectionV1 getRESTTranslatedTopicSourceUrls(int id, Integer revision, RESTBaseTopicV1<?, ?, ?> parent) {
         try {
             RESTTranslatedTopicV1 topic = null;
             // Check the cache first
@@ -282,17 +301,14 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic = entityCache.get(RESTTranslatedTopicV1.class, id, revision);
 
                 if (topic.getSourceUrls_OTM() != null) {
-                    return getWrapperFactory().createCollection(topic.getSourceUrls_OTM(), RESTTopicSourceUrlV1.class, revision != null,
-                            parent);
+                    return topic.getSourceUrls_OTM();
                 }
             }
 
-            /* We need to expand the all the items in the topic collection */
+            // We need to expand the all the source urls in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.SOURCE_URLS_NAME));
-
             expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-
             final String expandString = mapper.writeValueAsString(expand);
 
             final RESTTranslatedTopicV1 tempTopic;
@@ -313,11 +329,17 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic.setSourceUrls_OTM(tempTopic.getSourceUrls_OTM());
             }
 
-            return getWrapperFactory().createCollection(topic.getSourceUrls_OTM(), RESTTopicSourceUrlV1.class, revision != null, parent);
+            return topic.getSourceUrls_OTM();
         } catch (Exception e) {
             log.error("", e);
         }
         return null;
+    }
+
+    public CollectionWrapper<TopicSourceURLWrapper> getTranslatedTopicSourceUrls(int id, Integer revision,
+            RESTBaseTopicV1<?, ?, ?> parent) {
+        return getWrapperFactory().createCollection(getRESTTranslatedTopicSourceUrls(id, revision, parent), RESTTopicSourceUrlV1.class,
+                revision != null, parent);
     }
 
     @Override
@@ -325,8 +347,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
         throw new UnsupportedOperationException("A parent is needed to get Translated Topic Strings using V1 of the REST Interface.");
     }
 
-    public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings(int id, Integer revision,
-            RESTTranslatedTopicV1 parent) {
+    public RESTTranslatedTopicStringCollectionV1 getRESTTranslatedTopicStrings(int id, Integer revision) {
         try {
             RESTTranslatedTopicV1 topic = null;
             // Check the cache first
@@ -334,18 +355,14 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic = entityCache.get(RESTTranslatedTopicV1.class, id, revision);
 
                 if (topic.getTranslatedTopicStrings_OTM() != null) {
-                    final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
-                            topic.getTranslatedTopicStrings_OTM(), RESTTranslatedTopicStringV1.class, revision != null, parent);
-                    return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) collection;
+                    return topic.getTranslatedTopicStrings_OTM();
                 }
             }
 
-            /* We need to expand the all the items in the topic collection */
+            // We need to expand the all the translated strings in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.TRANSLATEDTOPICSTRING_NAME));
-
             expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-
             final String expandString = mapper.writeValueAsString(expand);
 
             final RESTTranslatedTopicV1 tempTopic;
@@ -366,9 +383,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 topic.setTranslatedTopicStrings_OTM(tempTopic.getTranslatedTopicStrings_OTM());
             }
 
-            final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
-                    topic.getTranslatedTopicStrings_OTM(), RESTTranslatedTopicStringV1.class, revision != null, parent);
-            return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) collection;
+            return topic.getTranslatedTopicStrings_OTM();
         } catch (Exception e) {
             log.error("Unable to retrieve the Translated Topic Strings for Translated Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -376,8 +391,14 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
         return null;
     }
 
-    @Override
-    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicRevisions(int id, final Integer revision) {
+    public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings(int id, Integer revision,
+            RESTTranslatedTopicV1 parent) {
+        final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
+                getRESTTranslatedTopicStrings(id, revision), RESTTranslatedTopicStringV1.class, revision != null, parent);
+        return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) collection;
+    }
+
+    public RESTTranslatedTopicCollectionV1 getRESTTranslatedTopicRevisions(int id, final Integer revision) {
         try {
             RESTTranslatedTopicV1 translatedTopic = null;
             // Check the cache first
@@ -385,16 +406,14 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 translatedTopic = entityCache.get(RESTTranslatedTopicV1.class, id, revision);
 
                 if (translatedTopic.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(translatedTopic.getRevisions(), RESTTranslatedTopicV1.class, true);
+                    return translatedTopic.getRevisions();
                 }
             }
 
-            /* We need to expand the all the items in the topic collection */
+            // We need to expand the all the revisions in the topic
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandTranslatedTopics = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.REVISIONS_NAME));
-
             expand.setBranches(CollectionUtilities.toArrayList(expandTranslatedTopics));
-
             final String expandString = mapper.writeValueAsString(expand);
 
             final RESTTranslatedTopicV1 tempTranslatedTopic;
@@ -415,9 +434,79 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 translatedTopic.setRevisions(tempTranslatedTopic.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(translatedTopic.getRevisions(), RESTTranslatedTopicV1.class, true);
+            return translatedTopic.getRevisions();
         } catch (Exception e) {
             log.error("", e);
+        }
+        return null;
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicRevisions(int id, final Integer revision) {
+        return getWrapperFactory().createCollection(getRESTTranslatedTopicRevisions(id, revision), RESTTranslatedTopicV1.class, true);
+    }
+
+    public RESTTranslatedCSNodeV1 getRESTTranslatedTopicTranslatedCSNode(int id, Integer revision) {
+        try {
+            RESTTranslatedTopicV1 topic = null;
+            // Check the cache first
+            if (entityCache.containsKeyValue(RESTTranslatedTopicV1.class, id, revision)) {
+                topic = entityCache.get(RESTTranslatedTopicV1.class, id, revision);
+
+                if (topic.getTranslatedCSNode() != null) {
+                    return topic.getTranslatedCSNode();
+                }
+            }
+
+            // We need to expand the translated cs node in the topic
+            final ExpandDataTrunk expand = new ExpandDataTrunk();
+            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
+            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
+            final String expandString = mapper.writeValueAsString(expand);
+
+            final RESTTranslatedTopicV1 tempTopic;
+            if (revision == null) {
+                tempTopic = client.getJSONTranslatedTopic(id, expandString);
+            } else {
+                tempTopic = client.getJSONTranslatedTopicRevision(id, revision, expandString);
+            }
+
+            if (topic == null) {
+                topic = tempTopic;
+                if (revision == null) {
+                    entityCache.add(topic);
+                } else {
+                    entityCache.add(topic, revision);
+                }
+            } else {
+                topic.setTranslatedCSNode(tempTopic.getTranslatedCSNode());
+            }
+
+            return topic.getTranslatedCSNode();
+        } catch (Exception e) {
+            log.error("", e);
+        }
+        return null;
+    }
+
+    public RESTTranslatedTopicCollectionV1 getRESTTranslatedTopicsWithQuery(String query) {
+        if (query == null || query.isEmpty()) return null;
+
+        try {
+            // We need to expand the all the translated topics in the collection
+            final ExpandDataTrunk expand = new ExpandDataTrunk();
+            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(
+                    new ExpandDataDetails(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME));
+            expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
+            final String expandString = mapper.writeValueAsString(expand);
+
+            final RESTTranslatedTopicCollectionV1 topics = client.getJSONTranslatedTopicsWithQuery(new PathSegmentImpl(query, false),
+                    expandString);
+            entityCache.add(topics);
+
+            return topics;
+        } catch (Exception e) {
+            log.error("Failed to retrieve Translated Topics with a query", e);
         }
         return null;
     }
@@ -426,24 +515,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicsWithQuery(String query) {
         if (query == null || query.isEmpty()) return null;
 
-        try {
-            /* We need to expand the all the items in the topic collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME));
-
-            expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
-
-            final String expandString = mapper.writeValueAsString(expand);
-
-            final RESTTranslatedTopicCollectionV1 topics = client.getJSONTranslatedTopicsWithQuery(new PathSegmentImpl(query, false),
-                    expandString);
-            entityCache.add(topics);
-
-            return getWrapperFactory().createCollection(topics, RESTTranslatedTopicV1.class, false);
-        } catch (Exception e) {
-            log.error("Failed to retrieve Translated Topics with a query", e);
-        }
-        return null;
+        return getWrapperFactory().createCollection(getRESTTranslatedTopicsWithQuery(query), RESTTranslatedTopicV1.class, false);
     }
 
     @Override

@@ -4,11 +4,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTStringConstantProvider;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTStringConstantV1;
-import org.jboss.pressgang.ccms.wrapper.StringConstantWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 
 public class RESTStringConstantV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTStringConstantV1> {
 
@@ -30,19 +26,12 @@ public class RESTStringConstantV1ProxyHandler extends RESTBaseEntityV1ProxyHandl
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<StringConstantWrapper> revisions = getProvider().getStringConstantRevisions(
-                            stringConstant.getId(), getEntityRevision());
-                    retValue = revisions == null ? null : revisions.unwrap();
+                    retValue = getProvider().getRESTStringConstantRevisions(stringConstant.getId(), getEntityRevision());
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
-                return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue,
-                        getEntityRevision() != null);
-            } else {
-                return retValue;
-            }
+            return checkAndProxyReturnValue(retValue);
         }
 
         return super.invoke(self, thisMethod, proceed, args);

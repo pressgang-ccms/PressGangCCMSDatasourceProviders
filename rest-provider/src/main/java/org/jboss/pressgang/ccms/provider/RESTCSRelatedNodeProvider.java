@@ -6,17 +6,18 @@ import javassist.util.proxy.ProxyObject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.items.join.RESTCSRelatedNodeCollectionItemV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +40,10 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
                 "A parent is needed to get Content Spec Related Node revisions using V1 of the REST Interface.");
     }
 
-    public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedNodeRevisions(int id, Integer revision, final RESTCSNodeV1 parent) {
+    public RESTCSRelatedNodeCollectionV1 getRESTCSRelatedNodeRevisions(int id, Integer revision, final RESTCSNodeV1 parent) {
         final Integer csNodeId = parent.getId();
-        final Integer csNodeRevision = ((RESTBaseEntityV1ProxyHandler<RESTCSNodeV1>) ((ProxyObject) parent).getHandler()).getEntityRevision();
+        final Integer csNodeRevision = ((RESTBaseEntityV1ProxyHandler<RESTCSNodeV1>) ((ProxyObject) parent).getHandler())
+                .getEntityRevision();
 
         try {
             RESTCSNodeV1 csNode = null;
@@ -49,7 +51,7 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
             if (entityCache.containsKeyValue(RESTCSNodeV1.class, csNodeId, csNodeRevision)) {
                 csNode = entityCache.get(RESTCSNodeV1.class, csNodeId, csNodeRevision);
             }
-    
+
             /*
              * We need to expand the all the related nodes in the csNode collection. This has to be done as we don't know which side of
              * the node the related node comes from (to/from side), so we need to expand and check both.
@@ -57,8 +59,7 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
             final ExpandDataTrunk expand = new ExpandDataTrunk();
             final ExpandDataTrunk expandRelatedToNodes = new ExpandDataTrunk(new ExpandDataDetails(RESTCSNodeV1.RELATED_TO_NAME));
             final ExpandDataTrunk expandRelatedFromNodes = new ExpandDataTrunk(new ExpandDataDetails(RESTCSNodeV1.RELATED_FROM_NAME));
-            final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTCSRelatedNodeV1
-                    .REVISIONS_NAME));
+            final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTCSRelatedNodeV1.REVISIONS_NAME));
 
             expandRelatedToNodes.setBranches(CollectionUtilities.toArrayList(expandRevisions));
             expandRelatedFromNodes.setBranches(CollectionUtilities.toArrayList(expandRevisions));
@@ -89,16 +90,16 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
                     final List<RESTCSRelatedNodeV1> newRelatedNodes = tempCSNode.getRelatedToNodes().returnItems();
                     for (final RESTCSRelatedNodeV1 newRelatedNode : newRelatedNodes) {
                         boolean found = false;
-    
+
                         for (final RESTCSRelatedNodeV1 relatedNode : relatedNodes) {
                             if (relatedNode.getId().equals(newRelatedNode.getId())) {
                                 relatedNode.setRevisions(newRelatedNode.getRevisions());
-    
+
                                 found = true;
                                 break;
                             }
                         }
-    
+
                         if (!found) {
                             csNode.getRelatedToNodes().addItem(newRelatedNode);
                         }
@@ -131,28 +132,32 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
             }
 
             // Check if the related node came from the "to" side first.
-            for (final RESTCSRelatedNodeCollectionItemV1 categoryItem : csNode.getRelatedToNodes().getItems()) {
-                final RESTCSRelatedNodeV1 category = categoryItem.getItem();
+            for (final RESTCSRelatedNodeCollectionItemV1 relatedNodeItem : csNode.getRelatedToNodes().getItems()) {
+                final RESTCSRelatedNodeV1 relatedNode = relatedNodeItem.getItem();
 
-                if (category.getId() == id && (revision == null || category.getRevision().equals(revision))) {
-                    return getWrapperFactory().createCollection(category.getRevisions(), RESTCSRelatedNodeV1.class, true, parent);
+                if (relatedNode.getId() == id && (revision == null || relatedNode.getRevision().equals(revision))) {
+                    return relatedNode.getRevisions();
                 }
             }
 
             // Next check if the related node came from the "from" side.
-            for (final RESTCSRelatedNodeCollectionItemV1 categoryItem : csNode.getRelatedFromNodes().getItems()) {
-                final RESTCSRelatedNodeV1 category = categoryItem.getItem();
+            for (final RESTCSRelatedNodeCollectionItemV1 relatedNodeItem : csNode.getRelatedFromNodes().getItems()) {
+                final RESTCSRelatedNodeV1 relatedNode = relatedNodeItem.getItem();
 
-                if (category.getId() == id && (revision == null || category.getRevision().equals(revision))) {
-                    return getWrapperFactory().createCollection(category.getRevisions(), RESTCSRelatedNodeV1.class, true, parent);
+                if (relatedNode.getId() == id && (revision == null || relatedNode.getRevision().equals(revision))) {
+                    return relatedNode.getRevisions();
                 }
             }
 
         } catch (Exception e) {
-            log.error("Unable to retrieve the Revisions for CSRelatedNode " + id + (revision == null ? "" : (", Revision " + revision)),
-                    e);
+            log.error("Unable to retrieve the Revisions for CSRelatedNode " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
 
         return null;
+    }
+
+    public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedNodeRevisions(int id, Integer revision, final RESTCSNodeV1 parent) {
+        return getWrapperFactory().createCollection(getRESTCSRelatedNodeRevisions(id, revision, parent), RESTCSRelatedNodeV1.class, true,
+                parent);
     }
 }

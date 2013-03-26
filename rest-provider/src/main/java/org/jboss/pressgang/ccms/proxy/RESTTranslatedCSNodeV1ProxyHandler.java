@@ -2,14 +2,9 @@ package org.jboss.pressgang.ccms.proxy;
 
 import java.lang.reflect.Method;
 
-import org.jboss.pressgang.ccms.provider.RESTTranslatedCSNodeProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
+import org.jboss.pressgang.ccms.provider.RESTTranslatedCSNodeProvider;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
-import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 
 public class RESTTranslatedCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTranslatedCSNodeV1> {
     public RESTTranslatedCSNodeV1ProxyHandler(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeV1 entity,
@@ -31,23 +26,16 @@ public class RESTTranslatedCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHan
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getTranslatedNodeStrings_OTM")) {
-                    final CollectionWrapper<TranslatedCSNodeStringWrapper> children = getProvider().getTranslatedCSNodeStrings(
-                            csNode.getId(), getEntityRevision(), getProxyEntity());
-                    retValue = children == null ? null : children.unwrap();
+                    retValue = getProvider().getRESTTranslatedCSNodeStrings(csNode.getId(), getEntityRevision());
+                } else if (methodName.equals("getTranslatedTopic")) {
+                    retValue = getProvider().getRESTTranslatedCSNodeTranslatedTopic(csNode.getId(), getEntityRevision());
                 } else if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<TranslatedCSNodeWrapper> revisions = getProvider().getTranslatedCSNodeRevisions(csNode.getId(),
-                            getEntityRevision());
-                    retValue = revisions == null ? null : revisions.unwrap();
+                    retValue = getProvider().getRESTTranslatedCSNodeRevisions(csNode.getId(), getEntityRevision());
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
-                return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue,
-                        getEntityRevision() != null);
-            } else {
-                return retValue;
-            }
+            return checkAndProxyReturnValue(retValue);
         }
 
         return super.invoke(self, thisMethod, proceed, args);

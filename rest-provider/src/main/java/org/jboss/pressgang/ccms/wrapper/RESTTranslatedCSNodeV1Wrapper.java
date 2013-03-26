@@ -3,13 +3,15 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSNodeWrapper, RESTTranslatedCSNodeV1> implements TranslatedCSNodeWrapper {
+public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSNodeWrapper,
+        RESTTranslatedCSNodeV1> implements TranslatedCSNodeWrapper {
     private final RESTTranslatedCSNodeV1 node;
 
     protected RESTTranslatedCSNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeV1 entity,
@@ -89,5 +91,21 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSN
     @Override
     public void setCSNode(CSNodeWrapper node) {
         getEntity().setNode(node == null ? null : (RESTCSNodeV1) node.unwrap());
+    }
+
+    @Override
+    public TranslatedContentSpecWrapper getTranslatedContentSpec() {
+        return getWrapperFactory().create(getProxyEntity().getTranslatedContentSpec(), isRevisionEntity(),
+                TranslatedContentSpecWrapper.class);
+    }
+
+    @Override
+    public TranslatedTopicWrapper getTranslatedTopic() {
+        return getWrapperFactory().create(getProxyEntity().getTranslatedTopic(), isRevisionEntity(), TranslatedTopicWrapper.class);
+    }
+
+    @Override
+    public void setTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
+        getEntity().explicitSetTranslatedTopic(translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap());
     }
 }

@@ -44,13 +44,16 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
         entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTPropertyTagV1 getRESTPropertyTag(int id) {
+        return getRESTPropertyTag(id, null);
+    }
+
     @Override
     public PropertyTagWrapper getPropertyTag(int id) {
         return getPropertyTag(id, null);
     }
 
-    @Override
-    public PropertyTagWrapper getPropertyTag(int id, final Integer revision) {
+    public RESTPropertyTagV1 getRESTPropertyTag(int id, final Integer revision) {
         try {
             final RESTPropertyTagV1 propertyTag;
             if (entityCache.containsKeyValue(RESTPropertyTagV1.class, id, revision)) {
@@ -64,11 +67,16 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
                     entityCache.add(propertyTag, revision);
                 }
             }
-            return getWrapperFactory().create(propertyTag, revision != null);
+            return propertyTag;
         } catch (Exception e) {
             log.error("Failed to retrieve Property Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
+    }
+
+    @Override
+    public PropertyTagWrapper getPropertyTag(int id, final Integer revision) {
+        return getWrapperFactory().create(getRESTPropertyTag(id, revision), revision != null);
     }
 
     /*@Override
@@ -119,15 +127,14 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
         return null;
     }*/
 
-    @Override
-    public CollectionWrapper<PropertyTagWrapper> getPropertyTagRevisions(int id, Integer revision) {
+    public RESTPropertyTagCollectionV1 getRESTPropertyTagRevisions(int id, Integer revision) {
         try {
             RESTPropertyTagV1 propertyTag = null;
             if (entityCache.containsKeyValue(RESTPropertyTagV1.class, id, revision)) {
                 propertyTag = entityCache.get(RESTPropertyTagV1.class, id, revision);
 
                 if (propertyTag.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(propertyTag.getRevisions(), RESTPropertyTagV1.class, true);
+                    return propertyTag.getRevisions();
                 }
             }
             /* We need to expand the all the items in the topic collection */
@@ -154,11 +161,16 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
                 propertyTag.setRevisions(tempPropertyTag.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(propertyTag.getRevisions(), RESTPropertyTagV1.class, true);
+            return propertyTag.getRevisions();
         } catch (Exception e) {
             log.error("", e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<PropertyTagWrapper> getPropertyTagRevisions(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTPropertyTagRevisions(id, revision), RESTPropertyTagV1.class, true);
     }
 
     @Override

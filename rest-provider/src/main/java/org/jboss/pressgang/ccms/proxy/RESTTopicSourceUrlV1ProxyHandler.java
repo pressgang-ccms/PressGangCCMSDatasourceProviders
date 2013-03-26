@@ -4,21 +4,14 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTopicSourceURLProvider;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 
 public class RESTTopicSourceUrlV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTopicSourceUrlV1> {
 
-    private final RESTBaseTopicV1<?, ?, ?> parent;
-
     public RESTTopicSourceUrlV1ProxyHandler(final RESTProviderFactory providerFactory, RESTTopicSourceUrlV1 entity,
             boolean isRevisionEntity, final RESTBaseTopicV1<?, ?, ?> parent) {
-        super(providerFactory, entity, isRevisionEntity);
-        this.parent = parent;
+        super(providerFactory, entity, isRevisionEntity, parent);
     }
 
     protected RESTTopicSourceURLProvider getProvider() {
@@ -35,22 +28,19 @@ public class RESTTopicSourceUrlV1ProxyHandler extends RESTBaseEntityV1ProxyHandl
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<TopicSourceURLWrapper> revisions = getProvider().getTopicSourceURLRevisions(
-                            topicSourceUrl.getId(), getEntityRevision(), parent);
-                    retValue = revisions == null ? null : revisions.unwrap();
+                    retValue = getProvider().getRESTTopicSourceURLRevisions(topicSourceUrl.getId(), getEntityRevision(), getParent());
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
-                return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue, getEntityRevision() != null,
-                        parent);
-            } else {
-                return retValue;
-            }
+            return checkAndProxyReturnValue(retValue);
         }
 
         return super.invoke(self, thisMethod, proceed, args);
     }
 
+    @Override
+    protected RESTBaseTopicV1<?, ?, ?> getParent() {
+        return (RESTBaseTopicV1<?, ?, ?>) super.getParent();
+    }
 }

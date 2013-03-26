@@ -42,17 +42,25 @@ public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider impl
         throw new UnsupportedOperationException("A parent is needed to get PropertyTagInTopic revisions using V1 of the REST Interface.");
     }
 
-    public CollectionWrapper<PropertyTagInTopicWrapper> getPropertyTagInTopicRevisions(int id, final Integer revision,
+    /**
+     * Get the REST Property Tag Revision Collection for a specific Property Tag defined by ID and Revision.
+     *
+     * @param id
+     * @param revision
+     * @param topic
+     * @return
+     */
+    public RESTAssignedPropertyTagCollectionV1 getRESTPropertyTagInTopicRevisions(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> topic) {
         try {
             final RESTAssignedPropertyTagCollectionV1 propertyTagRevisions;
             if (topic instanceof RESTTranslatedTopicV1) {
-                propertyTagRevisions = getTranslatedTopicPropertyRevisions(id, revision, topic);
+                propertyTagRevisions = getRESTTranslatedTopicPropertyRevisions(id, revision, topic);
             } else {
-                propertyTagRevisions = getTopicPropertyRevisions(id, revision, topic);
+                propertyTagRevisions = getRESTTopicPropertyRevisions(id, revision, topic);
             }
 
-            return getWrapperFactory().createCollection(propertyTagRevisions, RESTAssignedPropertyTagV1.class, true, topic);
+            return propertyTagRevisions;
         } catch (Exception e) {
             log.error("Unable to retrieve the Revisions for PropertyTagInTopic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -61,8 +69,22 @@ public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider impl
         return null;
     }
 
+    /**
+     * Get the Wrapped Property Tag Revision Collection for a specific Property Tag defined by ID and Revision.
+     *
+     * @param id
+     * @param revision
+     * @param topic
+     * @return
+     */
+    public CollectionWrapper<PropertyTagInTopicWrapper> getPropertyTagInTopicRevisions(int id, final Integer revision,
+            final RESTBaseTopicV1<?, ?, ?> topic) {
+        return getWrapperFactory().createCollection(getRESTPropertyTagInTopicRevisions(id, revision, topic),
+                RESTAssignedPropertyTagV1.class, true, topic);
+    }
+
     @SuppressWarnings("unchecked")
-    protected RESTAssignedPropertyTagCollectionV1 getTopicPropertyRevisions(int id, final Integer revision,
+    protected RESTAssignedPropertyTagCollectionV1 getRESTTopicPropertyRevisions(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> parent) throws IOException {
         final Integer tagId = parent.getId();
         final Integer tagRevision = ((RESTBaseEntityV1ProxyHandler<RESTTopicV1>) ((ProxyObject) parent).getHandler()).getEntityRevision();
@@ -133,7 +155,7 @@ public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider impl
     }
 
     @SuppressWarnings("unchecked")
-    protected RESTAssignedPropertyTagCollectionV1 getTranslatedTopicPropertyRevisions(int id, final Integer revision,
+    protected RESTAssignedPropertyTagCollectionV1 getRESTTranslatedTopicPropertyRevisions(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> parent) throws IOException {
         final Integer topicId = parent.getId();
         final Integer topicRevision = ((RESTBaseEntityV1ProxyHandler<RESTTranslatedTopicV1>) ((ProxyObject) parent).getHandler())

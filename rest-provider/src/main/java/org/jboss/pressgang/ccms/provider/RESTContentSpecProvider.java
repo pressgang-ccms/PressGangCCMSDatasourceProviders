@@ -2,7 +2,11 @@ package org.jboss.pressgang.ccms.provider;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
@@ -39,13 +43,16 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         entityCache = restManager.getRESTEntityCache();
     }
 
+    public RESTContentSpecV1 getRESTContentSpec(int id) {
+        return getRESTContentSpec(id, null);
+    }
+
     @Override
     public ContentSpecWrapper getContentSpec(int id) {
         return getContentSpec(id, null);
     }
 
-    @Override
-    public ContentSpecWrapper getContentSpec(int id, Integer revision) {
+    public RESTContentSpecV1 getRESTContentSpec(int id, Integer revision) {
         try {
             final RESTContentSpecV1 contentSpec;
             if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
@@ -59,7 +66,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                     entityCache.add(contentSpec, revision);
                 }
             }
-            return getWrapperFactory().create(contentSpec, revision != null);
+            return contentSpec;
         } catch (Exception e) {
             log.error("Failed to retrieve Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -67,7 +74,11 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     }
 
     @Override
-    public CollectionWrapper<ContentSpecWrapper> getContentSpecsWithQuery(final String query) {
+    public ContentSpecWrapper getContentSpec(int id, Integer revision) {
+        return getWrapperFactory().create(getContentSpec(id, revision), revision != null);
+    }
+
+    public RESTContentSpecCollectionV1 getRESTContentSpecsWithQuery(final String query) {
         if (query == null || query.isEmpty()) return null;
 
         try {
@@ -83,7 +94,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                     expandString);
             entityCache.add(contentSpecs);
 
-            return getWrapperFactory().createCollection(contentSpecs, RESTContentSpecV1.class, false);
+            return contentSpecs;
         } catch (Exception e) {
             log.error("Failed to retrieve ContentSpecs with a query", e);
         }
@@ -91,7 +102,13 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getContentSpecTags(int id, Integer revision) {
+    public CollectionWrapper<ContentSpecWrapper> getContentSpecsWithQuery(final String query) {
+        if (query == null || query.isEmpty()) return null;
+
+        return getWrapperFactory().createCollection(getRESTContentSpecsWithQuery(query), RESTContentSpecV1.class, false);
+    }
+
+    public RESTTagCollectionV1 getRESTContentSpecTags(int id, Integer revision) {
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
@@ -99,7 +116,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec = entityCache.get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getTags() != null) {
-                    return getWrapperFactory().createCollection(contentSpec.getTags(), RESTTagV1.class, revision != null);
+                    return contentSpec.getTags();
                 }
             }
 
@@ -128,7 +145,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec.setTags(tempContentSpec.getTags());
             }
 
-            return getWrapperFactory().createCollection(contentSpec.getTags(), RESTTagV1.class, revision != null);
+            return contentSpec.getTags();
         } catch (Exception e) {
             log.error("Failed to retrieve the Tags for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
@@ -136,7 +153,11 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     }
 
     @Override
-    public UpdateableCollectionWrapper<CSNodeWrapper> getContentSpecNodes(int id, Integer revision) {
+    public CollectionWrapper<TagWrapper> getContentSpecTags(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTContentSpecTags(id, revision), RESTTagV1.class, revision != null);
+    }
+
+    public RESTCSNodeCollectionV1 getRESTContentSpecNodes(int id, Integer revision) {
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
@@ -144,9 +165,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec = (RESTContentSpecV1) entityCache.get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getChildren_OTM() != null) {
-                    final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(contentSpec.getChildren_OTM(),
-                            RESTCSNodeV1.class, revision != null);
-                    return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+                    return contentSpec.getChildren_OTM();
                 }
             }
 
@@ -175,9 +194,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec.setChildren_OTM(tempContentSpec.getChildren_OTM());
             }
 
-            final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(contentSpec.getChildren_OTM(),
-                    RESTCSNodeV1.class, revision != null);
-            return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+            return contentSpec.getChildren_OTM();
         } catch (Exception e) {
             log.error("Failed to retrieve the Children Nodes for Content Spec " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -186,7 +203,13 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     }
 
     @Override
-    public CollectionWrapper<TranslatedContentSpecWrapper> getContentSpecTranslations(int id, Integer revision) {
+    public UpdateableCollectionWrapper<CSNodeWrapper> getContentSpecNodes(int id, Integer revision) {
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getRESTContentSpecNodes(id, revision),
+                    RESTCSNodeV1.class, revision != null);
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+    }
+
+    public RESTTranslatedContentSpecCollectionV1 getRESTContentSpecTranslations(int id, Integer revision) {
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
@@ -194,8 +217,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec = (RESTContentSpecV1) entityCache.get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getTranslatedContentSpecs() != null) {
-                    return getWrapperFactory().createCollection(contentSpec.getTranslatedContentSpecs(), RESTTranslatedContentSpecV1.class,
-                            revision != null);
+                    return contentSpec.getTranslatedContentSpecs();
                 }
             }
 
@@ -224,8 +246,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec.setTranslatedContentSpecs(tempContentSpec.getTranslatedContentSpecs());
             }
 
-            return getWrapperFactory().createCollection(contentSpec.getTranslatedContentSpecs(), RESTTranslatedContentSpecV1.class,
-                    revision != null);
+            return contentSpec.getTranslatedContentSpecs();
         } catch (Exception e) {
             log.error("Failed to retrieve the Translations for Content Spec " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
@@ -234,7 +255,12 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     }
 
     @Override
-    public CollectionWrapper<ContentSpecWrapper> getContentSpecRevisions(int id, Integer revision) {
+    public CollectionWrapper<TranslatedContentSpecWrapper> getContentSpecTranslations(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTContentSpecTranslations(id, revision), RESTTranslatedContentSpecV1.class,
+                revision != null);
+    }
+
+    public RESTContentSpecCollectionV1 getRESTContentSpecRevisions(int id, Integer revision) {
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
@@ -242,7 +268,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec = entityCache.get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getRevisions() != null) {
-                    return getWrapperFactory().createCollection(contentSpec.getRevisions(), RESTContentSpecV1.class, true);
+                    return contentSpec.getRevisions();
                 }
             }
 
@@ -271,11 +297,68 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec.setRevisions(tempContentSpec.getRevisions());
             }
 
-            return getWrapperFactory().createCollection(contentSpec.getRevisions(), RESTContentSpecV1.class, true);
+            return contentSpec.getRevisions();
         } catch (Exception e) {
             log.error("Failed to retrieve the Revisions for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
+    }
+
+    @Override
+    public CollectionWrapper<ContentSpecWrapper> getContentSpecRevisions(int id, Integer revision) {
+        return getWrapperFactory().createCollection(getRESTContentSpecRevisions(id, revision), RESTContentSpecV1.class, true);
+    }
+
+    public RESTAssignedPropertyTagCollectionV1 getRESTContentSpecProperties(int id, final Integer revision) {
+        try {
+            RESTContentSpecV1 topic = null;
+            // Check the cache first
+            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                topic = entityCache.get(RESTContentSpecV1.class, id, revision);
+
+                if (topic.getProperties() != null) {
+                    return topic.getProperties();
+                }
+            }
+
+            // We need to expand the all the items in the topic collection */
+            final ExpandDataTrunk expand = new ExpandDataTrunk();
+            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.PROPERTIES_NAME));
+            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
+            final String expandString = mapper.writeValueAsString(expand);
+
+            // Load the topic from the REST Interface
+            final RESTContentSpecV1 tempContentSpec;
+            if (revision == null) {
+                tempContentSpec = client.getJSONContentSpec(id, expandString);
+            } else {
+                tempContentSpec = client.getJSONContentSpecRevision(id, revision, expandString);
+            }
+
+            if (topic == null) {
+                topic = tempContentSpec;
+                if (revision == null) {
+                    entityCache.add(topic);
+                } else {
+                    entityCache.add(topic, revision);
+                }
+            } else {
+                topic.setProperties(tempContentSpec.getProperties());
+            }
+
+            return topic.getProperties();
+        } catch (Exception e) {
+            log.error("Failed to retrieve the Properties for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+        }
+        return null;
+    }
+
+    @Override
+    public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getContentSpecProperties(int id, final Integer revision) {
+        final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
+                getRESTContentSpecProperties(id, revision), RESTAssignedPropertyTagV1.class, revision != null,
+                PropertyTagInContentSpecWrapper.class);
+        return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
     }
 
     @Override
@@ -336,56 +419,6 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     public boolean deleteContentSpec(Integer id) throws Exception {
         final RESTContentSpecV1 contentSpec = client.deleteJSONContentSpec(id, "");
         return contentSpec != null;
-    }
-
-    @Override
-    public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getContentSpecProperties(int id, final Integer revision) {
-        try {
-            RESTContentSpecV1 topic = null;
-            // Check the cache first
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
-                topic = entityCache.get(RESTContentSpecV1.class, id, revision);
-
-                if (topic.getProperties() != null) {
-                    final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
-                            topic.getProperties(), RESTAssignedPropertyTagV1.class, revision != null,
-                            PropertyTagInContentSpecWrapper.class);
-                    return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
-                }
-            }
-
-            // We need to expand the all the items in the topic collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.PROPERTIES_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
-
-            // Load the topic from the REST Interface
-            final RESTContentSpecV1 tempContentSpec;
-            if (revision == null) {
-                tempContentSpec = client.getJSONContentSpec(id, expandString);
-            } else {
-                tempContentSpec = client.getJSONContentSpecRevision(id, revision, expandString);
-            }
-
-            if (topic == null) {
-                topic = tempContentSpec;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
-            } else {
-                topic.setProperties(tempContentSpec.getProperties());
-            }
-
-            final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
-                    topic.getProperties(), RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInContentSpecWrapper.class);
-            return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
-        } catch (Exception e) {
-            log.error("Failed to retrieve the Properties for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
-        }
-        return null;
     }
 
     @Override

@@ -4,15 +4,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTopicProvider;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
-import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.TagWrapper;
-import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
-import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 
 public class RESTTopicV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTopicV1> {
 
@@ -37,41 +29,24 @@ public class RESTTopicV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTo
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getTags")) {
-                    final CollectionWrapper<TagWrapper> tags = getProvider().getTopicTags(topic.getId(), getEntityRevision());
-                    retValue = tags == null ? null : tags.unwrap();
+                    retValue = getProvider().getRESTTopicTags(topic.getId(), getEntityRevision());
                 } else if (methodName.equals("getSourceUrls_OTM")) {
-                    final CollectionWrapper<TopicSourceURLWrapper> sourceURLs = getProvider().getTopicSourceUrls(topic.getId(),
-                            getEntityRevision(), getProxyEntity());
-                    retValue = sourceURLs == null ? null : sourceURLs.unwrap();
+                    retValue = getProvider().getRESTTopicSourceUrls(topic.getId(), getEntityRevision());
                 } else if (methodName.equals("getProperties")) {
-                    final CollectionWrapper<PropertyTagInTopicWrapper> properties = getProvider().getTopicProperties(topic.getId(),
-                            getEntityRevision());
-                    retValue = properties == null ? null : properties.unwrap();
+                    retValue = getProvider().getRESTTopicProperties(topic.getId(), getEntityRevision());
                 } else if (methodName.equals("getOutgoingRelationships")) {
-                    final CollectionWrapper<TopicWrapper> outgoingRelationships = getProvider().getTopicOutgoingRelationships(topic.getId(),
-                            getEntityRevision());
-                    retValue = outgoingRelationships == null ? null : outgoingRelationships.unwrap();
+                    retValue = getProvider().getRESTTopicOutgoingRelationships(topic.getId(), getEntityRevision());
                 } else if (methodName.equals("getIncomingRelationships")) {
-                    final CollectionWrapper<TopicWrapper> incomingRelationships = getProvider().getTopicIncomingRelationships(topic.getId(),
-                            getEntityRevision());
-                    retValue = incomingRelationships == null ? null : incomingRelationships.unwrap();
+                    retValue = getProvider().getRESTTopicIncomingRelationships(topic.getId(), getEntityRevision());
                 } else if (methodName.equals("getTranslatedTopics_OTM")) {
-                    final CollectionWrapper<TranslatedTopicWrapper> translatedTopics = getProvider().getTopicTranslations(topic.getId(),
-                            getEntityRevision());
-                    retValue = translatedTopics == null ? null : translatedTopics.unwrap();
+                    retValue = getProvider().getRESTTopicTranslations(topic.getId(), getEntityRevision());
                 } else if (methodName.equals("getRevisions")) {
-                    final CollectionWrapper<TopicWrapper> revisions = getProvider().getTopicRevisions(topic.getId(), getEntityRevision());
-                    retValue = revisions == null ? null : revisions.unwrap();
+                    retValue = getProvider().getRESTTopicRevisions(topic.getId(), getEntityRevision());
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
-                return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue, getEntityRevision() != null,
-                        getProxyEntity());
-            } else {
-                return retValue;
-            }
+            return checkAndProxyReturnValue(retValue);
         }
 
         return super.invoke(proxy, thisMethod, proceed, args);

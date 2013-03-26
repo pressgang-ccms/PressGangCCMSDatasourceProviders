@@ -35,18 +35,18 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
         entityCache = restManager.getRESTEntityCache();
     }
 
-    public TranslatedTopicStringWrapper getTranslatedTopicString(int id, final Integer revision, final RESTTranslatedTopicV1 parent) {
+    public RESTTranslatedTopicStringV1 getRESTTranslatedTopicString(int id, final Integer revision, final RESTTranslatedTopicV1 parent) {
         try {
             if (entityCache.containsKeyValue(RESTTranslatedTopicStringV1.class, id, revision)) {
-                return getWrapperFactory().create(entityCache.get(RESTTranslatedTopicStringV1.class, id, revision), revision != null,
-                        parent);
+                return entityCache.get(RESTTranslatedTopicStringV1.class, id, revision);
             } else {
                 final RESTTranslatedTopicStringCollectionV1 translatedTopicStrings = parent.getTranslatedTopicStrings_OTM();
 
                 final List<RESTTranslatedTopicStringV1> translatedTopicStringItems = translatedTopicStrings.returnItems();
                 for (final RESTTranslatedTopicStringV1 translatedTopicString : translatedTopicStringItems) {
-                    if (translatedTopicString.getId() == id && (revision == null || translatedTopicString.getRevision().equals(revision))) {
-                        return getWrapperFactory().create(translatedTopicString, revision != null, parent);
+                    if (translatedTopicString.getId().equals(id) && (revision == null || translatedTopicString.getRevision().equals(
+                            revision))) {
+                        return translatedTopicString;
                     }
                 }
             }
@@ -56,22 +56,26 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
         return null;
     }
 
+    public TranslatedTopicStringWrapper getTranslatedTopicString(int id, final Integer revision, final RESTTranslatedTopicV1 parent) {
+        return getWrapperFactory().create(getRESTTranslatedTopicString(id, revision, parent), revision != null, parent);
+    }
+
     @Override
     public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStringRevisions(int id, final Integer revision) {
         throw new UnsupportedOperationException("A parent is needed to get Translated Topic Strings using V1 of the REST Interface.");
     }
 
-    public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStringRevisions(int id, final Integer revision,
+    public RESTTranslatedTopicStringCollectionV1 getRESTTranslatedTopicStringRevisions(int id, final Integer revision,
             final RESTTranslatedTopicV1 parent) {
         final RESTTranslatedTopicV1ProxyHandler proxyHandler = (RESTTranslatedTopicV1ProxyHandler) ((ProxyObject) parent).getHandler();
         final Integer translatedTopicId = parent.getId();
         final Integer translatedTopicRevision = proxyHandler.getEntityRevision();
 
-        final RESTTranslatedTopicStringV1 translatedTopicString = (RESTTranslatedTopicStringV1) getTranslatedTopicString(id, revision,
-                parent).unwrap();
-        if (translatedTopicString.getRevisions() != null) {
-            return getWrapperFactory().createCollection(translatedTopicString.getRevisions(), RESTTranslatedTopicStringV1.class,
-                    revision != null, parent);
+        final RESTTranslatedTopicStringV1 translatedTopicString = getRESTTranslatedTopicString(id, revision, parent);
+        if (translatedTopicString == null) {
+            return null;
+        } else if (translatedTopicString.getRevisions() != null) {
+            return translatedTopicString.getRevisions();
         } else {
             try {
                 RESTTranslatedTopicV1 translatedTopic = null;
@@ -141,8 +145,7 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
                     final RESTTranslatedTopicStringV1 langTranslatedTopic = translatedTopicItem.getItem();
 
                     if (langTranslatedTopic.getId() == id && (revision == null || langTranslatedTopic.getRevision().equals(revision))) {
-                        return getWrapperFactory().createCollection(translatedTopicString.getRevisions(), RESTTranslatedTopicStringV1.class,
-                                revision != null, parent);
+                        return translatedTopicString.getRevisions();
                     }
                 }
             } catch (Exception e) {
@@ -151,6 +154,12 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
         }
 
         return null;
+    }
+
+    public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStringRevisions(int id, final Integer revision,
+            final RESTTranslatedTopicV1 parent) {
+        return getWrapperFactory().createCollection(getRESTTranslatedTopicStringRevisions(id, revision, parent),
+                RESTTranslatedTopicStringV1.class, revision != null, parent);
     }
 
     public TranslatedTopicStringWrapper newTranslatedTopicString(final TranslatedTopicWrapper translatedTopic) {
