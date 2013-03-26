@@ -26,6 +26,10 @@ public interface TranslatedTopicWrapper extends BaseTopicWrapper<TranslatedTopic
 
     void setHtmlUpdated(Date htmlUpdated);
 
+    String getTranslatedXMLCondition();
+
+    void setTranslatedXMLCondition(String translatedXMLCondition);
+
     UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings();
 
     void setTranslatedTopicStrings(UpdateableCollectionWrapper<TranslatedTopicStringWrapper> translatedStrings);
@@ -33,4 +37,8 @@ public interface TranslatedTopicWrapper extends BaseTopicWrapper<TranslatedTopic
     TopicWrapper getTopic();
 
     void setTopic(TopicWrapper topic);
+
+    TranslatedCSNodeWrapper getTranslatedCSNode();
+
+    void setTranslatedCSNode(TranslatedCSNodeWrapper translatedCSNode);
 }

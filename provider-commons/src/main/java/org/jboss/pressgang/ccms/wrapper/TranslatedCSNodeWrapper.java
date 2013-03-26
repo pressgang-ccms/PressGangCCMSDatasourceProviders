@@ -25,4 +25,10 @@ public interface TranslatedCSNodeWrapper extends EntityWrapper<TranslatedCSNodeW
     CSNodeWrapper getCSNode();
 
     void setCSNode(CSNodeWrapper node);
+
+    TranslatedContentSpecWrapper getTranslatedContentSpec();
+
+    TranslatedTopicWrapper getTranslatedTopic();
+
+    void setTranslatedTopic(TranslatedTopicWrapper translatedTopic);
 }
