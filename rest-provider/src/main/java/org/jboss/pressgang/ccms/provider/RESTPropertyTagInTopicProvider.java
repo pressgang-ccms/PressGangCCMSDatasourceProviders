@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTAssignedPropertyTagCollectionItemV1;
@@ -13,11 +12,6 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -26,15 +20,9 @@ import org.slf4j.LoggerFactory;
 
 public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider implements PropertyTagInTopicProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInTopicProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTPropertyTagInTopicProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
     }
 
     @Override
@@ -91,34 +79,24 @@ public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider impl
 
         RESTTopicV1 topic = null;
         // Check the cache first
-        if (entityCache.containsKeyValue(RESTTopicV1.class, tagId, tagRevision)) {
-            topic = entityCache.get(RESTTopicV1.class, tagId, tagRevision);
+        if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, tagId, tagRevision)) {
+            topic = getRESTEntityCache().get(RESTTopicV1.class, tagId, tagRevision);
         }
 
-        /* We need to expand the all the items in the topic collection */
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandProperties = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.PROPERTIES_NAME));
-        final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTAssignedPropertyTagV1.REVISIONS_NAME));
+        // We need to expand the all the property tag revisions in the topic
+        final String expandString = getExpansionString(RESTTopicV1.PROPERTIES_NAME, RESTAssignedPropertyTagV1.REVISIONS_NAME);
 
-        expandProperties.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-        expand.setBranches(CollectionUtilities.toArrayList(expandProperties));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
+        // Load the topic from the REST Interface
         final RESTTopicV1 tempTopic;
         if (tagRevision == null) {
-            tempTopic = client.getJSONTopic(tagId, expandString);
+            tempTopic = getRESTClient().getJSONTopic(tagId, expandString);
         } else {
-            tempTopic = client.getJSONTopicRevision(tagId, tagRevision, expandString);
+            tempTopic = getRESTClient().getJSONTopicRevision(tagId, tagRevision, expandString);
         }
 
         if (topic == null) {
             topic = tempTopic;
-            if (tagRevision == null) {
-                entityCache.add(topic);
-            } else {
-                entityCache.add(topic, tagRevision);
-            }
+            getRESTEntityCache().add(topic, tagRevision);
         } else if (topic.getProperties() == null) {
             topic.setProperties(tempTopic.getProperties());
         } else {
@@ -143,6 +121,7 @@ public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider impl
             }
         }
 
+        // Find the matching properties and return it's revisions
         for (final RESTAssignedPropertyTagCollectionItemV1 propertyItem : topic.getProperties().getItems()) {
             final RESTAssignedPropertyTagV1 propertyTag = propertyItem.getItem();
 
@@ -161,41 +140,31 @@ public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider impl
         final Integer topicRevision = ((RESTBaseEntityV1ProxyHandler<RESTTranslatedTopicV1>) ((ProxyObject) parent).getHandler())
                 .getEntityRevision();
 
-        RESTTranslatedTopicV1 topic = null;
+        RESTTranslatedTopicV1 translatedTopic = null;
         // Check the cache first
-        if (entityCache.containsKeyValue(RESTTranslatedTopicV1.class, topicId, topicRevision)) {
-            topic = entityCache.get(RESTTranslatedTopicV1.class, topicId, topicRevision);
+        if (getRESTEntityCache().containsKeyValue(RESTTranslatedTopicV1.class, topicId, topicRevision)) {
+            translatedTopic = getRESTEntityCache().get(RESTTranslatedTopicV1.class, topicId, topicRevision);
         }
 
-                /* We need to expand the all the items in the topic collection */
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandProperties = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.PROPERTIES_NAME));
-        final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTAssignedPropertyTagV1.REVISIONS_NAME));
+        // We need to expand the all the property tag revisions in the translated topic
+        final String expandString = getExpansionString(RESTTranslatedTopicV1.PROPERTIES_NAME, RESTAssignedPropertyTagV1.REVISIONS_NAME);
 
-        expandProperties.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-        expand.setBranches(CollectionUtilities.toArrayList(expandProperties));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
+        // Load the translated topic from the REST Interface
         final RESTTranslatedTopicV1 tempTranslatedTopic;
         if (topicRevision == null) {
-            tempTranslatedTopic = client.getJSONTranslatedTopic(topicId, expandString);
+            tempTranslatedTopic = getRESTClient().getJSONTranslatedTopic(topicId, expandString);
         } else {
-            tempTranslatedTopic = client.getJSONTranslatedTopicRevision(topicId, topicRevision, expandString);
+            tempTranslatedTopic = getRESTClient().getJSONTranslatedTopicRevision(topicId, topicRevision, expandString);
         }
 
-        if (topic == null) {
-            topic = tempTranslatedTopic;
-            if (topicRevision == null) {
-                entityCache.add(topic);
-            } else {
-                entityCache.add(topic, topicRevision);
-            }
-        } else if (topic.getSourceUrls_OTM() == null) {
-            topic.setProperties(tempTranslatedTopic.getProperties());
+        if (translatedTopic == null) {
+            translatedTopic = tempTranslatedTopic;
+            getRESTEntityCache().add(translatedTopic, topicRevision);
+        } else if (translatedTopic.getSourceUrls_OTM() == null) {
+            translatedTopic.setProperties(tempTranslatedTopic.getProperties());
         } else {
             // Iterate over the current and old source urls and add any missing objects.
-            final List<RESTAssignedPropertyTagV1> properties = topic.getProperties().returnItems();
+            final List<RESTAssignedPropertyTagV1> properties = translatedTopic.getProperties().returnItems();
             final List<RESTAssignedPropertyTagV1> newProperties = tempTranslatedTopic.getProperties().returnItems();
             for (final RESTAssignedPropertyTagV1 newProperty : newProperties) {
                 boolean found = false;
@@ -210,13 +179,14 @@ public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider impl
                 }
 
                 if (!found) {
-                    topic.getProperties().addItem(newProperty);
+                    translatedTopic.getProperties().addItem(newProperty);
                 }
             }
         }
 
-        for (final RESTAssignedPropertyTagCollectionItemV1 sourceURLItem : topic.getProperties().getItems()) {
-            final RESTAssignedPropertyTagV1 propertyTag = sourceURLItem.getItem();
+        // Find the matching properties and return it's revisions
+        for (final RESTAssignedPropertyTagCollectionItemV1 propertyItem : translatedTopic.getProperties().getItems()) {
+            final RESTAssignedPropertyTagV1 propertyTag = propertyItem.getItem();
 
             if (propertyTag.getId() == id && (revision == null || propertyTag.getRevision().equals(revision))) {
                 return propertyTag.getRevisions();

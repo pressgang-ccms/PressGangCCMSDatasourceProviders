@@ -3,18 +3,14 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTAssignedPropertyTagCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -23,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvider implements PropertyTagInContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInContentSpecProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
 
     private final RESTEntityCache entityCache;
     private final RESTInterfaceV1 client;
@@ -34,6 +29,14 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
         entityCache = restManager.getRESTEntityCache();
     }
 
+    protected RESTContentSpecV1 loadContentSpec(Integer id, Integer revision, String expandString) {
+        if (revision == null) {
+            return client.getJSONContentSpec(id, expandString);
+        } else {
+            return client.getJSONContentSpecRevision(id, revision, expandString);
+        }
+    }
+
     @Override
     public CollectionWrapper<PropertyTagInContentSpecWrapper> getPropertyTagInContentSpecRevisions(int id, Integer revision) {
         throw new UnsupportedOperationException(
@@ -42,41 +45,26 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
 
     public RESTAssignedPropertyTagCollectionV1 getRESTPropertyTagInContentSpecRevisions(int id, Integer revision,
             final RESTContentSpecV1 parent) {
-        final Integer tagId = parent.getId();
-        final Integer tagRevision = ((RESTBaseEntityV1ProxyHandler<RESTContentSpecV1>) ((ProxyObject) parent).getHandler())
+        final Integer contentSpecId = parent.getId();
+        final Integer contentSpecRevision = ((RESTBaseEntityV1ProxyHandler<RESTContentSpecV1>) ((ProxyObject) parent).getHandler())
                 .getEntityRevision();
 
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, tagId, tagRevision)) {
-                contentSpec = entityCache.get(RESTContentSpecV1.class, tagId, tagRevision);
+            if (entityCache.containsKeyValue(RESTContentSpecV1.class, contentSpecId, contentSpecRevision)) {
+                contentSpec = entityCache.get(RESTContentSpecV1.class, contentSpecId, contentSpecRevision);
             }
-    
-            /* We need to expand the all the items in the contentSpec collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandProperties = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.PROPERTIES_NAME));
-            final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTAssignedPropertyTagV1.REVISIONS_NAME));
 
-            expandProperties.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-            expand.setBranches(CollectionUtilities.toArrayList(expandProperties));
+            // We need to expand the all the items in the contentSpec collection
+            final String expandString = getExpansionString(RESTContentSpecV1.PROPERTIES_NAME, RESTAssignedPropertyTagV1.REVISIONS_NAME);
 
-            final String expandString = mapper.writeValueAsString(expand);
-
-            final RESTContentSpecV1 tempContentSpec;
-            if (tagRevision == null) {
-                tempContentSpec = client.getJSONContentSpec(tagId, expandString);
-            } else {
-                tempContentSpec = client.getJSONContentSpecRevision(tagId, tagRevision, expandString);
-            }
+            // Load the Content Spec from the REST Interface
+            final RESTContentSpecV1 tempContentSpec = loadContentSpec(contentSpecId, contentSpecRevision, expandString);
 
             if (contentSpec == null) {
                 contentSpec = tempContentSpec;
-                if (tagRevision == null) {
-                    entityCache.add(contentSpec);
-                } else {
-                    entityCache.add(contentSpec, tagRevision);
-                }
+                entityCache.add(contentSpec, contentSpecRevision);
             } else if (contentSpec.getProperties() == null) {
                 contentSpec.setProperties(tempContentSpec.getProperties());
             } else {
@@ -101,6 +89,7 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
                 }
             }
 
+            // Find the matching property tag and return it's revisions
             for (final RESTAssignedPropertyTagCollectionItemV1 propertyItem : contentSpec.getProperties().getItems()) {
                 final RESTAssignedPropertyTagV1 propertyTag = propertyItem.getItem();
 
@@ -108,7 +97,6 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
                     return propertyTag.getRevisions();
                 }
             }
-
         } catch (Exception e) {
             log.error("Unable to retrieve the Revisions for PropertyTagInContentSpec " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);

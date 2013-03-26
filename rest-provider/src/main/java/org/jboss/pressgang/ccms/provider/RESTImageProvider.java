@@ -1,16 +1,10 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.ImageWrapper;
 import org.jboss.pressgang.ccms.wrapper.LanguageImageWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
@@ -20,15 +14,17 @@ import org.slf4j.LoggerFactory;
 
 public class RESTImageProvider extends RESTDataProvider implements ImageProvider {
     private static Logger log = LoggerFactory.getLogger(RESTImageProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTImageProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTImageV1 loadImage(Integer id, Integer revision, String expandString) {
+        if (revision == null) {
+            return getRESTClient().getJSONImage(id, expandString);
+        } else {
+            return getRESTClient().getJSONImageRevision(id, revision, expandString);
+        }
     }
 
     public RESTImageV1 getRESTImage(int id) {
@@ -43,16 +39,11 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
     public RESTImageV1 getRESTImage(int id, Integer revision) {
         try {
             final RESTImageV1 image;
-            if (entityCache.containsKeyValue(RESTImageV1.class, id, revision)) {
-                image = entityCache.get(RESTImageV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, id, revision)) {
+                image = getRESTEntityCache().get(RESTImageV1.class, id, revision);
             } else {
-                if (revision == null) {
-                    image = client.getJSONImage(id, "");
-                    entityCache.add(image);
-                } else {
-                    image = client.getJSONImageRevision(id, revision, "");
-                    entityCache.add(image, revision);
-                }
+                image = loadImage(id, revision, "");
+                getRESTEntityCache().add(image, revision);
             }
 
             return image;
@@ -76,8 +67,8 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
         try {
             RESTImageV1 image = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTImageV1.class, id, revision)) {
-                image = entityCache.get(RESTImageV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, id, revision)) {
+                image = getRESTEntityCache().get(RESTImageV1.class, id, revision);
 
                 if (image.getLanguageImages_OTM() != null) {
                     return image.getLanguageImages_OTM();
@@ -85,26 +76,14 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
             }
 
             // We need to expand the language images in the image collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandLanguageImages = new ExpandDataTrunk(new ExpandDataDetails(RESTImageV1.LANGUAGEIMAGES_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandLanguageImages));
-            final String expandString = mapper.writeValueAsString(expand);
+            final String expandString = getExpansionString(RESTImageV1.LANGUAGEIMAGES_NAME);
 
             // Load the image from the REST Interface
-            final RESTImageV1 tempImage;
-            if (revision == null) {
-                tempImage = client.getJSONImage(id, expandString);
-            } else {
-                tempImage = client.getJSONImageRevision(id, revision, expandString);
-            }
+            final RESTImageV1 tempImage = loadImage(id, revision, expandString);
 
             if (image == null) {
                 image = tempImage;
-                if (revision == null) {
-                    entityCache.add(image);
-                } else {
-                    entityCache.add(image, revision);
-                }
+                getRESTEntityCache().add(image, revision);
             } else {
                 image.setLanguageImages_OTM(tempImage.getLanguageImages_OTM());
             }
@@ -125,8 +104,8 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
         try {
             RESTImageV1 image = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTImageV1.class, id, revision)) {
-                image = entityCache.get(RESTImageV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, id, revision)) {
+                image = getRESTEntityCache().get(RESTImageV1.class, id, revision);
 
                 if (image.getRevisions() != null) {
                     return image.getRevisions();
@@ -134,26 +113,14 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
             }
 
             // We need to expand the revisions in the image collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandLanguageImages = new ExpandDataTrunk(new ExpandDataDetails(RESTImageV1.REVISIONS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandLanguageImages));
-            final String expandString = mapper.writeValueAsString(expand);
+            final String expandString = getExpansionString(RESTImageV1.REVISIONS_NAME);
 
             // Load the image from the REST Interface
-            final RESTImageV1 tempImage;
-            if (revision == null) {
-                tempImage = client.getJSONImage(id, expandString);
-            } else {
-                tempImage = client.getJSONImageRevision(id, revision, expandString);
-            }
+            final RESTImageV1 tempImage = loadImage(id, revision, expandString);
 
             if (image == null) {
                 image = tempImage;
-                if (revision == null) {
-                    entityCache.add(image);
-                } else {
-                    entityCache.add(image, revision);
-                }
+                getRESTEntityCache().add(image, revision);
             } else {
                 image.setRevisions(tempImage.getRevisions());
             }

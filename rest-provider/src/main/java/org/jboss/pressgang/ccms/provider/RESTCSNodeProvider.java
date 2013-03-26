@@ -4,7 +4,6 @@ import javax.ws.rs.core.PathSegment;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
@@ -13,10 +12,6 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
@@ -31,15 +26,17 @@ import org.slf4j.LoggerFactory;
 
 public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvider {
     private static Logger log = LoggerFactory.getLogger(RESTCSNodeProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTCSNodeProvider(RESTManager restManager, RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTCSNodeV1 loadCSNode(Integer id, Integer revision, String expandString) {
+        if (revision == null) {
+            return getRESTClient().getJSONContentSpecNode(id, expandString);
+        } else {
+            return getRESTClient().getJSONContentSpecNodeRevision(id, revision, expandString);
+        }
     }
 
     public RESTCSNodeV1 getRESTCSNode(int id) {
@@ -54,16 +51,11 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     public RESTCSNodeV1 getRESTCSNode(int id, Integer revision) {
         try {
             final RESTCSNodeV1 node;
-            if (entityCache.containsKeyValue(RESTCSNodeV1.class, id, revision)) {
-                node = entityCache.get(RESTCSNodeV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                node = getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
             } else {
-                if (revision == null) {
-                    node = client.getJSONContentSpecNode(id, "");
-                    entityCache.add(node);
-                } else {
-                    node = client.getJSONContentSpecNodeRevision(id, revision, "");
-                    entityCache.add(node, revision);
-                }
+                node = loadCSNode(id, revision, "");
+                getRESTEntityCache().add(node, revision);
             }
             return node;
         } catch (Exception e) {
@@ -81,35 +73,23 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         try {
             RESTCSNodeV1 csNode = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTCSNodeV1.class, id, revision)) {
-                csNode = (RESTCSNodeV1) entityCache.get(RESTCSNodeV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
 
                 if (csNode.getRelatedToNodes() != null) {
                     return csNode.getRelatedToNodes();
                 }
             }
 
-            // We need to expand the tags in the content spec node collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTCSNodeV1.RELATED_TO_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the related to nodes in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.RELATED_TO_NAME);
 
             // Load the content spec node from the REST Interface
-            final RESTCSNodeV1 tempNode;
-            if (revision == null) {
-                tempNode = client.getJSONContentSpecNode(id, expandString);
-            } else {
-                tempNode = client.getJSONContentSpecNodeRevision(id, revision, expandString);
-            }
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
 
             if (csNode == null) {
                 csNode = tempNode;
-                if (revision == null) {
-                    entityCache.add(csNode);
-                } else {
-                    entityCache.add(csNode, revision);
-                }
+                getRESTEntityCache().add(csNode, revision);
             } else {
                 csNode.setRelatedToNodes(tempNode.getRelatedToNodes());
             }
@@ -131,35 +111,23 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         try {
             RESTCSNodeV1 csNode = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTCSNodeV1.class, id, revision)) {
-                csNode = (RESTCSNodeV1) entityCache.get(RESTCSNodeV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
 
                 if (csNode.getRelatedFromNodes() != null) {
                     return csNode.getRelatedFromNodes();
                 }
             }
 
-            // We need to expand the tags in the content spec node collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTCSNodeV1.RELATED_FROM_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the related from nodes in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.RELATED_FROM_NAME);
 
             // Load the content spec node from the REST Interface
-            final RESTCSNodeV1 tempNode;
-            if (revision == null) {
-                tempNode = client.getJSONContentSpecNode(id, expandString);
-            } else {
-                tempNode = client.getJSONContentSpecNodeRevision(id, revision, expandString);
-            }
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
 
             if (csNode == null) {
                 csNode = tempNode;
-                if (revision == null) {
-                    entityCache.add(csNode);
-                } else {
-                    entityCache.add(csNode, revision);
-                }
+                getRESTEntityCache().add(csNode, revision);
             } else {
                 csNode.setRelatedFromNodes(tempNode.getRelatedFromNodes());
             }
@@ -181,35 +149,23 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         try {
             RESTCSNodeV1 csNode = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTCSNodeV1.class, id, revision)) {
-                csNode = (RESTCSNodeV1) entityCache.get(RESTCSNodeV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
 
                 if (csNode.getChildren_OTM() != null) {
                     return csNode.getChildren_OTM();
                 }
             }
 
-            // We need to expand the tags in the content spec node collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTCSNodeV1.CHILDREN_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the children nodes in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.CHILDREN_NAME);
 
             // Load the content spec node from the REST Interface
-            final RESTCSNodeV1 tempNode;
-            if (revision == null) {
-                tempNode = client.getJSONContentSpecNode(id, expandString);
-            } else {
-                tempNode = client.getJSONContentSpecNodeRevision(id, revision, expandString);
-            }
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
 
             if (csNode == null) {
                 csNode = tempNode;
-                if (revision == null) {
-                    entityCache.add(csNode);
-                } else {
-                    entityCache.add(csNode, revision);
-                }
+                getRESTEntityCache().add(csNode, revision);
             } else {
                 csNode.setChildren_OTM(tempNode.getChildren_OTM());
             }
@@ -233,35 +189,23 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         try {
             RESTCSNodeV1 contentSpec = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTCSNodeV1.class, id, revision)) {
-                contentSpec = entityCache.get(RESTCSNodeV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                contentSpec = getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
 
                 if (contentSpec.getRevisions() != null) {
                     return contentSpec.getRevisions();
                 }
             }
 
-            // We need to expand the revisions in the content spec node collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandCategories = new ExpandDataTrunk(new ExpandDataDetails(RESTCSNodeV1.REVISIONS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandCategories));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the revisions in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.REVISIONS_NAME);
 
             // Load the content spec node from the REST Interface
-            final RESTCSNodeV1 tempCSNode;
-            if (revision == null) {
-                tempCSNode = client.getJSONContentSpecNode(id, expandString);
-            } else {
-                tempCSNode = client.getJSONContentSpecNodeRevision(id, revision, expandString);
-            }
+            final RESTCSNodeV1 tempCSNode = loadCSNode(id, revision, expandString);
 
             if (contentSpec == null) {
                 contentSpec = tempCSNode;
-                if (revision == null) {
-                    entityCache.add(contentSpec);
-                } else {
-                    entityCache.add(contentSpec, revision);
-                }
+                getRESTEntityCache().add(contentSpec, revision);
             } else {
                 contentSpec.setRevisions(tempCSNode.getRevisions());
             }
@@ -286,9 +230,9 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         // Clean the entity to remove anything that doesn't need to be sent to the server
         cleanEntityForSave(node);
 
-        final RESTCSNodeV1 updatedCSNode = client.createJSONContentSpecNode("", node);
+        final RESTCSNodeV1 updatedCSNode = getRESTClient().createJSONContentSpecNode("", node);
         if (updatedCSNode != null) {
-            entityCache.add(updatedCSNode);
+            getRESTEntityCache().add(updatedCSNode);
             return getWrapperFactory().create(updatedCSNode, false);
         } else {
             return null;
@@ -302,10 +246,10 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         // Clean the entity to remove anything that doesn't need to be sent to the server
         cleanEntityForSave(node);
 
-        final RESTCSNodeV1 updatedCSNode = client.updateJSONContentSpecNode("", node);
+        final RESTCSNodeV1 updatedCSNode = getRESTClient().updateJSONContentSpecNode("", node);
         if (updatedCSNode != null) {
-            entityCache.expire(RESTCSNodeV1.class, nodeEntity.getId());
-            entityCache.add(updatedCSNode);
+            getRESTEntityCache().expire(RESTCSNodeV1.class, nodeEntity.getId());
+            getRESTEntityCache().add(updatedCSNode);
             return getWrapperFactory().create(updatedCSNode, false);
         } else {
             return null;
@@ -314,7 +258,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public boolean deleteCSNode(Integer id) throws Exception {
-        final RESTCSNodeV1 topic = client.deleteJSONContentSpecNode(id, "");
+        final RESTCSNodeV1 topic = getRESTClient().deleteJSONContentSpecNode(id, "");
         return topic != null;
     }
 
@@ -325,15 +269,10 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         // Clean the collection to remove anything that doesn't need to be sent to the server
         cleanCollectionForSave(unwrappedCSNodes);
 
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandCSNodes = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME));
-        expand.setBranches(CollectionUtilities.toArrayList(expandCSNodes));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
-        final RESTCSNodeCollectionV1 updatedCSNodes = client.createJSONContentSpecNodes(expandString, unwrappedCSNodes);
+        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
+        final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().createJSONContentSpecNodes(expandString, unwrappedCSNodes);
         if (updatedCSNodes != null) {
-            entityCache.add(updatedCSNodes, false);
+            getRESTEntityCache().add(updatedCSNodes, false);
             return getWrapperFactory().createCollection(updatedCSNodes, RESTCSNodeV1.class, false);
         } else {
             return null;
@@ -347,20 +286,15 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         // Clean the collection to remove anything that doesn't need to be sent to the server
         cleanCollectionForSave(unwrappedCSNodes);
 
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandCSNodes = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME));
-        expand.setBranches(CollectionUtilities.toArrayList(expandCSNodes));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
-        final RESTCSNodeCollectionV1 updatedCSNodes = client.updateJSONContentSpecNodes(expandString, unwrappedCSNodes);
+        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
+        final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().updateJSONContentSpecNodes(expandString, unwrappedCSNodes);
         if (updatedCSNodes != null) {
             // Expire the old cached data
             for (final RESTCSNodeV1 topic : unwrappedCSNodes.returnItems()) {
-                entityCache.expire(RESTCSNodeV1.class, topic.getId());
+                getRESTEntityCache().expire(RESTCSNodeV1.class, topic.getId());
             }
             // Add the new data to the cache
-            entityCache.add(updatedCSNodes, false);
+            getRESTEntityCache().add(updatedCSNodes, false);
             return getWrapperFactory().createCollection(updatedCSNodes, RESTCSNodeV1.class, false);
         } else {
             return null;
@@ -371,7 +305,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     public boolean deleteCSNodes(final List<Integer> topicIds) throws Exception {
         final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
         final PathSegment path = new PathSegmentImpl(pathString, false);
-        final RESTCSNodeCollectionV1 topics = client.deleteJSONContentSpecNodes(path, "");
+        final RESTCSNodeCollectionV1 topics = getRESTClient().deleteJSONContentSpecNodes(path, "");
         return topics != null;
     }
 

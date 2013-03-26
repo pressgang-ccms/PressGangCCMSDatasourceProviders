@@ -3,7 +3,6 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTTagInCategoryCollectionItemV1;
@@ -12,11 +11,6 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -25,15 +19,9 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTagInCategoryProvider extends RESTTagProvider implements TagInCategoryProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTagInCategoryProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTTagInCategoryProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
     }
 
     @Override
@@ -49,34 +37,23 @@ public class RESTTagInCategoryProvider extends RESTTagProvider implements TagInC
         try {
             RESTCategoryV1 category = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTCategoryV1.class, categoryId, categoryRevision)) {
-                category = entityCache.get(RESTCategoryV1.class, categoryId, categoryRevision);
+            if (getRESTEntityCache().containsKeyValue(RESTCategoryV1.class, categoryId, categoryRevision)) {
+                category = getRESTEntityCache().get(RESTCategoryV1.class, categoryId, categoryRevision);
             }
     
-            /* We need to expand the all the items in the category collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTCategoryV1.TAGS_NAME));
-            final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTTagV1.REVISIONS_NAME));
-
-            expandTags.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the all the revisions in the category
+            final String expandString = getExpansionString(RESTCategoryV1.TAGS_NAME, RESTTagV1.REVISIONS_NAME);
 
             final RESTCategoryV1 tempCategory;
             if (categoryRevision == null) {
-                tempCategory = client.getJSONCategory(categoryId, expandString);
+                tempCategory = getRESTClient().getJSONCategory(categoryId, expandString);
             } else {
-                tempCategory = client.getJSONCategoryRevision(categoryId, categoryRevision, expandString);
+                tempCategory = getRESTClient().getJSONCategoryRevision(categoryId, categoryRevision, expandString);
             }
 
             if (category == null) {
                 category = tempCategory;
-                if (categoryRevision == null) {
-                    entityCache.add(category);
-                } else {
-                    entityCache.add(category, categoryRevision);
-                }
+                getRESTEntityCache().add(category, categoryRevision);
             } else if (category.getTags() == null) {
                 category.setTags(tempCategory.getTags());
             } else {

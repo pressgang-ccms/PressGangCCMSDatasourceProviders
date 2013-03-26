@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
@@ -13,11 +12,6 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
@@ -27,21 +21,15 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTopicSourceURLProvider extends RESTDataProvider implements TopicSourceURLProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTopicSourceURLProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTTopicSourceURLProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        this.client = restManager.getRESTClient();
-        this.entityCache = restManager.getRESTEntityCache();
     }
 
     public RESTTopicSourceUrlV1 getRESTTopicSourceUrl(int id, final Integer revision, final RESTBaseTopicV1<?, ?, ?> parent) {
         try {
-            if (entityCache.containsKeyValue(RESTTopicSourceUrlV1.class, id, revision)) {
-                return entityCache.get(RESTTopicSourceUrlV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicSourceUrlV1.class, id, revision)) {
+                return getRESTEntityCache().get(RESTTopicSourceUrlV1.class, id, revision);
             } else {
                 final RESTTopicSourceUrlCollectionV1 topicSourceURLs = parent.getSourceUrls_OTM();
 
@@ -53,7 +41,7 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
                 }
             }
         } catch (Exception e) {
-            log.error("", e);
+            log.error("Failed to retrieve Topic Source URL " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
     }
@@ -106,34 +94,24 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
 
         RESTTopicV1 topic = null;
         // Check the cache first
-        if (entityCache.containsKeyValue(RESTTopicV1.class, topicId, topicRevision)) {
-            topic = entityCache.get(RESTTopicV1.class, topicId, topicRevision);
+        if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, topicId, topicRevision)) {
+            topic = getRESTEntityCache().get(RESTTopicV1.class, topicId, topicRevision);
         }
 
-                /* We need to expand the all the items in the topic collection */
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandSourceURLs = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.SOURCE_URLS_NAME));
-        final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicSourceUrlV1.REVISIONS_NAME));
+        // We need to expand the all the topic source url revisions in the topic
+        final String expandString = getExpansionString(RESTTopicV1.SOURCE_URLS_NAME, RESTTopicSourceUrlV1.REVISIONS_NAME);
 
-        expandSourceURLs.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-        expand.setBranches(CollectionUtilities.toArrayList(expandSourceURLs));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
+        // Load the topic from the REST Interface
         final RESTTopicV1 tempTopic;
         if (topicRevision == null) {
-            tempTopic = client.getJSONTopic(topicId, expandString);
+            tempTopic = getRESTClient().getJSONTopic(topicId, expandString);
         } else {
-            tempTopic = client.getJSONTopicRevision(topicId, topicRevision, expandString);
+            tempTopic = getRESTClient().getJSONTopicRevision(topicId, topicRevision, expandString);
         }
 
         if (topic == null) {
             topic = tempTopic;
-            if (topicRevision == null) {
-                entityCache.add(topic);
-            } else {
-                entityCache.add(topic, topicRevision);
-            }
+            getRESTEntityCache().add(topic, topicRevision);
         } else if (topic.getSourceUrls_OTM() == null) {
             topic.setSourceUrls_OTM(tempTopic.getSourceUrls_OTM());
         } else {
@@ -178,34 +156,24 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
 
         RESTTranslatedTopicV1 topic = null;
         // Check the cache first
-        if (entityCache.containsKeyValue(RESTTranslatedTopicV1.class, topicId, topicRevision)) {
-            topic = entityCache.get(RESTTranslatedTopicV1.class, topicId, topicRevision);
+        if (getRESTEntityCache().containsKeyValue(RESTTranslatedTopicV1.class, topicId, topicRevision)) {
+            topic = getRESTEntityCache().get(RESTTranslatedTopicV1.class, topicId, topicRevision);
         }
 
-                /* We need to expand the all the items in the topic collection */
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandSourceURLs = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedTopicV1.SOURCE_URLS_NAME));
-        final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicSourceUrlV1.REVISIONS_NAME));
+        // We need to expand the all the source url revisions in the translated topic
+        final String expandString = getExpansionString(RESTTranslatedTopicV1.SOURCE_URLS_NAME, RESTTopicSourceUrlV1.REVISIONS_NAME);
 
-        expandSourceURLs.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-        expand.setBranches(CollectionUtilities.toArrayList(expandSourceURLs));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
+        // Load the translated topic from the REST Interface
         final RESTTranslatedTopicV1 tempTranslatedTopic;
         if (topicRevision == null) {
-            tempTranslatedTopic = client.getJSONTranslatedTopic(topicId, expandString);
+            tempTranslatedTopic = getRESTClient().getJSONTranslatedTopic(topicId, expandString);
         } else {
-            tempTranslatedTopic = client.getJSONTranslatedTopicRevision(topicId, topicRevision, expandString);
+            tempTranslatedTopic = getRESTClient().getJSONTranslatedTopicRevision(topicId, topicRevision, expandString);
         }
 
         if (topic == null) {
             topic = tempTranslatedTopic;
-            if (topicRevision == null) {
-                entityCache.add(topic);
-            } else {
-                entityCache.add(topic, topicRevision);
-            }
+            getRESTEntityCache().add(topic, topicRevision);
         } else if (topic.getSourceUrls_OTM() == null) {
             topic.setSourceUrls_OTM(tempTranslatedTopic.getSourceUrls_OTM());
         } else {

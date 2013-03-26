@@ -1,16 +1,10 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
@@ -21,15 +15,17 @@ import org.slf4j.LoggerFactory;
 
 public class RESTCategoryProvider extends RESTDataProvider implements CategoryProvider {
     private static Logger log = LoggerFactory.getLogger(RESTCategoryProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTCategoryProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTCategoryV1 loadCategory(Integer id, Integer revision, String expandString) {
+        if (revision == null) {
+            return getRESTClient().getJSONCategory(id, expandString);
+        } else {
+            return getRESTClient().getJSONCategoryRevision(id, revision, expandString);
+        }
     }
 
     public RESTCategoryV1 getRESTCategory(int id) {
@@ -44,16 +40,11 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
     public RESTCategoryV1 getRESTCategory(int id, final Integer revision) {
         try {
             final RESTCategoryV1 category;
-            if (entityCache.containsKeyValue(RESTCategoryV1.class, id, revision)) {
-                category = entityCache.get(RESTCategoryV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTCategoryV1.class, id, revision)) {
+                category = getRESTEntityCache().get(RESTCategoryV1.class, id, revision);
             } else {
-                if (revision == null) {
-                    category = client.getJSONCategory(id, "");
-                    entityCache.add(category);
-                } else {
-                    category = client.getJSONCategoryRevision(id, revision, "");
-                    entityCache.add(category, revision);
-                }
+                category = loadCategory(id, revision, "");
+                getRESTEntityCache().add(category, revision);
             }
             return category;
         } catch (Exception e) {
@@ -71,35 +62,23 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
         try {
             RESTCategoryV1 category = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTCategoryV1.class, id, revision)) {
-                category = entityCache.get(RESTCategoryV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTCategoryV1.class, id, revision)) {
+                category = getRESTEntityCache().get(RESTCategoryV1.class, id, revision);
 
                 if (category.getTags() != null) {
                     return category.getTags();
                 }
             }
 
-            // We need to expand the tags in the category collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTCategoryV1.TAGS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the tags in the category
+            final String expandString = getExpansionString(RESTCategoryV1.TAGS_NAME);
 
             // Load the category from the REST Interface
-            final RESTCategoryV1 tempCategory;
-            if (revision == null) {
-                tempCategory = client.getJSONCategory(id, expandString);
-            } else {
-                tempCategory = client.getJSONCategoryRevision(id, revision, expandString);
-            }
+            final RESTCategoryV1 tempCategory = loadCategory(id, revision, expandString);
 
             if (category == null) {
                 category = tempCategory;
-                if (revision == null) {
-                    entityCache.add(category);
-                } else {
-                    entityCache.add(category, revision);
-                }
+                getRESTEntityCache().add(category, revision);
             } else {
                 category.setTags(tempCategory.getTags());
             }
@@ -122,8 +101,8 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
         try {
             RESTCategoryV1 category = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTCategoryV1.class, id, revision)) {
-                category = entityCache.get(RESTCategoryV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTCategoryV1.class, id, revision)) {
+                category = getRESTEntityCache().get(RESTCategoryV1.class, id, revision);
 
                 if (category.getRevisions() != null) {
                     return category.getRevisions();
@@ -131,26 +110,14 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
             }
 
             // We need to expand the revisions in the category collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandCategories = new ExpandDataTrunk(new ExpandDataDetails(RESTCategoryV1.REVISIONS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandCategories));
-            final String expandString = mapper.writeValueAsString(expand);
+            final String expandString = getExpansionString(RESTCategoryV1.REVISIONS_NAME);
 
             // Load the category from the REST Interface
-            final RESTCategoryV1 tempCategory;
-            if (revision == null) {
-                tempCategory = client.getJSONCategory(id, expandString);
-            } else {
-                tempCategory = client.getJSONCategoryRevision(id, revision, expandString);
-            }
+            final RESTCategoryV1 tempCategory = loadCategory(id, revision, expandString);
 
             if (category == null) {
                 category = tempCategory;
-                if (revision == null) {
-                    entityCache.add(category);
-                } else {
-                    entityCache.add(category, revision);
-                }
+                getRESTEntityCache().add(category, revision);
             } else {
                 category.setRevisions(tempCategory.getRevisions());
             }

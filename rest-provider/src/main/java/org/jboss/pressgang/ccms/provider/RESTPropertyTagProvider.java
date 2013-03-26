@@ -1,8 +1,15 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTPropertyTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTPropertyTagInPropertyCategoryCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyTagV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyCategoryV1;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInPropertyCategoryWrapper;
@@ -14,34 +21,22 @@ import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.base.BaseTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.rest.v1.collections.RESTPropertyTagCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTPropertyTagInPropertyCategoryCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyCategoryV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTPropertyTagProvider extends RESTDataProvider implements PropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     public RESTPropertyTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTPropertyTagV1 loadPropertyTag(Integer id, Integer revision, String expandString) {
+        if (revision == null) {
+            return getRESTClient().getJSONPropertyTag(id, expandString);
+        } else {
+            return getRESTClient().getJSONPropertyTagRevision(id, revision, expandString);
+        }
     }
 
     public RESTPropertyTagV1 getRESTPropertyTag(int id) {
@@ -56,16 +51,11 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
     public RESTPropertyTagV1 getRESTPropertyTag(int id, final Integer revision) {
         try {
             final RESTPropertyTagV1 propertyTag;
-            if (entityCache.containsKeyValue(RESTPropertyTagV1.class, id, revision)) {
-                propertyTag = entityCache.get(RESTPropertyTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTPropertyTagV1.class, id, revision)) {
+                propertyTag = getRESTEntityCache().get(RESTPropertyTagV1.class, id, revision);
             } else {
-                if (revision == null) {
-                    propertyTag = client.getJSONPropertyTag(id, null);
-                    entityCache.add(propertyTag);
-                } else {
-                    propertyTag = client.getJSONPropertyTagRevision(id, revision, null);
-                    entityCache.add(propertyTag, revision);
-                }
+                propertyTag = loadPropertyTag(id, revision, null);
+                getRESTEntityCache().add(propertyTag, revision);
             }
             return propertyTag;
         } catch (Exception e) {
@@ -84,8 +74,8 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
         try {
             RESTPropertyTagV1 propertyTag = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTPropertyTagV1.class, id, revision)) {
-                propertyTag = entityCache.get(RESTPropertyTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTPropertyTagV1.class, id, revision)) {
+                propertyTag = getRESTEntityCache().get(RESTPropertyTagV1.class, id, revision);
 
                 if (propertyTag.getPropertyCategories() != null) {
                     return (UpdateableCollectionWrapper<PropertyCategoryWrapper>) getWrapperFactory().createPropertyTagCollection(
@@ -93,27 +83,15 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
                 }
             }
 
-            // We need to expand the all the items in the topic collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTPropertyTagV1.PROPERTY_CATEGORIES_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the all the property tag categories in the property tag
+            final String expandString = getExpansionString(RESTPropertyTagV1.PROPERTY_CATEGORIES_NAME);
 
             // Load the property tag from the REST Interface
-            final RESTPropertyTagV1 tempPropertyTag;
-            if (revision == null) {
-                tempPropertyTag = client.getJSONPropertyTag(id, expandString);
-            } else {
-                tempPropertyTag = client.getJSONPropertyTagRevision(id, revision, expandString);
-            }
+            final RESTPropertyTagV1 tempPropertyTag = loadPropertyTag(id, revision, expandString);
 
             if (propertyTag == null) {
                 propertyTag = tempPropertyTag;
-                if (revision == null) {
-                    entityCache.add(propertyTag);
-                } else {
-                    entityCache.add(propertyTag, revision);
-                }
+                getRESTEntityCache().add(propertyTag, revision);
             } else {
                 propertyTag.setPropertyCategories(tempPropertyTag.getPropertyCategories());
             }
@@ -130,40 +108,30 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
     public RESTPropertyTagCollectionV1 getRESTPropertyTagRevisions(int id, Integer revision) {
         try {
             RESTPropertyTagV1 propertyTag = null;
-            if (entityCache.containsKeyValue(RESTPropertyTagV1.class, id, revision)) {
-                propertyTag = entityCache.get(RESTPropertyTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTPropertyTagV1.class, id, revision)) {
+                propertyTag = getRESTEntityCache().get(RESTPropertyTagV1.class, id, revision);
 
                 if (propertyTag.getRevisions() != null) {
                     return propertyTag.getRevisions();
                 }
             }
-            /* We need to expand the all the items in the topic collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTCategoryV1.REVISIONS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-            final String expandString = mapper.writeValueAsString(expand);
 
-            final RESTPropertyTagV1 tempPropertyTag;
-            if (revision == null) {
-                tempPropertyTag = client.getJSONPropertyTag(id, expandString);
-            } else {
-                tempPropertyTag = client.getJSONPropertyTagRevision(id, revision, expandString);
-            }
+            // We need to expand the all the revisions in the property tag
+            final String expandString = getExpansionString(RESTPropertyTagV1.REVISIONS_NAME);
+
+            // Load the property tag from the REST Interface
+            final RESTPropertyTagV1 tempPropertyTag = loadPropertyTag(id, revision, expandString);
 
             if (propertyTag == null) {
                 propertyTag = tempPropertyTag;
-                if (revision == null) {
-                    entityCache.add(propertyTag);
-                } else {
-                    entityCache.add(propertyTag, revision);
-                }
+                getRESTEntityCache().add(propertyTag, revision);
             } else {
                 propertyTag.setRevisions(tempPropertyTag.getRevisions());
             }
 
             return propertyTag.getRevisions();
         } catch (Exception e) {
-            log.error("", e);
+            log.error("Failed to retrieve Revisions for Property Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
     }

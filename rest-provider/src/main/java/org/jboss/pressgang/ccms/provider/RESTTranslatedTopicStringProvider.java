@@ -3,18 +3,12 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTTranslatedTopicV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTTranslatedTopicStringCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
@@ -24,21 +18,23 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTranslatedTopicStringProvider extends RESTDataProvider implements TranslatedTopicStringProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedTopicProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTTranslatedTopicStringProvider(final RESTManager restManager, RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTTranslatedTopicV1 loadTranslatedTopic(Integer id, Integer revision, String expandString) {
+        if (revision == null) {
+            return getRESTClient().getJSONTranslatedTopic(id, expandString);
+        } else {
+            return getRESTClient().getJSONTranslatedTopicRevision(id, revision, expandString);
+        }
     }
 
     public RESTTranslatedTopicStringV1 getRESTTranslatedTopicString(int id, final Integer revision, final RESTTranslatedTopicV1 parent) {
         try {
-            if (entityCache.containsKeyValue(RESTTranslatedTopicStringV1.class, id, revision)) {
-                return entityCache.get(RESTTranslatedTopicStringV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTranslatedTopicStringV1.class, id, revision)) {
+                return getRESTEntityCache().get(RESTTranslatedTopicStringV1.class, id, revision);
             } else {
                 final RESTTranslatedTopicStringCollectionV1 translatedTopicStrings = parent.getTranslatedTopicStrings_OTM();
 
@@ -51,7 +47,7 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
                 }
             }
         } catch (Exception e) {
-            log.error("", e);
+            log.error("Failed to retrieve Translated Topic String " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
     }
@@ -80,36 +76,21 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
             try {
                 RESTTranslatedTopicV1 translatedTopic = null;
                 // Check the cache first
-                if (entityCache.containsKeyValue(RESTTranslatedTopicV1.class, translatedTopicId, translatedTopicRevision)) {
-                    translatedTopic = entityCache.get(RESTTranslatedTopicV1.class, translatedTopicId, translatedTopicRevision);
+                if (getRESTEntityCache().containsKeyValue(RESTTranslatedTopicV1.class, translatedTopicId, translatedTopicRevision)) {
+                    translatedTopic = getRESTEntityCache().get(RESTTranslatedTopicV1.class, translatedTopicId, translatedTopicRevision);
                 }
 
-                /* We need to expand the all the items in the topic collection */
-                final ExpandDataTrunk expand = new ExpandDataTrunk();
-                final ExpandDataTrunk expandTranslatedTopicStrings = new ExpandDataTrunk(
-                        new ExpandDataDetails(RESTTranslatedTopicV1.TRANSLATEDTOPICSTRING_NAME));
-                final ExpandDataTrunk expandTranslatedTopicData = new ExpandDataTrunk(
-                        new ExpandDataDetails(RESTTranslatedTopicStringV1.REVISIONS_NAME));
+                // We need to expand the all the translated topic string revisions in the translated topic
+                final String expandString = getExpansionString(RESTTranslatedTopicV1.TRANSLATEDTOPICSTRING_NAME,
+                        RESTTranslatedTopicStringV1.REVISIONS_NAME);
 
-                expandTranslatedTopicStrings.setBranches(CollectionUtilities.toArrayList(expandTranslatedTopicData));
-                expand.setBranches(CollectionUtilities.toArrayList(expandTranslatedTopicStrings));
-
-                final String expandString = mapper.writeValueAsString(expand);
-
-                final RESTTranslatedTopicV1 tempTranslatedTopic;
-                if (translatedTopicRevision == null) {
-                    tempTranslatedTopic = client.getJSONTranslatedTopic(translatedTopicId, expandString);
-                } else {
-                    tempTranslatedTopic = client.getJSONTranslatedTopicRevision(translatedTopicId, translatedTopicRevision, expandString);
-                }
+                // Load the translated topic from the REST Interface
+                final RESTTranslatedTopicV1 tempTranslatedTopic = loadTranslatedTopic(translatedTopicId, translatedTopicRevision,
+                        expandString);
 
                 if (translatedTopic == null) {
                     translatedTopic = tempTranslatedTopic;
-                    if (translatedTopicRevision == null) {
-                        entityCache.add(translatedTopic);
-                    } else {
-                        entityCache.add(translatedTopic, translatedTopicRevision);
-                    }
+                    getRESTEntityCache().add(translatedTopic, translatedTopicRevision);
                 } else if (translatedTopic.getTranslatedTopicStrings_OTM() == null) {
                     translatedTopic.setTranslatedTopicStrings_OTM(tempTranslatedTopic.getTranslatedTopicStrings_OTM());
                 } else {
@@ -149,7 +130,8 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
                     }
                 }
             } catch (Exception e) {
-                log.error("", e);
+                log.error("Failed to retrieve the Revisions for Translated Topic String " + id + (revision == null ? "" : (", " +
+                        "Revision " + revision)), e);
             }
         }
 

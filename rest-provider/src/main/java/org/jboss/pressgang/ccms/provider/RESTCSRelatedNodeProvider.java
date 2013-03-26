@@ -12,8 +12,6 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
@@ -25,13 +23,8 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
     private static Logger log = LoggerFactory.getLogger(RESTCSRelatedNodeProvider.class);
     private static ObjectMapper mapper = new ObjectMapper();
 
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
-
     protected RESTCSRelatedNodeProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
     }
 
     @Override
@@ -48,8 +41,8 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
         try {
             RESTCSNodeV1 csNode = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTCSNodeV1.class, csNodeId, csNodeRevision)) {
-                csNode = entityCache.get(RESTCSNodeV1.class, csNodeId, csNodeRevision);
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, csNodeId, csNodeRevision)) {
+                csNode = getRESTEntityCache().get(RESTCSNodeV1.class, csNodeId, csNodeRevision);
             }
 
             /*
@@ -67,20 +60,12 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
 
             final String expandString = mapper.writeValueAsString(expand);
 
-            final RESTCSNodeV1 tempCSNode;
-            if (csNodeRevision == null) {
-                tempCSNode = client.getJSONContentSpecNode(csNodeId, expandString);
-            } else {
-                tempCSNode = client.getJSONContentSpecNodeRevision(csNodeId, csNodeRevision, expandString);
-            }
+            // Load the content spec node from the REST Interface
+            final RESTCSNodeV1 tempCSNode = loadCSNode(csNodeId, csNodeRevision, expandString);
 
             if (csNode == null) {
                 csNode = tempCSNode;
-                if (csNodeRevision == null) {
-                    entityCache.add(csNode);
-                } else {
-                    entityCache.add(csNode, csNodeRevision);
-                }
+                getRESTEntityCache().add(csNode, csNodeRevision);
             } else {
                 if (csNode.getRelatedToNodes() == null) {
                     csNode.setRelatedToNodes(tempCSNode.getRelatedToNodes());

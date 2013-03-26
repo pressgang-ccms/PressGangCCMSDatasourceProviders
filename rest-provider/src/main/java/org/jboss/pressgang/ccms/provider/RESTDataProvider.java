@@ -1,15 +1,24 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseUpdateCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
+import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
+import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
+import org.jboss.pressgang.ccms.utils.RESTCollectionCache;
+import org.jboss.pressgang.ccms.utils.RESTEntityCache;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 
 public abstract class RESTDataProvider extends DataProvider {
+    private static ObjectMapper mapper = new ObjectMapper();
 
     private final RESTManager restManager;
 
@@ -25,6 +34,18 @@ public abstract class RESTDataProvider extends DataProvider {
 
     protected RESTManager getRESTManager() {
         return restManager;
+    }
+
+    protected RESTInterfaceV1 getRESTClient() {
+        return getRESTManager().getRESTClient();
+    }
+
+    protected RESTEntityCache getRESTEntityCache() {
+        return getRESTManager().getRESTEntityCache();
+    }
+
+    protected RESTCollectionCache getRESTCollectionCache() {
+        return getRESTManager().getRESTCollectionCache();
     }
 
     /**
@@ -98,5 +119,20 @@ public abstract class RESTDataProvider extends DataProvider {
         for (final RESTBaseEntityV1<?, ?, ?> item : collection.returnItems()) {
             cleanEntityForSave(item);
         }
+    }
+
+    protected String getExpansionString(String expansionName) throws IOException {
+        return getExpansionString(expansionName, null);
+    }
+
+    protected String getExpansionString(String expansionName, String subExpansionName) throws IOException {
+        final ExpandDataTrunk expand = new ExpandDataTrunk();
+        final ExpandDataTrunk expandData = new ExpandDataTrunk(new ExpandDataDetails(expansionName));
+        if (subExpansionName != null) {
+            final ExpandDataTrunk expandSubData = new ExpandDataTrunk(new ExpandDataDetails(subExpansionName));
+            expandData.setBranches(Arrays.asList(expandSubData));
+        }
+        expand.setBranches(Arrays.asList(expandData));
+        return mapper.writeValueAsString(expand);
     }
 }

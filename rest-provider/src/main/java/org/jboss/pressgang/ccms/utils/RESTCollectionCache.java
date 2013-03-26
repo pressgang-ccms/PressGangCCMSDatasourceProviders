@@ -27,10 +27,7 @@ public class RESTCollectionCache {
 
     public <T extends RESTBaseEntityV1<T, U, ?>, U extends RESTBaseCollectionV1<T, U, ?>> void add(final Class<T> clazz, final U value,
             final List<String> additionalKeys, final boolean isRevisions) {
-        String key = clazz.getSimpleName();
-        if (additionalKeys != null && !additionalKeys.isEmpty()) {
-            key += "-" + StringUtilities.buildString(additionalKeys.toArray(new String[additionalKeys.size()]), "-");
-        }
+        String key = buildKey(clazz, additionalKeys);
         entityCache.add(value, isRevisions);
         collections.put(key, value);
     }
@@ -40,10 +37,7 @@ public class RESTCollectionCache {
     }
 
     public boolean containsKey(final Class<? extends RESTBaseEntityV1<?, ?, ?>> clazz, final List<String> additionalKeys) {
-        String key = clazz.getSimpleName();
-        if (additionalKeys != null && !additionalKeys.isEmpty()) {
-            key += "-" + StringUtilities.buildString(additionalKeys.toArray(new String[additionalKeys.size()]), "-");
-        }
+        String key = buildKey(clazz, additionalKeys);
         return collections.containsKey(key);
     }
 
@@ -56,10 +50,7 @@ public class RESTCollectionCache {
     public <T extends RESTBaseEntityV1<T, U, ?>, U extends RESTBaseCollectionV1<T, U, ?>> U get(final Class<T> clazz,
             final Class<U> containerClass, final List<String> additionalKeys) {
         try {
-            String key = clazz.getSimpleName();
-            if (additionalKeys != null && !additionalKeys.isEmpty()) {
-                key += "-" + StringUtilities.buildString(additionalKeys.toArray(new String[additionalKeys.size()]), "-");
-            }
+            String key = buildKey(clazz, additionalKeys);
             return (U) (containsKey(clazz, additionalKeys) ? collections.get(key) : containerClass.newInstance());
         } catch (final Exception ex) {
             return null;
@@ -71,8 +62,7 @@ public class RESTCollectionCache {
     }
 
     public void expire(final Class<? extends RESTBaseEntityV1<?, ?, ?>> clazz, final List<String> additionalKeys) {
-        collections.remove(
-                clazz.getSimpleName() + "-" + StringUtilities.buildString(additionalKeys.toArray(new String[additionalKeys.size()]), "-"));
+        collections.remove(buildKey(clazz, additionalKeys));
         expireByRegex("^" + clazz.getSimpleName() + ".*");
     }
 
@@ -80,5 +70,17 @@ public class RESTCollectionCache {
         for (final String key : collections.keySet()) {
             if (key.matches(regex)) collections.remove(key);
         }
+    }
+
+    protected String buildKey(final RESTBaseEntityV1<?, ?, ?> value, final List<String> additionalKeys) {
+        return buildKey(value.getClass(), additionalKeys);
+    }
+
+    protected String buildKey(final Class<? extends RESTBaseEntityV1<?, ?, ?>> clazz, final List<String> additionalKeys) {
+        String key = clazz.getSimpleName();
+        if (additionalKeys != null && !additionalKeys.isEmpty()) {
+            key += "-" + StringUtilities.buildString(additionalKeys.toArray(new String[additionalKeys.size()]), "-");
+        }
+        return key;
     }
 }

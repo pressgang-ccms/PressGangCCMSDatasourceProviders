@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicCollectionV1;
@@ -20,8 +19,6 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTTopicQueryBuilderV1;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
@@ -42,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTopicProvider extends RESTDataProvider implements TopicProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTopicProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
 
     private final RESTEntityCache entityCache;
     private final RESTInterfaceV1 client;
@@ -51,6 +47,14 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         super(restManager, wrapperFactory);
         this.client = restManager.getRESTClient();
         this.entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTTopicV1 loadTopic(int id, Integer revision, String expandString) {
+        if (revision == null) {
+            return client.getJSONTopic(id, expandString);
+        } else {
+            return client.getJSONTopicRevision(id, revision, expandString);
+        }
     }
 
     public RESTTopicV1 getRESTTopic(int id) {
@@ -68,13 +72,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
                 topic = entityCache.get(RESTTopicV1.class, id, revision);
             } else {
-                if (revision == null) {
-                    topic = client.getJSONTopic(id, "");
-                    entityCache.add(topic);
-                } else {
-                    topic = client.getJSONTopicRevision(id, revision, "");
-                    entityCache.add(topic, revision);
-                }
+                topic = loadTopic(id, revision, "");
+                entityCache.add(topic, revision);
             }
             return topic;
         } catch (Exception e) {
@@ -100,27 +99,15 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 }
             }
 
-            // We need to expand the tags in the topic collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.TAGS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the tags in the topic
+            final String expandString = getExpansionString(RESTTopicV1.TAGS_NAME);
 
             // Load the topic from the REST Interface
-            final RESTTopicV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTopic(id, expandString);
-            } else {
-                tempTopic = client.getJSONTopicRevision(id, revision, expandString);
-            }
+            final RESTTopicV1 tempTopic = loadTopic(id, revision, expandString);
 
             if (topic == null) {
                 topic = tempTopic;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
+                entityCache.add(topic, revision);
             } else {
                 topic.setTags(tempTopic.getTags());
             }
@@ -158,10 +145,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 queryBuilder.setTopicIds(new ArrayList<Integer>(queryIds));
 
                 // We need to expand the topic collection
-                final ExpandDataTrunk expand = new ExpandDataTrunk();
-                final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.TOPICS_EXPANSION_NAME));
-                expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
-                final String expandString = mapper.writeValueAsString(expand);
+                final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
 
                 // Load the topics from the REST Interface
                 final RESTTopicCollectionV1 downloadedTopics = client.getJSONTopicsWithQuery(queryBuilder.buildQueryPath(), expandString);
@@ -194,11 +178,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         if (query == null || query.isEmpty()) return null;
 
         try {
-            // We need to expand the all the topic in the collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails(RESTv1Constants.TOPICS_EXPANSION_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the all the topics in the collection
+            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
 
             final RESTTopicCollectionV1 topics = client.getJSONTopicsWithQuery(new PathSegmentImpl(query, false), expandString);
             entityCache.add(topics);
@@ -229,27 +210,15 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 }
             }
 
-            // We need to expand the the translated topics in the topic collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandOutgoing = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.TRANSLATEDTOPICS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandOutgoing));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the the translated topics in the topic
+            final String expandString = getExpansionString(RESTTopicV1.TRANSLATEDTOPICS_NAME);
 
             // Load the topic from the REST API
-            final RESTTopicV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTopic(id, expandString);
-            } else {
-                tempTopic = client.getJSONTopicRevision(id, revision, expandString);
-            }
+            final RESTTopicV1 tempTopic = loadTopic(id, revision, expandString);
 
             if (topic == null) {
                 topic = tempTopic;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
+                entityCache.add(topic, revision);
             } else {
                 topic.setTranslatedTopics_OTM(tempTopic.getTranslatedTopics_OTM());
             }
@@ -278,27 +247,15 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 }
             }
 
-            // We need to expand the revisions in the topic collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTopics = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.REVISIONS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTopics));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the revisions in the topic
+            final String expandString = getExpansionString(RESTTopicV1.REVISIONS_NAME);
 
             // Load the topic from the REST API
-            final RESTTopicV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTopic(id, expandString);
-            } else {
-                tempTopic = client.getJSONTopicRevision(id, revision, expandString);
-            }
+            final RESTTopicV1 tempTopic = loadTopic(id, revision, expandString);
 
             if (topic == null) {
                 topic = tempTopic;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
+                entityCache.add(topic, revision);
             } else {
                 topic.setRevisions(tempTopic.getRevisions());
             }
@@ -327,27 +284,15 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 }
             }
 
-            // We need to expand the all the items in the topic collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.PROPERTIES_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the all the properties in the topic
+            final String expandString = getExpansionString(RESTTopicV1.PROPERTIES_NAME);
 
             // Load the topic from the REST Interface
-            final RESTTopicV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTopic(id, expandString);
-            } else {
-                tempTopic = client.getJSONTopicRevision(id, revision, expandString);
-            }
+            final RESTTopicV1 tempTopic = loadTopic(id, revision, expandString);
 
             if (topic == null) {
                 topic = tempTopic;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
+                entityCache.add(topic, revision);
             } else {
                 topic.setProperties(tempTopic.getProperties());
             }
@@ -379,26 +324,14 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             }
 
             // We need to expand the outgoing topic relationships in the topic
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandOutgoing = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.OUTGOING_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandOutgoing));
-            final String expandString = mapper.writeValueAsString(expand);
+            final String expandString = getExpansionString(RESTTopicV1.OUTGOING_NAME);
 
             // Load the topic from the REST Interface
-            final RESTTopicV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTopic(id, expandString);
-            } else {
-                tempTopic = client.getJSONTopicRevision(id, revision, expandString);
-            }
+            final RESTTopicV1 tempTopic = loadTopic(id, revision, expandString);
 
             if (topic == null) {
                 topic = tempTopic;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
+                entityCache.add(topic, revision);
             } else {
                 topic.setOutgoingRelationships(tempTopic.getOutgoingRelationships());
             }
@@ -429,26 +362,14 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             }
 
             // We need to expand the incoming topic relationships in the topic
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandIncoming = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.INCOMING_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandIncoming));
-            final String expandString = mapper.writeValueAsString(expand);
+            final String expandString = getExpansionString(RESTTopicV1.INCOMING_NAME);
 
             // Load the topic from the REST Interface
-            final RESTTopicV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTopic(id, expandString);
-            } else {
-                tempTopic = client.getJSONTopicRevision(id, revision, expandString);
-            }
+            final RESTTopicV1 tempTopic = loadTopic(id, revision, expandString);
 
             if (topic == null) {
                 topic = tempTopic;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
+                entityCache.add(topic, revision);
             } else {
                 topic.setIncomingRelationships(tempTopic.getIncomingRelationships());
             }
@@ -483,27 +404,15 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 }
             }
 
-            // We need to expand the source urls in the topic collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTopicV1.SOURCE_URLS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the source urls in the topic
+            final String expandString = getExpansionString(RESTTopicV1.SOURCE_URLS_NAME);
 
             // Load the topic from the REST Interface
-            final RESTTopicV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTopic(id, expandString);
-            } else {
-                tempTopic = client.getJSONTopicRevision(id, revision, expandString);
-            }
+            final RESTTopicV1 tempTopic = loadTopic(id, revision, expandString);
 
             if (topic == null) {
                 topic = tempTopic;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
+                entityCache.add(topic, revision);
             } else {
                 topic.setSourceUrls_OTM(tempTopic.getSourceUrls_OTM());
             }
@@ -567,12 +476,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         // Clean the collection to remove anything that doesn't need to be sent to the server
         cleanCollectionForSave(unwrappedTopics);
 
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandTopics = new ExpandDataTrunk(new ExpandDataDetails("topics"));
-        expand.setBranches(CollectionUtilities.toArrayList(expandTopics));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
+        final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
         final RESTTopicCollectionV1 updatedTopics = client.createJSONTopics(expandString, unwrappedTopics);
         if (updatedTopics != null) {
             entityCache.add(updatedTopics, false);
@@ -589,12 +493,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         // Clean the collection to remove anything that doesn't need to be sent to the server
         cleanCollectionForSave(unwrappedTopics);
 
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandTopics = new ExpandDataTrunk(new ExpandDataDetails("topics"));
-        expand.setBranches(CollectionUtilities.toArrayList(expandTopics));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
+        final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
         final RESTTopicCollectionV1 updatedTopics = client.updateJSONTopics(expandString, unwrappedTopics);
         if (updatedTopics != null) {
             // Expire the old cached data
@@ -626,5 +525,4 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     public CollectionWrapper<TopicWrapper> newTopicCollection() {
         return getWrapperFactory().createCollection(new RESTTopicCollectionV1(), RESTTopicV1.class, false);
     }
-
 }

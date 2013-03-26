@@ -1,22 +1,17 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
@@ -32,15 +27,17 @@ import org.slf4j.LoggerFactory;
 
 public class RESTContentSpecProvider extends RESTDataProvider implements ContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTContentSpecProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTContentSpecProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTContentSpecV1 loadContentSpec(Integer id, Integer revision, String expandString) {
+        if (revision == null) {
+            return getRESTClient().getJSONContentSpec(id, expandString);
+        } else {
+            return getRESTClient().getJSONContentSpecRevision(id, revision, expandString);
+        }
     }
 
     public RESTContentSpecV1 getRESTContentSpec(int id) {
@@ -55,16 +52,11 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     public RESTContentSpecV1 getRESTContentSpec(int id, Integer revision) {
         try {
             final RESTContentSpecV1 contentSpec;
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
-                contentSpec = entityCache.get(RESTContentSpecV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                contentSpec = getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
             } else {
-                if (revision == null) {
-                    contentSpec = client.getJSONContentSpec(id, "");
-                    entityCache.add(contentSpec);
-                } else {
-                    contentSpec = client.getJSONContentSpecRevision(id, revision, "");
-                    entityCache.add(contentSpec, revision);
-                }
+                contentSpec = loadContentSpec(id, revision, "");
+                getRESTEntityCache().add(contentSpec, revision);
             }
             return contentSpec;
         } catch (Exception e) {
@@ -82,17 +74,12 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         if (query == null || query.isEmpty()) return null;
 
         try {
-            /* We need to expand the all the items in the topic collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk topicsExpand = new ExpandDataTrunk(new ExpandDataDetails("contentSpecs"));
+            // We need to expand the all the content specs in the collection
+            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_EXPANSION_NAME);
 
-            expand.setBranches(CollectionUtilities.toArrayList(topicsExpand));
-
-            final String expandString = mapper.writeValueAsString(expand);
-
-            final RESTContentSpecCollectionV1 contentSpecs = client.getJSONContentSpecsWithQuery(new PathSegmentImpl(query, false),
+            final RESTContentSpecCollectionV1 contentSpecs = getRESTClient().getJSONContentSpecsWithQuery(new PathSegmentImpl(query, false),
                     expandString);
-            entityCache.add(contentSpecs);
+            getRESTEntityCache().add(contentSpecs);
 
             return contentSpecs;
         } catch (Exception e) {
@@ -112,35 +99,23 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
-                contentSpec = entityCache.get(RESTContentSpecV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                contentSpec = getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getTags() != null) {
                     return contentSpec.getTags();
                 }
             }
 
-            // We need to expand the tags in the content spec collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.TAGS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the tags in the content spec
+            final String expandString = getExpansionString(RESTContentSpecV1.TAGS_NAME);
 
             // Load the content spec from the REST Interface
-            final RESTContentSpecV1 tempContentSpec;
-            if (revision == null) {
-                tempContentSpec = client.getJSONContentSpec(id, expandString);
-            } else {
-                tempContentSpec = client.getJSONContentSpecRevision(id, revision, expandString);
-            }
+            final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
 
             if (contentSpec == null) {
                 contentSpec = tempContentSpec;
-                if (revision == null) {
-                    entityCache.add(contentSpec);
-                } else {
-                    entityCache.add(contentSpec, revision);
-                }
+                getRESTEntityCache().add(contentSpec, revision);
             } else {
                 contentSpec.setTags(tempContentSpec.getTags());
             }
@@ -161,35 +136,23 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
-                contentSpec = (RESTContentSpecV1) entityCache.get(RESTContentSpecV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                contentSpec = (RESTContentSpecV1) getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getChildren_OTM() != null) {
                     return contentSpec.getChildren_OTM();
                 }
             }
 
-            // We need to expand the tags in the content spec collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.NODES_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the tags in the content spec
+            final String expandString = getExpansionString(RESTContentSpecV1.NODES_NAME);
 
             // Load the content spec from the REST Interface
-            final RESTContentSpecV1 tempContentSpec;
-            if (revision == null) {
-                tempContentSpec = client.getJSONContentSpec(id, expandString);
-            } else {
-                tempContentSpec = client.getJSONContentSpecRevision(id, revision, expandString);
-            }
+            final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
 
             if (contentSpec == null) {
                 contentSpec = tempContentSpec;
-                if (revision == null) {
-                    entityCache.add(contentSpec);
-                } else {
-                    entityCache.add(contentSpec, revision);
-                }
+                getRESTEntityCache().add(contentSpec, revision);
             } else {
                 contentSpec.setChildren_OTM(tempContentSpec.getChildren_OTM());
             }
@@ -205,7 +168,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getContentSpecNodes(int id, Integer revision) {
         final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getRESTContentSpecNodes(id, revision),
-                    RESTCSNodeV1.class, revision != null);
+                RESTCSNodeV1.class, revision != null);
         return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
 
@@ -213,35 +176,23 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
-                contentSpec = (RESTContentSpecV1) entityCache.get(RESTContentSpecV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                contentSpec = (RESTContentSpecV1) getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getTranslatedContentSpecs() != null) {
                     return contentSpec.getTranslatedContentSpecs();
                 }
             }
 
-            // We need to expand the tags in the content spec collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.TRANSLATED_CONTENT_SPECS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the tags in the content spec
+            final String expandString = getExpansionString(RESTContentSpecV1.TRANSLATED_CONTENT_SPECS_NAME);
 
             // Load the content spec from the REST Interface
-            final RESTContentSpecV1 tempContentSpec;
-            if (revision == null) {
-                tempContentSpec = client.getJSONContentSpec(id, expandString);
-            } else {
-                tempContentSpec = client.getJSONContentSpecRevision(id, revision, expandString);
-            }
+            final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
 
             if (contentSpec == null) {
                 contentSpec = tempContentSpec;
-                if (revision == null) {
-                    entityCache.add(contentSpec);
-                } else {
-                    entityCache.add(contentSpec, revision);
-                }
+                getRESTEntityCache().add(contentSpec, revision);
             } else {
                 contentSpec.setTranslatedContentSpecs(tempContentSpec.getTranslatedContentSpecs());
             }
@@ -264,35 +215,23 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
-                contentSpec = entityCache.get(RESTContentSpecV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                contentSpec = getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
 
                 if (contentSpec.getRevisions() != null) {
                     return contentSpec.getRevisions();
                 }
             }
 
-            // We need to expand the revisions in the content spec collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandCategories = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.REVISIONS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandCategories));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the revisions in the content spec
+            final String expandString = getExpansionString(RESTContentSpecV1.REVISIONS_NAME);
 
             // Load the content spec from the REST Interface
-            final RESTContentSpecV1 tempContentSpec;
-            if (revision == null) {
-                tempContentSpec = client.getJSONContentSpec(id, expandString);
-            } else {
-                tempContentSpec = client.getJSONContentSpecRevision(id, revision, expandString);
-            }
+            final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
 
             if (contentSpec == null) {
                 contentSpec = tempContentSpec;
-                if (revision == null) {
-                    entityCache.add(contentSpec);
-                } else {
-                    entityCache.add(contentSpec, revision);
-                }
+                getRESTEntityCache().add(contentSpec, revision);
             } else {
                 contentSpec.setRevisions(tempContentSpec.getRevisions());
             }
@@ -313,35 +252,23 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         try {
             RESTContentSpecV1 topic = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, id, revision)) {
-                topic = entityCache.get(RESTContentSpecV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
 
                 if (topic.getProperties() != null) {
                     return topic.getProperties();
                 }
             }
 
-            // We need to expand the all the items in the topic collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTContentSpecV1.PROPERTIES_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the all the properties in the content spec
+            final String expandString = getExpansionString(RESTContentSpecV1.PROPERTIES_NAME);
 
-            // Load the topic from the REST Interface
-            final RESTContentSpecV1 tempContentSpec;
-            if (revision == null) {
-                tempContentSpec = client.getJSONContentSpec(id, expandString);
-            } else {
-                tempContentSpec = client.getJSONContentSpecRevision(id, revision, expandString);
-            }
+            // Load the content spec from the REST Interface
+            final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
 
             if (topic == null) {
                 topic = tempContentSpec;
-                if (revision == null) {
-                    entityCache.add(topic);
-                } else {
-                    entityCache.add(topic, revision);
-                }
+                getRESTEntityCache().add(topic, revision);
             } else {
                 topic.setProperties(tempContentSpec.getProperties());
             }
@@ -371,9 +298,9 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         try {
             final String contentSpec;
             if (revision == null) {
-                contentSpec = client.getTEXTContentSpec(id);
+                contentSpec = getRESTClient().getTEXTContentSpec(id);
             } else {
-                contentSpec = client.getTEXTContentSpecRevision(id, revision);
+                contentSpec = getRESTClient().getTEXTContentSpecRevision(id, revision);
             }
             return contentSpec;
         } catch (Exception e) {
@@ -389,9 +316,9 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         // Clean the entity to remove anything that doesn't need to be sent to the server
         cleanEntityForSave(contentSpec);
 
-        final RESTContentSpecV1 updatedContentSpec = client.createJSONContentSpec("", contentSpec);
+        final RESTContentSpecV1 updatedContentSpec = getRESTClient().createJSONContentSpec("", contentSpec);
         if (updatedContentSpec != null) {
-            entityCache.add(updatedContentSpec);
+            getRESTEntityCache().add(updatedContentSpec);
             return getWrapperFactory().create(updatedContentSpec, false);
         } else {
             return null;
@@ -405,10 +332,10 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         // Clean the entity to remove anything that doesn't need to be sent to the server
         cleanEntityForSave(contentSpec);
 
-        final RESTContentSpecV1 updatedContentSpec = client.updateJSONContentSpec("", contentSpec);
+        final RESTContentSpecV1 updatedContentSpec = getRESTClient().updateJSONContentSpec("", contentSpec);
         if (updatedContentSpec != null) {
-            entityCache.expire(RESTContentSpecV1.class, contentSpecEntity.getId());
-            entityCache.add(updatedContentSpec);
+            getRESTEntityCache().expire(RESTContentSpecV1.class, contentSpecEntity.getId());
+            getRESTEntityCache().add(updatedContentSpec);
             return getWrapperFactory().create(updatedContentSpec, false);
         } else {
             return null;
@@ -417,7 +344,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
     @Override
     public boolean deleteContentSpec(Integer id) throws Exception {
-        final RESTContentSpecV1 contentSpec = client.deleteJSONContentSpec(id, "");
+        final RESTContentSpecV1 contentSpec = getRESTClient().deleteJSONContentSpec(id, "");
         return contentSpec != null;
     }
 

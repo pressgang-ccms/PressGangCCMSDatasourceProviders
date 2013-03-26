@@ -3,18 +3,12 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTTranslatedCSNodeV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.items.RESTTranslatedCSNodeStringCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
@@ -25,21 +19,15 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider implements TranslatedCSNodeStringProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedCSNodeProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTTranslatedCSNodeStringProvider(final RESTManager restManager, RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
     }
 
     public RESTTranslatedCSNodeStringV1 getRESTTranslatedCSNodeString(int id, final Integer revision, final RESTTranslatedCSNodeV1 parent) {
         try {
-            if (entityCache.containsKeyValue(RESTTranslatedCSNodeStringV1.class, id, revision)) {
-                return entityCache.get(RESTTranslatedCSNodeStringV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeStringV1.class, id, revision)) {
+                return getRESTEntityCache().get(RESTTranslatedCSNodeStringV1.class, id, revision);
             } else {
                 final RESTTranslatedCSNodeStringCollectionV1 translatedTopicStrings = parent.getTranslatedNodeStrings_OTM();
 
@@ -51,7 +39,8 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
                 }
             }
         } catch (Exception e) {
-            log.error("", e);
+            log.error("Failed to retrieve for Translated Content Spec Node String " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
         }
         return null;
     }
@@ -80,37 +69,26 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
             try {
                 RESTTranslatedCSNodeV1 translatedTopic = null;
                 // Check the cache first
-                if (entityCache.containsKeyValue(RESTTranslatedCSNodeV1.class, translatedTopicId, translatedTopicRevision)) {
-                    translatedTopic = entityCache.get(RESTTranslatedCSNodeV1.class, translatedTopicId, translatedTopicRevision);
+                if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeV1.class, translatedTopicId, translatedTopicRevision)) {
+                    translatedTopic = getRESTEntityCache().get(RESTTranslatedCSNodeV1.class, translatedTopicId, translatedTopicRevision);
                 }
 
-                /* We need to expand the all the items in the topic collection */
-                final ExpandDataTrunk expand = new ExpandDataTrunk();
-                final ExpandDataTrunk expandCSTranslatedNodeStrings = new ExpandDataTrunk(
-                        new ExpandDataDetails(RESTTranslatedCSNodeV1.TRANSLATED_STRING_NAME));
-                final ExpandDataTrunk expandCSTranslatedNodeData = new ExpandDataTrunk(
-                        new ExpandDataDetails(RESTTranslatedCSNodeStringV1.REVISIONS_NAME));
+                // We need to expand the all the translated string revisions in the translated content spec node
+                final String expandString = getExpansionString(RESTTranslatedCSNodeV1.TRANSLATED_STRING_NAME,
+                        RESTTranslatedCSNodeStringV1.REVISIONS_NAME);
 
-                expandCSTranslatedNodeStrings.setBranches(CollectionUtilities.toArrayList(expandCSTranslatedNodeData));
-                expand.setBranches(CollectionUtilities.toArrayList(expandCSTranslatedNodeStrings));
-
-                final String expandString = mapper.writeValueAsString(expand);
-
+                // Load the translated content spec node from the REST Interface
                 final RESTTranslatedCSNodeV1 tempCSTranslatedNode;
                 if (translatedTopicRevision == null) {
-                    tempCSTranslatedNode = client.getJSONTranslatedContentSpecNode(translatedTopicId, expandString);
+                    tempCSTranslatedNode = getRESTClient().getJSONTranslatedContentSpecNode(translatedTopicId, expandString);
                 } else {
-                    tempCSTranslatedNode = client.getJSONTranslatedContentSpecNodeRevision(translatedTopicId, translatedTopicRevision,
-                            expandString);
+                    tempCSTranslatedNode = getRESTClient().getJSONTranslatedContentSpecNodeRevision(translatedTopicId,
+                            translatedTopicRevision, expandString);
                 }
 
                 if (translatedTopic == null) {
                     translatedTopic = tempCSTranslatedNode;
-                    if (translatedTopicRevision == null) {
-                        entityCache.add(translatedTopic);
-                    } else {
-                        entityCache.add(translatedTopic, translatedTopicRevision);
-                    }
+                    getRESTEntityCache().add(translatedTopic, translatedTopicRevision);
                 } else if (translatedTopic.getTranslatedNodeStrings_OTM() == null) {
                     translatedTopic.setTranslatedNodeStrings_OTM(tempCSTranslatedNode.getTranslatedNodeStrings_OTM());
                 } else {
@@ -140,6 +118,7 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
                     }
                 }
 
+                // Find the matching TranslatedCSNode and return the revisions
                 for (final RESTTranslatedCSNodeStringCollectionItemV1 translatedTopicItem : translatedTopic.getTranslatedNodeStrings_OTM
                         ().getItems()) {
                     final RESTTranslatedCSNodeStringV1 langCSTranslatedNode = translatedTopicItem.getItem();
@@ -149,7 +128,8 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
                     }
                 }
             } catch (Exception e) {
-                log.error("", e);
+                log.error("Failed to retrieve the Revisions for Translated Content Spec Node String " + id + (revision == null ? "" : ("," +
+                        " Revision " + revision)), e);
             }
         }
 

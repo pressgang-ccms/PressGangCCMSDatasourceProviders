@@ -3,18 +3,12 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.proxy.RESTImageV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTLanguageImageCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.LanguageImageWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -23,15 +17,17 @@ import org.slf4j.LoggerFactory;
 
 public class RESTLanguageImageProvider extends RESTDataProvider implements LanguageImageProvider {
     private static Logger log = LoggerFactory.getLogger(RESTLanguageImageProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTLanguageImageProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTImageV1 loadImage(Integer id, Integer revision, String expandString) {
+        if (revision == null) {
+            return getRESTClient().getJSONImage(id, expandString);
+        } else {
+            return getRESTClient().getJSONImageRevision(id, revision, expandString);
+        }
     }
 
     @Override
@@ -41,8 +37,8 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
 
     public RESTLanguageImageV1 getRESTLanguageImage(int id, final Integer revision, final RESTImageV1 parent) {
         try {
-            if (entityCache.containsKeyValue(RESTLanguageImageV1.class, id, revision)) {
-                return entityCache.get(RESTLanguageImageV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTLanguageImageV1.class, id, revision)) {
+                return getRESTEntityCache().get(RESTLanguageImageV1.class, id, revision);
             } else {
                 final RESTLanguageImageCollectionV1 languageImages = parent.getLanguageImages_OTM();
 
@@ -54,7 +50,7 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                 }
             }
         } catch (Exception e) {
-            log.error("", e);
+            log.error("Failed to retrieve Language Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
     }
@@ -82,34 +78,19 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
             try {
                 RESTImageV1 image = null;
                 // Check the cache first
-                if (entityCache.containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
-                    image = entityCache.get(RESTImageV1.class, imageId, imageRevision);
+                if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
+                    image = getRESTEntityCache().get(RESTImageV1.class, imageId, imageRevision);
                 }
 
-                /* We need to expand the all the items in the topic collection */
-                final ExpandDataTrunk expand = new ExpandDataTrunk();
-                final ExpandDataTrunk expandLanguageImages = new ExpandDataTrunk(new ExpandDataDetails(RESTImageV1.LANGUAGEIMAGES_NAME));
-                final ExpandDataTrunk expandImageData = new ExpandDataTrunk(new ExpandDataDetails(RESTLanguageImageV1.IMAGEDATA_NAME));
+                // We need to expand the all the language images with their data in the image
+                final String expandString = getExpansionString(RESTImageV1.LANGUAGEIMAGES_NAME, RESTLanguageImageV1.IMAGEDATA_NAME);
 
-                expandLanguageImages.setBranches(CollectionUtilities.toArrayList(expandImageData));
-                expand.setBranches(CollectionUtilities.toArrayList(expandLanguageImages));
-
-                final String expandString = mapper.writeValueAsString(expand);
-
-                final RESTImageV1 tempImage;
-                if (imageRevision == null) {
-                    tempImage = client.getJSONImage(imageId, expandString);
-                } else {
-                    tempImage = client.getJSONImageRevision(imageId, imageRevision, expandString);
-                }
+                // Load the image from the REST Interface
+                final RESTImageV1 tempImage = loadImage(imageId, imageRevision, expandString);
 
                 if (image == null) {
                     image = tempImage;
-                    if (imageRevision == null) {
-                        entityCache.add(image);
-                    } else {
-                        entityCache.add(image, imageRevision);
-                    }
+                    getRESTEntityCache().add(image, imageRevision);
                 } else if (image.getLanguageImages_OTM() == null) {
                     image.setLanguageImages_OTM(tempImage.getLanguageImages_OTM());
                 } else {
@@ -137,6 +118,7 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                     }
                 }
 
+                // Find the matching language image and return the image data
                 for (final RESTLanguageImageCollectionItemV1 imageItem : image.getLanguageImages_OTM().getItems()) {
                     final RESTLanguageImageV1 langImage = imageItem.getItem();
 
@@ -145,7 +127,7 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                     }
                 }
             } catch (Exception e) {
-                log.error("", e);
+                log.error("Failed to retrieve the Data for Language Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
             }
         }
 
@@ -171,35 +153,19 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
             try {
                 RESTImageV1 image = null;
                 // Check the cache first
-                if (entityCache.containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
-                    image = entityCache.get(RESTImageV1.class, imageId, imageRevision);
+                if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
+                    image = getRESTEntityCache().get(RESTImageV1.class, imageId, imageRevision);
                 }
 
-                /* We need to expand the all the items in the topic collection */
-                final ExpandDataTrunk expand = new ExpandDataTrunk();
-                final ExpandDataTrunk expandLanguageImages = new ExpandDataTrunk(new ExpandDataDetails(RESTImageV1.LANGUAGEIMAGES_NAME));
-                final ExpandDataTrunk expandImageDataBase64 = new ExpandDataTrunk(
-                        new ExpandDataDetails(RESTLanguageImageV1.IMAGEDATABASE64_NAME));
+                // We need to expand the all the language images with their BASE64 data in the image
+                final String expandString = getExpansionString(RESTImageV1.LANGUAGEIMAGES_NAME, RESTLanguageImageV1.IMAGEDATABASE64_NAME);
 
-                expandLanguageImages.setBranches(CollectionUtilities.toArrayList(expandImageDataBase64));
-                expand.setBranches(CollectionUtilities.toArrayList(expandLanguageImages));
-
-                final String expandString = mapper.writeValueAsString(expand);
-
-                final RESTImageV1 tempImage;
-                if (revision == null) {
-                    tempImage = client.getJSONImage(id, expandString);
-                } else {
-                    tempImage = client.getJSONImageRevision(id, revision, expandString);
-                }
+                // Load the image from the REST Interface
+                final RESTImageV1 tempImage = loadImage(id, revision, expandString);
 
                 if (image == null) {
                     image = tempImage;
-                    if (revision == null) {
-                        entityCache.add(image);
-                    } else {
-                        entityCache.add(image, revision);
-                    }
+                    getRESTEntityCache().add(image, revision);
                 } else if (image.getLanguageImages_OTM() == null) {
                     image.setLanguageImages_OTM(tempImage.getLanguageImages_OTM());
                 } else {
@@ -235,7 +201,8 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                     }
                 }
             } catch (Exception e) {
-                log.error("", e);
+                log.error("Failed to retrieve the Base64 Data for Language Image " + id + (revision == null ? "" : (", " +
+                        "Revision " + revision)), e);
             }
         }
 
@@ -261,34 +228,19 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
             try {
                 RESTImageV1 image = null;
                 // Check the cache first
-                if (entityCache.containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
-                    image = entityCache.get(RESTImageV1.class, imageId, imageRevision);
+                if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
+                    image = getRESTEntityCache().get(RESTImageV1.class, imageId, imageRevision);
                 }
 
-                /* We need to expand the all the items in the topic collection */
-                final ExpandDataTrunk expand = new ExpandDataTrunk();
-                final ExpandDataTrunk expandLanguageImages = new ExpandDataTrunk(new ExpandDataDetails(RESTImageV1.LANGUAGEIMAGES_NAME));
-                final ExpandDataTrunk expandThumbnail = new ExpandDataTrunk(new ExpandDataDetails(RESTLanguageImageV1.THUMBNAIL_NAME));
+                // We need to expand the all the language image thumbnails in the image
+                final String expandString = getExpansionString(RESTImageV1.LANGUAGEIMAGES_NAME, RESTLanguageImageV1.THUMBNAIL_NAME);
 
-                expandLanguageImages.setBranches(CollectionUtilities.toArrayList(expandThumbnail));
-                expand.setBranches(CollectionUtilities.toArrayList(expandLanguageImages));
-
-                final String expandString = mapper.writeValueAsString(expand);
-
-                final RESTImageV1 tempImage;
-                if (revision == null) {
-                    tempImage = client.getJSONImage(id, expandString);
-                } else {
-                    tempImage = client.getJSONImageRevision(id, revision, expandString);
-                }
+                // Load the image from the REST Interface
+                final RESTImageV1 tempImage = loadImage(id, revision, expandString);
 
                 if (image == null) {
                     image = tempImage;
-                    if (revision == null) {
-                        entityCache.add(image);
-                    } else {
-                        entityCache.add(image, revision);
-                    }
+                    getRESTEntityCache().add(image, revision);
                 } else if (image.getLanguageImages_OTM() == null) {
                     image.setLanguageImages_OTM(tempImage.getLanguageImages_OTM());
                 } else {
@@ -324,7 +276,8 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                     }
                 }
             } catch (Exception e) {
-                log.error("", e);
+                log.error("Failed to retrieve the Thumbnail for Language Image " + id + (revision == null ? "" : (", " +
+                        "Revision " + revision)), e);
             }
         }
 
@@ -350,34 +303,19 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
             try {
                 RESTImageV1 image = null;
                 // Check the cache first
-                if (entityCache.containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
-                    image = entityCache.get(RESTImageV1.class, imageId, imageRevision);
+                if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
+                    image = getRESTEntityCache().get(RESTImageV1.class, imageId, imageRevision);
                 }
 
-                // We need to expand the all the items in the language image collection
-                final ExpandDataTrunk expand = new ExpandDataTrunk();
-                final ExpandDataTrunk expandLanguageImages = new ExpandDataTrunk(new ExpandDataDetails(RESTImageV1.LANGUAGEIMAGES_NAME));
-                final ExpandDataTrunk expandImageData = new ExpandDataTrunk(new ExpandDataDetails(RESTLanguageImageV1.REVISIONS_NAME));
+                // We need to expand the all the language image revisions in the image
+                final String expandString = getExpansionString(RESTImageV1.LANGUAGEIMAGES_NAME, RESTLanguageImageV1.REVISIONS_NAME);
 
-                expandLanguageImages.setBranches(CollectionUtilities.toArrayList(expandImageData));
-                expand.setBranches(CollectionUtilities.toArrayList(expandLanguageImages));
-
-                final String expandString = mapper.writeValueAsString(expand);
-
-                final RESTImageV1 tempImage;
-                if (imageRevision == null) {
-                    tempImage = client.getJSONImage(imageId, expandString);
-                } else {
-                    tempImage = client.getJSONImageRevision(imageId, imageRevision, expandString);
-                }
+                // Load the image from the REST Interface
+                final RESTImageV1 tempImage = loadImage(imageId, imageRevision, expandString);
 
                 if (image == null) {
                     image = tempImage;
-                    if (imageRevision == null) {
-                        entityCache.add(image);
-                    } else {
-                        entityCache.add(image, imageRevision);
-                    }
+                    getRESTEntityCache().add(image, imageRevision);
                 } else if (image.getLanguageImages_OTM() == null) {
                     image.setLanguageImages_OTM(tempImage.getLanguageImages_OTM());
                 } else {
@@ -413,7 +351,8 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                     }
                 }
             } catch (Exception e) {
-                log.error("", e);
+                log.error("Failed to retrieve the Revisions for Language Image " + id + (revision == null ? "" : (", " +
+                        "Revision " + revision)), e);
             }
         }
 

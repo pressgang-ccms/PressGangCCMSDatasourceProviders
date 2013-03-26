@@ -1,18 +1,11 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
@@ -24,15 +17,17 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements TranslatedCSNodeProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedCSNodeProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
-
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
 
     protected RESTTranslatedCSNodeProvider(RESTManager restManager, RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
+    }
+
+    protected RESTTranslatedCSNodeV1 loadTranslatedCSNode(int id, Integer revision, String expandString) {
+        if (revision == null) {
+            return getRESTClient().getJSONTranslatedContentSpecNode(id, expandString);
+        } else {
+            return getRESTClient().getJSONTranslatedContentSpecNodeRevision(id, revision, expandString);
+        }
     }
 
     public RESTTranslatedCSNodeV1 getRESTTranslatedCSNode(int id) {
@@ -47,20 +42,15 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
     public RESTTranslatedCSNodeV1 getRESTTranslatedCSNode(int id, Integer revision) {
         try {
             final RESTTranslatedCSNodeV1 node;
-            if (entityCache.containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
-                node = entityCache.get(RESTTranslatedCSNodeV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
+                node = getRESTEntityCache().get(RESTTranslatedCSNodeV1.class, id, revision);
             } else {
-                if (revision == null) {
-                    node = client.getJSONTranslatedContentSpecNode(id, "");
-                    entityCache.add(node);
-                } else {
-                    node = client.getJSONTranslatedContentSpecNodeRevision(id, revision, "");
-                    entityCache.add(node, revision);
-                }
+                node = loadTranslatedCSNode(id, revision, "");
+                getRESTEntityCache().add(node, revision);
             }
             return node;
         } catch (Exception e) {
-            log.error("Failed to retrieve Content Spec Translated Node " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.error("Failed to retrieve Translated Content Spec Node " + id + (revision == null ? "" : (", Revision " + revision)), e);
         }
         return null;
     }
@@ -77,143 +67,67 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
 
     public RESTTranslatedCSNodeStringCollectionV1 getRESTTranslatedCSNodeStrings(int id, Integer revision) {
         try {
-            RESTTranslatedCSNodeV1 node = null;
+            RESTTranslatedCSNodeV1 translatedCSNode = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
-                node = entityCache.get(RESTTranslatedCSNodeV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
+                translatedCSNode = getRESTEntityCache().get(RESTTranslatedCSNodeV1.class, id, revision);
 
-                if (node.getTranslatedNodeStrings_OTM() != null) {
-                    return node.getTranslatedNodeStrings_OTM();
+                if (translatedCSNode.getTranslatedNodeStrings_OTM() != null) {
+                    return translatedCSNode.getTranslatedNodeStrings_OTM();
                 }
             }
 
-            /* We need to expand the all the items in the topic collection */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedCSNodeV1.TRANSLATED_STRING_NAME));
+            // We need to expand the all the translated strings in the translated content spec node
+            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.TRANSLATED_STRING_NAME);
 
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
+            // Load the content spec translated node from the REST Interface
+            final RESTTranslatedCSNodeV1 tempTranslatedCSNode = loadTranslatedCSNode(id, revision, expandString);
 
-            final String expandString = mapper.writeValueAsString(expand);
-
-            final RESTTranslatedCSNodeV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTranslatedContentSpecNode(id, expandString);
+            if (translatedCSNode == null) {
+                translatedCSNode = tempTranslatedCSNode;
+                getRESTEntityCache().add(translatedCSNode, revision);
             } else {
-                tempTopic = client.getJSONTranslatedContentSpecNodeRevision(id, revision, expandString);
+                translatedCSNode.setTranslatedNodeStrings_OTM(tempTranslatedCSNode.getTranslatedNodeStrings_OTM());
             }
 
-            if (node == null) {
-                node = tempTopic;
-                if (revision == null) {
-                    entityCache.add(node);
-                } else {
-                    entityCache.add(node, revision);
-                }
-            } else {
-                node.setTranslatedNodeStrings_OTM(tempTopic.getTranslatedNodeStrings_OTM());
-            }
-
-            return node.getTranslatedNodeStrings_OTM();
+            return translatedCSNode.getTranslatedNodeStrings_OTM();
         } catch (Exception e) {
             log.error(
-                    "Unable to retrieve the Translated Node Strings for ContentSpec Translated Node " + id + (revision == null ? "" : ("," +
+                    "Unable to retrieve the Translated Node Strings for Translated ContentSpec Node " + id + (revision == null ? "" : ("," +
                             " Revision" + revision)), e);
         }
         return null;
     }
 
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStrings(int id, Integer revision,
-            final RESTTranslatedCSNodeV1 parent) {
-        final CollectionWrapper<TranslatedCSNodeStringWrapper> collection = getWrapperFactory().createCollection(
-                getRESTTranslatedCSNodeStrings(id, revision), RESTTranslatedCSNodeStringV1.class, revision != null, parent);
-        return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) collection;
-    }
-
     public RESTTranslatedCSNodeCollectionV1 getRESTTranslatedCSNodeRevisions(int id, Integer revision) {
         try {
-            RESTTranslatedCSNodeV1 contentSpec = null;
+            RESTTranslatedCSNodeV1 translatedCSNode = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
-                contentSpec = entityCache.get(RESTTranslatedCSNodeV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
+                translatedCSNode = getRESTEntityCache().get(RESTTranslatedCSNodeV1.class, id, revision);
 
-                if (contentSpec.getRevisions() != null) {
-                    return contentSpec.getRevisions();
+                if (translatedCSNode.getRevisions() != null) {
+                    return translatedCSNode.getRevisions();
                 }
             }
 
-            // We need to expand the revisions in the content spec translated node collection
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandCategories = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedCSNodeV1.REVISIONS_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandCategories));
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the revisions in the translated content spec node
+            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.REVISIONS_NAME);
 
-            // Load the content spec translated node from the REST Interface
-            final RESTTranslatedCSNodeV1 tempCSTranslatedNode;
-            if (revision == null) {
-                tempCSTranslatedNode = client.getJSONTranslatedContentSpecNode(id, expandString);
+            // Load the translated content spec node from the REST Interface
+            final RESTTranslatedCSNodeV1 tempCSTranslatedNode = loadTranslatedCSNode(id, revision, expandString);
+
+            if (translatedCSNode == null) {
+                translatedCSNode = tempCSTranslatedNode;
+                getRESTEntityCache().add(translatedCSNode, revision);
             } else {
-                tempCSTranslatedNode = client.getJSONTranslatedContentSpecNodeRevision(id, revision, expandString);
+                translatedCSNode.setRevisions(tempCSTranslatedNode.getRevisions());
             }
 
-            if (contentSpec == null) {
-                contentSpec = tempCSTranslatedNode;
-                if (revision == null) {
-                    entityCache.add(contentSpec);
-                } else {
-                    entityCache.add(contentSpec, revision);
-                }
-            } else {
-                contentSpec.setRevisions(tempCSTranslatedNode.getRevisions());
-            }
-
-            return contentSpec.getRevisions();
+            return translatedCSNode.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Content Spec Node " + id + (revision == null ? "" : (", " +
+            log.error("Failed to retrieve the Revisions for Translated Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
-        }
-        return null;
-    }
-
-    public RESTTranslatedTopicV1 getRESTTranslatedCSNodeTranslatedTopic(int id, Integer revision) {
-        try {
-            RESTTranslatedCSNodeV1 node = null;
-            // Check the cache first
-            if (entityCache.containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
-                node = entityCache.get(RESTTranslatedCSNodeV1.class, id, revision);
-
-                if (node.getTranslatedTopic() != null) {
-                    return node.getTranslatedTopic();
-                }
-            }
-
-            // We need to expand the translated topic in the translated cs node
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandTags = new ExpandDataTrunk(new ExpandDataDetails(RESTTranslatedCSNodeV1.TRANSLATED_TOPIC_NAME));
-            expand.setBranches(CollectionUtilities.toArrayList(expandTags));
-            final String expandString = mapper.writeValueAsString(expand);
-
-            final RESTTranslatedCSNodeV1 tempTopic;
-            if (revision == null) {
-                tempTopic = client.getJSONTranslatedContentSpecNode(id, expandString);
-            } else {
-                tempTopic = client.getJSONTranslatedContentSpecNodeRevision(id, revision, expandString);
-            }
-
-            if (node == null) {
-                node = tempTopic;
-                if (revision == null) {
-                    entityCache.add(node);
-                } else {
-                    entityCache.add(node, revision);
-                }
-            } else {
-                node.setTranslatedTopic(tempTopic.getTranslatedTopic());
-            }
-
-            return node.getTranslatedTopic();
-        } catch (Exception e) {
-            log.error("Unable to retrieve the Translated Topic for ContentSpec Translated Node " + id + (revision == null ? "" : ("," +
-                    " Revision" + revision)), e);
         }
         return null;
     }
@@ -223,21 +137,49 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
         return getWrapperFactory().createCollection(getRESTTranslatedCSNodeRevisions(id, revision), RESTTranslatedCSNodeV1.class, true);
     }
 
+    public RESTTranslatedTopicV1 getRESTTranslatedCSNodeTranslatedTopic(int id, Integer revision) {
+        try {
+            RESTTranslatedCSNodeV1 translatedCSNode = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
+                translatedCSNode = getRESTEntityCache().get(RESTTranslatedCSNodeV1.class, id, revision);
+
+                if (translatedCSNode.getTranslatedTopic() != null) {
+                    return translatedCSNode.getTranslatedTopic();
+                }
+            }
+
+            // We need to expand the translated topic in the translated cs node
+            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.TRANSLATED_TOPIC_NAME);
+
+            // Load the translated content spec node from the REST Interface
+            final RESTTranslatedCSNodeV1 tempTranslatedCSNode = loadTranslatedCSNode(id, revision, expandString);
+
+            if (translatedCSNode == null) {
+                translatedCSNode = tempTranslatedCSNode;
+                getRESTEntityCache().add(translatedCSNode, revision);
+            } else {
+                translatedCSNode.setTranslatedTopic(tempTranslatedCSNode.getTranslatedTopic());
+            }
+
+            return translatedCSNode.getTranslatedTopic();
+        } catch (Exception e) {
+            log.error("Unable to retrieve the Translated Topic for Translated ContentSpec Node " + id + (revision == null ? "" : ("," +
+                    " Revision" + revision)), e);
+        }
+        return null;
+    }
+
     @Override
     public CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(
             CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes) throws Exception {
         final RESTTranslatedCSNodeCollectionV1 unwrappedNodes = ((RESTTranslatedCSNodeCollectionV1Wrapper) translatedNodes).unwrap();
 
-        final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandNodes = new ExpandDataTrunk(
-                new ExpandDataDetails(RESTv1Constants.CONTENT_SPEC_TRANSLATED_NODE_EXPANSION_NAME));
-        expand.setBranches(CollectionUtilities.toArrayList(expandNodes));
-
-        final String expandString = mapper.writeValueAsString(expand);
-
-        final RESTTranslatedCSNodeCollectionV1 createdNodes = client.createJSONTranslatedContentSpecNodes(expandString, unwrappedNodes);
+        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_TRANSLATED_NODE_EXPANSION_NAME);
+        final RESTTranslatedCSNodeCollectionV1 createdNodes = getRESTClient().createJSONTranslatedContentSpecNodes(expandString,
+                unwrappedNodes);
         if (createdNodes != null) {
-            entityCache.add(createdNodes, false);
+            getRESTEntityCache().add(createdNodes, false);
             return getWrapperFactory().createCollection(createdNodes, RESTTranslatedCSNodeV1.class, false);
         } else {
             return null;
