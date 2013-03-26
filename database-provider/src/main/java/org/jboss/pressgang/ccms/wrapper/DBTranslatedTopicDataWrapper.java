@@ -11,6 +11,7 @@ import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopic;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
@@ -382,6 +383,16 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     }
 
     @Override
+    public String getTranslatedXMLCondition() {
+        return getTranslatedTopicData().getTranslatedXMLCondition();
+    }
+
+    @Override
+    public void setTranslatedXMLCondition(String translatedXMLCondition) {
+        getTranslatedTopicData().setTranslatedXMLCondition(translatedXMLCondition);
+    }
+
+    @Override
     public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
         final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
                 getTranslatedTopicData().getTranslatedTopicDataStringsArray(), TranslatedTopicString.class, isRevisionEntity());
@@ -419,5 +430,16 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     @Override
     public void setTopic(TopicWrapper topic) {
         getTranslatedTopic().setEnversTopic(topic == null ? null : (Topic) topic.unwrap());
+    }
+
+    @Override
+    public TranslatedCSNodeWrapper getTranslatedCSNode() {
+        return getWrapperFactory().create(getTranslatedTopicData().getTranslatedCSNode(), isRevisionEntity(),
+                TranslatedCSNodeWrapper.class);
+    }
+
+    @Override
+    public void setTranslatedCSNode(TranslatedCSNodeWrapper translatedCSNode) {
+        getTranslatedTopicData().setTranslatedCSNode(translatedCSNode == null ? null : (TranslatedCSNode) translatedCSNode.unwrap());
     }
 }

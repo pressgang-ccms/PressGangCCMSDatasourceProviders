@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import java.util.List;
 
+import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
@@ -126,5 +127,22 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
     @Override
     public void setCSNode(CSNodeWrapper node) {
         getCSTranslatedNode().setEnversCSNode(node == null ? null : (CSNode) node.unwrap());
+    }
+
+    @Override
+    public TranslatedContentSpecWrapper getTranslatedContentSpec() {
+        return getWrapperFactory().create(getCSTranslatedNode().getTranslatedContentSpec(), isRevisionEntity(),
+                TranslatedContentSpecWrapper.class);
+    }
+
+    @Override
+    public TranslatedTopicWrapper getTranslatedTopic() {
+        return getWrapperFactory().create(getCSTranslatedNode().getTranslatedTopicData(), isRevisionEntity(),
+                TranslatedTopicWrapper.class);
+    }
+
+    @Override
+    public void setTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
+        getCSTranslatedNode().setTranslatedTopicData(translatedTopic == null ? null : (TranslatedTopicData) translatedTopic.unwrap());
     }
 }
