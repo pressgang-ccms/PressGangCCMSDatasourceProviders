@@ -50,9 +50,9 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
             }
             return node;
         } catch (Exception e) {
-            log.error("Failed to retrieve Translated Content Spec Node " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Translated Content Spec Node " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -92,11 +92,11 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
 
             return translatedCSNode.getTranslatedNodeStrings_OTM();
         } catch (Exception e) {
-            log.error(
+            log.debug(
                     "Unable to retrieve the Translated Node Strings for Translated ContentSpec Node " + id + (revision == null ? "" : ("," +
                             " Revision" + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public RESTTranslatedCSNodeCollectionV1 getRESTTranslatedCSNodeRevisions(int id, Integer revision) {
@@ -126,10 +126,10 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
 
             return translatedCSNode.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Translated Content Spec Node " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Revisions for Translated Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -164,25 +164,28 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
 
             return translatedCSNode.getTranslatedTopic();
         } catch (Exception e) {
-            log.error("Unable to retrieve the Translated Topic for Translated ContentSpec Node " + id + (revision == null ? "" : ("," +
+            log.debug("Unable to retrieve the Translated Topic for Translated ContentSpec Node " + id + (revision == null ? "" : ("," +
                     " Revision" + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
-    public CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(
-            CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes) throws Exception {
-        final RESTTranslatedCSNodeCollectionV1 unwrappedNodes = ((RESTTranslatedCSNodeCollectionV1Wrapper) translatedNodes).unwrap();
+    public CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes) {
+        try {
+            final RESTTranslatedCSNodeCollectionV1 unwrappedNodes = ((RESTTranslatedCSNodeCollectionV1Wrapper) translatedNodes).unwrap();
 
-        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_TRANSLATED_NODE_EXPANSION_NAME);
-        final RESTTranslatedCSNodeCollectionV1 createdNodes = getRESTClient().createJSONTranslatedContentSpecNodes(expandString,
-                unwrappedNodes);
-        if (createdNodes != null) {
-            getRESTEntityCache().add(createdNodes, false);
-            return getWrapperFactory().createCollection(createdNodes, RESTTranslatedCSNodeV1.class, false);
-        } else {
-            return null;
+            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_TRANSLATED_NODE_EXPANSION_NAME);
+            final RESTTranslatedCSNodeCollectionV1 createdNodes = getRESTClient().createJSONTranslatedContentSpecNodes(expandString,
+                    unwrappedNodes);
+            if (createdNodes != null) {
+                getRESTEntityCache().add(createdNodes, false);
+                return getWrapperFactory().createCollection(createdNodes, RESTTranslatedCSNodeV1.class, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw handleException(e);
         }
     }
 

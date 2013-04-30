@@ -44,9 +44,9 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
             }
             return stringConstant;
         } catch (Exception e) {
-            log.error("Failed to retrieve String Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve String Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -80,10 +80,10 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
 
             return stringConstant.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for String Constant " + id + (revision == null ? "" : (", Revision " + revision)),
+            log.debug("Failed to retrieve the Revisions for String Constant " + id + (revision == null ? "" : (", Revision " + revision)),
                     e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override

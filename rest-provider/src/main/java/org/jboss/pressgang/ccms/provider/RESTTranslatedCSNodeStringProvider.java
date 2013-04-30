@@ -3,6 +3,7 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTTranslatedCSNodeV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
@@ -37,12 +38,14 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
                         return translatedTopicString;
                     }
                 }
+
+                throw new NotFoundException();
             }
         } catch (Exception e) {
-            log.error("Failed to retrieve for Translated Content Spec Node String " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve for Translated Content Spec Node String " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public TranslatedCSNodeStringWrapper getTranslatedCSNodeString(int id, final Integer revision, final RESTTranslatedCSNodeV1 parent) {
@@ -60,13 +63,13 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
         final Integer translatedTopicId = parent.getId();
         final Integer translatedTopicRevision = proxyHandler.getEntityRevision();
 
-        final RESTTranslatedCSNodeStringV1 translatedTopicString = getRESTTranslatedCSNodeString(id, revision, parent);
-        if (translatedTopicString == null) {
-            return null;
-        } else if (translatedTopicString.getRevisions() != null) {
-            return translatedTopicString.getRevisions();
-        } else {
-            try {
+        try {
+            final RESTTranslatedCSNodeStringV1 translatedTopicString = getRESTTranslatedCSNodeString(id, revision, parent);
+            if (translatedTopicString == null) {
+                throw new NotFoundException();
+            } else if (translatedTopicString.getRevisions() != null) {
+                return translatedTopicString.getRevisions();
+            } else {
                 RESTTranslatedCSNodeV1 translatedTopic = null;
                 // Check the cache first
                 if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeV1.class, translatedTopicId, translatedTopicRevision)) {
@@ -127,13 +130,14 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
                         return translatedTopicString.getRevisions();
                     }
                 }
-            } catch (Exception e) {
-                log.error("Failed to retrieve the Revisions for Translated Content Spec Node String " + id + (revision == null ? "" : ("," +
-                        " Revision " + revision)), e);
-            }
-        }
 
-        return null;
+                throw new NotFoundException();
+            }
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Revisions for Translated Content Spec Node String " + id + (revision == null ? "" : ("," +
+                    " Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 
     public CollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStringRevisions(int id, final Integer revision,

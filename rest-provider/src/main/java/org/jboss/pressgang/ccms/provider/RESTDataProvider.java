@@ -3,9 +3,16 @@ package org.jboss.pressgang.ccms.provider;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jboss.pressgang.ccms.provider.exception.BadRequestException;
+import org.jboss.pressgang.ccms.provider.exception.InternalServerErrorException;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
+import org.jboss.pressgang.ccms.provider.exception.ProviderException;
+import org.jboss.pressgang.ccms.provider.exception.UnauthorisedException;
+import org.jboss.pressgang.ccms.provider.exception.UpgradeException;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseUpdateCollectionV1;
@@ -16,6 +23,8 @@ import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.utils.RESTCollectionCache;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.resteasy.client.ClientResponse;
+import org.jboss.resteasy.client.ClientResponseFailure;
 
 public abstract class RESTDataProvider extends DataProvider {
     private static ObjectMapper mapper = new ObjectMapper();
@@ -134,5 +143,27 @@ public abstract class RESTDataProvider extends DataProvider {
         }
         expand.setBranches(Arrays.asList(expandData));
         return mapper.writeValueAsString(expand);
+    }
+
+    protected RuntimeException handleException(final Exception e) {
+        if (e instanceof ClientResponseFailure) {
+            final ClientResponseFailure crf = ((ClientResponseFailure) e);
+            final ClientResponse response = crf.getResponse();
+            final int status = response.getStatus();
+            switch (status) {
+                case HttpURLConnection.HTTP_BAD_REQUEST: return new BadRequestException(e);
+                case HttpURLConnection.HTTP_INTERNAL_ERROR: return new InternalServerErrorException(e);
+                case HttpURLConnection.HTTP_UNAUTHORIZED: return new UnauthorisedException(e);
+                case 426: return new UpgradeException(e);
+                case HttpURLConnection.HTTP_NOT_FOUND: return new NotFoundException(e);
+                default: return crf;
+            }
+        } else if (e instanceof ProviderException) {
+            return (ProviderException) e;
+        } else if (e instanceof RuntimeException) {
+            return (RuntimeException) e;
+        } else {
+            return new RuntimeException(e);
+        }
     }
 }

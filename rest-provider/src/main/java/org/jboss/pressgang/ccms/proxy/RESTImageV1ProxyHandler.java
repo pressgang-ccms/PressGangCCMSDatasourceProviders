@@ -25,7 +25,7 @@ public class RESTImageV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTIm
                 final String methodName = thisMethod.getName();
 
                 if (methodName.equals("getLanguageImages_OTM")) {
-                    retValue = getProvider().getRESTImageLanguageImages(image.getId(), getEntityRevision(), getProxyEntity());
+                    retValue = getProvider().getRESTImageLanguageImages(image.getId(), getEntityRevision());
                 } else if (methodName.equals("getRevisions")) {
                     retValue = getProvider().getRESTImageRevisions(image.getId(), getEntityRevision());
                 }

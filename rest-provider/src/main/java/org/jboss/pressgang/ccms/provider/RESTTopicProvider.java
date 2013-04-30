@@ -77,9 +77,9 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             }
             return topic;
         } catch (Exception e) {
-            log.error("Failed to retrieve Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -114,9 +114,9 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topic.getTags();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Tags for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Tags for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -162,9 +162,9 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topics;
         } catch (Exception e) {
-            log.error("Failed to retrieve all Topics for the specified ids", e);
+            log.debug("Failed to retrieve all Topics for the Ids: " + CollectionUtilities.toSeperatedString(ids), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -186,9 +186,9 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topics;
         } catch (Exception e) {
-            log.error("Failed to retrieve Topics with a query", e);
+            log.debug("Failed to retrieve Topics with Query: " + query, e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -225,9 +225,9 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topic.getTranslatedTopics_OTM();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Translations for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Translations for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -262,9 +262,9 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topic.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Revisions for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -299,15 +299,21 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topic.getProperties();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Properties for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Properties for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
     public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> getTopicProperties(int id, final Integer revision) {
+        throw new UnsupportedOperationException("A parent is needed to get Topic Properties using V1 of the REST Interface.");
+    }
+
+    public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> getTopicProperties(int id, final Integer revision,
+            final RESTBaseTopicV1<?, ?, ?> parent) {
         final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
-                getRESTTopicProperties(id, revision), RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInTopicWrapper.class);
+                getRESTTopicProperties(id, revision), RESTAssignedPropertyTagV1.class, revision != null, parent,
+                PropertyTagInTopicWrapper.class);
         return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
     }
 
@@ -338,10 +344,10 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topic.getOutgoingRelationships();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Outgoing Relationships for Topic " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Outgoing Relationships for Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -376,10 +382,10 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topic.getIncomingRelationships();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Incoming Relationships for Topic " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Incoming Relationships for Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -419,9 +425,9 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             return topic.getSourceUrls_OTM();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Source URLs for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Source URLs for Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceUrls(int id, final Integer revision,
@@ -431,89 +437,119 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     }
 
     @Override
-    public TopicWrapper createTopic(final TopicWrapper topicEntity) throws Exception {
-        final RESTTopicV1 topic = ((RESTTopicV1Wrapper) topicEntity).unwrap();
+    public TopicWrapper createTopic(final TopicWrapper topicEntity) {
+        try {
+            final RESTTopicV1 topic = ((RESTTopicV1Wrapper) topicEntity).unwrap();
 
-        // Clean the entity to remove anything that doesn't need to be sent to the server
-        cleanEntityForSave(topic);
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(topic);
 
-        final RESTTopicV1 updatedTopic = client.createJSONTopic("", ((RESTTopicV1Wrapper) topicEntity).unwrap());
-        if (updatedTopic != null) {
-            entityCache.add(updatedTopic);
-            return getWrapperFactory().create(updatedTopic, false);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public TopicWrapper updateTopic(TopicWrapper topicEntity) throws Exception {
-        final RESTTopicV1 topic = ((RESTTopicV1Wrapper) topicEntity).unwrap();
-
-        // Clean the entity to remove anything that doesn't need to be sent to the server
-        cleanEntityForSave(topic);
-
-        final RESTTopicV1 updatedTopic = client.updateJSONTopic("", topic);
-        if (updatedTopic != null) {
-            entityCache.expire(RESTTopicV1.class, topicEntity.getId());
-            entityCache.add(updatedTopic);
-            return getWrapperFactory().create(updatedTopic, false);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public boolean deleteTopic(Integer id) throws Exception {
-        final RESTTopicV1 topic = client.deleteJSONTopic(id, "");
-        return topic != null;
-    }
-
-    @Override
-    public CollectionWrapper<TopicWrapper> createTopics(CollectionWrapper<TopicWrapper> topics) throws Exception {
-        final RESTTopicCollectionV1 unwrappedTopics = ((RESTTopicCollectionV1Wrapper) topics).unwrap();
-
-        // Clean the collection to remove anything that doesn't need to be sent to the server
-        cleanCollectionForSave(unwrappedTopics);
-
-        final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
-        final RESTTopicCollectionV1 updatedTopics = client.createJSONTopics(expandString, unwrappedTopics);
-        if (updatedTopics != null) {
-            entityCache.add(updatedTopics, false);
-            return getWrapperFactory().createCollection(updatedTopics, RESTTopicV1.class, false);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public CollectionWrapper<TopicWrapper> updateTopics(CollectionWrapper<TopicWrapper> topics) throws Exception {
-        final RESTTopicCollectionV1 unwrappedTopics = ((RESTTopicCollectionV1Wrapper) topics).unwrap();
-
-        // Clean the collection to remove anything that doesn't need to be sent to the server
-        cleanCollectionForSave(unwrappedTopics);
-
-        final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
-        final RESTTopicCollectionV1 updatedTopics = client.updateJSONTopics(expandString, unwrappedTopics);
-        if (updatedTopics != null) {
-            // Expire the old cached data
-            for (final RESTTopicV1 topic : unwrappedTopics.returnItems()) {
-                entityCache.expire(RESTTopicV1.class, topic.getId());
+            final RESTTopicV1 updatedTopic = client.createJSONTopic("", ((RESTTopicV1Wrapper) topicEntity).unwrap());
+            if (updatedTopic != null) {
+                entityCache.add(updatedTopic);
+                return getWrapperFactory().create(updatedTopic, false);
+            } else {
+                return null;
             }
-            // Add the new data to the cache
-            entityCache.add(updatedTopics, false);
-            return getWrapperFactory().createCollection(updatedTopics, RESTTopicV1.class, false);
-        } else {
-            return null;
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
         }
     }
 
     @Override
-    public boolean deleteTopics(final List<Integer> topicIds) throws Exception {
-        final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
-        final PathSegment path = new PathSegmentImpl(pathString, false);
-        final RESTTopicCollectionV1 topics = client.deleteJSONTopics(path, "");
-        return topics != null;
+    public TopicWrapper updateTopic(TopicWrapper topicEntity) {
+        try {
+            final RESTTopicV1 topic = ((RESTTopicV1Wrapper) topicEntity).unwrap();
+
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(topic);
+
+            final RESTTopicV1 updatedTopic = client.updateJSONTopic("", topic);
+            if (updatedTopic != null) {
+                entityCache.expire(RESTTopicV1.class, topicEntity.getId());
+                entityCache.add(updatedTopic);
+                return getWrapperFactory().create(updatedTopic, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteTopic(Integer id) {
+        try {
+            final RESTTopicV1 topic = client.deleteJSONTopic(id, "");
+            return topic != null;
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public CollectionWrapper<TopicWrapper> createTopics(CollectionWrapper<TopicWrapper> topics) {
+        try {
+            final RESTTopicCollectionV1 unwrappedTopics = ((RESTTopicCollectionV1Wrapper) topics).unwrap();
+
+            // Clean the collection to remove anything that doesn't need to be sent to the server
+            cleanCollectionForSave(unwrappedTopics);
+
+            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
+            final RESTTopicCollectionV1 updatedTopics = client.createJSONTopics(expandString, unwrappedTopics);
+            if (updatedTopics != null) {
+                entityCache.add(updatedTopics, false);
+                return getWrapperFactory().createCollection(updatedTopics, RESTTopicV1.class, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public CollectionWrapper<TopicWrapper> updateTopics(CollectionWrapper<TopicWrapper> topics) {
+        try {
+            final RESTTopicCollectionV1 unwrappedTopics = ((RESTTopicCollectionV1Wrapper) topics).unwrap();
+
+            // Clean the collection to remove anything that doesn't need to be sent to the server
+            cleanCollectionForSave(unwrappedTopics);
+
+            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
+            final RESTTopicCollectionV1 updatedTopics = client.updateJSONTopics(expandString, unwrappedTopics);
+            if (updatedTopics != null) {
+                // Expire the old cached data
+                for (final RESTTopicV1 topic : unwrappedTopics.returnItems()) {
+                    entityCache.expire(RESTTopicV1.class, topic.getId());
+                }
+                // Add the new data to the cache
+                entityCache.add(updatedTopics, false);
+                return getWrapperFactory().createCollection(updatedTopics, RESTTopicV1.class, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteTopics(final List<Integer> topicIds) {
+        try {
+            final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
+            final PathSegment path = new PathSegmentImpl(pathString, false);
+            final RESTTopicCollectionV1 topics = client.deleteJSONTopics(path, "");
+            return topics != null;
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
     }
 
     @Override

@@ -10,12 +10,14 @@ import org.jboss.pressgang.ccms.utils.RESTEntityCache;
  */
 public class RESTManager {
 
+    private final PressGangCCMSProxyFactoryV1 proxyFactory;
     private final RESTInterfaceV1 client;
     private final RESTEntityCache entityCache = new RESTEntityCache();
     private final RESTCollectionCache collectionCache = new RESTCollectionCache(entityCache);
 
     public RESTManager(final String serverUrl) {
-        client = PressGangCCMSProxyFactoryV1.create(serverUrl).getRESTClient();
+        proxyFactory = PressGangCCMSProxyFactoryV1.create(serverUrl);
+        client = proxyFactory.getRESTClient();
     }
 
     public RESTInterfaceV1 getRESTClient() {
@@ -28,5 +30,9 @@ public class RESTManager {
 
     public RESTCollectionCache getRESTCollectionCache() {
         return collectionCache;
+    }
+
+    public PressGangCCMSProxyFactoryV1 getProxyFactory() {
+        return proxyFactory;
     }
 }

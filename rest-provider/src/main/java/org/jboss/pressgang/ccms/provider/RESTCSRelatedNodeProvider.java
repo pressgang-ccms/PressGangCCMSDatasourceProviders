@@ -4,6 +4,7 @@ import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.items.join.RESTCSRelatedNodeCollectionItemV1;
@@ -19,18 +20,12 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSRelatedNodeProvider {
+public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider {
     private static Logger log = LoggerFactory.getLogger(RESTCSRelatedNodeProvider.class);
     private static ObjectMapper mapper = new ObjectMapper();
 
     protected RESTCSRelatedNodeProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-    }
-
-    @Override
-    public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedNodeRevisions(int id, Integer revision) {
-        throw new UnsupportedOperationException(
-                "A parent is needed to get Content Spec Related Node revisions using V1 of the REST Interface.");
     }
 
     public RESTCSRelatedNodeCollectionV1 getRESTCSRelatedNodeRevisions(int id, Integer revision, final RESTCSNodeV1 parent) {
@@ -134,11 +129,11 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider implements CSR
                 }
             }
 
+            throw new NotFoundException();
         } catch (Exception e) {
-            log.error("Unable to retrieve the Revisions for CSRelatedNode " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Unable to retrieve the Revisions for CSRelatedNode " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-
-        return null;
     }
 
     public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedNodeRevisions(int id, Integer revision, final RESTCSNodeV1 parent) {

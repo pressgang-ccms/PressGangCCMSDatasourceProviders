@@ -48,9 +48,9 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
             }
             return category;
         } catch (Exception e) {
-            log.error("Failed to retrieve Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -85,9 +85,9 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
 
             return category.getTags();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Tags for Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Tags for Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -124,9 +124,9 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
 
             return category.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Revisions for Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override

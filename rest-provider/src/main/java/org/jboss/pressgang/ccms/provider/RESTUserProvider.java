@@ -59,9 +59,9 @@ public class RESTUserProvider extends RESTDataProvider implements UserProvider {
             }
             return user;
         } catch (Exception e) {
-            log.error("", e);
+            log.debug("", e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -91,14 +91,28 @@ public class RESTUserProvider extends RESTDataProvider implements UserProvider {
             }
             return users;
         } catch (Exception e) {
-            log.error("", e);
+            log.debug("", e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
     public CollectionWrapper<UserWrapper> getUsersByName(final String name) {
         return getWrapperFactory().createCollection(getRESTUsersByName(name), RESTUserV1.class, false);
+    }
+
+    @Override
+    public UserWrapper getUserByName(final String name) {
+        final RESTUserCollectionV1 users = getRESTUsersByName(name);
+        if (users != null && users.getItems() != null && !users.getItems().isEmpty()) {
+            for (final RESTUserV1 user : users.returnItems()) {
+                if (user.getName().equals(name)) {
+                    return getWrapperFactory().create(user, false, UserWrapper.class);
+                }
+            }
+        }
+
+        return null;
     }
 
     public RESTUserCollectionV1 getRESTUserRevisions(int id, final Integer revision) {
@@ -128,9 +142,9 @@ public class RESTUserProvider extends RESTDataProvider implements UserProvider {
 
             return user.getRevisions();
         } catch (Exception e) {
-            log.error("", e);
+            log.debug("", e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override

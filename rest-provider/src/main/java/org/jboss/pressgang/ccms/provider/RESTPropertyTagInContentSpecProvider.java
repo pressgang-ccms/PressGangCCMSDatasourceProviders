@@ -3,6 +3,7 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTAssignedPropertyTagCollectionItemV1;
@@ -17,7 +18,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvider implements PropertyTagInContentSpecProvider {
+public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInContentSpecProvider.class);
 
     private final RESTEntityCache entityCache;
@@ -35,12 +36,6 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
         } else {
             return client.getJSONContentSpecRevision(id, revision, expandString);
         }
-    }
-
-    @Override
-    public CollectionWrapper<PropertyTagInContentSpecWrapper> getPropertyTagInContentSpecRevisions(int id, Integer revision) {
-        throw new UnsupportedOperationException(
-                "A parent is needed to get PropertyTagInContentSpec revisions using V1 of the REST Interface.");
     }
 
     public RESTAssignedPropertyTagCollectionV1 getRESTPropertyTagInContentSpecRevisions(int id, Integer revision,
@@ -97,12 +92,13 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
                     return propertyTag.getRevisions();
                 }
             }
-        } catch (Exception e) {
-            log.error("Unable to retrieve the Revisions for PropertyTagInContentSpec " + id + (revision == null ? "" : (", " +
-                    "Revision " + revision)), e);
-        }
 
-        return null;
+            throw new NotFoundException();
+        } catch (Exception e) {
+            log.debug("Unable to retrieve the Revisions for PropertyTagInContentSpec " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 
     public CollectionWrapper<PropertyTagInContentSpecWrapper> getPropertyTagInContentSpecRevisions(int id, Integer revision,

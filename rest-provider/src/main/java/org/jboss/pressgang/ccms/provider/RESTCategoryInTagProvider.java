@@ -3,6 +3,7 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTCategoryInTagCollectionItemV1;
@@ -17,7 +18,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RESTCategoryInTagProvider extends RESTCategoryProvider implements CategoryInTagProvider {
+public class RESTCategoryInTagProvider extends RESTCategoryProvider {
     private static Logger log = LoggerFactory.getLogger(RESTCategoryInTagProvider.class);
 
     protected RESTCategoryInTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
@@ -30,11 +31,6 @@ public class RESTCategoryInTagProvider extends RESTCategoryProvider implements C
         } else {
             return getRESTClient().getJSONTagRevision(id, revision, expandString);
         }
-    }
-
-    @Override
-    public CollectionWrapper<CategoryInTagWrapper> getCategoryInTagRevisions(int id, Integer revision) {
-        throw new UnsupportedOperationException("A parent is needed to get CategoryInTag revisions using V1 of the REST Interface.");
     }
 
     public RESTCategoryInTagCollectionV1 getRESTCategoryInTagRevisions(int id, Integer revision, final RESTBaseTagV1<?, ?, ?> parent) {
@@ -88,11 +84,12 @@ public class RESTCategoryInTagProvider extends RESTCategoryProvider implements C
                     return category.getRevisions();
                 }
             }
-        } catch (Exception e) {
-            log.error("Unable to retrieve the Revision for CategoryInTag " + id + (revision == null ? "" : (", Revision " + revision)), e);
-        }
 
-        return null;
+            throw new NotFoundException();
+        } catch (Exception e) {
+            log.debug("Unable to retrieve the Revision for CategoryInTag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 
     public CollectionWrapper<CategoryInTagWrapper> getCategoryInTagRevisions(int id, Integer revision,

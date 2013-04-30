@@ -9,6 +9,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
 public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseWrapper<TranslatedContentSpecWrapper,
         RESTTranslatedContentSpecV1> implements TranslatedContentSpecWrapper {
@@ -82,5 +83,10 @@ public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseWrapper<Translat
     @Override
     public void setContentSpec(ContentSpecWrapper contentSpec) {
         getEntity().setContentSpec(contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap());
+    }
+
+    @Override
+    public String getEditorURL(ZanataDetails zanataDetails, String locale) {
+        return ComponentTranslatedContentSpecV1.returnEditorURL(getProxyEntity(), zanataDetails, locale);
     }
 }

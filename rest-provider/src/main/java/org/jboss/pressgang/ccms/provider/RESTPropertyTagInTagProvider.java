@@ -18,7 +18,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider implements PropertyTagInTagProvider {
+public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInTagProvider.class);
 
     private final RESTEntityCache entityCache;
@@ -36,11 +36,6 @@ public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider implem
         } else {
             return client.getJSONTagRevision(id, revision, expandString);
         }
-    }
-
-    @Override
-    public CollectionWrapper<PropertyTagInTagWrapper> getPropertyTagInTagRevisions(int id, Integer revision) {
-        throw new UnsupportedOperationException("A parent is needed to get PropertyTagInTag revisions using V1 of the REST Interface.");
     }
 
     public RESTAssignedPropertyTagCollectionV1 getRESTPropertyTagInTagRevisions(int id, Integer revision,
@@ -96,12 +91,12 @@ public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider implem
                 }
             }
 
+            return null;
         } catch (Exception e) {
-            log.error("Unable to retrieve the Revisions for PropertyTagInTag " + id + (revision == null ? "" : (", Revision " + revision)),
+            log.debug("Unable to retrieve the Revisions for PropertyTagInTag " + id + (revision == null ? "" : (", Revision " + revision)),
                     e);
+            throw handleException(e);
         }
-
-        return null;
     }
 
     public CollectionWrapper<PropertyTagInTagWrapper> getPropertyTagInTagRevisions(int id, Integer revision,

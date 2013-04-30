@@ -52,9 +52,9 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             }
             return node;
         } catch (Exception e) {
-            log.error("Failed to retrieve Translated Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Translated Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -92,8 +92,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             log.error(
                     "Unable to retrieve the Translated ContentSpec Nodes for Translated ContentSpec " + id + (revision == null ? "" : ("," +
                             " Revision" + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -130,10 +130,11 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
             return translatedContentSpec.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Translated Content Spec " + id + (revision == null ? "" : (", " +
-                    "Revision " + revision)), e);
+            log.debug(
+                    "Failed to retrieve the Revisions for Translated Content Spec " + id + (revision == null ? "" : (", " +
+                            "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -155,9 +156,9 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
             return contentSpecs;
         } catch (Exception e) {
-            log.error("Failed to retrieve Translated Content Specs with a query", e);
+            log.debug("Failed to retrieve Translated Content Specs with a query", e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -169,58 +170,70 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
     @Override
     public TranslatedContentSpecWrapper createTranslatedContentSpec(
-            TranslatedContentSpecWrapper translatedContentSpecEntity) throws Exception {
-        final RESTTranslatedContentSpecV1 translatedContentSpec = ((RESTTranslatedContentSpecV1Wrapper) translatedContentSpecEntity)
-                .unwrap();
+            TranslatedContentSpecWrapper translatedContentSpecEntity) {
+        try {
+            final RESTTranslatedContentSpecV1 translatedContentSpec = ((RESTTranslatedContentSpecV1Wrapper) translatedContentSpecEntity)
+                    .unwrap();
 
-        // Clean the entity to remove anything that doesn't need to be sent to the server
-        cleanEntityForSave(translatedContentSpec);
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(translatedContentSpec);
 
-        final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec("",
-                translatedContentSpec);
-        if (updatedTranslatedContentSpec != null) {
-            getRESTEntityCache().expire(RESTTranslatedContentSpecV1.class, translatedContentSpecEntity.getId());
-            getRESTEntityCache().add(updatedTranslatedContentSpec);
-            return getWrapperFactory().create(updatedTranslatedContentSpec, false);
-        } else {
-            return null;
+            final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec("",
+                    translatedContentSpec);
+            if (updatedTranslatedContentSpec != null) {
+                getRESTEntityCache().expire(RESTTranslatedContentSpecV1.class, translatedContentSpecEntity.getId());
+                getRESTEntityCache().add(updatedTranslatedContentSpec);
+                return getWrapperFactory().create(updatedTranslatedContentSpec, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw handleException(e);
         }
     }
 
     @Override
     public TranslatedContentSpecWrapper updateTranslatedContentSpec(
-            TranslatedContentSpecWrapper translatedContentSpecEntity) throws Exception {
-        final RESTTranslatedContentSpecV1 translatedContentSpec = ((RESTTranslatedContentSpecV1Wrapper) translatedContentSpecEntity)
-                .unwrap();
+            TranslatedContentSpecWrapper translatedContentSpecEntity) {
+        try {
+            final RESTTranslatedContentSpecV1 translatedContentSpec = ((RESTTranslatedContentSpecV1Wrapper) translatedContentSpecEntity)
+                    .unwrap();
 
-        // Clean the entity to remove anything that doesn't need to be sent to the server
-        cleanEntityForSave(translatedContentSpec);
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(translatedContentSpec);
 
-        final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().updateJSONTranslatedContentSpec("",
-                translatedContentSpec);
-        if (updatedTranslatedContentSpec != null) {
-            getRESTEntityCache().expire(RESTTranslatedContentSpecV1.class, translatedContentSpecEntity.getId());
-            getRESTEntityCache().add(updatedTranslatedContentSpec);
-            return getWrapperFactory().create(updatedTranslatedContentSpec, false);
-        } else {
-            return null;
+            final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().updateJSONTranslatedContentSpec("",
+                    translatedContentSpec);
+            if (updatedTranslatedContentSpec != null) {
+                getRESTEntityCache().expire(RESTTranslatedContentSpecV1.class, translatedContentSpecEntity.getId());
+                getRESTEntityCache().add(updatedTranslatedContentSpec);
+                return getWrapperFactory().create(updatedTranslatedContentSpec, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw handleException(e);
         }
     }
 
     @Override
     public CollectionWrapper<TranslatedContentSpecWrapper> createTranslatedContentSpecs(
-            CollectionWrapper<TranslatedContentSpecWrapper> translatedNodes) throws Exception {
-        final RESTTranslatedContentSpecCollectionV1 unwrappedNodes = ((RESTTranslatedContentSpecCollectionV1Wrapper) translatedNodes)
-                .unwrap();
+            CollectionWrapper<TranslatedContentSpecWrapper> translatedNodes) {
+        try {
+            final RESTTranslatedContentSpecCollectionV1 unwrappedNodes = ((RESTTranslatedContentSpecCollectionV1Wrapper) translatedNodes)
+                    .unwrap();
 
-        final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME);
-        final RESTTranslatedContentSpecCollectionV1 createdNodes = getRESTClient().createJSONTranslatedContentSpecs(expandString,
-                unwrappedNodes);
-        if (createdNodes != null) {
-            getRESTEntityCache().add(createdNodes, false);
-            return getWrapperFactory().createCollection(createdNodes, RESTTranslatedContentSpecV1.class, false);
-        } else {
-            return null;
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME);
+            final RESTTranslatedContentSpecCollectionV1 createdNodes = getRESTClient().createJSONTranslatedContentSpecs(expandString,
+                    unwrappedNodes);
+            if (createdNodes != null) {
+                getRESTEntityCache().add(createdNodes, false);
+                return getWrapperFactory().createCollection(createdNodes, RESTTranslatedContentSpecV1.class, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw handleException(e);
         }
     }
 

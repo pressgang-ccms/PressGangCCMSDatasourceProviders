@@ -69,9 +69,9 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             }
             return translatedTopic;
         } catch (Exception e) {
-            log.error("Failed to retrieve Translated Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Translated Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -106,9 +106,9 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return translatedTopic.getTags();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Tags for Translated Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Tags for Translated Topic " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -143,10 +143,10 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return topic.getProperties();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Properties for Translated Topic " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Properties for Translated Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -182,10 +182,10 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return translatedTopic.getOutgoingRelationships();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Outgoing Topics for Translated Topic " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Outgoing Topics for Translated Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -221,10 +221,10 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return translatedTopic.getIncomingRelationships();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Incoming Topics for Translated Topic " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Incoming Topics for Translated Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -265,10 +265,10 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return translatedTopic.getSourceUrls_OTM();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Source URLs for Translated Topic " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Source URLs for Translated Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public CollectionWrapper<TopicSourceURLWrapper> getTranslatedTopicSourceUrls(int id, Integer revision,
@@ -309,10 +309,10 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return translatedTopic.getTranslatedTopicStrings_OTM();
         } catch (Exception e) {
-            log.error("Unable to retrieve the Translated Topic Strings for Translated Topic " + id + (revision == null ? "" : (", " +
+            log.debug("Unable to retrieve the Translated Topic Strings for Translated Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings(int id, Integer revision,
@@ -349,10 +349,10 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return translatedTopic.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Translated Topic " + id + (revision == null ? "" : (", Revision " + revision)),
+            log.debug("Failed to retrieve the Revisions for Translated Topic " + id + (revision == null ? "" : (", Revision " + revision)),
                     e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -387,10 +387,10 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return translatedTopic.getTranslatedCSNode();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Translated Content Spec Node for Translated Topic " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Translated Content Spec Node for Translated Topic " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public RESTTranslatedTopicCollectionV1 getRESTTranslatedTopicsWithQuery(String query) {
@@ -405,9 +405,9 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
             return topics;
         } catch (Exception e) {
-            log.error("Failed to retrieve Translated Topics with a query", e);
+            log.debug("Failed to retrieve Translated Topics with Query: " + query, e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -418,77 +418,107 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public TranslatedTopicWrapper createTranslatedTopic(final TranslatedTopicWrapper topic) throws Exception {
-        final RESTTranslatedTopicV1 updatedTopic = getRESTClient().createJSONTranslatedTopic("",
-                ((RESTTranslatedTopicV1Wrapper) topic).unwrap());
-        if (updatedTopic != null) {
-            getRESTEntityCache().add(updatedTopic);
-            return getWrapperFactory().create(updatedTopic, false);
-        } else {
-            return null;
+    public TranslatedTopicWrapper createTranslatedTopic(final TranslatedTopicWrapper topic) {
+        try {
+            final RESTTranslatedTopicV1 updatedTopic = getRESTClient().createJSONTranslatedTopic("",
+                    ((RESTTranslatedTopicV1Wrapper) topic).unwrap());
+            if (updatedTopic != null) {
+                getRESTEntityCache().add(updatedTopic);
+                return getWrapperFactory().create(updatedTopic, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
         }
     }
 
     @Override
-    public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper topic) throws Exception {
-        final RESTTranslatedTopicV1 updatedTopic = getRESTClient().updateJSONTranslatedTopic("",
-                ((RESTTranslatedTopicV1Wrapper) topic).unwrap());
-        if (updatedTopic != null) {
-            getRESTEntityCache().expire(RESTTranslatedTopicV1.class, topic.getId());
-            getRESTEntityCache().add(updatedTopic);
-            return getWrapperFactory().create(updatedTopic, false);
-        } else {
-            return null;
+    public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper topic) {
+        try {
+            final RESTTranslatedTopicV1 updatedTopic = getRESTClient().updateJSONTranslatedTopic("",
+                    ((RESTTranslatedTopicV1Wrapper) topic).unwrap());
+            if (updatedTopic != null) {
+                getRESTEntityCache().expire(RESTTranslatedTopicV1.class, topic.getId());
+                getRESTEntityCache().add(updatedTopic);
+                return getWrapperFactory().create(updatedTopic, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
         }
     }
 
     @Override
-    public boolean deleteTranslatedTopic(Integer id) throws Exception {
-        final RESTTranslatedTopicV1 topic = getRESTClient().deleteJSONTranslatedTopic(id, "");
-        return topic != null;
+    public boolean deleteTranslatedTopic(Integer id) {
+        try {
+            final RESTTranslatedTopicV1 topic = getRESTClient().deleteJSONTranslatedTopic(id, "");
+            return topic != null;
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
     }
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(
-            CollectionWrapper<TranslatedTopicWrapper> topics) throws Exception {
-        final RESTTranslatedTopicCollectionV1 unwrappedTopics = ((RESTTranslatedTopicCollectionV1Wrapper) topics).unwrap();
+            CollectionWrapper<TranslatedTopicWrapper> topics) {
+        try {
+            final RESTTranslatedTopicCollectionV1 unwrappedTopics = ((RESTTranslatedTopicCollectionV1Wrapper) topics).unwrap();
 
-        final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME);
-        final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().createJSONTranslatedTopics(expandString, unwrappedTopics);
-        if (updatedTopics != null) {
-            getRESTEntityCache().add(updatedTopics, false);
-            return getWrapperFactory().createCollection(updatedTopics, RESTTranslatedTopicV1.class, false);
-        } else {
-            return null;
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME);
+            final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().createJSONTranslatedTopics(expandString, unwrappedTopics);
+            if (updatedTopics != null) {
+                getRESTEntityCache().add(updatedTopics, false);
+                return getWrapperFactory().createCollection(updatedTopics, RESTTranslatedTopicV1.class, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
         }
     }
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> updateTranslatedTopics(
-            CollectionWrapper<TranslatedTopicWrapper> topics) throws Exception {
-        final RESTTranslatedTopicCollectionV1 unwrappedTopics = ((RESTTranslatedTopicCollectionV1Wrapper) topics).unwrap();
+            CollectionWrapper<TranslatedTopicWrapper> topics) {
+        try {
+            final RESTTranslatedTopicCollectionV1 unwrappedTopics = ((RESTTranslatedTopicCollectionV1Wrapper) topics).unwrap();
 
-        final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME);
-        final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().updateJSONTranslatedTopics(expandString, unwrappedTopics);
-        if (updatedTopics != null) {
-            // Expire the old cached data
-            for (final RESTTranslatedTopicV1 topic : unwrappedTopics.returnItems()) {
-                getRESTEntityCache().expire(RESTTranslatedTopicV1.class, topic.getId());
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME);
+            final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().updateJSONTranslatedTopics(expandString, unwrappedTopics);
+            if (updatedTopics != null) {
+                // Expire the old cached data
+                for (final RESTTranslatedTopicV1 topic : unwrappedTopics.returnItems()) {
+                    getRESTEntityCache().expire(RESTTranslatedTopicV1.class, topic.getId());
+                }
+                // Add the new data to the cache
+                getRESTEntityCache().add(updatedTopics, false);
+                return getWrapperFactory().createCollection(updatedTopics, RESTTranslatedTopicV1.class, false);
+            } else {
+                return null;
             }
-            // Add the new data to the cache
-            getRESTEntityCache().add(updatedTopics, false);
-            return getWrapperFactory().createCollection(updatedTopics, RESTTranslatedTopicV1.class, false);
-        } else {
-            return null;
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
         }
     }
 
     @Override
-    public boolean deleteTranslatedTopics(final List<Integer> topicIds) throws Exception {
-        final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
-        final PathSegment path = new PathSegmentImpl(pathString, false);
-        final RESTTranslatedTopicCollectionV1 topics = getRESTClient().deleteJSONTranslatedTopics(path, "");
-        return topics != null;
+    public boolean deleteTranslatedTopics(final List<Integer> topicIds) {
+        try {
+            final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
+            final PathSegment path = new PathSegmentImpl(pathString, false);
+            final RESTTranslatedTopicCollectionV1 topics = getRESTClient().deleteJSONTranslatedTopics(path, "");
+            return topics != null;
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
     }
 
     @Override

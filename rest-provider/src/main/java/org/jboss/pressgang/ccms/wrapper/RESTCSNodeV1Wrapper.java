@@ -35,12 +35,14 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
     }
 
     @Override
-    public CollectionWrapper<CSNodeWrapper> getChildren() {
-        return getWrapperFactory().createCollection(getProxyEntity().getChildren_OTM(), RESTCSNodeV1.class, isRevisionEntity());
+    public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getProxyEntity().getChildren_OTM(),
+                RESTCSNodeV1.class, isRevisionEntity());
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
 
     @Override
-    public void setChildren(CollectionWrapper<CSNodeWrapper> nodes) {
+    public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
         getEntity().explicitSetChildren_OTM(nodes == null ? null : (RESTCSNodeCollectionV1) nodes.unwrap());
     }
 
@@ -76,7 +78,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
 
     @Override
     public void setParent(CSNodeWrapper parent) {
-        getEntity().explicitSetParent(parent == null ? null : (RESTCSNodeV1) parent.unwrap());
+        getEntity().setParent(parent == null ? null : (RESTCSNodeV1) parent.unwrap());
     }
 
     @Override
@@ -150,23 +152,13 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
     }
 
     @Override
-    public Integer getNextNodeId() {
-        return getProxyEntity().getNextNodeId();
+    public CSNodeWrapper getNextNode() {
+        return getWrapperFactory().create(getProxyEntity().getNextNode(), isRevisionEntity());
     }
 
     @Override
-    public void setNextNodeId(Integer id) {
-        getEntity().explicitSetNextNodeId(id);
-    }
-
-    @Override
-    public Integer getPreviousNodeId() {
-        return getProxyEntity().getPreviousNodeId();
-    }
-
-    @Override
-    public void setPreviousNodeId(Integer id) {
-        getEntity().explicitSetPreviousNodeId(id);
+    public void setNextNode(CSNodeWrapper nextNode) {
+        getEntity().explicitSetNextNode(nextNode == null ? null : (RESTCSNodeV1) nextNode.unwrap());
     }
 
     @Override

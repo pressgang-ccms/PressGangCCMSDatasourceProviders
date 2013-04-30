@@ -3,6 +3,7 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTTagInCategoryCollectionItemV1;
@@ -17,30 +18,25 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RESTTagInCategoryProvider extends RESTTagProvider implements TagInCategoryProvider {
+public class RESTTagInCategoryProvider extends RESTTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTagInCategoryProvider.class);
 
     protected RESTTagInCategoryProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
     }
 
-    @Override
-    public CollectionWrapper<TagInCategoryWrapper> getTagInCategoryRevisions(int id, Integer revision) {
-        throw new UnsupportedOperationException("A parent is needed to get TagInCategory revisions using V1 of the REST Interface.");
-    }
-
     public RESTTagInCategoryCollectionV1 getRESTTagInCategoryRevisions(int id, Integer revision, final RESTBaseCategoryV1<?, ?, ?> parent) {
-        final Integer categoryId = parent.getId();
-        final Integer categoryRevision = ((RESTBaseEntityV1ProxyHandler<RESTTagV1>) ((ProxyObject) parent).getHandler())
-                .getEntityRevision();
-
         try {
+            final Integer categoryId = parent.getId();
+            final Integer categoryRevision = ((RESTBaseEntityV1ProxyHandler<RESTTagV1>) ((ProxyObject) parent).getHandler())
+                    .getEntityRevision();
+
             RESTCategoryV1 category = null;
             // Check the cache first
             if (getRESTEntityCache().containsKeyValue(RESTCategoryV1.class, categoryId, categoryRevision)) {
                 category = getRESTEntityCache().get(RESTCategoryV1.class, categoryId, categoryRevision);
             }
-    
+
             // We need to expand the all the revisions in the category
             final String expandString = getExpansionString(RESTCategoryV1.TAGS_NAME, RESTTagV1.REVISIONS_NAME);
 
@@ -86,11 +82,11 @@ public class RESTTagInCategoryProvider extends RESTTagProvider implements TagInC
                 }
             }
 
+            throw new NotFoundException();
         } catch (Exception e) {
-            log.error("Unable to retrieve the Revisions for TagInCategory " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Unable to retrieve the Revisions for TagInCategory " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-
-        return null;
     }
 
     public CollectionWrapper<TagInCategoryWrapper> getTagInCategoryRevisions(int id, Integer revision,

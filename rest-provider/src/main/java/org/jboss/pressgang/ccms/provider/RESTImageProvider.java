@@ -48,9 +48,9 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
 
             return image;
         } catch (Exception e) {
-            log.error("Failed to retrieve Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -58,12 +58,7 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
         return getWrapperFactory().create(getRESTImage(id, revision), revision != null);
     }
 
-    @Override
-    public CollectionWrapper<LanguageImageWrapper> getImageLanguageImages(int id, final Integer revision) {
-        throw new UnsupportedOperationException("A parent is needed to get Language Images using V1 of the REST Interface.");
-    }
-
-    public RESTLanguageImageCollectionV1 getRESTImageLanguageImages(int id, final Integer revision, final RESTImageV1 parent) {
+    public RESTLanguageImageCollectionV1 getRESTImageLanguageImages(int id, final Integer revision) {
         try {
             RESTImageV1 image = null;
             // Check the cache first
@@ -90,13 +85,13 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
 
             return image.getLanguageImages_OTM();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Language Images for Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Language Images for Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public CollectionWrapper<LanguageImageWrapper> getImageLanguageImages(int id, final Integer revision, final RESTImageV1 parent) {
-        return getWrapperFactory().createCollection(getRESTImageLanguageImages(id, revision, parent), RESTLanguageImageV1.class,
+        return getWrapperFactory().createCollection(getRESTImageLanguageImages(id, revision), RESTLanguageImageV1.class,
                 revision != null, parent);
     }
 
@@ -127,9 +122,9 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
 
             return image.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Revisions for Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override

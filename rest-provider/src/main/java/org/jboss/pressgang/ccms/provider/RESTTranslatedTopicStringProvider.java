@@ -3,6 +3,7 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTTranslatedTopicV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
@@ -45,11 +46,13 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
                         return translatedTopicString;
                     }
                 }
+
+                throw new NotFoundException();
             }
         } catch (Exception e) {
-            log.error("Failed to retrieve Translated Topic String " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Translated Topic String " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public TranslatedTopicStringWrapper getTranslatedTopicString(int id, final Integer revision, final RESTTranslatedTopicV1 parent) {
@@ -63,17 +66,17 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
 
     public RESTTranslatedTopicStringCollectionV1 getRESTTranslatedTopicStringRevisions(int id, final Integer revision,
             final RESTTranslatedTopicV1 parent) {
-        final RESTTranslatedTopicV1ProxyHandler proxyHandler = (RESTTranslatedTopicV1ProxyHandler) ((ProxyObject) parent).getHandler();
-        final Integer translatedTopicId = parent.getId();
-        final Integer translatedTopicRevision = proxyHandler.getEntityRevision();
+        try {
+            final RESTTranslatedTopicV1ProxyHandler proxyHandler = (RESTTranslatedTopicV1ProxyHandler) ((ProxyObject) parent).getHandler();
+            final Integer translatedTopicId = parent.getId();
+            final Integer translatedTopicRevision = proxyHandler.getEntityRevision();
 
-        final RESTTranslatedTopicStringV1 translatedTopicString = getRESTTranslatedTopicString(id, revision, parent);
-        if (translatedTopicString == null) {
-            return null;
-        } else if (translatedTopicString.getRevisions() != null) {
-            return translatedTopicString.getRevisions();
-        } else {
-            try {
+            final RESTTranslatedTopicStringV1 translatedTopicString = getRESTTranslatedTopicString(id, revision, parent);
+            if (translatedTopicString == null) {
+                throw new NotFoundException();
+            } else if (translatedTopicString.getRevisions() != null) {
+                return translatedTopicString.getRevisions();
+            } else {
                 RESTTranslatedTopicV1 translatedTopic = null;
                 // Check the cache first
                 if (getRESTEntityCache().containsKeyValue(RESTTranslatedTopicV1.class, translatedTopicId, translatedTopicRevision)) {
@@ -129,13 +132,14 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
                         return translatedTopicString.getRevisions();
                     }
                 }
-            } catch (Exception e) {
-                log.error("Failed to retrieve the Revisions for Translated Topic String " + id + (revision == null ? "" : (", " +
-                        "Revision " + revision)), e);
-            }
-        }
 
-        return null;
+                throw new NotFoundException();
+            }
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Revisions for Translated Topic String " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 
     public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStringRevisions(int id, final Integer revision,

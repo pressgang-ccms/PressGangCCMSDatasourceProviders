@@ -59,9 +59,9 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
             }
             return propertyTag;
         } catch (Exception e) {
-            log.error("Failed to retrieve Property Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Property Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -99,10 +99,10 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
             return (UpdateableCollectionWrapper<PropertyCategoryWrapper>) getWrapperFactory().createPropertyTagCollection(
                     propertyTag.getPropertyCategories(), revision != null);
         } catch (Exception e) {
-            log.error("Failed to retrieve the Property Categories for Property Tag " + id + (revision == null ? "" :
+            log.debug("Failed to retrieve the Property Categories for Property Tag " + id + (revision == null ? "" :
                     (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }*/
 
     public RESTPropertyTagCollectionV1 getRESTPropertyTagRevisions(int id, Integer revision) {
@@ -131,9 +131,9 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
 
             return propertyTag.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve Revisions for Property Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Revisions for Property Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override

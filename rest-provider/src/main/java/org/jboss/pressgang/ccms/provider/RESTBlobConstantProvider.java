@@ -44,9 +44,9 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
             }
             return blobConstant;
         } catch (Exception e) {
-            log.error("Failed to retrieve Blob Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Blob Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -81,9 +81,9 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
 
             return blobConstant.getValue();
         } catch (Exception e) {
-            log.error("Failed to retrieve Blob Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Blob Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public RESTBlobConstantCollectionV1 getRESTBlobConstantRevisions(int id, Integer revision) {
@@ -112,9 +112,9 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
 
             return blobConstant.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Blob Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Revisions for Blob Constant " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override

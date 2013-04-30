@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jboss.pressgang.ccms.rest.RESTErrorInterceptor;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 
@@ -18,6 +19,7 @@ public class RESTProviderFactory extends DataProviderFactory {
 
     public RESTProviderFactory(final String serverUrl) {
         this.restManager = new RESTManager(serverUrl);
+        restManager.getProxyFactory().getProviderFactory().addClientErrorInterceptor(new RESTErrorInterceptor());
         initialiseProviders();
     }
 
@@ -47,7 +49,6 @@ public class RESTProviderFactory extends DataProviderFactory {
         // Tag In Category Provider
         final RESTTagInCategoryProvider tagInCategoryProvider = new RESTTagInCategoryProvider(getRESTManager(), getWrapperFactory());
         providerMap.put(RESTTagInCategoryProvider.class, tagInCategoryProvider);
-        providerMap.put(TagInCategoryProvider.class, tagInCategoryProvider);
 
         // Translated Topic Provider
         final RESTTranslatedTopicProvider translatedTopicProvider = new RESTTranslatedTopicProvider(getRESTManager(), getWrapperFactory());
@@ -93,7 +94,6 @@ public class RESTProviderFactory extends DataProviderFactory {
         // Category In Tag Provider
         final RESTCategoryInTagProvider categoryInTagProvider = new RESTCategoryInTagProvider(getRESTManager(), getWrapperFactory());
         providerMap.put(RESTCategoryInTagProvider.class, categoryInTagProvider);
-        providerMap.put(CategoryInTagProvider.class, categoryInTagProvider);
 
         // Topic Source URL Provider
         final RESTTopicSourceURLProvider topicSourceURLProvider = new RESTTopicSourceURLProvider(getRESTManager(), getWrapperFactory());
@@ -109,26 +109,22 @@ public class RESTProviderFactory extends DataProviderFactory {
         final RESTPropertyTagInTopicProvider propertyTagInTopicProvider = new RESTPropertyTagInTopicProvider(getRESTManager(),
                 getWrapperFactory());
         providerMap.put(RESTPropertyTagInTopicProvider.class, propertyTagInTopicProvider);
-        providerMap.put(PropertyTagInTopicProvider.class, propertyTagInTopicProvider);
 
         // PropertyTag In Tag Provider
         final RESTPropertyTagInTagProvider propertyTagInTagProvider = new RESTPropertyTagInTagProvider(getRESTManager(),
                 getWrapperFactory());
         providerMap.put(RESTPropertyTagInTagProvider.class, propertyTagInTagProvider);
-        providerMap.put(PropertyTagInTagProvider.class, propertyTagInTagProvider);
 
         // PropertyTag In ContentSpec Provider
         final RESTPropertyTagInContentSpecProvider propertyTagInContentSpecProvider = new RESTPropertyTagInContentSpecProvider(
                 getRESTManager(), getWrapperFactory());
         providerMap.put(RESTPropertyTagInContentSpecProvider.class, propertyTagInContentSpecProvider);
-        providerMap.put(PropertyTagInContentSpecProvider.class, propertyTagInContentSpecProvider);
 
         // PropertyTag In PropertyCategory Provider
         final RESTPropertyTagInPropertyCategoryProvider propertyTagInPropertyCategoryProvider = new
                 RESTPropertyTagInPropertyCategoryProvider(
                 getRESTManager(), getWrapperFactory());
         providerMap.put(RESTPropertyTagInPropertyCategoryProvider.class, propertyTagInPropertyCategoryProvider);
-        providerMap.put(PropertyTagInPropertyCategoryProvider.class, propertyTagInPropertyCategoryProvider);
 
         // Content Spec Provider
         final RESTContentSpecProvider contentSpecProvider = new RESTContentSpecProvider(getRESTManager(), getWrapperFactory());
@@ -143,7 +139,6 @@ public class RESTProviderFactory extends DataProviderFactory {
         // Content Spec Related Node Provider
         final RESTCSRelatedNodeProvider csRelatedNodeProvider = new RESTCSRelatedNodeProvider(getRESTManager(), getWrapperFactory());
         providerMap.put(RESTCSRelatedNodeProvider.class, csRelatedNodeProvider);
-        providerMap.put(CSRelatedNodeProvider.class, csRelatedNodeProvider);
 
         // Translated Content Spec Provider
         final RESTTranslatedContentSpecProvider translatedContentSpecProvider = new RESTTranslatedContentSpecProvider(getRESTManager(),

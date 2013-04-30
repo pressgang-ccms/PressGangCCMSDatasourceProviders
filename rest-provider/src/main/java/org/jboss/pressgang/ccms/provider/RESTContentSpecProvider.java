@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
@@ -8,6 +10,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCo
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
@@ -60,14 +63,14 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             }
             return contentSpec;
         } catch (Exception e) {
-            log.error("Failed to retrieve Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
     public ContentSpecWrapper getContentSpec(int id, Integer revision) {
-        return getWrapperFactory().create(getContentSpec(id, revision), revision != null);
+        return getWrapperFactory().create(getRESTContentSpec(id, revision), revision != null);
     }
 
     public RESTContentSpecCollectionV1 getRESTContentSpecsWithQuery(final String query) {
@@ -83,9 +86,9 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
             return contentSpecs;
         } catch (Exception e) {
-            log.error("Failed to retrieve ContentSpecs with a query", e);
+            log.debug("Failed to retrieve ContentSpecs with Query: " + query, e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -122,9 +125,9 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
             return contentSpec.getTags();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Tags for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Tags for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -145,7 +148,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             }
 
             // We need to expand the tags in the content spec
-            final String expandString = getExpansionString(RESTContentSpecV1.NODES_NAME);
+            final String expandString = getExpansionString(RESTContentSpecV1.CHILDREN_NAME);
 
             // Load the content spec from the REST Interface
             final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
@@ -159,10 +162,10 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
             return contentSpec.getChildren_OTM();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Children Nodes for Content Spec " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Children Nodes for Content Spec " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -199,10 +202,10 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
             return contentSpec.getTranslatedContentSpecs();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Translations for Content Spec " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Translations for Content Spec " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -238,9 +241,9 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
             return contentSpec.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Revisions for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -275,9 +278,9 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
             return topic.getProperties();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Properties for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Properties for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -304,48 +307,60 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             }
             return contentSpec;
         } catch (Exception e) {
-            log.error("Failed to retrieve Content Spec String " + id + (revision == null ? "" : (", Revision " + revision)), e);
-        }
-        return null;
-    }
-
-    @Override
-    public ContentSpecWrapper createContentSpec(final ContentSpecWrapper contentSpecEntity) throws Exception {
-        final RESTContentSpecV1 contentSpec = ((RESTContentSpecV1Wrapper) contentSpecEntity).unwrap();
-
-        // Clean the entity to remove anything that doesn't need to be sent to the server
-        cleanEntityForSave(contentSpec);
-
-        final RESTContentSpecV1 updatedContentSpec = getRESTClient().createJSONContentSpec("", contentSpec);
-        if (updatedContentSpec != null) {
-            getRESTEntityCache().add(updatedContentSpec);
-            return getWrapperFactory().create(updatedContentSpec, false);
-        } else {
-            return null;
+            log.debug("Failed to retrieve Content Spec String " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
     }
 
     @Override
-    public ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpecEntity) throws Exception {
-        final RESTContentSpecV1 contentSpec = ((RESTContentSpecV1Wrapper) contentSpecEntity).unwrap();
+    public ContentSpecWrapper createContentSpec(final ContentSpecWrapper contentSpecEntity) {
+        try {
+            final RESTContentSpecV1 contentSpec = ((RESTContentSpecV1Wrapper) contentSpecEntity).unwrap();
 
-        // Clean the entity to remove anything that doesn't need to be sent to the server
-        cleanEntityForSave(contentSpec);
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(contentSpec);
 
-        final RESTContentSpecV1 updatedContentSpec = getRESTClient().updateJSONContentSpec("", contentSpec);
-        if (updatedContentSpec != null) {
-            getRESTEntityCache().expire(RESTContentSpecV1.class, contentSpecEntity.getId());
-            getRESTEntityCache().add(updatedContentSpec);
-            return getWrapperFactory().create(updatedContentSpec, false);
-        } else {
-            return null;
+            final RESTContentSpecV1 updatedContentSpec = getRESTClient().createJSONContentSpec("", contentSpec);
+            if (updatedContentSpec != null) {
+                getRESTEntityCache().add(updatedContentSpec);
+                return getWrapperFactory().create(updatedContentSpec, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw handleException(e);
         }
     }
 
     @Override
-    public boolean deleteContentSpec(Integer id) throws Exception {
-        final RESTContentSpecV1 contentSpec = getRESTClient().deleteJSONContentSpec(id, "");
-        return contentSpec != null;
+    public ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpecEntity) {
+        try {
+            final RESTContentSpecV1 contentSpec = ((RESTContentSpecV1Wrapper) contentSpecEntity).unwrap();
+
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(contentSpec);
+
+            final RESTContentSpecV1 updatedContentSpec = getRESTClient().updateJSONContentSpec("", contentSpec);
+            if (updatedContentSpec != null) {
+                getRESTEntityCache().expire(RESTContentSpecV1.class, contentSpecEntity.getId());
+                getRESTEntityCache().add(updatedContentSpec);
+                return getWrapperFactory().create(updatedContentSpec, false);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteContentSpec(Integer id) {
+        try {
+            final RESTContentSpecV1 contentSpec = getRESTClient().deleteJSONContentSpec(id, "");
+            return contentSpec != null;
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override
@@ -356,5 +371,27 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     @Override
     public CollectionWrapper<ContentSpecWrapper> newContentSpecCollection() {
         return getWrapperFactory().createCollection(new RESTContentSpecCollectionV1(), RESTContentSpecV1.class, false);
+    }
+
+    @Override
+    public void cleanEntityForSave(final RESTBaseEntityV1<?, ?, ?> entity) throws InvocationTargetException, IllegalAccessException {
+        if (entity instanceof RESTCSNodeV1) {
+            final RESTCSNodeV1 node = (RESTCSNodeV1) entity;
+
+            // Remove a CSNode parent element to eliminate recursive serialization issues, since it can't be explicitly set.
+            if (node.getParent() != null) {
+                node.setParent(null);
+            }
+
+            // If the entity is a CSNode then replace entities, that could cause recursive serialization issues, with a dummy entity.
+            if (node.getContentSpec() != null && node.getContentSpec().getId() != null) {
+                final RESTContentSpecV1 dummyContentSpec = new RESTContentSpecV1();
+                dummyContentSpec.setId(node.getContentSpec().getId());
+
+                node.setContentSpec(dummyContentSpec);
+            }
+        }
+
+        super.cleanEntityForSave(entity);
     }
 }

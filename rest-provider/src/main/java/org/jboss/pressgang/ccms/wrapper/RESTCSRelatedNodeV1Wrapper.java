@@ -91,26 +91,6 @@ public class RESTCSRelatedNodeV1Wrapper extends RESTBaseWrapper<CSRelatedNodeWra
     }
 
     @Override
-    public Integer getNextNodeId() {
-        return getProxyEntity().getNextNodeId();
-    }
-
-    @Override
-    public void setNextNodeId(Integer id) {
-        getEntity().setNextNodeId(id);
-    }
-
-    @Override
-    public Integer getPreviousNodeId() {
-        return getProxyEntity().getPreviousNodeId();
-    }
-
-    @Override
-    public void setPreviousNodeId(Integer id) {
-        getEntity().setPreviousNodeId(id);
-    }
-
-    @Override
     public Integer getRelationshipType() {
         return RESTCSNodeRelationshipTypeV1.getRelationshipTypeId(getProxyEntity().getRelationshipType());
     }

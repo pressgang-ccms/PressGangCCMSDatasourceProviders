@@ -3,6 +3,7 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTPropertyTagInPropertyCategoryCollectionItemV1;
@@ -15,7 +16,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RESTPropertyTagInPropertyCategoryProvider extends RESTPropertyTagProvider implements PropertyTagInPropertyCategoryProvider {
+public class RESTPropertyTagInPropertyCategoryProvider extends RESTPropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInPropertyCategoryProvider.class);
 
     protected RESTPropertyTagInPropertyCategoryProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
@@ -28,12 +29,6 @@ public class RESTPropertyTagInPropertyCategoryProvider extends RESTPropertyTagPr
         } else {
             return getRESTClient().getJSONPropertyCategoryRevision(id, revision, expandString);
         }
-    }
-
-    @Override
-    public CollectionWrapper<PropertyTagInPropertyCategoryWrapper> getPropertyTagInPropertyCategoryRevisions(int id, Integer revision) {
-        throw new UnsupportedOperationException(
-                "A parent is needed to get PropertyTagInPropertyCategory revisions using V1 of the REST Interface.");
     }
 
     public RESTPropertyTagInPropertyCategoryCollectionV1 getRESTPropertyTagInPropertyCategoryRevisions(int id, Integer revision,
@@ -91,12 +86,12 @@ public class RESTPropertyTagInPropertyCategoryProvider extends RESTPropertyTagPr
                 }
             }
 
+            throw new NotFoundException();
         } catch (Exception e) {
-            log.error("Unable to retrieve the Revisions for PropertyTagInPropertyCategory " + id + (revision == null ? "" : (", " +
+            log.debug("Unable to retrieve the Revisions for PropertyTagInPropertyCategory " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-
-        return null;
     }
 
     public CollectionWrapper<PropertyTagInPropertyCategoryWrapper> getPropertyTagInPropertyCategoryRevisions(int id, Integer revision,

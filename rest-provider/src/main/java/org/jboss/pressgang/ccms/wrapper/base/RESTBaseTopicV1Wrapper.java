@@ -63,7 +63,7 @@ public abstract class RESTBaseTopicV1Wrapper<T extends BaseTopicWrapper<T>, U ex
     @Override
     public PropertyTagInTopicWrapper getProperty(final int propertyId) {
         return getWrapperFactory().create(ComponentBaseTopicV1.returnProperty(getProxyEntity(), propertyId), isRevisionEntity(),
-                PropertyTagInTopicWrapper.class);
+                getProxyEntity(), PropertyTagInTopicWrapper.class);
     }
 
     @Override

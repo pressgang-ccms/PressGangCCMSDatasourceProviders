@@ -1,26 +1,19 @@
 package org.jboss.pressgang.ccms.provider;
 
-import javax.ws.rs.core.PathSegment;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTCSNodeV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCSNodeCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,9 +52,9 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             }
             return node;
         } catch (Exception e) {
-            log.error("Failed to retrieve Content Spec Node " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Content Spec Node " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -96,10 +89,10 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
             return csNode.getRelatedToNodes();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Related To Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Related To Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -134,10 +127,10 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
             return csNode.getRelatedFromNodes();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Related From Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Related From Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -172,10 +165,10 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
             return csNode.getChildren_OTM();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Children Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Children Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -212,10 +205,10 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
             return contentSpec.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Content Spec Node " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Revisions for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -223,91 +216,190 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         return getWrapperFactory().createCollection(getRESTCSNodeRevisions(id, revision), RESTCSNodeV1.class, true);
     }
 
-    @Override
-    public CSNodeWrapper createCSNode(final CSNodeWrapper nodeEntity) throws Exception {
-        final RESTCSNodeV1 node = ((RESTCSNodeV1Wrapper) nodeEntity).unwrap();
+    public RESTCSNodeV1 getRESTCSNextNode(int id, Integer revision) {
+        try {
+            RESTCSNodeV1 csNode = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
 
-        // Clean the entity to remove anything that doesn't need to be sent to the server
-        cleanEntityForSave(node);
-
-        final RESTCSNodeV1 updatedCSNode = getRESTClient().createJSONContentSpecNode("", node);
-        if (updatedCSNode != null) {
-            getRESTEntityCache().add(updatedCSNode);
-            return getWrapperFactory().create(updatedCSNode, false);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public CSNodeWrapper updateCSNode(CSNodeWrapper nodeEntity) throws Exception {
-        final RESTCSNodeV1 node = ((RESTCSNodeV1Wrapper) nodeEntity).unwrap();
-
-        // Clean the entity to remove anything that doesn't need to be sent to the server
-        cleanEntityForSave(node);
-
-        final RESTCSNodeV1 updatedCSNode = getRESTClient().updateJSONContentSpecNode("", node);
-        if (updatedCSNode != null) {
-            getRESTEntityCache().expire(RESTCSNodeV1.class, nodeEntity.getId());
-            getRESTEntityCache().add(updatedCSNode);
-            return getWrapperFactory().create(updatedCSNode, false);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public boolean deleteCSNode(Integer id) throws Exception {
-        final RESTCSNodeV1 topic = getRESTClient().deleteJSONContentSpecNode(id, "");
-        return topic != null;
-    }
-
-    @Override
-    public CollectionWrapper<CSNodeWrapper> createCSNodes(CollectionWrapper<CSNodeWrapper> topics) throws Exception {
-        final RESTCSNodeCollectionV1 unwrappedCSNodes = ((RESTCSNodeCollectionV1Wrapper) topics).unwrap();
-
-        // Clean the collection to remove anything that doesn't need to be sent to the server
-        cleanCollectionForSave(unwrappedCSNodes);
-
-        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
-        final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().createJSONContentSpecNodes(expandString, unwrappedCSNodes);
-        if (updatedCSNodes != null) {
-            getRESTEntityCache().add(updatedCSNodes, false);
-            return getWrapperFactory().createCollection(updatedCSNodes, RESTCSNodeV1.class, false);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public CollectionWrapper<CSNodeWrapper> updateCSNodes(CollectionWrapper<CSNodeWrapper> topics) throws Exception {
-        final RESTCSNodeCollectionV1 unwrappedCSNodes = ((RESTCSNodeCollectionV1Wrapper) topics).unwrap();
-
-        // Clean the collection to remove anything that doesn't need to be sent to the server
-        cleanCollectionForSave(unwrappedCSNodes);
-
-        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
-        final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().updateJSONContentSpecNodes(expandString, unwrappedCSNodes);
-        if (updatedCSNodes != null) {
-            // Expire the old cached data
-            for (final RESTCSNodeV1 topic : unwrappedCSNodes.returnItems()) {
-                getRESTEntityCache().expire(RESTCSNodeV1.class, topic.getId());
+                if (csNode.getNextNode() != null) {
+                    return csNode.getNextNode();
+                }
             }
-            // Add the new data to the cache
-            getRESTEntityCache().add(updatedCSNodes, false);
-            return getWrapperFactory().createCollection(updatedCSNodes, RESTCSNodeV1.class, false);
-        } else {
-            return null;
+
+            // We need to expand the children nodes in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.NEXT_NODE_NAME);
+
+            // Load the content spec node from the REST Interface
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
+
+            if (csNode == null) {
+                csNode = tempNode;
+                getRESTEntityCache().add(csNode, revision);
+            } else {
+                csNode.setNextNode(tempNode.getNextNode());
+            }
+
+            return csNode.getNextNode();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Next Node for Content Spec Node " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
         }
     }
 
-    @Override
-    public boolean deleteCSNodes(final List<Integer> topicIds) throws Exception {
-        final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
-        final PathSegment path = new PathSegmentImpl(pathString, false);
-        final RESTCSNodeCollectionV1 topics = getRESTClient().deleteJSONContentSpecNodes(path, "");
-        return topics != null;
+    public RESTCSNodeV1 getRESTCSNodeParent(int id, Integer revision) {
+        try {
+            RESTCSNodeV1 csNode = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
+
+                if (csNode.getParent() != null) {
+                    return csNode.getParent();
+                }
+            }
+
+            // We need to expand the children nodes in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.PARENT_NAME);
+
+            // Load the content spec node from the REST Interface
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
+
+            if (csNode == null) {
+                csNode = tempNode;
+                getRESTEntityCache().add(csNode, revision);
+            } else {
+                csNode.setParent(tempNode.getParent());
+            }
+
+            return csNode.getParent();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Parent Node for Content Spec Node " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
+
+    public RESTContentSpecV1 getRESTCSNodeContentSpec(int id, Integer revision) {
+        try {
+            RESTCSNodeV1 csNode = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
+
+                if (csNode.getContentSpec() != null) {
+                    return csNode.getContentSpec();
+                }
+            }
+
+            // We need to expand the children nodes in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.CONTENT_SPEC_NAME);
+
+            // Load the content spec node from the REST Interface
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
+
+            if (csNode == null) {
+                csNode = tempNode;
+                getRESTEntityCache().add(csNode, revision);
+            } else {
+                csNode.setContentSpec(tempNode.getContentSpec());
+            }
+
+            return csNode.getContentSpec();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Content Spec for Content Spec Node " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
+    }
+
+//    @Override
+//    public CSNodeWrapper createCSNode(final CSNodeWrapper nodeEntity) throws Exception {
+//        final RESTCSNodeV1 node = ((RESTCSNodeV1Wrapper) nodeEntity).unwrap();
+//
+//        // Clean the entity to remove anything that doesn't need to be sent to the server
+//        cleanEntityForSave(node);
+//
+//        final RESTCSNodeV1 updatedCSNode = getRESTClient().createJSONContentSpecNode("", node);
+//        if (updatedCSNode != null) {
+//            getRESTEntityCache().add(updatedCSNode);
+//            return getWrapperFactory().create(updatedCSNode, false);
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    @Override
+//    public CSNodeWrapper updateCSNode(CSNodeWrapper nodeEntity) throws Exception {
+//        final RESTCSNodeV1 node = ((RESTCSNodeV1Wrapper) nodeEntity).unwrap();
+//
+//        // Clean the entity to remove anything that doesn't need to be sent to the server
+//        cleanEntityForSave(node);
+//
+//        final RESTCSNodeV1 updatedCSNode = getRESTClient().updateJSONContentSpecNode("", node);
+//        if (updatedCSNode != null) {
+//            getRESTEntityCache().expire(RESTCSNodeV1.class, nodeEntity.getId());
+//            getRESTEntityCache().add(updatedCSNode);
+//            return getWrapperFactory().create(updatedCSNode, false);
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    @Override
+//    public boolean deleteCSNode(Integer id) throws Exception {
+//        final RESTCSNodeV1 topic = getRESTClient().deleteJSONContentSpecNode(id, "");
+//        return topic != null;
+//    }
+//
+//    @Override
+//    public CollectionWrapper<CSNodeWrapper> createCSNodes(CollectionWrapper<CSNodeWrapper> topics) throws Exception {
+//        final RESTCSNodeCollectionV1 unwrappedCSNodes = ((RESTCSNodeCollectionV1Wrapper) topics).unwrap();
+//
+//        // Clean the collection to remove anything that doesn't need to be sent to the server
+//        cleanCollectionForSave(unwrappedCSNodes);
+//
+//        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
+//        final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().createJSONContentSpecNodes(expandString, unwrappedCSNodes);
+//        if (updatedCSNodes != null) {
+//            getRESTEntityCache().add(updatedCSNodes, false);
+//            return getWrapperFactory().createCollection(updatedCSNodes, RESTCSNodeV1.class, false);
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    @Override
+//    public CollectionWrapper<CSNodeWrapper> updateCSNodes(CollectionWrapper<CSNodeWrapper> topics) throws Exception {
+//        final RESTCSNodeCollectionV1 unwrappedCSNodes = ((RESTCSNodeCollectionV1Wrapper) topics).unwrap();
+//
+//        // Clean the collection to remove anything that doesn't need to be sent to the server
+//        cleanCollectionForSave(unwrappedCSNodes);
+//
+//        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
+//        final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().updateJSONContentSpecNodes(expandString, unwrappedCSNodes);
+//        if (updatedCSNodes != null) {
+//            // Expire the old cached data
+//            for (final RESTCSNodeV1 topic : unwrappedCSNodes.returnItems()) {
+//                getRESTEntityCache().expire(RESTCSNodeV1.class, topic.getId());
+//            }
+//            // Add the new data to the cache
+//            getRESTEntityCache().add(updatedCSNodes, false);
+//            return getWrapperFactory().createCollection(updatedCSNodes, RESTCSNodeV1.class, false);
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    @Override
+//    public boolean deleteCSNodes(final List<Integer> topicIds) throws Exception {
+//        final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
+//        final PathSegment path = new PathSegmentImpl(pathString, false);
+//        final RESTCSNodeCollectionV1 topics = getRESTClient().deleteJSONContentSpecNodes(path, "");
+//        return topics != null;
+//    }
 
     @Override
     public CSNodeWrapper newCSNode() {
@@ -348,10 +440,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             final RESTCSNodeV1 node = (RESTCSNodeV1) entity;
 
             if (node.getParent() != null) {
-                final RESTCSNodeV1 dummyParent = new RESTCSNodeV1();
-                dummyParent.setId(node.getParent().getId());
-
-                node.setParent(dummyParent);
+                node.setParent(null);
             }
 
             if (node.getContentSpec() != null) {

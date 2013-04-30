@@ -3,6 +3,7 @@ package org.jboss.pressgang.ccms.provider;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
+import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTImageV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
@@ -48,11 +49,13 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                         return image;
                     }
                 }
+
+                throw new NotFoundException();
             }
         } catch (Exception e) {
-            log.error("Failed to retrieve Language Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Language Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     public LanguageImageWrapper getLanguageImage(int id, final Integer revision, final RESTImageV1 parent) {
@@ -69,13 +72,13 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
         final Integer imageId = parent.getId();
         final Integer imageRevision = imageProxy.getEntityRevision();
 
-        final RESTLanguageImageV1 languageImage = getRESTLanguageImage(id, revision, parent);
-        if (languageImage == null) {
-            return null;
-        } else if (languageImage.getImageData() != null) {
-            return languageImage.getImageData();
-        } else {
-            try {
+        try {
+            final RESTLanguageImageV1 languageImage = getRESTLanguageImage(id, revision, parent);
+            if (languageImage == null) {
+                throw new NotFoundException();
+            } else if (languageImage.getImageData() != null) {
+                return languageImage.getImageData();
+            } else {
                 RESTImageV1 image = null;
                 // Check the cache first
                 if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
@@ -126,12 +129,13 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                         return langImage.getImageData();
                     }
                 }
-            } catch (Exception e) {
-                log.error("Failed to retrieve the Data for Language Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
-            }
-        }
 
-        return null;
+                throw new NotFoundException();
+            }
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Data for Language Image " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 
     @Override
@@ -144,13 +148,13 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
         final Integer imageId = parent.getId();
         final Integer imageRevision = imageProxy.getEntityRevision();
 
-        final RESTLanguageImageV1 languageImage = getRESTLanguageImage(id, revision, parent);
-        if (languageImage == null) {
-            return null;
-        } else if (languageImage.getImageDataBase64() != null) {
-            return languageImage.getImageDataBase64();
-        } else {
-            try {
+        try {
+            final RESTLanguageImageV1 languageImage = getRESTLanguageImage(id, revision, parent);
+            if (languageImage == null) {
+                throw new NotFoundException();
+            } else if (languageImage.getImageDataBase64() != null) {
+                return languageImage.getImageDataBase64();
+            } else {
                 RESTImageV1 image = null;
                 // Check the cache first
                 if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
@@ -200,13 +204,14 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                         return langImage.getImageDataBase64();
                     }
                 }
-            } catch (Exception e) {
-                log.error("Failed to retrieve the Base64 Data for Language Image " + id + (revision == null ? "" : (", " +
-                        "Revision " + revision)), e);
-            }
-        }
 
-        return null;
+                throw new NotFoundException();
+            }
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Base64 Data for Language Image " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 
     @Override
@@ -219,13 +224,13 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
         final Integer imageId = parent.getId();
         final Integer imageRevision = imageProxy.getEntityRevision();
 
-        final RESTLanguageImageV1 languageImage = getRESTLanguageImage(id, revision, parent);
-        if (languageImage == null) {
-            return null;
-        } else if (languageImage.getThumbnail() != null) {
-            return languageImage.getThumbnail();
-        } else {
-            try {
+        try {
+            final RESTLanguageImageV1 languageImage = getRESTLanguageImage(id, revision, parent);
+            if (languageImage == null) {
+                throw new NotFoundException();
+            } else if (languageImage.getThumbnail() != null) {
+                return languageImage.getThumbnail();
+            } else {
                 RESTImageV1 image = null;
                 // Check the cache first
                 if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
@@ -275,13 +280,14 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                         return langImage.getThumbnail();
                     }
                 }
-            } catch (Exception e) {
-                log.error("Failed to retrieve the Thumbnail for Language Image " + id + (revision == null ? "" : (", " +
-                        "Revision " + revision)), e);
-            }
-        }
 
-        return null;
+                throw new NotFoundException();
+            }
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Thumbnail for Language Image " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 
     @Override
@@ -294,13 +300,13 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
         final Integer imageId = parent.getId();
         final Integer imageRevision = imageProxy.getEntityRevision();
 
-        final RESTLanguageImageV1 languageImage = getRESTLanguageImage(id, revision, parent);
-        if (languageImage == null) {
-            return null;
-        } else if (languageImage.getRevisions() != null) {
-            return languageImage.getRevisions();
-        } else {
-            try {
+        try {
+            final RESTLanguageImageV1 languageImage = getRESTLanguageImage(id, revision, parent);
+            if (languageImage == null) {
+                throw new NotFoundException();
+            } else if (languageImage.getRevisions() != null) {
+                return languageImage.getRevisions();
+            } else {
                 RESTImageV1 image = null;
                 // Check the cache first
                 if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, imageId, imageRevision)) {
@@ -350,13 +356,14 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                         return languageImage.getRevisions();
                     }
                 }
-            } catch (Exception e) {
-                log.error("Failed to retrieve the Revisions for Language Image " + id + (revision == null ? "" : (", " +
-                        "Revision " + revision)), e);
-            }
-        }
 
-        return null;
+                throw new NotFoundException();
+            }
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Revisions for Language Image " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 
     public CollectionWrapper<LanguageImageWrapper> getLanguageImageRevisions(int id, final Integer revision, final RESTImageV1 parent) {

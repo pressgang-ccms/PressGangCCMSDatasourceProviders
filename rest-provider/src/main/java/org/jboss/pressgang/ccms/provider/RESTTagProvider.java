@@ -69,9 +69,9 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
             }
             return tag;
         } catch (Exception e) {
-            log.error("Failed to retrieve Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -102,14 +102,28 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             return tags;
         } catch (Exception e) {
-            log.error("Failed to retrieve Tags for Name " + name, e);
+            log.debug("Failed to retrieve Tags for Name " + name, e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getTagsByName(final String name) {
         return getWrapperFactory().createCollection(getRESTTagsByName(name), RESTTagV1.class, false);
+    }
+
+    @Override
+    public TagWrapper getTagByName(final String name) {
+        final RESTTagCollectionV1 tags = getRESTTagsByName(name);
+        if (tags != null && tags.getItems() != null && !tags.getItems().isEmpty()) {
+            for (final RESTTagV1 tag : tags.returnItems()) {
+                if (tag.getName().equals(name)) {
+                    return getWrapperFactory().create(tag, false, TagWrapper.class);
+                }
+            }
+        }
+
+        return null;
     }
 
     public RESTCategoryInTagCollectionV1 getRESTTagCategories(int id, final Integer revision) {
@@ -139,9 +153,9 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             return tag.getCategories();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Categories for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Categories for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -178,9 +192,9 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             return tag.getChildTags();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Child Tags for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Child Tags for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -215,9 +229,9 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             return tag.getParentTags();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Parent Tags for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Parent Tags for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -252,9 +266,9 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             return tag.getProperties();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Properties for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Properties for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
@@ -291,9 +305,9 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             return tag.getRevisions();
         } catch (Exception e) {
-            log.error("Failed to retrieve the Revisions for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve the Revisions for Tag " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
         }
-        return null;
     }
 
     @Override
