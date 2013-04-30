@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
 public interface TranslatedContentSpecWrapper extends EntityWrapper<TranslatedContentSpecWrapper> {
     Integer getContentSpecId();
@@ -21,4 +22,6 @@ public interface TranslatedContentSpecWrapper extends EntityWrapper<TranslatedCo
     ContentSpecWrapper getContentSpec();
 
     void setContentSpec(ContentSpecWrapper contentSpec);
+
+    String getEditorURL(ZanataDetails zanataDetails, String locale);
 }

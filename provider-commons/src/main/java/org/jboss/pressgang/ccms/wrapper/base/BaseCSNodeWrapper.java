@@ -25,14 +25,6 @@ public interface BaseCSNodeWrapper<T extends BaseCSNodeWrapper<T>> extends Entit
 
     void setEntityRevision(Integer revision);
 
-    Integer getNextNodeId();
-
-    void setNextNodeId(Integer id);
-
-    Integer getPreviousNodeId();
-
-    void setPreviousNodeId(Integer id);
-
     Integer getNodeType();
 
     void setNodeType(Integer typeId);

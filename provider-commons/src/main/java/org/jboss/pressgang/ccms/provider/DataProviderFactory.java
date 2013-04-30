@@ -46,10 +46,11 @@ public abstract class DataProviderFactory {
             final Constructor[] constructors = dataProviderClass.getDeclaredConstructors();
             for (final Constructor constructor : constructors) {
                 final Class<?>[] params = constructor.getParameterTypes();
-                boolean matches = true;
+                boolean matches = false;
 
                 // Ensure that all the argument match
                 if (args.length == params.length) {
+                    matches = true;
                     for (int i = 0; i < params.length; i++) {
                         if (!params[i].isAssignableFrom(args[i].getClass())) {
                             matches = false;

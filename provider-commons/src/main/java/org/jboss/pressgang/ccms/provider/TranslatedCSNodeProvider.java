@@ -14,8 +14,7 @@ public interface TranslatedCSNodeProvider {
 
     CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedCSNodeRevisions(int id, Integer revision);
 
-    CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes) throws
-            Exception;
+    CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(CollectionWrapper<TranslatedCSNodeWrapper> translatedNodes);
 
     TranslatedCSNodeWrapper newTranslatedCSNode();
 

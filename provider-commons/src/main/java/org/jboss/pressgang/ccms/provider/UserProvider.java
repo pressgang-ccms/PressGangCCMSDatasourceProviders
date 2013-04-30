@@ -10,5 +10,7 @@ public interface UserProvider {
 
     CollectionWrapper<UserWrapper> getUsersByName(String name);
 
+    UserWrapper getUserByName(String name);
+
     CollectionWrapper<UserWrapper> getUserRevisions(int id, Integer revision);
 }

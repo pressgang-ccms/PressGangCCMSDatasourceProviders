@@ -14,6 +14,8 @@ public interface TagProvider {
 
     CollectionWrapper<TagWrapper> getTagsByName(final String name);
 
+    TagWrapper getTagByName(final String name);
+
     UpdateableCollectionWrapper<CategoryInTagWrapper> getTagCategories(int id, Integer revision);
 
     CollectionWrapper<TagWrapper> getTagChildTags(int id, Integer revision);

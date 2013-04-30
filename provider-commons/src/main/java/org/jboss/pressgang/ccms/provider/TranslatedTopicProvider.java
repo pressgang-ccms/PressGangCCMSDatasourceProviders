@@ -31,19 +31,17 @@ public interface TranslatedTopicProvider {
 
     CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicsWithQuery(String query);
 
-    TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic) throws Exception;
+    TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic);
 
-    CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(
-            CollectionWrapper<TranslatedTopicWrapper> translatedTopics) throws Exception;
+    CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(CollectionWrapper<TranslatedTopicWrapper> translatedTopics);
 
-    TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic) throws Exception;
+    TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic);
 
-    CollectionWrapper<TranslatedTopicWrapper> updateTranslatedTopics(
-            CollectionWrapper<TranslatedTopicWrapper> translatedTopics) throws Exception;
+    CollectionWrapper<TranslatedTopicWrapper> updateTranslatedTopics(CollectionWrapper<TranslatedTopicWrapper> translatedTopics);
 
-    boolean deleteTranslatedTopic(Integer id) throws Exception;
+    boolean deleteTranslatedTopic(Integer id);
 
-    boolean deleteTranslatedTopics(List<Integer> ids) throws Exception;
+    boolean deleteTranslatedTopics(List<Integer> ids);
 
     TranslatedTopicWrapper newTranslatedTopic();
 

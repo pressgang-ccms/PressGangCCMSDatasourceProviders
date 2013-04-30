@@ -16,12 +16,12 @@ public interface TranslatedContentSpecProvider {
 
     CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecsWithQuery(String query);
 
-    TranslatedContentSpecWrapper createTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) throws Exception;
+    TranslatedContentSpecWrapper createTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec);
 
-    TranslatedContentSpecWrapper updateTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) throws Exception;
+    TranslatedContentSpecWrapper updateTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec);
 
     CollectionWrapper<TranslatedContentSpecWrapper> createTranslatedContentSpecs(
-            CollectionWrapper<TranslatedContentSpecWrapper> translatedNodes) throws Exception;
+            CollectionWrapper<TranslatedContentSpecWrapper> translatedNodes);
 
     TranslatedContentSpecWrapper newTranslatedContentSpec();
 

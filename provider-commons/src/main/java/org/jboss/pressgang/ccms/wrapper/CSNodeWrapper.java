@@ -1,13 +1,12 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.wrapper.base.BaseCSNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public interface CSNodeWrapper extends BaseCSNodeWrapper<CSNodeWrapper> {
-    CollectionWrapper<CSNodeWrapper> getChildren();
+    UpdateableCollectionWrapper<CSNodeWrapper> getChildren();
 
-    void setChildren(CollectionWrapper<CSNodeWrapper> nodes);
+    void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes);
 
     UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedToNodes();
 
@@ -22,6 +21,10 @@ public interface CSNodeWrapper extends BaseCSNodeWrapper<CSNodeWrapper> {
     void setParent(CSNodeWrapper parent);
 
     ContentSpecWrapper getContentSpec();
+
+    CSNodeWrapper getNextNode();
+
+    void setNextNode(CSNodeWrapper nextNode);
 
     void setContentSpec(ContentSpecWrapper contentSpec);
 }

@@ -33,17 +33,17 @@ public interface TopicProvider {
 
     CollectionWrapper<TopicWrapper> getTopicRevisions(int id, Integer revision);
 
-    TopicWrapper createTopic(TopicWrapper topic) throws Exception;
+    TopicWrapper createTopic(TopicWrapper topic);
 
-    TopicWrapper updateTopic(TopicWrapper topic) throws Exception;
+    TopicWrapper updateTopic(TopicWrapper topic);
 
-    boolean deleteTopic(Integer id) throws Exception;
+    boolean deleteTopic(Integer id);
 
-    CollectionWrapper<TopicWrapper> createTopics(final CollectionWrapper<TopicWrapper> topics) throws Exception;
+    CollectionWrapper<TopicWrapper> createTopics(final CollectionWrapper<TopicWrapper> topics);
 
-    CollectionWrapper<TopicWrapper> updateTopics(final CollectionWrapper<TopicWrapper> topics) throws Exception;
+    CollectionWrapper<TopicWrapper> updateTopics(final CollectionWrapper<TopicWrapper> topics);
 
-    boolean deleteTopics(final List<Integer> topicIds) throws Exception;
+    boolean deleteTopics(final List<Integer> topicIds);
 
     TopicWrapper newTopic();
 

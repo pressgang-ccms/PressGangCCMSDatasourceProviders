@@ -29,11 +29,11 @@ public interface ContentSpecProvider {
 
     String getContentSpecAsString(int id, Integer revision);
 
-    ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpec) throws Exception;
+    ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpec);
 
-    ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpec) throws Exception;
+    ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpec);
 
-    boolean deleteContentSpec(Integer id) throws Exception;
+    boolean deleteContentSpec(Integer id);
 
     ContentSpecWrapper newContentSpec();
 
