@@ -1,12 +1,9 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.LanguageImage;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.LanguageImageWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -20,13 +17,9 @@ public class DBLanguageImageProvider extends DBDataProvider implements LanguageI
     @Override
     public LanguageImageWrapper getLanguageImage(int id, Integer revision) {
         if (revision == null) {
-            final LanguageImage languageImage = getEntityManager().find(LanguageImage.class, id);
-            return getWrapperFactory().create(languageImage, false);
+            return getWrapperFactory().create(getEntity(LanguageImage.class, id), false);
         } else {
-            final LanguageImage dummyLanguageImage = new LanguageImage();
-            dummyLanguageImage.setLanguageImageId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyLanguageImage, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(LanguageImage.class, id, revision), true);
         }
     }
 
@@ -47,15 +40,7 @@ public class DBLanguageImageProvider extends DBDataProvider implements LanguageI
 
     @Override
     public CollectionWrapper<LanguageImageWrapper> getLanguageImageRevisions(int id, Integer revision) {
-        final LanguageImage user = new LanguageImage();
-        user.setLanguageImageId(id);
-        final Map<Number, LanguageImage> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), user);
-
-        final List<LanguageImage> revisions = new ArrayList<LanguageImage>();
-        for (final Map.Entry<Number, LanguageImage> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<LanguageImage> revisions = getRevisionList(LanguageImage.class, id);
         return getWrapperFactory().createCollection(revisions, LanguageImage.class, revision != null);
     }
 }

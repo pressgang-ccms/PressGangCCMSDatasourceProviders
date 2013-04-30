@@ -9,6 +9,7 @@ import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
 public class DBTranslatedContentSpecWrapper extends DBBaseWrapper<TranslatedContentSpecWrapper> implements TranslatedContentSpecWrapper {
     private final TranslatedContentSpec translatedContentSpec;
@@ -116,5 +117,21 @@ public class DBTranslatedContentSpecWrapper extends DBBaseWrapper<TranslatedCont
     @Override
     public void setContentSpec(ContentSpecWrapper node) {
         getCSTranslatedNode().setEnversContentSpec(node == null ? null : (ContentSpec) node.unwrap());
+    }
+
+    @Override
+    public String getEditorURL(ZanataDetails zanataDetails, String locale) {
+        final String zanataServerUrl = zanataDetails == null ? null : zanataDetails.getServer();
+        final String zanataProject = zanataDetails == null ? null : zanataDetails.getProject();
+        final String zanataVersion = zanataDetails == null ? null : zanataDetails.getVersion();
+
+        if (zanataServerUrl != null && !zanataServerUrl.isEmpty() && zanataProject != null && !zanataProject.isEmpty() && zanataVersion
+                != null && !zanataVersion.isEmpty()) {
+            final String zanataId = getZanataId();
+            return zanataServerUrl + "webtrans/Application.html?project=" + zanataProject + "&amp;iteration=" + zanataVersion +
+                    "&amp;doc=" + zanataId + "&amp;localeId=" + locale + "#view:doc;doc:" + zanataId;
+        } else {
+            return null;
+        }
     }
 }

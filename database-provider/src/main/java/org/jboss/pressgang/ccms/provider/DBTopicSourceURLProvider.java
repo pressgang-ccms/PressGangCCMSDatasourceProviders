@@ -3,10 +3,8 @@ package org.jboss.pressgang.ccms.provider;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.TopicSourceUrl;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
@@ -20,15 +18,7 @@ public class DBTopicSourceURLProvider extends DBDataProvider implements TopicSou
 
     @Override
     public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceURLRevisions(int id, Integer revision) {
-        final TopicSourceUrl topicSourceUrl = new TopicSourceUrl();
-        topicSourceUrl.getTopicSourceUrlId();
-        final Map<Number, TopicSourceUrl> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), topicSourceUrl);
-
-        final List<TopicSourceUrl> revisions = new ArrayList<TopicSourceUrl>();
-        for (final Map.Entry<Number, TopicSourceUrl> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<TopicSourceUrl> revisions = getRevisionList(TopicSourceUrl.class, id);
         return getWrapperFactory().createCollection(revisions, TopicSourceUrl.class, revision != null);
     }
 

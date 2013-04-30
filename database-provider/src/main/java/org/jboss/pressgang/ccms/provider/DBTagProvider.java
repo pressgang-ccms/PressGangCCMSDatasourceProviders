@@ -6,12 +6,10 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.TagToCategory;
 import org.jboss.pressgang.ccms.model.TagToPropertyTag;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
@@ -28,8 +26,7 @@ public class DBTagProvider extends DBDataProvider implements TagProvider {
 
     @Override
     public TagWrapper getTag(int id) {
-        final Tag tag = getEntityManager().find(Tag.class, id);
-        return getWrapperFactory().create(tag, false);
+        return getWrapperFactory().create(getEntity(Tag.class, id), false);
     }
 
     @Override
@@ -37,28 +34,33 @@ public class DBTagProvider extends DBDataProvider implements TagProvider {
         if (revision == null) {
             return getTag(id);
         } else {
-            final Tag dummyTag = new Tag();
-            dummyTag.setTagId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyTag, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(Tag.class, id, revision), true);
         }
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getTagsByName(String name) {
+    public CollectionWrapper<TagWrapper> getTagsByName(final String name) {
         final CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
         final CriteriaQuery<Tag> tags = criteriaBuilder.createQuery(Tag.class);
         final Root<Tag> from = tags.from(Tag.class);
         tags.select(from);
         tags.where(criteriaBuilder.equal(from.get("tagName"), name));
 
-        final List<Tag> tagList = getEntityManager().createQuery(tags).getResultList();
-        return getWrapperFactory().createCollection(tagList, Tag.class, false);
+        return getWrapperFactory().createCollection(executeQuery(tags), Tag.class, false);
     }
 
     @Override
-    public UpdateableCollectionWrapper<CategoryInTagWrapper> getTagCategories(int id) {
-        return getTagCategories(id, null);
+    public TagWrapper getTagByName(final String name) {
+        final CollectionWrapper<TagWrapper> tags = getTagsByName(name);
+        if (tags != null && !tags.isEmpty()) {
+            for (final TagWrapper tag : tags.getItems()) {
+                if (tag.getName().equals(name)) {
+                    return tag;
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -107,15 +109,7 @@ public class DBTagProvider extends DBDataProvider implements TagProvider {
 
     @Override
     public CollectionWrapper<TagWrapper> getTagRevisions(int id, Integer revision) {
-        final Tag tag = new Tag();
-        tag.setTagId(id);
-        final Map<Number, Tag> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), tag);
-
-        final List<Tag> revisions = new ArrayList<Tag>();
-        for (final Map.Entry<Number, Tag> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<Tag> revisions = getRevisionList(Tag.class, id);
         return getWrapperFactory().createCollection(revisions, Tag.class, revision != null);
     }
 

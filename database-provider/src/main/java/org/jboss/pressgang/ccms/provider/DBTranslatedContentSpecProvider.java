@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -18,7 +17,6 @@ import org.jboss.pressgang.ccms.model.Filter;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedContentSpec;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTranslatedContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
@@ -34,8 +32,7 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
 
     @Override
     public TranslatedContentSpecWrapper getTranslatedContentSpec(int id) {
-        final TranslatedContentSpec csNode = getEntityManager().find(TranslatedContentSpec.class, id);
-        return getWrapperFactory().create(csNode, false);
+        return getWrapperFactory().create(getEntity(TranslatedContentSpec.class, id), false);
     }
 
     @Override
@@ -43,16 +40,14 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
         if (revision == null) {
             return getTranslatedContentSpec(id);
         } else {
-            final TranslatedContentSpec dummyTranslatedContentSpec = new TranslatedContentSpec();
-            dummyTranslatedContentSpec.setTranslatedContentSpecId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyTranslatedContentSpec, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(TranslatedContentSpec.class, id, revision), true);
         }
     }
 
     @Override
     public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes(int id, Integer revision) {
-        final DBTranslatedContentSpecWrapper translatedContentSpec = (DBTranslatedContentSpecWrapper) getTranslatedContentSpec(id, revision);
+        final DBTranslatedContentSpecWrapper translatedContentSpec = (DBTranslatedContentSpecWrapper) getTranslatedContentSpec(id,
+                revision);
         if (translatedContentSpec == null) {
             return null;
         } else {
@@ -64,15 +59,7 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
 
     @Override
     public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecRevisions(int id, Integer revision) {
-        final TranslatedContentSpec csNode = new TranslatedContentSpec();
-        csNode.setTranslatedContentSpecId(id);
-        final Map<Number, TranslatedContentSpec> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), csNode);
-
-        final List<TranslatedContentSpec> revisions = new ArrayList<TranslatedContentSpec>();
-        for (final Map.Entry<Number, TranslatedContentSpec> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<TranslatedContentSpec> revisions = getRevisionList(TranslatedContentSpec.class, id);
         return getWrapperFactory().createCollection(revisions, TranslatedContentSpec.class, revision != null);
     }
 
@@ -99,14 +86,11 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
         final ContentSpecFilterQueryBuilder queryBuilder = new ContentSpecFilterQueryBuilder(getEntityManager());
         final CriteriaQuery<ContentSpec> criteriaQuery = FilterUtilities.buildQuery(filter, queryBuilder);
 
-        final TypedQuery<ContentSpec> typedQuery = getEntityManager().createQuery(criteriaQuery);
-        final List<ContentSpec> contentSpecs = typedQuery.getResultList();
-
-        return getWrapperFactory().createCollection(contentSpecs, ContentSpec.class, false);
+        return getWrapperFactory().createCollection(executeQuery(criteriaQuery), ContentSpec.class, false);
     }
 
     @Override
-    public TranslatedContentSpecWrapper createTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) throws Exception {
+    public TranslatedContentSpecWrapper createTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) {
         getEntityManager().persist(translatedContentSpec.unwrap());
 
         // Flush the changes to the database
@@ -116,7 +100,7 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
     }
 
     @Override
-    public TranslatedContentSpecWrapper updateTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) throws Exception {
+    public TranslatedContentSpecWrapper updateTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) {
         getEntityManager().persist(translatedContentSpec.unwrap());
 
         // Flush the changes to the database
@@ -127,7 +111,7 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
 
     @Override
     public CollectionWrapper<TranslatedContentSpecWrapper> createTranslatedContentSpecs(
-            CollectionWrapper<TranslatedContentSpecWrapper> nodes) throws Exception {
+            CollectionWrapper<TranslatedContentSpecWrapper> nodes) {
         for (final TranslatedContentSpecWrapper topic : nodes.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }

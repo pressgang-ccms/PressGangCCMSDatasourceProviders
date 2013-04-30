@@ -3,10 +3,8 @@ package org.jboss.pressgang.ccms.provider;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
@@ -19,16 +17,7 @@ public class DBTranslatedTopicStringProvider extends DBDataProvider implements T
 
     @Override
     public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStringRevisions(int id, Integer revision) {
-        final TranslatedTopicString translatedTopicString = new TranslatedTopicString();
-        translatedTopicString.setTranslatedTopicStringID(id);
-        final Map<Number, TranslatedTopicString> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(),
-                translatedTopicString);
-
-        final List<TranslatedTopicString> revisions = new ArrayList<TranslatedTopicString>();
-        for (final Map.Entry<Number, TranslatedTopicString> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<TranslatedTopicString> revisions = getRevisionList(TranslatedTopicString.class, id);
         return getWrapperFactory().createCollection(revisions, TranslatedTopicString.class, revision != null);
     }
 

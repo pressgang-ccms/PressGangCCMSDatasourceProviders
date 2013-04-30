@@ -3,7 +3,6 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
-import org.jboss.pressgang.ccms.provider.CSNodeProvider;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
@@ -81,28 +80,6 @@ public class DBCSRelatedNodeWrapper extends DBBaseWrapper<CSRelatedNodeWrapper> 
     @Override
     public void setEntityRevision(Integer revision) {
         getCSNode().setEntityRevision(revision);
-    }
-
-    @Override
-    public Integer getNextNodeId() {
-        return getCSNode().getNext() == null ? null : getCSNode().getNext().getCSNodeId();
-    }
-
-    @Override
-    public void setNextNodeId(Integer id) {
-        final CSNodeWrapper node = getDatabaseProvider().getProvider(CSNodeProvider.class).getCSNode(id);
-        getCSNode().setNext(node == null ? null : (CSNode) node.unwrap());
-    }
-
-    @Override
-    public Integer getPreviousNodeId() {
-        return getCSNode().getPrevious() == null ? null : getCSNode().getPrevious().getCSNodeId();
-    }
-
-    @Override
-    public void setPreviousNodeId(Integer id) {
-        final CSNodeWrapper node = getDatabaseProvider().getProvider(CSNodeProvider.class).getCSNode(id);
-        getCSNode().setPrevious(node == null ? null : (CSNode) node.unwrap());
     }
 
     @Override

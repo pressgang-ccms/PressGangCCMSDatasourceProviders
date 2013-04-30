@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -65,8 +64,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
         topics.select(from);
         topics.where(from.get("topicId").in(ids));
 
-        final List<Topic> topicList = getEntityManager().createQuery(topics).getResultList();
-        return getWrapperFactory().createCollection(topicList, Topic.class, false);
+        return getWrapperFactory().createCollection(executeQuery(topics), Topic.class, false);
     }
 
     @Override
@@ -92,10 +90,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
         final TopicFilterQueryBuilder queryBuilder = new TopicFilterQueryBuilder(getEntityManager());
         final CriteriaQuery<Topic> criteriaQuery = FilterUtilities.buildQuery(filter, queryBuilder);
 
-        final TypedQuery<Topic> typedQuery = getEntityManager().createQuery(criteriaQuery);
-        final List<Topic> topics = typedQuery.getResultList();
-
-        return getWrapperFactory().createCollection(topics, Topic.class, false);
+        return getWrapperFactory().createCollection(executeQuery(criteriaQuery), Topic.class, false);
     }
 
     @Override
@@ -160,20 +155,12 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
 
     @Override
     public CollectionWrapper<TopicWrapper> getTopicRevisions(int id, Integer revision) {
-        final Topic topic = new Topic();
-        topic.setTopicId(id);
-        final Map<Number, Topic> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), topic);
-
-        final List<Topic> revisions = new ArrayList<Topic>();
-        for (final Map.Entry<Number, Topic> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<Topic> revisions = getRevisionList(Topic.class, id);
         return getWrapperFactory().createCollection(revisions, Topic.class, revision != null);
     }
 
     @Override
-    public TopicWrapper createTopic(TopicWrapper topic) throws Exception {
+    public TopicWrapper createTopic(TopicWrapper topic) {
         getEntityManager().persist(topic.unwrap());
 
         // Flush the changes to the database
@@ -183,7 +170,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
     }
 
     @Override
-    public TopicWrapper updateTopic(TopicWrapper topic) throws Exception {
+    public TopicWrapper updateTopic(TopicWrapper topic) {
         getEntityManager().persist(topic.unwrap());
 
         // Flush the changes to the database
@@ -193,7 +180,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
     }
 
     @Override
-    public boolean deleteTopic(Integer id) throws Exception {
+    public boolean deleteTopic(Integer id) {
         final Topic topic = getEntityManager().find(Topic.class, id);
         getEntityManager().remove(topic);
 
@@ -204,7 +191,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
     }
 
     @Override
-    public CollectionWrapper<TopicWrapper> createTopics(CollectionWrapper<TopicWrapper> topics) throws Exception {
+    public CollectionWrapper<TopicWrapper> createTopics(CollectionWrapper<TopicWrapper> topics) {
         for (final TopicWrapper topic : topics.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }
@@ -216,7 +203,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
     }
 
     @Override
-    public CollectionWrapper<TopicWrapper> updateTopics(CollectionWrapper<TopicWrapper> topics) throws Exception {
+    public CollectionWrapper<TopicWrapper> updateTopics(CollectionWrapper<TopicWrapper> topics) {
         for (final TopicWrapper topic : topics.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }
@@ -228,7 +215,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
     }
 
     @Override
-    public boolean deleteTopics(List<Integer> topicIds) throws Exception {
+    public boolean deleteTopics(List<Integer> topicIds) {
         for (final Integer id : topicIds) {
             final Topic topic = getEntityManager().find(Topic.class, id);
             getEntityManager().remove(topic);

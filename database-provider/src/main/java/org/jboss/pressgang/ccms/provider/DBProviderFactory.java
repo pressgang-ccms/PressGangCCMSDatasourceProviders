@@ -1,6 +1,9 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.TransactionManager;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,13 +12,25 @@ import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 public class DBProviderFactory extends DataProviderFactory {
     private Map<Class<?>, DBDataProvider> providerMap = new HashMap<Class<?>, DBDataProvider>();
     private final EntityManager entityManager;
+    private final TransactionManager transactionManager;
 
     public static DBProviderFactory create(final EntityManager entityManager) {
         return (DBProviderFactory) DataProviderFactory.create(entityManager);
     }
 
+    public static DBProviderFactory create(final EntityManager entityManager, final TransactionManager transactionManager) {
+        return (DBProviderFactory) DataProviderFactory.create(entityManager, transactionManager);
+    }
+
     public DBProviderFactory(final EntityManager entityManager) {
         this.entityManager = entityManager;
+        transactionManager = null;
+        initialiseProviders();
+    }
+
+    public DBProviderFactory(final EntityManager entityManager, final TransactionManager transactionManager) {
+        this.entityManager = entityManager;
+        this.transactionManager = transactionManager;
         initialiseProviders();
     }
 
@@ -45,7 +60,20 @@ public class DBProviderFactory extends DataProviderFactory {
 
     @Override
     public void rollback() {
-        getEntityManager().getTransaction().rollback();
+        if (transactionManager != null) {
+            try {
+                final int status = transactionManager.getStatus();
+                if (status != Status.STATUS_ROLLING_BACK && status != Status.STATUS_ROLLEDBACK && status != Status.STATUS_NO_TRANSACTION) {
+                    transactionManager.rollback();
+                }
+            } catch (SystemException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            if (getEntityManager().getTransaction().isActive()) {
+                getEntityManager().getTransaction().rollback();
+            }
+        }
     }
 
     /**

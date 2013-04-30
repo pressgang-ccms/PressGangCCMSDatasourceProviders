@@ -7,7 +7,6 @@ import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
-import org.jboss.pressgang.ccms.provider.CSNodeProvider;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
@@ -105,12 +104,14 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper> implements CSN
     }
 
     @Override
-    public CollectionWrapper<CSNodeWrapper> getChildren() {
-        return getWrapperFactory().createCollection(getCSNode().getChildren(), CSNode.class, isRevisionEntity());
+    public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getCSNode().getChildren(), CSNode.class,
+                isRevisionEntity());
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
 
     @Override
-    public void setChildren(CollectionWrapper<CSNodeWrapper> nodes) {
+    public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
         // Remove the old nodes
         final List<CSNode> nodesList = getCSNode().getChildrenList();
         for (final CSNode node : nodesList) {
@@ -206,25 +207,13 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper> implements CSN
     }
 
     @Override
-    public Integer getNextNodeId() {
-        return getCSNode().getNext() == null ? null : getCSNode().getNext().getCSNodeId();
+    public CSNodeWrapper getNextNode() {
+        return getWrapperFactory().create(getCSNode().getNext(), isRevisionEntity());
     }
 
     @Override
-    public void setNextNodeId(Integer id) {
-        final CSNodeWrapper node = getDatabaseProvider().getProvider(CSNodeProvider.class).getCSNode(id);
-        getCSNode().setNext(node == null ? null : (CSNode) node.unwrap());
-    }
-
-    @Override
-    public Integer getPreviousNodeId() {
-        return getCSNode().getPrevious() == null ? null : getCSNode().getPrevious().getCSNodeId();
-    }
-
-    @Override
-    public void setPreviousNodeId(Integer id) {
-        final CSNodeWrapper node = getDatabaseProvider().getProvider(CSNodeProvider.class).getCSNode(id);
-        getCSNode().setPrevious(node == null ? null : (CSNode) node.unwrap());
+    public void setNextNode(CSNodeWrapper nextNode) {
+        getCSNode().setNext(nextNode == null ? null : (CSNode) nextNode.unwrap());
     }
 
     @Override

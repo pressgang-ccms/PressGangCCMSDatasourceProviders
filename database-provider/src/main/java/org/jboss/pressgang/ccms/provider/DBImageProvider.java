@@ -1,13 +1,10 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.ImageFile;
 import org.jboss.pressgang.ccms.model.LanguageImage;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.DBImageWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.ImageWrapper;
@@ -21,8 +18,7 @@ public class DBImageProvider extends DBDataProvider implements ImageProvider {
 
     @Override
     public ImageWrapper getImage(int id) {
-        final ImageFile image = getEntityManager().find(ImageFile.class, id);
-        return getWrapperFactory().create(image, false);
+        return getWrapperFactory().create(getEntity(ImageFile.class, id), false);
     }
 
     @Override
@@ -30,14 +26,10 @@ public class DBImageProvider extends DBDataProvider implements ImageProvider {
         if (revision == null) {
             return getImage(id);
         } else {
-            final ImageFile dummyImage = new ImageFile();
-            dummyImage.setImageFileId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyImage, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(ImageFile.class, id, revision), true);
         }
     }
 
-    @Override
     public CollectionWrapper<LanguageImageWrapper> getImageLanguageImages(int id, Integer revision) {
         final DBImageWrapper image = (DBImageWrapper) getImage(id, revision);
         if (image == null) {
@@ -49,15 +41,7 @@ public class DBImageProvider extends DBDataProvider implements ImageProvider {
 
     @Override
     public CollectionWrapper<ImageWrapper> getImageRevisions(int id, Integer revision) {
-        final ImageFile image = new ImageFile();
-        image.setImageFileId(id);
-        final Map<Number, ImageFile> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), image);
-
-        final List<ImageFile> revisions = new ArrayList<ImageFile>();
-        for (final Map.Entry<Number, ImageFile> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<ImageFile> revisions = getRevisionList(ImageFile.class, id);
         return getWrapperFactory().createCollection(revisions, ImageFile.class, revision != null);
     }
 }

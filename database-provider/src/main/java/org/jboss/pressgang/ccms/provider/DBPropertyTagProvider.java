@@ -3,14 +3,12 @@ package org.jboss.pressgang.ccms.provider;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.PropertyTag;
 import org.jboss.pressgang.ccms.model.PropertyTagToPropertyTagCategory;
 import org.jboss.pressgang.ccms.model.TagToPropertyTag;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
@@ -30,8 +28,7 @@ public class DBPropertyTagProvider extends DBDataProvider implements PropertyTag
 
     @Override
     public PropertyTagWrapper getPropertyTag(int id) {
-        final PropertyTag category = getEntityManager().find(PropertyTag.class, id);
-        return getWrapperFactory().create(category, false);
+        return getWrapperFactory().create(getEntity(PropertyTag.class, id), false);
     }
 
     @Override
@@ -39,24 +36,13 @@ public class DBPropertyTagProvider extends DBDataProvider implements PropertyTag
         if (revision == null) {
             return getPropertyTag(id);
         } else {
-            final PropertyTag dummyPropertyTag = new PropertyTag();
-            dummyPropertyTag.setPropertyTagId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyPropertyTag, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(PropertyTag.class, id, revision), true);
         }
     }
 
     @Override
     public CollectionWrapper<PropertyTagWrapper> getPropertyTagRevisions(int id, Integer revision) {
-        final PropertyTag category = new PropertyTag();
-        category.setPropertyTagId(id);
-        final Map<Number, PropertyTag> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), category);
-
-        final List<PropertyTag> revisions = new ArrayList<PropertyTag>();
-        for (final Map.Entry<Number, PropertyTag> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<PropertyTag> revisions = getRevisionList(PropertyTag.class, id);
         return getWrapperFactory().createCollection(revisions, PropertyTag.class, revision != null);
     }
 

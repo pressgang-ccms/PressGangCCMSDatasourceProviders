@@ -1,13 +1,10 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.Category;
 import org.jboss.pressgang.ccms.model.TagToCategory;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
@@ -22,8 +19,7 @@ public class DBCategoryProvider extends DBDataProvider implements CategoryProvid
 
     @Override
     public CategoryWrapper getCategory(int id) {
-        final Category category = getEntityManager().find(Category.class, id);
-        return getWrapperFactory().create(category, false);
+        return getWrapperFactory().create(getEntity(Category.class, id), false);
     }
 
     @Override
@@ -31,10 +27,7 @@ public class DBCategoryProvider extends DBDataProvider implements CategoryProvid
         if (revision == null) {
             return getCategory(id);
         } else {
-            final Category dummyCategory = new Category();
-            dummyCategory.setCategoryId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyCategory, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(Category.class, id, revision), true);
         }
     }
 
@@ -52,15 +45,7 @@ public class DBCategoryProvider extends DBDataProvider implements CategoryProvid
 
     @Override
     public CollectionWrapper<CategoryWrapper> getCategoryRevisions(int id, Integer revision) {
-        final Category category = new Category();
-        category.setCategoryId(id);
-        final Map<Number, Category> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), category);
-
-        final List<Category> revisions = new ArrayList<Category>();
-        for (final Map.Entry<Number, Category> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<Category> revisions = getRevisionList(Category.class, id);
         return getWrapperFactory().createCollection(revisions, Category.class, revision != null);
     }
 }

@@ -3,13 +3,11 @@ package org.jboss.pressgang.ccms.provider;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
+import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
@@ -20,16 +18,7 @@ public class DBTranslatedCSNodeStringProvider extends DBDataProvider implements 
 
     @Override
     public CollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStringRevisions(int id, Integer revision) {
-        final TranslatedCSNodeString translatedTopicString = new TranslatedCSNodeString();
-        translatedTopicString.setTranslatedCSNodeStringId(id);
-        final Map<Number, TranslatedCSNodeString> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(),
-                translatedTopicString);
-
-        final List<TranslatedCSNodeString> revisions = new ArrayList<TranslatedCSNodeString>();
-        for (final Map.Entry<Number, TranslatedCSNodeString> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<TranslatedCSNodeString> revisions = getRevisionList(TranslatedCSNodeString.class, id);
         return getWrapperFactory().createCollection(revisions, TranslatedCSNodeString.class, revision != null);
     }
 

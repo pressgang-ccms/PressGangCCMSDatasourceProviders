@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -21,7 +20,6 @@ import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedContentSpec;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
@@ -43,8 +41,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
 
     @Override
     public ContentSpecWrapper getContentSpec(int id) {
-        final ContentSpec contentSpec = getEntityManager().find(ContentSpec.class, id);
-        return getWrapperFactory().create(contentSpec, false);
+        return getWrapperFactory().create(getEntity(ContentSpec.class, id), false);
     }
 
     @Override
@@ -52,10 +49,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
         if (revision == null) {
             return getContentSpec(id);
         } else {
-            final ContentSpec dummyContentSpec = new ContentSpec();
-            dummyContentSpec.setContentSpecId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyContentSpec, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(ContentSpec.class, id, revision), true);
         }
     }
 
@@ -82,10 +76,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
         final ContentSpecFilterQueryBuilder queryBuilder = new ContentSpecFilterQueryBuilder(getEntityManager());
         final CriteriaQuery<ContentSpec> criteriaQuery = FilterUtilities.buildQuery(filter, queryBuilder);
 
-        final TypedQuery<ContentSpec> typedQuery = getEntityManager().createQuery(criteriaQuery);
-        final List<ContentSpec> contentSpecs = typedQuery.getResultList();
-
-        return getWrapperFactory().createCollection(contentSpecs, ContentSpec.class, false);
+        return getWrapperFactory().createCollection(executeQuery(criteriaQuery), ContentSpec.class, false);
     }
 
     @Override
@@ -123,15 +114,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
 
     @Override
     public CollectionWrapper<ContentSpecWrapper> getContentSpecRevisions(int id, Integer revision) {
-        final ContentSpec contentSpec = new ContentSpec();
-        contentSpec.setContentSpecId(id);
-        final Map<Number, ContentSpec> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), contentSpec);
-
-        final List<ContentSpec> revisions = new ArrayList<ContentSpec>();
-        for (final Map.Entry<Number, ContentSpec> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<ContentSpec> revisions = getRevisionList(ContentSpec.class, id);
         return getWrapperFactory().createCollection(revisions, ContentSpec.class, revision != null);
     }
 
@@ -151,7 +134,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
     }
 
     @Override
-    public ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpec) throws Exception {
+    public ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpec) {
         getEntityManager().persist(contentSpec.unwrap());
 
         // Flush the changes to the database
@@ -161,7 +144,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
     }
 
     @Override
-    public ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpec) throws Exception {
+    public ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpec) {
         getEntityManager().persist(contentSpec.unwrap());
 
         // Flush the changes to the database
@@ -171,7 +154,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
     }
 
     @Override
-    public boolean deleteContentSpec(Integer id) throws Exception {
+    public boolean deleteContentSpec(Integer id) {
         final ContentSpec contentSpec = getEntityManager().find(ContentSpec.class, id);
         getEntityManager().remove(contentSpec);
 

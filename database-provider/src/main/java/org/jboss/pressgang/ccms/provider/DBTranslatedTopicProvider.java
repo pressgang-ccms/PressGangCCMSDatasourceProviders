@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -20,7 +19,6 @@ import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTranslatedTopicDataWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
@@ -39,8 +37,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public TranslatedTopicWrapper getTranslatedTopic(int id) {
-        final TranslatedTopicData topic = getEntityManager().find(TranslatedTopicData.class, id);
-        return getWrapperFactory().create(topic, false);
+        return getWrapperFactory().create(getEntity(TranslatedTopicData.class, id), false);
     }
 
     @Override
@@ -48,10 +45,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
         if (revision == null) {
             return getTranslatedTopic(id);
         } else {
-            final TranslatedTopicData dummyTopic = new TranslatedTopicData();
-            dummyTopic.setTranslatedTopicDataId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyTopic, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(TranslatedTopicData.class, id, revision), true);
         }
     }
 
@@ -126,15 +120,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicRevisions(int id, Integer revision) {
-        final TranslatedTopicData topic = new TranslatedTopicData();
-        topic.setTranslatedTopicDataId(id);
-        final Map<Number, TranslatedTopicData> revisionMapping = EnversUtilities.getRevisionEntities(getEntityManager(), topic);
-
-        final List<TranslatedTopicData> revisions = new ArrayList<TranslatedTopicData>();
-        for (final Map.Entry<Number, TranslatedTopicData> entry : revisionMapping.entrySet()) {
-            revisions.add(entry.getValue());
-        }
-
+        final List<TranslatedTopicData> revisions = getRevisionList(TranslatedTopicData.class, id);
         return getWrapperFactory().createCollection(revisions, TranslatedTopicData.class, revision != null);
     }
 
@@ -161,14 +147,11 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
         final TranslatedTopicDataFilterQueryBuilder queryBuilder = new TranslatedTopicDataFilterQueryBuilder(getEntityManager());
         final CriteriaQuery<TranslatedTopicData> criteriaQuery = FilterUtilities.buildQuery(filter, queryBuilder);
 
-        final TypedQuery<TranslatedTopicData> typedQuery = getEntityManager().createQuery(criteriaQuery);
-        final List<TranslatedTopicData> translatedTopics = typedQuery.getResultList();
-
-        return getWrapperFactory().createCollection(translatedTopics, TranslatedTopicData.class, false);
+        return getWrapperFactory().createCollection(executeQuery(criteriaQuery), TranslatedTopicData.class, false);
     }
 
     @Override
-    public TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic) throws Exception {
+    public TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
         getEntityManager().persist(translatedTopic.unwrap());
 
         // Flush the changes to the database
@@ -179,7 +162,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(
-            CollectionWrapper<TranslatedTopicWrapper> translatedTopics) throws Exception {
+            CollectionWrapper<TranslatedTopicWrapper> translatedTopics) {
         for (final TranslatedTopicWrapper topic : translatedTopics.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }
@@ -191,7 +174,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
     }
 
     @Override
-    public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic) throws Exception {
+    public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
         getEntityManager().persist(translatedTopic.unwrap());
 
         // Flush the changes to the database
@@ -202,7 +185,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> updateTranslatedTopics(
-            CollectionWrapper<TranslatedTopicWrapper> translatedTopics) throws Exception {
+            CollectionWrapper<TranslatedTopicWrapper> translatedTopics) {
         for (final TranslatedTopicWrapper topic : translatedTopics.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }
@@ -214,7 +197,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
     }
 
     @Override
-    public boolean deleteTranslatedTopic(Integer id) throws Exception {
+    public boolean deleteTranslatedTopic(Integer id) {
         final TranslatedTopicData topic = getEntityManager().find(TranslatedTopicData.class, id);
         getEntityManager().remove(topic);
 
@@ -225,7 +208,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
     }
 
     @Override
-    public boolean deleteTranslatedTopics(List<Integer> ids) throws Exception {
+    public boolean deleteTranslatedTopics(List<Integer> ids) {
         for (final Integer id : ids) {
             final TranslatedTopicData topic = getEntityManager().find(TranslatedTopicData.class, id);
             getEntityManager().remove(topic);
