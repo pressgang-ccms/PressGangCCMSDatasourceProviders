@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import java.util.List;
-import java.util.Set;
 
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
@@ -112,19 +111,6 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper> implements CSN
 
     @Override
     public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
-        // Remove the old nodes
-        final List<CSNode> nodesList = getCSNode().getChildrenList();
-        for (final CSNode node : nodesList) {
-            getCSNode().removeChild(node);
-        }
-        // Add the new nodes
-        if (nodes != null) {
-            final Set<CSNode> newNodes = (Set<CSNode>) nodes.unwrap();
-            for (final CSNode newNode : newNodes) {
-                getCSNode().addChild(newNode);
-            }
-        }
-
         if (nodes == null) return;
 
         final List<CSNodeWrapper> addNodes = nodes.getAddItems();
@@ -213,7 +199,7 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper> implements CSN
 
     @Override
     public void setNextNode(CSNodeWrapper nextNode) {
-        getCSNode().setNext(nextNode == null ? null : (CSNode) nextNode.unwrap());
+        getCSNode().setNextAndClean(nextNode == null ? null : (CSNode) nextNode.unwrap());
     }
 
     @Override
