@@ -2,24 +2,23 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBCSRelatedNodeWrapper extends DBBaseWrapper<CSRelatedNodeWrapper> implements CSRelatedNodeWrapper {
+public class DBCSRelatedNodeWrapper extends DBBaseWrapper<CSRelatedNodeWrapper, CSNodeToCSNode> implements CSRelatedNodeWrapper {
     private final CSNodeToCSNode csNodeToCSNode;
 
     public DBCSRelatedNodeWrapper(final DBProviderFactory providerFactory, final CSNodeToCSNode csNodeToCSNode, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, CSNodeToCSNode.class);
         this.csNodeToCSNode = csNodeToCSNode;
     }
 
-    protected CSNodeToCSNode getCSNodeToCSNode() {
+    @Override
+    protected CSNodeToCSNode getEntity() {
         return csNodeToCSNode;
     }
 
     protected CSNode getCSNode() {
-        return getCSNodeToCSNode().getRelatedNode();
+        return getEntity().getRelatedNode();
     }
 
     @Override
@@ -103,48 +102,37 @@ public class DBCSRelatedNodeWrapper extends DBBaseWrapper<CSRelatedNodeWrapper> 
     }
 
     @Override
-    public Integer getRevision() {
-        return (Integer) getCSNode().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<CSRelatedNodeWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getCSNodeToCSNode()),
-                CSNodeToCSNode.class, true);
-    }
-
-    @Override
     public CSNodeToCSNode unwrap() {
         return csNodeToCSNode;
     }
 
     @Override
     public Integer getRelationshipType() {
-        return getCSNodeToCSNode().getRelationshipType();
+        return getEntity().getRelationshipType();
     }
 
     @Override
     public void setRelationshipType(Integer typeId) {
-        getCSNodeToCSNode().setRelationshipType(typeId);
+        getEntity().setRelationshipType(typeId);
     }
 
     @Override
     public Integer getRelationshipId() {
-        return getCSNodeToCSNode().getId();
+        return getEntity().getId();
     }
 
     @Override
     public void setRelationshipId(Integer id) {
-        getCSNodeToCSNode().setCSNodeToCSNodeId(id);
+        getEntity().setCSNodeToCSNodeId(id);
     }
 
     @Override
     public Integer getRelationshipSort() {
-        return getCSNodeToCSNode().getRelationshipSort();
+        return getEntity().getRelationshipSort();
     }
 
     @Override
     public void setRelationshipSort(Integer sort) {
-        getCSNodeToCSNode().setRelationshipSort(sort);
+        getEntity().setRelationshipSort(sort);
     }
 }

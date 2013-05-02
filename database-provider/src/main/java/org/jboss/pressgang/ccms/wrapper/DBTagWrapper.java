@@ -4,43 +4,32 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.TagToCategory;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class DBTagWrapper extends DBBaseWrapper<TagWrapper> implements TagWrapper {
+public class DBTagWrapper extends DBBaseWrapper<TagWrapper, Tag> implements TagWrapper {
 
     private final Tag tag;
 
     public DBTagWrapper(final DBProviderFactory providerFactory, final Tag tag, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, Tag.class);
         this.tag = tag;
     }
 
-    protected Tag getTag() {
+    @Override
+    protected Tag getEntity() {
         return tag;
     }
 
     @Override
     public Integer getId() {
-        return getTag().getId();
+        return getEntity().getId();
     }
 
     @Override
     public void setId(Integer id) {
-        getTag().setTagId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getTag().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<TagWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getTag()), Tag.class,
-                isRevisionEntity());
+        getEntity().setTagId(id);
     }
 
     @Override
@@ -50,34 +39,34 @@ public class DBTagWrapper extends DBBaseWrapper<TagWrapper> implements TagWrappe
 
     @Override
     public String getName() {
-        return getTag().getTagName();
+        return getEntity().getTagName();
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getParentTags() {
-        return getWrapperFactory().createCollection(getTag().getParentTags(), Tag.class, isRevisionEntity());
+        return getWrapperFactory().createCollection(getEntity().getParentTags(), Tag.class, isRevisionEntity());
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getChildTags() {
-        return getWrapperFactory().createCollection(getTag().getChildTags(), Tag.class, isRevisionEntity());
+        return getWrapperFactory().createCollection(getEntity().getChildTags(), Tag.class, isRevisionEntity());
     }
 
     @Override
     public UpdateableCollectionWrapper<CategoryInTagWrapper> getCategories() {
-        final CollectionWrapper<CategoryInTagWrapper> collection = getWrapperFactory().createCollection(getTag().getTagToCategories(),
+        final CollectionWrapper<CategoryInTagWrapper> collection = getWrapperFactory().createCollection(getEntity().getTagToCategories(),
                 TagToCategory.class, isRevisionEntity());
         return (UpdateableCollectionWrapper<CategoryInTagWrapper>) collection;
     }
 
     @Override
     public PropertyTagInTagWrapper getProperty(int propertyId) {
-        return getWrapperFactory().create(getTag().getProperty(propertyId), isRevisionEntity());
+        return getWrapperFactory().create(getEntity().getProperty(propertyId), isRevisionEntity());
     }
 
     @Override
     public boolean containedInCategory(int categoryId) {
-        return getTag().isInCategory(categoryId);
+        return getEntity().isInCategory(categoryId);
     }
 
     @Override
@@ -85,7 +74,7 @@ public class DBTagWrapper extends DBBaseWrapper<TagWrapper> implements TagWrappe
         if (categoryIds == null) return false;
 
         for (final Integer categoryId : categoryIds) {
-            if (getTag().isInCategory(categoryId)) {
+            if (getEntity().isInCategory(categoryId)) {
                 return true;
             }
         }

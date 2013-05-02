@@ -4,24 +4,18 @@ import org.jboss.pressgang.ccms.model.PropertyTag;
 import org.jboss.pressgang.ccms.model.base.ToPropertyTag;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 
-public abstract class DBBaseToPropertyTagWrapper<T extends BasePropertyTagWrapper<T>> extends DBBasePropertyTagWrapper<T> {
+public abstract class DBBaseToPropertyTagWrapper<T extends BasePropertyTagWrapper<T>,
+        U extends ToPropertyTag<?>> extends DBBasePropertyTagWrapper<T, U> {
 
-    protected abstract ToPropertyTag<?> getToPropertyTag();
-
-    protected DBBaseToPropertyTagWrapper(final DBProviderFactory providerFactory, boolean isRevision) {
-        super(providerFactory, isRevision);
+    protected DBBaseToPropertyTagWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<U> clazz) {
+        super(providerFactory, isRevision, clazz);
     }
 
     @Override
     protected PropertyTag getPropertyTag() {
-        return getToPropertyTag().getPropertyTag();
+        return getEntity().getPropertyTag();
     }
 
     @Override
-    public Integer getRevision() {
-        return (Integer) getToPropertyTag().getRevision();
-    }
-
-    @Override
-    public abstract ToPropertyTag<?> unwrap();
+    public abstract U unwrap();
 }

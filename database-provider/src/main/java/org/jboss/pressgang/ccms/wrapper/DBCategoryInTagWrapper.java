@@ -5,29 +5,29 @@ import java.util.List;
 import org.jboss.pressgang.ccms.model.Category;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.TagToCategory;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class DBCategoryInTagWrapper extends DBBaseWrapper<CategoryInTagWrapper> implements CategoryInTagWrapper {
+public class DBCategoryInTagWrapper extends DBBaseWrapper<CategoryInTagWrapper, TagToCategory> implements CategoryInTagWrapper {
 
     private final TagToCategory tagToCategory;
 
     public DBCategoryInTagWrapper(final DBProviderFactory providerFactory, final TagToCategory category, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, CategoryInTagWrapper.class, TagToCategory.class);
         this.tagToCategory = category;
     }
 
     protected Category getCategory() {
-        return getTagToCategory().getCategory();
+        return getEntity().getCategory();
     }
 
     protected Tag getTag() {
-        return getTagToCategory().getTag();
+        return getEntity().getTag();
     }
 
-    protected TagToCategory getTagToCategory() {
+    @Override
+    protected TagToCategory getEntity() {
         return tagToCategory;
     }
 
@@ -42,17 +42,6 @@ public class DBCategoryInTagWrapper extends DBBaseWrapper<CategoryInTagWrapper> 
     }
 
     @Override
-    public Integer getRevision() {
-        return (Integer) getCategory().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<CategoryInTagWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getTagToCategory()),
-                TagToCategory.class, true);
-    }
-
-    @Override
     public String getName() {
         return getCategory().getCategoryName();
     }
@@ -64,12 +53,12 @@ public class DBCategoryInTagWrapper extends DBBaseWrapper<CategoryInTagWrapper> 
 
     @Override
     public Integer getRelationshipId() {
-        return getTagToCategory().getTagToCategoryId();
+        return getEntity().getTagToCategoryId();
     }
 
     @Override
     public Integer getRelationshipSort() {
-        return getTagToCategory().getSorting();
+        return getEntity().getSorting();
     }
 
     @Override
@@ -84,7 +73,7 @@ public class DBCategoryInTagWrapper extends DBBaseWrapper<CategoryInTagWrapper> 
 
     @Override
     public boolean isRevisionEntity() {
-        return getTagToCategory().getRevision() != null;
+        return getEntity().getRevision() != null;
     }
 
     @Override

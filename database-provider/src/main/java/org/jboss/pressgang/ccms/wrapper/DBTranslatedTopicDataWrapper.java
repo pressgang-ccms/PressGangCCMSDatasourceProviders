@@ -12,31 +12,32 @@ import org.jboss.pressgang.ccms.model.TranslatedTopic;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
-public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicWrapper> implements TranslatedTopicWrapper {
+public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicWrapper,
+        TranslatedTopicData> implements TranslatedTopicWrapper {
 
     private final TranslatedTopicData translatedTopicData;
 
     public DBTranslatedTopicDataWrapper(final DBProviderFactory providerFactory, final TranslatedTopicData translatedTopicData,
             boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, TranslatedTopicData.class);
         this.translatedTopicData = translatedTopicData;
     }
 
     protected TranslatedTopic getTranslatedTopic() {
-        if (getTranslatedTopicData().getTranslatedTopic() == null) {
-            getTranslatedTopicData().setTranslatedTopic(new TranslatedTopic());
+        if (getEntity().getTranslatedTopic() == null) {
+            getEntity().setTranslatedTopic(new TranslatedTopic());
         }
-        return getTranslatedTopicData().getTranslatedTopic();
+        return getEntity().getTranslatedTopic();
     }
 
-    protected TranslatedTopicData getTranslatedTopicData() {
+    @Override
+    protected TranslatedTopicData getEntity() {
         return translatedTopicData;
     }
 
@@ -51,23 +52,12 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public void setId(Integer id) {
-        getTranslatedTopicData().setTranslatedTopicDataId(id);
+        getEntity().setTranslatedTopicDataId(id);
     }
 
     @Override
     public TranslatedTopicData unwrap() {
-        return getTranslatedTopicData();
-    }
-
-    @Override
-    public Integer getRevision() {
-        return getTranslatedTopic().getTopicRevision();
-    }
-
-    @Override
-    public CollectionWrapper<TranslatedTopicWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getTranslatedTopicData()),
-                TranslatedTopicData.class, true);
+        return getEntity();
     }
 
     @Override
@@ -92,32 +82,32 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public String getXml() {
-        return getTranslatedTopicData().getTranslatedXml();
+        return getEntity().getTranslatedXml();
     }
 
     @Override
     public void setXml(String xml) {
-        getTranslatedTopicData().setTranslatedXml(xml);
+        getEntity().setTranslatedXml(xml);
     }
 
     @Override
     public String getLocale() {
-        return getTranslatedTopicData().getTranslationLocale();
+        return getEntity().getTranslationLocale();
     }
 
     @Override
     public void setLocale(String locale) {
-        getTranslatedTopicData().setTranslationLocale(locale);
+        getEntity().setTranslationLocale(locale);
     }
 
     @Override
     public String getHtml() {
-        return getTranslatedTopicData().getTranslatedXmlRendered();
+        return getEntity().getTranslatedXmlRendered();
     }
 
     @Override
     public void setHtml(String html) {
-        getTranslatedTopicData().setTranslatedXmlRendered(html);
+        getEntity().setTranslatedXmlRendered(html);
     }
 
     @Override
@@ -155,7 +145,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getOutgoingRelationships() {
-        return getWrapperFactory().createCollection(getTranslatedTopicData().getOutgoingRelatedTranslatedTopicData(getEntityManager()),
+        return getWrapperFactory().createCollection(getEntity().getOutgoingRelatedTranslatedTopicData(getEntityManager()),
                 TranslatedTopicData.class, isRevisionEntity());
     }
 
@@ -184,7 +174,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getIncomingRelationships() {
-        return getWrapperFactory().createCollection(getTranslatedTopicData().getIncomingRelatedTranslatedTopicData(getEntityManager()),
+        return getWrapperFactory().createCollection(getEntity().getIncomingRelatedTranslatedTopicData(getEntityManager()),
                 TranslatedTopicData.class, isRevisionEntity());
     }
 
@@ -319,7 +309,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public String getXRefId() {
-        return "TranslatedTopicID" + getTranslatedTopicData().getId();
+        return "TranslatedTopicID" + getEntity().getId();
     }
 
     @Override
@@ -359,43 +349,43 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public boolean getContainsFuzzyTranslations() {
-        return getTranslatedTopicData().containsFuzzyTranslation();
+        return getEntity().containsFuzzyTranslation();
     }
 
     @Override
     public Integer getTranslationPercentage() {
-        return getTranslatedTopicData().getTranslationPercentage();
+        return getEntity().getTranslationPercentage();
     }
 
     @Override
     public void setTranslationPercentage(Integer percentage) {
-        getTranslatedTopicData().setTranslationPercentage(percentage);
+        getEntity().setTranslationPercentage(percentage);
     }
 
     @Override
     public Date getHtmlUpdated() {
-        return getTranslatedTopicData().getTranslatedXmlRenderedUpdated();
+        return getEntity().getTranslatedXmlRenderedUpdated();
     }
 
     @Override
     public void setHtmlUpdated(Date htmlUpdated) {
-        getTranslatedTopicData().setTranslatedXmlRenderedUpdated(htmlUpdated);
+        getEntity().setTranslatedXmlRenderedUpdated(htmlUpdated);
     }
 
     @Override
     public String getTranslatedXMLCondition() {
-        return getTranslatedTopicData().getTranslatedXMLCondition();
+        return getEntity().getTranslatedXMLCondition();
     }
 
     @Override
     public void setTranslatedXMLCondition(String translatedXMLCondition) {
-        getTranslatedTopicData().setTranslatedXMLCondition(translatedXMLCondition);
+        getEntity().setTranslatedXMLCondition(translatedXMLCondition);
     }
 
     @Override
     public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
         final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
-                getTranslatedTopicData().getTranslatedTopicDataStringsArray(), TranslatedTopicString.class, isRevisionEntity());
+                getEntity().getTranslatedTopicDataStringsArray(), TranslatedTopicString.class, isRevisionEntity());
         return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) collection;
     }
 
@@ -413,12 +403,12 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
         // Add Translated Strings
         for (final TranslatedTopicStringWrapper addTranslatedString : addTranslatedStrings) {
-            getTranslatedTopicData().addTranslatedTopicString((TranslatedTopicString) addTranslatedString.unwrap());
+            getEntity().addTranslatedTopicString((TranslatedTopicString) addTranslatedString.unwrap());
         }
 
         // Remove Translated Strings
         for (final TranslatedTopicStringWrapper removeTranslatedString : removeTranslatedStrings) {
-            getTranslatedTopicData().removeTranslatedTopicString((TranslatedTopicString) removeTranslatedString.unwrap());
+            getEntity().removeTranslatedTopicString((TranslatedTopicString) removeTranslatedString.unwrap());
         }
     }
 
@@ -434,12 +424,12 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public TranslatedCSNodeWrapper getTranslatedCSNode() {
-        return getWrapperFactory().create(getTranslatedTopicData().getTranslatedCSNode(), isRevisionEntity(),
+        return getWrapperFactory().create(getEntity().getTranslatedCSNode(), isRevisionEntity(),
                 TranslatedCSNodeWrapper.class);
     }
 
     @Override
     public void setTranslatedCSNode(TranslatedCSNodeWrapper translatedCSNode) {
-        getTranslatedTopicData().setTranslatedCSNode(translatedCSNode == null ? null : (TranslatedCSNode) translatedCSNode.unwrap());
+        getEntity().setTranslatedCSNode(translatedCSNode == null ? null : (TranslatedCSNode) translatedCSNode.unwrap());
     }
 }

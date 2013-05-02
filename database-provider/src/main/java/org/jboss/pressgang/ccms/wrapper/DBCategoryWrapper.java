@@ -4,63 +4,41 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.Category;
 import org.jboss.pressgang.ccms.model.TagToCategory;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper> implements CategoryWrapper {
-
+public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper, Category> implements CategoryWrapper {
     private final Category category;
-    private final Category tempCategory = new Category();
 
     public DBCategoryWrapper(final DBProviderFactory providerFactory, final Category category, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, Category.class);
         this.category = category;
     }
 
-    protected Category getCategory() {
-        return category;
-    }
-
-    protected Category getTempCategory() {
-        return tempCategory;
-    }
-
     @Override
-    public Integer getId() {
-        return getCategory().getId();
+    protected Category getEntity() {
+        return category;
     }
 
     @Override
     public void setId(Integer id) {
-        getCategory().setCategoryId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getCategory().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<CategoryWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getCategory()), Category.class,
-                true);
+        getEntity().setCategoryId(id);
     }
 
     @Override
     public String getName() {
-        return getCategory().getCategoryName();
+        return getEntity().getCategoryName();
     }
 
     @Override
     public void setName(String name) {
-        getCategory().setCategoryName(name);
+        getEntity().setCategoryName(name);
     }
 
     @Override
     public boolean isMutuallyExclusive() {
-        return getCategory().isMutuallyExclusive();
+        return getEntity().isMutuallyExclusive();
     }
 
     @Override
@@ -70,12 +48,12 @@ public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper> implements
 
     @Override
     public boolean isRevisionEntity() {
-        return getCategory().getRevision() != null;
+        return getEntity().getRevision() != null;
     }
 
     @Override
     public UpdateableCollectionWrapper<TagInCategoryWrapper> getTags() {
-        final CollectionWrapper<TagInCategoryWrapper> collection = getWrapperFactory().createCollection(getCategory().getTagToCategories(),
+        final CollectionWrapper<TagInCategoryWrapper> collection = getWrapperFactory().createCollection(getEntity().getTagToCategories(),
                 TagToCategory.class, isRevisionEntity());
         return (UpdateableCollectionWrapper<TagInCategoryWrapper>) collection;
     }
@@ -94,12 +72,12 @@ public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper> implements
 
         // Add Tags
         for (final TagInCategoryWrapper addTag : addTags) {
-            getCategory().addTagRelationship((TagToCategory) addTag.unwrap());
+            getEntity().addTagRelationship((TagToCategory) addTag.unwrap());
         }
 
         // Remove Tags
         for (final TagInCategoryWrapper removeTag : removeTags) {
-            getCategory().removeTagRelationship((TagToCategory) removeTag.unwrap());
+            getEntity().removeTagRelationship((TagToCategory) removeTag.unwrap());
         }
     }
 }

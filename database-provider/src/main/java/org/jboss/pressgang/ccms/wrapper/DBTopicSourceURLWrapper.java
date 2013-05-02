@@ -1,42 +1,25 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.TopicSourceUrl;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBTopicSourceURLWrapper extends DBBaseWrapper<TopicSourceURLWrapper> implements TopicSourceURLWrapper {
+public class DBTopicSourceURLWrapper extends DBBaseWrapper<TopicSourceURLWrapper, TopicSourceUrl> implements TopicSourceURLWrapper {
 
     private final TopicSourceUrl topicSourceUrl;
 
     public DBTopicSourceURLWrapper(final DBProviderFactory providerFactory, final TopicSourceUrl topicSourceUrl, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, TopicSourceUrl.class);
         this.topicSourceUrl = topicSourceUrl;
     }
 
-    public TopicSourceUrl getTopicSourceUrl() {
+    @Override
+    protected TopicSourceUrl getEntity() {
         return topicSourceUrl;
     }
 
     @Override
-    public Integer getId() {
-        return getTopicSourceUrl().getId();
-    }
-
-    @Override
     public void setId(Integer id) {
-        getTopicSourceUrl().setTopicSourceUrlId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getTopicSourceUrl().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<TopicSourceURLWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getTopicSourceUrl()),
-                TopicSourceUrl.class, true);
+        getEntity().setTopicSourceUrlId(id);
     }
 
     @Override
@@ -46,32 +29,32 @@ public class DBTopicSourceURLWrapper extends DBBaseWrapper<TopicSourceURLWrapper
 
     @Override
     public String getTitle() {
-        return getTopicSourceUrl().getTitle();
+        return getEntity().getTitle();
     }
 
     @Override
     public void setTitle(String title) {
-        getTopicSourceUrl().setTitle(title);
+        getEntity().setTitle(title);
     }
 
     @Override
     public String getUrl() {
-        return getTopicSourceUrl().getSourceUrl();
+        return getEntity().getSourceUrl();
     }
 
     @Override
     public void setUrl(String url) {
-        getTopicSourceUrl().setSourceUrl(url);
+        getEntity().setSourceUrl(url);
     }
 
     @Override
     public String getDescription() {
-        return getTopicSourceUrl().getDescription();
+        return getEntity().getDescription();
     }
 
     @Override
     public void setDescription(String description) {
-        getTopicSourceUrl().setDescription(description);
+        getEntity().setDescription(description);
     }
 
 }

@@ -1,78 +1,62 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBTranslatedTopicStringWrapper extends DBBaseWrapper<TranslatedTopicStringWrapper> implements TranslatedTopicStringWrapper {
+public class DBTranslatedTopicStringWrapper extends DBBaseWrapper<TranslatedTopicStringWrapper,
+        TranslatedTopicString> implements TranslatedTopicStringWrapper {
 
     private final TranslatedTopicString translatedTopicString;
 
     public DBTranslatedTopicStringWrapper(final DBProviderFactory providerFactory, final TranslatedTopicString translatedTopicString,
             boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, TranslatedTopicString.class);
         this.translatedTopicString = translatedTopicString;
     }
 
-    protected TranslatedTopicString getTranslatedTopicString() {
+    @Override
+    protected TranslatedTopicString getEntity() {
         return translatedTopicString;
     }
 
     @Override
-    public Integer getId() {
-        return getTranslatedTopicString().getId();
-    }
-
-    @Override
     public void setId(Integer id) {
-        getTranslatedTopicString().setTranslatedTopicStringID(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getTranslatedTopicString().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<TranslatedTopicStringWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getTranslatedTopicString()),
-                TranslatedTopicString.class, true);
+        getEntity().setTranslatedTopicStringID(id);
     }
 
     @Override
     public TranslatedTopicString unwrap() {
-        return getTranslatedTopicString();
+        return getEntity();
     }
 
     @Override
     public String getOriginalString() {
-        return getTranslatedTopicString().getOriginalString();
+        return getEntity().getOriginalString();
     }
 
     @Override
     public void setOriginalString(String originalString) {
-        getTranslatedTopicString().setOriginalString(originalString);
+        getEntity().setOriginalString(originalString);
     }
 
     @Override
     public String getTranslatedString() {
-        return getTranslatedTopicString().getTranslatedString();
+        return getEntity().getTranslatedString();
     }
 
     @Override
     public void setTranslatedString(String translatedString) {
-        getTranslatedTopicString().setTranslatedString(translatedString);
+        getEntity().setTranslatedString(translatedString);
     }
 
     @Override
     public Boolean isFuzzy() {
-        return getTranslatedTopicString().getFuzzyTranslation();
+        return getEntity().getFuzzyTranslation();
     }
 
     @Override
     public void setFuzzy(Boolean fuzzy) {
-        getTranslatedTopicString().setFuzzyTranslation(fuzzy);
+        getEntity().setFuzzyTranslation(fuzzy);
     }
 
 }

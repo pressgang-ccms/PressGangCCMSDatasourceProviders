@@ -1,43 +1,31 @@
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBTranslatedCSNodeStringWrapper extends DBBaseWrapper<TranslatedCSNodeStringWrapper> implements TranslatedCSNodeStringWrapper {
+public class DBTranslatedCSNodeStringWrapper extends DBBaseWrapper<TranslatedCSNodeStringWrapper,
+        TranslatedCSNodeString> implements TranslatedCSNodeStringWrapper {
     private final TranslatedCSNodeString translatedCSNodeString;
 
     public DBTranslatedCSNodeStringWrapper(final DBProviderFactory providerFactory, final TranslatedCSNodeString translatedCSNodeString,
             boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, TranslatedCSNodeString.class);
         this.translatedCSNodeString = translatedCSNodeString;
     }
 
-    protected TranslatedCSNodeString getCSTranslatedNodeString() {
+    @Override
+    protected TranslatedCSNodeString getEntity() {
         return translatedCSNodeString;
     }
 
     @Override
     public Integer getId() {
-        return getCSTranslatedNodeString().getId();
+        return getEntity().getId();
     }
 
     @Override
     public void setId(Integer id) {
-        getCSTranslatedNodeString().setTranslatedCSNodeStringId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getCSTranslatedNodeString().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<TranslatedCSNodeStringWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getCSTranslatedNodeString()),
-                TranslatedCSNode.class, true);
+        getEntity().setTranslatedCSNodeStringId(id);
     }
 
     @Override
@@ -47,31 +35,31 @@ public class DBTranslatedCSNodeStringWrapper extends DBBaseWrapper<TranslatedCSN
 
     @Override
     public String getTranslatedString() {
-        return getCSTranslatedNodeString().getTranslatedString();
+        return getEntity().getTranslatedString();
     }
 
     @Override
     public void setTranslatedString(String translatedString) {
-        getCSTranslatedNodeString().setTranslatedString(translatedString);
+        getEntity().setTranslatedString(translatedString);
     }
 
     @Override
     public Boolean isFuzzy() {
-        return getCSTranslatedNodeString().getFuzzyTranslation();
+        return getEntity().getFuzzyTranslation();
     }
 
     @Override
     public void setFuzzy(Boolean fuzzy) {
-        getCSTranslatedNodeString().setFuzzyTranslation(fuzzy);
+        getEntity().setFuzzyTranslation(fuzzy);
     }
 
     @Override
     public String getLocale() {
-        return getCSTranslatedNodeString().getLocale();
+        return getEntity().getLocale();
     }
 
     @Override
     public void setLocale(String locale) {
-        getCSTranslatedNodeString().setLocale(locale);
+        getEntity().setLocale(locale);
     }
 }

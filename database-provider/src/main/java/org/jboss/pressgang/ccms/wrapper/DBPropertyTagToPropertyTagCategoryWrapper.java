@@ -7,30 +7,31 @@ import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.DBBasePropertyTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBPropertyTagToPropertyTagCategoryWrapper extends DBBasePropertyTagWrapper<PropertyTagInPropertyCategoryWrapper> implements
-        PropertyTagInPropertyCategoryWrapper {
+public class DBPropertyTagToPropertyTagCategoryWrapper extends DBBasePropertyTagWrapper<PropertyTagInPropertyCategoryWrapper,
+        PropertyTagToPropertyTagCategory> implements PropertyTagInPropertyCategoryWrapper {
 
     private final PropertyTagToPropertyTagCategory propertyTagToPropertyCategory;
 
     public DBPropertyTagToPropertyTagCategoryWrapper(final DBProviderFactory providerFactory,
             final PropertyTagToPropertyTagCategory propertyTag, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, PropertyTagToPropertyTagCategory.class);
         this.propertyTagToPropertyCategory = propertyTag;
     }
 
-    protected PropertyTagToPropertyTagCategory getPropertyTagToPropertyCategory() {
+    @Override
+    protected PropertyTagToPropertyTagCategory getEntity() {
         return propertyTagToPropertyCategory;
     }
 
     @Override
     protected PropertyTag getPropertyTag() {
-        return getPropertyTagToPropertyCategory().getPropertyTag();
+        return getEntity().getPropertyTag();
     }
 
     @Override
     public CollectionWrapper<PropertyTagInPropertyCategoryWrapper> getRevisions() {
         return getWrapperFactory().createCollection(
-                EnversUtilities.getRevisionEntities(getEntityManager(), getPropertyTagToPropertyCategory()),
+                EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
                 PropertyTagToPropertyTagCategory.class, true);
     }
 
@@ -41,16 +42,16 @@ public class DBPropertyTagToPropertyTagCategoryWrapper extends DBBasePropertyTag
 
     @Override
     public Integer getSort() {
-        return getPropertyTagToPropertyCategory().getSorting();
+        return getEntity().getSorting();
     }
 
     @Override
     public void setSort(Integer sort) {
-        getPropertyTagToPropertyCategory().setSorting(sort);
+        getEntity().setSorting(sort);
     }
 
     @Override
     public Integer getRelationshipId() {
-        return getPropertyTagToPropertyCategory().getId();
+        return getEntity().getId();
     }
 }

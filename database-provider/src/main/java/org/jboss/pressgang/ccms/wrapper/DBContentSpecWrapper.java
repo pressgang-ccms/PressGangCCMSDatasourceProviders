@@ -13,21 +13,22 @@ import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper> implements ContentSpecWrapper {
+public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, ContentSpec> implements ContentSpecWrapper {
     private final ContentSpec contentSpec;
 
     public DBContentSpecWrapper(final DBProviderFactory providerFactory, final ContentSpec contentSpec, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, ContentSpec.class);
         this.contentSpec = contentSpec;
     }
 
-    protected ContentSpec getContentSpec() {
+    @Override
+    protected ContentSpec getEntity() {
         return contentSpec;
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getTags() {
-        return getWrapperFactory().createCollection(getContentSpec().getTags(), Tag.class, isRevisionEntity());
+        return getWrapperFactory().createCollection(getEntity().getTags(), Tag.class, isRevisionEntity());
     }
 
     @Override
@@ -44,18 +45,18 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper> impl
 
         // Remove Tags
         for (final TagWrapper removeTag : removeTags) {
-            getContentSpec().removeTag((Tag) removeTag.unwrap());
+            getEntity().removeTag((Tag) removeTag.unwrap());
         }
 
         // Add Tags
         for (final TagWrapper addTag : addTags) {
-            getContentSpec().addTag((Tag) addTag.unwrap());
+            getEntity().addTag((Tag) addTag.unwrap());
         }
     }
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
-        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getContentSpec().getTopCSNodes(),
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getTopCSNodes(),
                 CSNode.class, isRevisionEntity());
         return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
@@ -74,19 +75,19 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper> impl
 
         // Add Nodes
         for (final CSNodeWrapper addNode : addNodes) {
-            getContentSpec().addChild((CSNode) addNode.unwrap());
+            getEntity().addChild((CSNode) addNode.unwrap());
         }
 
         // Remove Nodes
         for (final CSNodeWrapper removeNode : removeNodes) {
-            getContentSpec().removeChild((CSNode) removeNode.unwrap());
+            getEntity().removeChild((CSNode) removeNode.unwrap());
         }
     }
 
     @Override
     public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getProperties() {
         final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
-                getContentSpec().getContentSpecToPropertyTags(), ContentSpecToPropertyTag.class, isRevisionEntity());
+                getEntity().getContentSpecToPropertyTags(), ContentSpecToPropertyTag.class, isRevisionEntity());
         return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
     }
 
@@ -104,103 +105,87 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper> impl
 
         // Add Properties
         for (final PropertyTagInContentSpecWrapper addProperty : addProperties) {
-            getContentSpec().addPropertyTag((ContentSpecToPropertyTag) addProperty.unwrap());
+            getEntity().addPropertyTag((ContentSpecToPropertyTag) addProperty.unwrap());
         }
 
         // Remove Properties
         for (final PropertyTagInContentSpecWrapper removeProperty : removeProperties) {
-            getContentSpec().removePropertyTag((ContentSpecToPropertyTag) removeProperty.unwrap());
+            getEntity().removePropertyTag((ContentSpecToPropertyTag) removeProperty.unwrap());
         }
     }
 
     @Override
     public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecs() {
-        return getWrapperFactory().createCollection(getContentSpec().getTranslatedContentSpecs(getEntityManager(), getRevision()),
+        return getWrapperFactory().createCollection(getEntity().getTranslatedContentSpecs(getEntityManager(), getRevision()),
                 TranslatedContentSpec.class, isRevisionEntity());
     }
 
     @Override
     public String getTitle() {
-        final CSNode titleNode = getContentSpec().getContentSpecTitle();
+        final CSNode titleNode = getEntity().getContentSpecTitle();
         return titleNode == null ? null : titleNode.getAdditionalText();
     }
 
     @Override
     public String getProduct() {
-        final CSNode productNode = getContentSpec().getContentSpecProduct();
+        final CSNode productNode = getEntity().getContentSpecProduct();
         return productNode == null ? null : productNode.getAdditionalText();
     }
 
     @Override
     public String getVersion() {
-        final CSNode versionNode = getContentSpec().getContentSpecVersion();
+        final CSNode versionNode = getEntity().getContentSpecVersion();
         return versionNode == null ? null : versionNode.getAdditionalText();
     }
 
     @Override
     public String getLocale() {
-        return getContentSpec().getLocale();
+        return getEntity().getLocale();
     }
 
     @Override
     public void setLocale(String locale) {
-        getContentSpec().setLocale(locale);
+        getEntity().setLocale(locale);
     }
 
     @Override
     public Integer getType() {
-        return getContentSpec().getContentSpecType();
+        return getEntity().getContentSpecType();
     }
 
     @Override
     public void setType(Integer typeId) {
-        getContentSpec().setContentSpecType(typeId);
+        getEntity().setContentSpecType(typeId);
     }
 
     @Override
     public String getCondition() {
-        return getContentSpec().getCondition();
+        return getEntity().getCondition();
     }
 
     @Override
     public void setCondition(String condition) {
-        getContentSpec().setCondition(condition);
+        getEntity().setCondition(condition);
     }
 
     @Override
     public Date getLastModified() {
-        return EnversUtilities.getFixedLastModifiedDate(getEntityManager(), getContentSpec());
+        return EnversUtilities.getFixedLastModifiedDate(getEntityManager(), getEntity());
     }
 
     @Override
     public PropertyTagInContentSpecWrapper getProperty(int propertyId) {
-        return getWrapperFactory().create(getContentSpec().getProperty(propertyId), isRevisionEntity());
+        return getWrapperFactory().create(getEntity().getProperty(propertyId), isRevisionEntity());
     }
 
     @Override
     public CSNodeWrapper getMetaData(String metaDataTitle) {
-        return getWrapperFactory().create(getContentSpec().getMetaData(metaDataTitle), isRevisionEntity());
-    }
-
-    @Override
-    public Integer getId() {
-        return getContentSpec().getId();
+        return getWrapperFactory().create(getEntity().getMetaData(metaDataTitle), isRevisionEntity());
     }
 
     @Override
     public void setId(Integer id) {
-        getContentSpec().setContentSpecId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getContentSpec().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<ContentSpecWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getContentSpec()),
-                ContentSpec.class, true);
+        getEntity().setContentSpecId(id);
     }
 
     @Override

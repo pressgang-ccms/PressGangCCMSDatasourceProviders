@@ -1,22 +1,30 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.jboss.pressgang.ccms.model.base.AuditedEntity;
+import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public abstract class DBBaseWrapper<T extends EntityWrapper<T>> implements EntityWrapper<T> {
+public abstract class DBBaseWrapper<T extends EntityWrapper<T>, U extends AuditedEntity> implements EntityWrapper<T> {
 
     private final DBProviderFactory providerFactory;
     private final DBWrapperFactory wrapperFactory;
     private final boolean isRevision;
-    private final List<String> tempVariables = new ArrayList<String>();
+    private final Class<U> clazz;
+    private final Class<T> wrapperClazz;
 
-    public DBBaseWrapper(final DBProviderFactory providerFactory, boolean isRevision) {
+    public DBBaseWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<U> clazz) {
+        this(providerFactory, isRevision, null, clazz);
+    }
+
+    public DBBaseWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<T> wrapperClazz, Class<U> clazz) {
         this.providerFactory = providerFactory;
         this.isRevision = isRevision;
+        this.clazz = clazz;
+        this.wrapperClazz = wrapperClazz;
         wrapperFactory = providerFactory.getWrapperFactory();
     }
 
@@ -42,7 +50,27 @@ public abstract class DBBaseWrapper<T extends EntityWrapper<T>> implements Entit
         return isRevision;
     }
 
-    public List<String> getTempVariables() {
-        return tempVariables;
+    protected abstract U getEntity();
+
+    @Override
+    public Integer getId() {
+        return getEntity().getId();
+    }
+
+    @Override
+    public Integer getRevision() {
+        return getEntity().getRevision() == null ? EnversUtilities.getLatestRevision(getDatabaseProvider().getEntityManager(),
+                getEntity()).intValue() : getEntity().getRevision().intValue();
+    }
+
+    @Override
+    public CollectionWrapper<T> getRevisions() {
+        if (wrapperClazz != null) {
+            return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
+                    clazz, true, wrapperClazz);
+        } else {
+            return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
+                    clazz, true);
+        }
     }
 }

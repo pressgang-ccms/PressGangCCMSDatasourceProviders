@@ -6,37 +6,28 @@ import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBImageWrapper extends DBBaseWrapper<ImageWrapper> implements ImageWrapper {
+public class DBImageWrapper extends DBBaseWrapper<ImageWrapper, ImageFile> implements ImageWrapper {
 
     private final ImageFile image;
 
     public DBImageWrapper(final DBProviderFactory providerFactory, final ImageFile image, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, ImageFile.class);
         this.image = image;
     }
 
-    protected ImageFile getImage() {
+    @Override
+    protected ImageFile getEntity() {
         return image;
     }
 
     @Override
-    public Integer getId() {
-        return getImage().getId();
-    }
-
-    @Override
     public void setId(Integer id) {
-        getImage().setImageFileId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getImage().getRevision();
+        getEntity().setImageFileId(id);
     }
 
     @Override
     public CollectionWrapper<ImageWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getImage()), ImageFile.class,
+        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()), ImageFile.class,
                 true);
     }
 
@@ -47,17 +38,17 @@ public class DBImageWrapper extends DBBaseWrapper<ImageWrapper> implements Image
 
     @Override
     public boolean isRevisionEntity() {
-        return getImage().getRevision() != null;
+        return getEntity().getRevision() != null;
     }
 
     @Override
     public String getDescription() {
-        return getImage().getDescription();
+        return getEntity().getDescription();
     }
 
     @Override
     public CollectionWrapper<LanguageImageWrapper> getLanguageImages() {
-        return getWrapperFactory().createCollection(getImage().getLanguageImages(), LanguageImage.class, isRevisionEntity());
+        return getWrapperFactory().createCollection(getEntity().getLanguageImages(), LanguageImage.class, isRevisionEntity());
     }
 
 }

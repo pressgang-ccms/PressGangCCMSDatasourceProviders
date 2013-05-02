@@ -16,43 +16,28 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
-public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements TopicWrapper {
+public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implements TopicWrapper {
 
     private final Topic topic;
 
     public DBTopicWrapper(final DBProviderFactory providerFactory, final Topic topic, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, Topic.class);
         this.topic = topic;
     }
 
-    protected Topic getTopic() {
+    @Override
+    protected Topic getEntity() {
         return topic;
     }
 
     @Override
-    public Integer getId() {
-        return getTopic().getId();
-    }
-
-    @Override
     public void setId(Integer id) {
-        getTopic().setTopicId(id);
+        getEntity().setTopicId(id);
     }
 
     @Override
     public Topic unwrap() {
         return topic;
-    }
-
-    @Override
-    public Integer getRevision() {
-        return getTopic().getRevision() == null ? EnversUtilities.getLatestRevision(getDatabaseProvider().getEntityManager(),
-                getTopic()).intValue() : getTopic().getRevision().intValue();
-    }
-
-    @Override
-    public CollectionWrapper<TopicWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getTopic()), Topic.class, true);
     }
 
     @Override
@@ -67,52 +52,52 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
 
     @Override
     public String getTitle() {
-        return getTopic().getTopicTitle();
+        return getEntity().getTopicTitle();
     }
 
     @Override
     public void setTitle(String title) {
-        getTopic().setTopicTitle(title);
+        getEntity().setTopicTitle(title);
     }
 
     @Override
     public String getXml() {
-        return getTopic().getTopicXML();
+        return getEntity().getTopicXML();
     }
 
     @Override
     public void setXml(String xml) {
-        getTopic().setTopicXML(xml);
+        getEntity().setTopicXML(xml);
     }
 
     @Override
     public String getLocale() {
-        return getTopic().getTopicLocale();
+        return getEntity().getTopicLocale();
     }
 
     @Override
     public void setLocale(String locale) {
-        getTopic().setTopicLocale(locale);
+        getEntity().setTopicLocale(locale);
     }
 
     @Override
     public String getHtml() {
-        return getTopic().getTopicRendered();
+        return getEntity().getTopicRendered();
     }
 
     @Override
     public void setHtml(String html) {
-        getTopic().setTopicRendered(html);
+        getEntity().setTopicRendered(html);
     }
 
     @Override
     public boolean hasTag(int tagId) {
-        return getTopic().isTaggedWith(tagId);
+        return getEntity().isTaggedWith(tagId);
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getTags() {
-        return getWrapperFactory().createCollection(getTopic().getTags(), Tag.class, isRevisionEntity());
+        return getWrapperFactory().createCollection(getEntity().getTags(), Tag.class, isRevisionEntity());
     }
 
     @Override
@@ -129,18 +114,18 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
 
         // Remove Tags
         for (final TagWrapper removeTag : removeTags) {
-            getTopic().removeTag((Tag) removeTag.unwrap());
+            getEntity().removeTag((Tag) removeTag.unwrap());
         }
 
         // Add Tags
         for (final TagWrapper addTag : addTags) {
-            getTopic().addTag((Tag) addTag.unwrap());
+            getEntity().addTag((Tag) addTag.unwrap());
         }
     }
 
     @Override
     public CollectionWrapper<TopicWrapper> getOutgoingRelationships() {
-        return getWrapperFactory().createCollection(getTopic().getOutgoingRelatedTopicsArray(), Topic.class, isRevisionEntity());
+        return getWrapperFactory().createCollection(getEntity().getOutgoingRelatedTopicsArray(), Topic.class, isRevisionEntity());
     }
 
     @Override
@@ -157,18 +142,18 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
 
         // Add Topics
         for (final TopicWrapper addTopic : addTopics) {
-            getTopic().addRelationshipTo(getEntityManager(), (Topic) addTopic.unwrap(), 1);
+            getEntity().addRelationshipTo(getEntityManager(), (Topic) addTopic.unwrap(), 1);
         }
 
         // Remove Topics
         for (final TopicWrapper removeTopic : removeTopics) {
-            getTopic().removeRelationshipTo(((Topic) removeTopic.unwrap()).getTopicId(), 1);
+            getEntity().removeRelationshipTo(((Topic) removeTopic.unwrap()).getTopicId(), 1);
         }
     }
 
     @Override
     public CollectionWrapper<TopicWrapper> getIncomingRelationships() {
-        return getWrapperFactory().createCollection(getTopic().getIncomingRelatedTopicsArray(), Topic.class, isRevisionEntity());
+        return getWrapperFactory().createCollection(getEntity().getIncomingRelatedTopicsArray(), Topic.class, isRevisionEntity());
     }
 
     @Override
@@ -185,24 +170,24 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
 
         // Add Topics
         for (final TopicWrapper addTopic : addTopics) {
-            getTopic().addRelationshipFrom(getEntityManager(), (Topic) addTopic.unwrap(), 1);
+            getEntity().addRelationshipFrom(getEntityManager(), (Topic) addTopic.unwrap(), 1);
         }
 
         // Remove Topics
         for (final TopicWrapper removeTopic : removeTopics) {
-            getTopic().removeRelationshipFrom(removeTopic.getTopicId(), 1);
+            getEntity().removeRelationshipFrom(removeTopic.getTopicId(), 1);
         }
     }
 
     @Override
     public List<TagWrapper> getTagsInCategories(List<Integer> categoryIds) {
-        return getWrapperFactory().createList(getTopic().getTagsInCategoriesByID(categoryIds), isRevisionEntity());
+        return getWrapperFactory().createList(getEntity().getTagsInCategoriesByID(categoryIds), isRevisionEntity());
     }
 
     @Override
     public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> getProperties() {
         final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
-                getTopic().getTopicToPropertyTags(), TopicToPropertyTag.class, isRevisionEntity());
+                getEntity().getTopicToPropertyTags(), TopicToPropertyTag.class, isRevisionEntity());
         return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
     }
 
@@ -220,23 +205,23 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
 
         // Add Properties
         for (final PropertyTagInTopicWrapper addProperty : addProperties) {
-            getTopic().addPropertyTag((TopicToPropertyTag) addProperty.unwrap());
+            getEntity().addPropertyTag((TopicToPropertyTag) addProperty.unwrap());
         }
 
         // Remove Properties
         for (final PropertyTagInTopicWrapper removeProperty : removeProperties) {
-            getTopic().removePropertyTag((TopicToPropertyTag) removeProperty.unwrap());
+            getEntity().removePropertyTag((TopicToPropertyTag) removeProperty.unwrap());
         }
     }
 
     @Override
     public PropertyTagInTopicWrapper getProperty(int propertyId) {
-        return getWrapperFactory().create(getTopic().getProperty(propertyId), isRevisionEntity());
+        return getWrapperFactory().create(getEntity().getProperty(propertyId), isRevisionEntity());
     }
 
     @Override
     public CollectionWrapper<TopicSourceURLWrapper> getSourceURLs() {
-        return getWrapperFactory().createCollection(getTopic().getTopicSourceUrls(), TopicSourceUrl.class, isRevisionEntity());
+        return getWrapperFactory().createCollection(getEntity().getTopicSourceUrls(), TopicSourceUrl.class, isRevisionEntity());
     }
 
     @Override
@@ -253,12 +238,12 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
 
         // Add Source URLs
         for (final TopicSourceURLWrapper addProperty : addSourceUrls) {
-            getTopic().addTopicSourceUrl((TopicSourceUrl) addProperty.unwrap());
+            getEntity().addTopicSourceUrl((TopicSourceUrl) addProperty.unwrap());
         }
 
         // Remove Source URLs
         for (final TopicSourceURLWrapper removeSourceUrl : removeSourceUrls) {
-            getTopic().removeTopicSourceUrl(((TopicSourceUrl) removeSourceUrl.unwrap()).getId());
+            getEntity().removeTopicSourceUrl(((TopicSourceUrl) removeSourceUrl.unwrap()).getId());
         }
     }
 
@@ -266,7 +251,7 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
     public String getBugzillaBuildId() {
         final SimpleDateFormat formatter = new SimpleDateFormat(CommonConstants.FILTER_DISPLAY_DATE_FORMAT);
         return getId() + "-" + getRevision() + " " + formatter.format(
-                EnversUtilities.getFixedLastModifiedDate(getEntityManager(), getTopic())) + " " + getLocale();
+                EnversUtilities.getFixedLastModifiedDate(getEntityManager(), getEntity())) + " " + getLocale();
     }
 
     @Override
@@ -312,47 +297,47 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper> implements Topic
 
     @Override
     public String getDescription() {
-        return getTopic().getTopicText();
+        return getEntity().getTopicText();
     }
 
     @Override
     public void setDescription(String description) {
-        getTopic().setTopicText(description);
+        getEntity().setTopicText(description);
     }
 
     @Override
     public Date getCreated() {
-        return getTopic().getTopicTimeStamp();
+        return getEntity().getTopicTimeStamp();
     }
 
     @Override
     public void setCreated(Date created) {
-        getTopic().setTopicTimeStamp(created);
+        getEntity().setTopicTimeStamp(created);
     }
 
     @Override
     public Date getLastModified() {
-        return EnversUtilities.getFixedLastModifiedDate(getEntityManager(), getTopic());
+        return EnversUtilities.getFixedLastModifiedDate(getEntityManager(), getEntity());
     }
 
     @Override
     public void setLastModified(Date lastModified) {
-        getTopic().setLastModifiedDate(lastModified);
+        getEntity().setLastModifiedDate(lastModified);
     }
 
     @Override
     public Integer getXmlDoctype() {
-        return getTopic().getXmlDoctype();
+        return getEntity().getXmlDoctype();
     }
 
     @Override
     public void setXmlDoctype(Integer doctypeId) {
-        getTopic().setXmlDoctype(doctypeId);
+        getEntity().setXmlDoctype(doctypeId);
     }
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopics() {
-        return getWrapperFactory().createCollection(getTopic().getTranslatedTopics(getEntityManager(), getRevision()),
+        return getWrapperFactory().createCollection(getEntity().getTranslatedTopics(getEntityManager(), getRevision()),
                 TranslatedTopic.class, isRevisionEntity());
     }
 }

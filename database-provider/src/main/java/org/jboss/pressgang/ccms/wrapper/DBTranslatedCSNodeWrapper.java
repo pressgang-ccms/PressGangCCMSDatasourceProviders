@@ -6,46 +6,30 @@ import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWrapper> implements TranslatedCSNodeWrapper {
+public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWrapper, TranslatedCSNode> implements TranslatedCSNodeWrapper {
     private final TranslatedCSNode csNode;
 
     public DBTranslatedCSNodeWrapper(final DBProviderFactory providerFactory, final TranslatedCSNode csNode, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, TranslatedCSNode.class);
         this.csNode = csNode;
     }
 
-    protected TranslatedCSNode getCSTranslatedNode() {
+    @Override
+    protected TranslatedCSNode getEntity() {
         return csNode;
     }
 
     protected CSNode getEnversCSNode() {
-        return getCSTranslatedNode().getEnversCSNode(getEntityManager());
-    }
-
-    @Override
-    public Integer getId() {
-        return getCSTranslatedNode().getId();
+        return getEntity().getEnversCSNode(getEntityManager());
     }
 
     @Override
     public void setId(Integer id) {
-        getCSTranslatedNode().setTranslatedCSNodeId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getCSTranslatedNode().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<TranslatedCSNodeWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getCSTranslatedNode()),
-                TranslatedCSNode.class, true);
+        getEntity().setTranslatedCSNodeId(id);
     }
 
     @Override
@@ -55,43 +39,43 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
 
     @Override
     public Integer getNodeId() {
-        return getCSTranslatedNode().getCSNodeId();
+        return getEntity().getCSNodeId();
     }
 
     @Override
     public void setNodeId(Integer id) {
-        getCSTranslatedNode().setCSNodeId(id);
+        getEntity().setCSNodeId(id);
     }
 
     @Override
     public Integer getNodeRevision() {
-        return getCSTranslatedNode().getCSNodeRevision();
+        return getEntity().getCSNodeRevision();
     }
 
     @Override
     public void setNodeRevision(Integer revision) {
-        getCSTranslatedNode().setCSNodeRevision(revision);
+        getEntity().setCSNodeRevision(revision);
     }
 
     @Override
     public String getOriginalString() {
-        return getCSTranslatedNode().getOriginalString();
+        return getEntity().getOriginalString();
     }
 
     @Override
     public void setOriginalString(String originalString) {
-        getCSTranslatedNode().setOriginalString(originalString);
+        getEntity().setOriginalString(originalString);
     }
 
     @Override
     public String getZanataId() {
-        return "CS" + getCSTranslatedNode().getCSNodeId() + "-" + getCSTranslatedNode().getCSNodeRevision();
+        return "CS" + getEntity().getCSNodeId() + "-" + getEntity().getCSNodeRevision();
     }
 
     @Override
     public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedStrings() {
         final CollectionWrapper<TranslatedCSNodeStringWrapper> collection = getWrapperFactory().createCollection(
-                getCSTranslatedNode().getTranslatedCSNodeStrings(), TranslatedCSNodeString.class, isRevisionEntity(),
+                getEntity().getTranslatedCSNodeStrings(), TranslatedCSNodeString.class, isRevisionEntity(),
                 TranslatedCSNodeStringWrapper.class);
         return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) collection;
     }
@@ -110,12 +94,12 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
 
         // Add Translated Strings
         for (final TranslatedCSNodeStringWrapper addTranslatedString : addTranslatedStrings) {
-            getCSTranslatedNode().addTranslatedString((TranslatedCSNodeString) addTranslatedString.unwrap());
+            getEntity().addTranslatedString((TranslatedCSNodeString) addTranslatedString.unwrap());
         }
 
         // Remove Translated Strings
         for (final TranslatedCSNodeStringWrapper removeTranslatedString : removeTranslatedStrings) {
-            getCSTranslatedNode().removeTranslatedString((TranslatedCSNodeString) removeTranslatedString.unwrap());
+            getEntity().removeTranslatedString((TranslatedCSNodeString) removeTranslatedString.unwrap());
         }
     }
 
@@ -126,23 +110,21 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
 
     @Override
     public void setCSNode(CSNodeWrapper node) {
-        getCSTranslatedNode().setEnversCSNode(node == null ? null : (CSNode) node.unwrap());
+        getEntity().setEnversCSNode(node == null ? null : (CSNode) node.unwrap());
     }
 
     @Override
     public TranslatedContentSpecWrapper getTranslatedContentSpec() {
-        return getWrapperFactory().create(getCSTranslatedNode().getTranslatedContentSpec(), isRevisionEntity(),
-                TranslatedContentSpecWrapper.class);
+        return getWrapperFactory().create(getEntity().getTranslatedContentSpec(), isRevisionEntity(), TranslatedContentSpecWrapper.class);
     }
 
     @Override
     public TranslatedTopicWrapper getTranslatedTopic() {
-        return getWrapperFactory().create(getCSTranslatedNode().getTranslatedTopicData(), isRevisionEntity(),
-                TranslatedTopicWrapper.class);
+        return getWrapperFactory().create(getEntity().getTranslatedTopicData(), isRevisionEntity(), TranslatedTopicWrapper.class);
     }
 
     @Override
     public void setTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
-        getCSTranslatedNode().setTranslatedTopicData(translatedTopic == null ? null : (TranslatedTopicData) translatedTopic.unwrap());
+        getEntity().setTranslatedTopicData(translatedTopic == null ? null : (TranslatedTopicData) translatedTopic.unwrap());
     }
 }

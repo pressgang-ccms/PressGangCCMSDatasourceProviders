@@ -1,15 +1,15 @@
 package org.jboss.pressgang.ccms.wrapper.base;
 
 import org.jboss.pressgang.ccms.model.PropertyTag;
+import org.jboss.pressgang.ccms.model.base.AuditedEntity;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.DBBaseWrapper;
 
-public abstract class DBBasePropertyTagWrapper<T extends BasePropertyTagWrapper<T>> extends DBBaseWrapper<T> implements
+public abstract class DBBasePropertyTagWrapper<T extends BasePropertyTagWrapper<T>, U extends AuditedEntity> extends DBBaseWrapper<T, U> implements
         BasePropertyTagWrapper<T> {
 
-
-    protected DBBasePropertyTagWrapper(final DBProviderFactory providerFactory, boolean isRevision) {
-        super(providerFactory, isRevision);
+    protected DBBasePropertyTagWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<U> clazz) {
+        super(providerFactory, isRevision, clazz);
     }
 
     protected abstract PropertyTag getPropertyTag();
@@ -22,11 +22,6 @@ public abstract class DBBasePropertyTagWrapper<T extends BasePropertyTagWrapper<
     @Override
     public void setId(Integer id) {
         getPropertyTag().setPropertyTagId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getPropertyTag().getRevision();
     }
 
     @Override

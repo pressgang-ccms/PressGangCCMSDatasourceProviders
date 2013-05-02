@@ -1,42 +1,25 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.StringConstants;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBStringConstantWrapper extends DBBaseWrapper<StringConstantWrapper> implements StringConstantWrapper {
+public class DBStringConstantWrapper extends DBBaseWrapper<StringConstantWrapper, StringConstants> implements StringConstantWrapper {
 
     private final StringConstants stringConstant;
 
     public DBStringConstantWrapper(final DBProviderFactory providerFactory, final StringConstants stringConstant, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, StringConstants.class);
         this.stringConstant = stringConstant;
     }
 
-    protected StringConstants getStringConstant() {
+    @Override
+    protected StringConstants getEntity() {
         return stringConstant;
     }
 
     @Override
-    public Integer getId() {
-        return getStringConstant().getId();
-    }
-
-    @Override
     public void setId(Integer id) {
-        getStringConstant().setStringConstantsId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getStringConstant().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<StringConstantWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getStringConstant()),
-                StringConstants.class, true);
+        getEntity().setStringConstantsId(id);
     }
 
     @Override
@@ -46,28 +29,28 @@ public class DBStringConstantWrapper extends DBBaseWrapper<StringConstantWrapper
 
     @Override
     public boolean isRevisionEntity() {
-        return getStringConstant().getRevision() != null;
+        return getEntity().getRevision() != null;
     }
 
     @Override
     public String getName() {
-        return getStringConstant().getConstantName();
+        return getEntity().getConstantName();
     }
 
     @Override
     public void setName(String name) {
-        getStringConstant().setConstantName(name);
+        getEntity().setConstantName(name);
 
     }
 
     @Override
     public String getValue() {
-        return getStringConstant().getConstantValue();
+        return getEntity().getConstantValue();
     }
 
     @Override
     public void setValue(String value) {
-        getStringConstant().setConstantValue(value);
+        getEntity().setConstantValue(value);
     }
 
 }

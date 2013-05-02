@@ -1,42 +1,25 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.BlobConstants;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBBlobConstantWrapper extends DBBaseWrapper<BlobConstantWrapper> implements BlobConstantWrapper {
+public class DBBlobConstantWrapper extends DBBaseWrapper<BlobConstantWrapper, BlobConstants> implements BlobConstantWrapper {
 
     private final BlobConstants blobConstant;
 
     public DBBlobConstantWrapper(final DBProviderFactory providerFactory, final BlobConstants blobConstant, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, BlobConstants.class);
         this.blobConstant = blobConstant;
     }
 
-    protected BlobConstants getBlobConstant() {
+    @Override
+    protected BlobConstants getEntity() {
         return blobConstant;
     }
 
     @Override
-    public Integer getId() {
-        return getBlobConstant().getBlobConstantsId();
-    }
-
-    @Override
     public void setId(Integer id) {
-        getBlobConstant().setBlobConstantsId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getBlobConstant().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<BlobConstantWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getBlobConstant()),
-                BlobConstants.class, true);
+        getEntity().setBlobConstantsId(id);
     }
 
     @Override
@@ -46,26 +29,26 @@ public class DBBlobConstantWrapper extends DBBaseWrapper<BlobConstantWrapper> im
 
     @Override
     public boolean isRevisionEntity() {
-        return getBlobConstant().getRevision() != null;
+        return getEntity().getRevision() != null;
     }
 
     @Override
     public String getName() {
-        return getBlobConstant().getConstantName();
+        return getEntity().getConstantName();
     }
 
     @Override
     public void setName(String name) {
-        getBlobConstant().setConstantName(name);
+        getEntity().setConstantName(name);
     }
 
     @Override
     public byte[] getValue() {
-        return getBlobConstant().getConstantValue();
+        return getEntity().getConstantValue();
     }
 
     @Override
     public void setValue(byte[] value) {
-        getBlobConstant().setConstantValue(value);
+        getEntity().setConstantValue(value);
     }
 }

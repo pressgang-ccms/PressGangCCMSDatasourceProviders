@@ -6,19 +6,19 @@ import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.DBBaseToPropertyTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class DBContentSpecToPropertyTagWrapper extends DBBaseToPropertyTagWrapper<PropertyTagInContentSpecWrapper> implements
+public class DBContentSpecToPropertyTagWrapper extends DBBaseToPropertyTagWrapper<PropertyTagInContentSpecWrapper, ContentSpecToPropertyTag> implements
         PropertyTagInContentSpecWrapper {
 
     private final ContentSpecToPropertyTag propertyTag;
 
     public DBContentSpecToPropertyTagWrapper(final DBProviderFactory providerFactory, final ContentSpecToPropertyTag propertyTag,
             boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, ContentSpecToPropertyTag.class);
         this.propertyTag = propertyTag;
     }
 
     @Override
-    protected ContentSpecToPropertyTag getToPropertyTag() {
+    protected ContentSpecToPropertyTag getEntity() {
         return propertyTag;
     }
 
@@ -29,27 +29,27 @@ public class DBContentSpecToPropertyTagWrapper extends DBBaseToPropertyTagWrappe
 
     @Override
     public String getValue() {
-        return getToPropertyTag().getValue();
+        return getEntity().getValue();
     }
 
     @Override
     public Integer getRelationshipId() {
-        return getToPropertyTag().getId();
+        return getEntity().getId();
     }
 
     @Override
     public void setValue(String value) {
-        getToPropertyTag().setValue(value);
+        getEntity().setValue(value);
     }
 
     @Override
     public Boolean isValid() {
-        return getToPropertyTag().isValid(getEntityManager(), getToPropertyTag().getRevision());
+        return getEntity().isValid(getEntityManager(), getEntity().getRevision());
     }
 
     @Override
     public CollectionWrapper<PropertyTagInContentSpecWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getToPropertyTag()),
+        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
                 ContentSpecToPropertyTag.class, true);
     }
 }

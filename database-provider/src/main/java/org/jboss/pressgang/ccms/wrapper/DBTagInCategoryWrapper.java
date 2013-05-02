@@ -4,26 +4,26 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.TagToCategory;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class DBTagInCategoryWrapper extends DBBaseWrapper<TagInCategoryWrapper> implements TagInCategoryWrapper {
+public class DBTagInCategoryWrapper extends DBBaseWrapper<TagInCategoryWrapper, TagToCategory> implements TagInCategoryWrapper {
 
     private final TagToCategory tagToCategory;
 
     public DBTagInCategoryWrapper(final DBProviderFactory providerFactory, final TagToCategory tagToCategory, boolean isRevision) {
-        super(providerFactory, isRevision);
+        super(providerFactory, isRevision, TagInCategoryWrapper.class, TagToCategory.class);
         this.tagToCategory = tagToCategory;
     }
 
-    protected TagToCategory getTagToCategory() {
+    @Override
+    protected TagToCategory getEntity() {
         return tagToCategory;
     }
 
     protected Tag getTag() {
-        return getTagToCategory().getTag();
+        return getEntity().getTag();
     }
 
     @Override
@@ -34,17 +34,6 @@ public class DBTagInCategoryWrapper extends DBBaseWrapper<TagInCategoryWrapper> 
     @Override
     public void setId(Integer id) {
         getTag().setTagId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return (Integer) getTag().getRevision();
-    }
-
-    @Override
-    public CollectionWrapper<TagInCategoryWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getTagToCategory()),
-                TagToCategory.class, true);
     }
 
     @Override
@@ -81,12 +70,12 @@ public class DBTagInCategoryWrapper extends DBBaseWrapper<TagInCategoryWrapper> 
 
     @Override
     public Integer getInCategorySort() {
-        return getTagToCategory().getSorting();
+        return getEntity().getSorting();
     }
 
     @Override
     public Integer getRelationshipId() {
-        return getTagToCategory().getId();
+        return getEntity().getId();
     }
 
     @Override
