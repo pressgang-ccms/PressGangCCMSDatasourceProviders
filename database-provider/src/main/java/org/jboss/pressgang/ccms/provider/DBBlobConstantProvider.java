@@ -4,13 +4,14 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.model.BlobConstants;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.BlobConstantWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class DBBlobConstantProvider extends DBDataProvider implements BlobConstantProvider {
-    protected DBBlobConstantProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBBlobConstantProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, final List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override

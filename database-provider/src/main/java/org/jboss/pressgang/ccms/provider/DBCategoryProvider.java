@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.Category;
 import org.jboss.pressgang.ccms.model.TagToCategory;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
@@ -13,8 +14,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBCategoryProvider extends DBDataProvider implements CategoryProvider {
-    protected DBCategoryProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBCategoryProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override

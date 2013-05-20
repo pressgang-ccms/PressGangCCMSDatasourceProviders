@@ -22,9 +22,11 @@ import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
@@ -34,8 +36,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBTopicProvider extends DBDataProvider implements TopicProvider {
-    protected DBTopicProvider(final EntityManager entityManager, final DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBTopicProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override
@@ -161,6 +163,16 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
 
     @Override
     public TopicWrapper createTopic(TopicWrapper topic) {
+        return createTopic(topic, null);
+    }
+
+    @Override
+    public TopicWrapper createTopic(TopicWrapper topic, LogMessageWrapper logMessage) {
+        // Send notification events
+        notifyCreateEntity(topic);
+        notifyLogMessage(logMessage);
+
+        // Persist the new entity
         getEntityManager().persist(topic.unwrap());
 
         // Flush the changes to the database
@@ -171,6 +183,16 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
 
     @Override
     public TopicWrapper updateTopic(TopicWrapper topic) {
+        return updateTopic(topic, null);
+    }
+
+    @Override
+    public TopicWrapper updateTopic(TopicWrapper topic, LogMessageWrapper logMessage) {
+        // Send notification events
+        notifyUpdateEntity(topic);
+        notifyLogMessage(logMessage);
+
+        // Persist the changes
         getEntityManager().persist(topic.unwrap());
 
         // Flush the changes to the database
@@ -181,6 +203,15 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
 
     @Override
     public boolean deleteTopic(Integer id) {
+        return deleteTopic(id, null);
+    }
+
+    @Override
+    public boolean deleteTopic(Integer id, LogMessageWrapper logMessage) {
+        // Send notification events
+        notifyDeleteEntity(Topic.class, id);
+        notifyLogMessage(logMessage);
+
         final Topic topic = getEntityManager().find(Topic.class, id);
         getEntityManager().remove(topic);
 
@@ -192,6 +223,16 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
 
     @Override
     public CollectionWrapper<TopicWrapper> createTopics(CollectionWrapper<TopicWrapper> topics) {
+        return createTopics(topics, null);
+    }
+
+    @Override
+    public CollectionWrapper<TopicWrapper> createTopics(CollectionWrapper<TopicWrapper> topics, LogMessageWrapper logMessage) {
+        // Send notification events
+        notifyCreateEntityCollection(topics);
+        notifyLogMessage(logMessage);
+
+        // Persist the new entities
         for (final TopicWrapper topic : topics.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }
@@ -204,6 +245,16 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
 
     @Override
     public CollectionWrapper<TopicWrapper> updateTopics(CollectionWrapper<TopicWrapper> topics) {
+        return updateTopics(topics, null);
+    }
+
+    @Override
+    public CollectionWrapper<TopicWrapper> updateTopics(CollectionWrapper<TopicWrapper> topics, LogMessageWrapper logMessage) {
+        // Send notification events
+        notifyUpdateEntityCollection(topics);
+        notifyLogMessage(logMessage);
+
+        // Persist the changes for each entity
         for (final TopicWrapper topic : topics.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }
@@ -216,6 +267,16 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
 
     @Override
     public boolean deleteTopics(List<Integer> topicIds) {
+        return deleteTopics(topicIds, null);
+    }
+
+    @Override
+    public boolean deleteTopics(List<Integer> topicIds, LogMessageWrapper logMessage) {
+        // Send notification events
+        notifyDeleteEntityCollection(Topic.class, topicIds);
+        notifyLogMessage(logMessage);
+
+        // Delete the topics
         for (final Integer id : topicIds) {
             final Topic topic = getEntityManager().find(Topic.class, id);
             getEntityManager().remove(topic);

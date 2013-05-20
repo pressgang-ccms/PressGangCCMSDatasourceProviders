@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.provider;
 
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
+import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedContentSpecWrapper;
@@ -31,9 +32,15 @@ public interface ContentSpecProvider {
 
     ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpec);
 
+    ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpec, LogMessageWrapper logMessage);
+
     ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpec);
 
+    ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpec, LogMessageWrapper logMessage);
+
     boolean deleteContentSpec(Integer id);
+
+    boolean deleteContentSpec(Integer id, LogMessageWrapper logMessage);
 
     ContentSpecWrapper newContentSpec();
 

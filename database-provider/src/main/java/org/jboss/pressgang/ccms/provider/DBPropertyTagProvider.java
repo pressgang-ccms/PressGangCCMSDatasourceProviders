@@ -9,6 +9,7 @@ import org.jboss.pressgang.ccms.model.PropertyTagToPropertyTagCategory;
 import org.jboss.pressgang.ccms.model.TagToPropertyTag;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
@@ -22,8 +23,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBPropertyTagProvider extends DBDataProvider implements PropertyTagProvider {
-    protected DBPropertyTagProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBPropertyTagProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override

@@ -16,13 +16,14 @@ import org.jboss.pressgang.ccms.provider.exception.BadRequestException;
 import org.jboss.pressgang.ccms.provider.exception.InternalServerErrorException;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.provider.exception.ProviderException;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 
 public class DBDataProvider extends DataProvider {
     private final EntityManager entityManager;
 
-    protected DBDataProvider(final EntityManager entityManager, final DBWrapperFactory wrapperFactory) {
-        super(wrapperFactory);
+    protected DBDataProvider(final EntityManager entityManager, final DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(wrapperFactory, listeners);
         this.entityManager = entityManager;
     }
 

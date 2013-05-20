@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.provider;
 
 import java.util.List;
 
+import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
@@ -35,15 +36,27 @@ public interface TopicProvider {
 
     TopicWrapper createTopic(TopicWrapper topic);
 
+    TopicWrapper createTopic(TopicWrapper topic, LogMessageWrapper logMessage);
+
     TopicWrapper updateTopic(TopicWrapper topic);
+
+    TopicWrapper updateTopic(TopicWrapper topic, LogMessageWrapper logMessage);
 
     boolean deleteTopic(Integer id);
 
-    CollectionWrapper<TopicWrapper> createTopics(final CollectionWrapper<TopicWrapper> topics);
+    boolean deleteTopic(Integer id, LogMessageWrapper logMessage);
 
-    CollectionWrapper<TopicWrapper> updateTopics(final CollectionWrapper<TopicWrapper> topics);
+    CollectionWrapper<TopicWrapper> createTopics(CollectionWrapper<TopicWrapper> topics);
+
+    CollectionWrapper<TopicWrapper> createTopics(CollectionWrapper<TopicWrapper> topics, LogMessageWrapper logMessage);
+
+    CollectionWrapper<TopicWrapper> updateTopics(CollectionWrapper<TopicWrapper> topics);
+
+    CollectionWrapper<TopicWrapper> updateTopics(CollectionWrapper<TopicWrapper> topics, LogMessageWrapper logMessage);
 
     boolean deleteTopics(final List<Integer> topicIds);
+
+    boolean deleteTopics(final List<Integer> topicIds, LogMessageWrapper logMessage);
 
     TopicWrapper newTopic();
 

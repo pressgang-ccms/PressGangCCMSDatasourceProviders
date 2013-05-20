@@ -20,11 +20,13 @@ import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedContentSpec;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedContentSpecWrapper;
@@ -34,8 +36,9 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 public class DBContentSpecProvider extends DBDataProvider implements ContentSpecProvider {
     private final DBProviderFactory providerFactory;
 
-    protected DBContentSpecProvider(DBProviderFactory providerFactory, EntityManager entityManager, DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBContentSpecProvider(DBProviderFactory providerFactory, EntityManager entityManager, DBWrapperFactory wrapperFactory,
+            List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
         this.providerFactory = providerFactory;
     }
 
@@ -135,6 +138,16 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
 
     @Override
     public ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpec) {
+        return createContentSpec(contentSpec, null);
+    }
+
+    @Override
+    public ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpec, LogMessageWrapper logMessage) {
+        // Send the notification events
+        notifyCreateEntity(contentSpec);
+        notifyLogMessage(logMessage);
+
+        // Persist the new entity
         getEntityManager().persist(contentSpec.unwrap());
 
         // Flush the changes to the database
@@ -145,6 +158,16 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
 
     @Override
     public ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpec) {
+        return updateContentSpec(contentSpec, null);
+    }
+
+    @Override
+    public ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpec, LogMessageWrapper logMessage) {
+        // Send the notification events
+        notifyUpdateEntity(contentSpec);
+        notifyLogMessage(logMessage);
+
+        // Persist the changes
         getEntityManager().persist(contentSpec.unwrap());
 
         // Flush the changes to the database
@@ -155,6 +178,16 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
 
     @Override
     public boolean deleteContentSpec(Integer id) {
+        return deleteContentSpec(id, null);
+    }
+
+    @Override
+    public boolean deleteContentSpec(Integer id, LogMessageWrapper logMessage) {
+        // Send the notification events
+        notifyDeleteEntity(ContentSpec.class, id);
+        notifyLogMessage(logMessage);
+
+        // Remove the entity
         final ContentSpec contentSpec = getEntityManager().find(ContentSpec.class, id);
         getEntityManager().remove(contentSpec);
 

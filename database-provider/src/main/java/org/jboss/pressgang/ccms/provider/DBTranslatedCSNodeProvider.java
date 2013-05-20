@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.DBTranslatedCSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
@@ -14,8 +15,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBTranslatedCSNodeProvider extends DBDataProvider implements TranslatedCSNodeProvider {
-    protected DBTranslatedCSNodeProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBTranslatedCSNodeProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override
@@ -53,6 +54,10 @@ public class DBTranslatedCSNodeProvider extends DBDataProvider implements Transl
     @Override
     public CollectionWrapper<TranslatedCSNodeWrapper> createTranslatedCSNodes(
             CollectionWrapper<TranslatedCSNodeWrapper> nodes) {
+        // Send the notification events
+        notifyCreateEntityCollection(nodes);
+
+        // Persist the new entities
         for (final TranslatedCSNodeWrapper topic : nodes.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }

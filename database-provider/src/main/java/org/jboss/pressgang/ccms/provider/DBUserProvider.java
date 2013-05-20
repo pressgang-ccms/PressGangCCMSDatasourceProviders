@@ -7,13 +7,14 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.model.User;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.UserWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class DBUserProvider extends DBDataProvider implements UserProvider {
-    protected DBUserProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBUserProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class DBUserProvider extends DBDataProvider implements UserProvider {
 
         return getWrapperFactory().createCollection(executeQuery(user), User.class, false);
     }
-    
+
     @Override
     public UserWrapper getUserByName(final String name) {
         final CollectionWrapper<UserWrapper> users = getUsersByName(name);

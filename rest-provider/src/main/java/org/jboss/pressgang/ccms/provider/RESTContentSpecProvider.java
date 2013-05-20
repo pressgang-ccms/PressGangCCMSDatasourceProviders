@@ -17,6 +17,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedConte
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
+import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTContentSpecV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
@@ -314,16 +315,27 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
     @Override
     public ContentSpecWrapper createContentSpec(final ContentSpecWrapper contentSpecEntity) {
+        return createContentSpec(contentSpecEntity, null);
+    }
+
+    @Override
+    public ContentSpecWrapper createContentSpec(ContentSpecWrapper contentSpecEntity, LogMessageWrapper logMessage) {
         try {
             final RESTContentSpecV1 contentSpec = ((RESTContentSpecV1Wrapper) contentSpecEntity).unwrap();
 
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(contentSpec);
 
-            final RESTContentSpecV1 updatedContentSpec = getRESTClient().createJSONContentSpec("", contentSpec);
-            if (updatedContentSpec != null) {
-                getRESTEntityCache().add(updatedContentSpec);
-                return getWrapperFactory().create(updatedContentSpec, false);
+            final RESTContentSpecV1 createdContentSpec;
+            if (logMessage != null) {
+                createdContentSpec = getRESTClient().createJSONContentSpec("", contentSpec, logMessage.getMessage(), logMessage.getFlags(),
+                        logMessage.getUser());
+            } else {
+                createdContentSpec = getRESTClient().createJSONContentSpec("", contentSpec);
+            }
+            if (createdContentSpec != null) {
+                getRESTEntityCache().add(createdContentSpec);
+                return getWrapperFactory().create(createdContentSpec, false);
             } else {
                 return null;
             }
@@ -334,13 +346,24 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
     @Override
     public ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpecEntity) {
+        return updateContentSpec(contentSpecEntity, null);
+    }
+
+    @Override
+    public ContentSpecWrapper updateContentSpec(ContentSpecWrapper contentSpecEntity, LogMessageWrapper logMessage) {
         try {
             final RESTContentSpecV1 contentSpec = ((RESTContentSpecV1Wrapper) contentSpecEntity).unwrap();
 
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(contentSpec);
 
-            final RESTContentSpecV1 updatedContentSpec = getRESTClient().updateJSONContentSpec("", contentSpec);
+            final RESTContentSpecV1 updatedContentSpec;
+            if (logMessage != null) {
+                updatedContentSpec = getRESTClient().updateJSONContentSpec("", contentSpec, logMessage.getMessage(), logMessage.getFlags(),
+                        logMessage.getUser());
+            } else {
+                updatedContentSpec = getRESTClient().updateJSONContentSpec("", contentSpec);
+            }
             if (updatedContentSpec != null) {
                 getRESTEntityCache().expire(RESTContentSpecV1.class, contentSpecEntity.getId());
                 getRESTEntityCache().add(updatedContentSpec);
@@ -355,9 +378,18 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
     @Override
     public boolean deleteContentSpec(Integer id) {
+        return deleteContentSpec(id, null);
+    }
+
+    @Override
+    public boolean deleteContentSpec(Integer id, LogMessageWrapper logMessage) {
         try {
-            final RESTContentSpecV1 contentSpec = getRESTClient().deleteJSONContentSpec(id, "");
-            return contentSpec != null;
+            if (logMessage != null) {
+                return getRESTClient().deleteJSONContentSpec(id, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(),
+                        "") != null;
+            } else {
+                return getRESTClient().deleteJSONContentSpec(id, "") != null;
+            }
         } catch (Exception e) {
             throw handleException(e);
         }

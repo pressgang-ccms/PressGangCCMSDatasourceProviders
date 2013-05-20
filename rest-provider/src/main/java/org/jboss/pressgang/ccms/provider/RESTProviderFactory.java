@@ -157,6 +157,11 @@ public class RESTProviderFactory extends DataProviderFactory {
                 getWrapperFactory());
         providerMap.put(RESTTranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
         providerMap.put(TranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
+
+        // Log Message Provider
+        final RESTLogMessageProvider logMessageProvider = new RESTLogMessageProvider(getRESTManager(), getWrapperFactory());
+        providerMap.put(RESTLogMessageProvider.class, logMessageProvider);
+        providerMap.put(LogMessageProvider.class, logMessageProvider);
     }
 
     /**
@@ -214,5 +219,10 @@ public class RESTProviderFactory extends DataProviderFactory {
     @Override
     public void rollback() {
         throw new UnsupportedOperationException("Rollback isn't supported using the REST API.");
+    }
+
+    @Override
+    public boolean isNotificationsSupported() {
+        return false;
     }
 }

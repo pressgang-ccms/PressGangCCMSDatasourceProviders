@@ -7,7 +7,10 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.WrapperFactory;
 
 /**
@@ -15,6 +18,7 @@ import org.jboss.pressgang.ccms.wrapper.WrapperFactory;
  */
 public abstract class DataProviderFactory {
     private WrapperFactory wrapperFactory = null;
+    private List<ProviderListener> listeners = new LinkedList<ProviderListener>();
 
     private static ClassLoader getContextClassLoader() {
         return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
@@ -182,4 +186,18 @@ public abstract class DataProviderFactory {
     public abstract boolean isRollbackSupported();
 
     public abstract void rollback();
+
+    public abstract boolean isNotificationsSupported();
+
+    public void registerListener(ProviderListener listener) {
+        if (isNotificationsSupported()) {
+            listeners.add(listener);
+        } else {
+            throw new UnsupportedOperationException("Notification events aren't supported");
+        }
+    }
+
+    protected List<ProviderListener> getListeners() {
+        return listeners;
+    }
 }

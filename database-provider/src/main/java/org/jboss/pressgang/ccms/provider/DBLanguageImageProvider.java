@@ -4,14 +4,15 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.model.LanguageImage;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.LanguageImageWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class DBLanguageImageProvider extends DBDataProvider implements LanguageImageProvider {
 
-    protected DBLanguageImageProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBLanguageImageProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override

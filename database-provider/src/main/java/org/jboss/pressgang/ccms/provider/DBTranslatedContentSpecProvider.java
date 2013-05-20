@@ -17,6 +17,7 @@ import org.jboss.pressgang.ccms.model.Filter;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedContentSpec;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTranslatedContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
@@ -26,8 +27,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBTranslatedContentSpecProvider extends DBDataProvider implements TranslatedContentSpecProvider {
-    protected DBTranslatedContentSpecProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBTranslatedContentSpecProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override
@@ -91,6 +92,10 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
 
     @Override
     public TranslatedContentSpecWrapper createTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) {
+        // Send the notification events
+        notifyCreateEntity(translatedContentSpec);
+
+        // Persist the new entity
         getEntityManager().persist(translatedContentSpec.unwrap());
 
         // Flush the changes to the database
@@ -101,6 +106,10 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
 
     @Override
     public TranslatedContentSpecWrapper updateTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpec) {
+        // Send the notification events
+        notifyUpdateEntity(translatedContentSpec);
+
+        // Persist the changes
         getEntityManager().persist(translatedContentSpec.unwrap());
 
         // Flush the changes to the database
@@ -111,15 +120,19 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
 
     @Override
     public CollectionWrapper<TranslatedContentSpecWrapper> createTranslatedContentSpecs(
-            CollectionWrapper<TranslatedContentSpecWrapper> nodes) {
-        for (final TranslatedContentSpecWrapper topic : nodes.getItems()) {
-            getEntityManager().persist(topic.unwrap());
+            CollectionWrapper<TranslatedContentSpecWrapper> translatedContentSpecs) {
+        // Send the notification events
+        notifyCreateEntityCollection(translatedContentSpecs);
+
+        // Persist the new entities
+        for (final TranslatedContentSpecWrapper translatedContentSpec : translatedContentSpecs.getItems()) {
+            getEntityManager().persist(translatedContentSpec.unwrap());
         }
 
         // Flush the changes to the database
         getEntityManager().flush();
 
-        return nodes;
+        return translatedContentSpecs;
     }
 
     @Override

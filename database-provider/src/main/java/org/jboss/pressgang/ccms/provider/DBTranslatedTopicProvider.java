@@ -19,6 +19,7 @@ import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
+import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTranslatedTopicDataWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
@@ -31,8 +32,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBTranslatedTopicProvider extends DBDataProvider implements TranslatedTopicProvider {
-    protected DBTranslatedTopicProvider(final EntityManager entityManager, final DBWrapperFactory wrapperFactory) {
-        super(entityManager, wrapperFactory);
+    protected DBTranslatedTopicProvider(final EntityManager entityManager, final DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
+        super(entityManager, wrapperFactory, listeners);
     }
 
     @Override
@@ -152,6 +153,10 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
+        // Send the notification events
+        notifyCreateEntity(translatedTopic);
+
+        // Persist the new entity
         getEntityManager().persist(translatedTopic.unwrap());
 
         // Flush the changes to the database
@@ -163,6 +168,10 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(
             CollectionWrapper<TranslatedTopicWrapper> translatedTopics) {
+        // Send the notification events
+        notifyCreateEntityCollection(translatedTopics);
+
+        // Persist the new entities
         for (final TranslatedTopicWrapper topic : translatedTopics.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }
@@ -175,6 +184,10 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
+        // Send the notification events
+        notifyUpdateEntity(translatedTopic);
+
+        // Persist the changes
         getEntityManager().persist(translatedTopic.unwrap());
 
         // Flush the changes to the database
@@ -186,6 +199,10 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> updateTranslatedTopics(
             CollectionWrapper<TranslatedTopicWrapper> translatedTopics) {
+        // Send the notification events
+        notifyUpdateEntityCollection(translatedTopics);
+
+        // Persist the changes for each entity
         for (final TranslatedTopicWrapper topic : translatedTopics.getItems()) {
             getEntityManager().persist(topic.unwrap());
         }
@@ -198,6 +215,10 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public boolean deleteTranslatedTopic(Integer id) {
+        // Send the notification events
+        notifyDeleteEntity(TranslatedTopicData.class, id);
+
+        // Delete the entity
         final TranslatedTopicData topic = getEntityManager().find(TranslatedTopicData.class, id);
         getEntityManager().remove(topic);
 
@@ -209,6 +230,10 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public boolean deleteTranslatedTopics(List<Integer> ids) {
+        // Send the notification events
+        notifyDeleteEntityCollection(TranslatedTopicData.class, ids);
+
+        // Delete all the entities
         for (final Integer id : ids) {
             final TranslatedTopicData topic = getEntityManager().find(TranslatedTopicData.class, id);
             getEntityManager().remove(topic);
