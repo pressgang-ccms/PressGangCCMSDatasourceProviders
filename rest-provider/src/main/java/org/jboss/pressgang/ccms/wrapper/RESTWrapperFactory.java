@@ -453,7 +453,7 @@ public class RESTWrapperFactory extends WrapperFactory {
             // PROPERTY TAG TO CATEGORY
             wrapper = new RESTPropertyTagInPropertyCategoryCollectionV1Wrapper(getProviderFactory(),
                     (RESTPropertyTagInPropertyCategoryCollectionV1) collection, isRevisionCollection, (RESTPropertyCategoryV1) parent);
-        } else if (collection instanceof RESTCSNodeCollectionV1 && parent instanceof RESTTranslatedCSNodeV1) {
+        } else if (collection instanceof RESTTranslatedCSNodeStringCollectionV1 && parent instanceof RESTTranslatedCSNodeV1) {
             // CONTENT SPEC TRANSLATED NODE STRINGS
             wrapper = new RESTTranslatedCSNodeStringCollectionV1Wrapper(getProviderFactory(),
                     (RESTTranslatedCSNodeStringCollectionV1) collection, isRevisionCollection, (RESTTranslatedCSNodeV1) parent);

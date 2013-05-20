@@ -138,7 +138,7 @@ public class RESTEntityProxyFactory {
         } else if (entity instanceof RESTTranslatedCSNodeV1) {
             // TRANSLATED CONTENT SPEC NODE
             return new RESTTranslatedCSNodeV1ProxyHandler(providerFactory, (RESTTranslatedCSNodeV1) entity, isRevision);
-        } else if (entity instanceof RESTCSNodeV1) {
+        } else if (entity instanceof RESTTranslatedCSNodeStringV1) {
             // TRANSLATED CONTENT SPEC NODE STRING
             return new RESTTranslatedCSNodeStringV1ProxyHandler(providerFactory, (RESTTranslatedCSNodeStringV1) entity, isRevision,
                     (RESTTranslatedCSNodeV1) parent);
