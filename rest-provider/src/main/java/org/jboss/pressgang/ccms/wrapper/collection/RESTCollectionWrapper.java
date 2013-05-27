@@ -167,17 +167,17 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
         if (entity == null) return;
         final Object unwrappedEntity = entity.unwrap();
         // Get the original non proxied collection
-        final RESTBaseCollectionV1<?, ?, ?> baseCollection = getCollection();
-        final RESTBaseCollectionV1<?, ?, ?> collection = (baseCollection instanceof ProxyObject) ? ((RESTCollectionV1ProxyHandler<?, ?,
-                ?>) ((ProxyObject) baseCollection)).getCollection() : baseCollection;
+        final RESTBaseCollectionV1<U, V, ?> baseCollection = getCollection();
+        final RESTBaseCollectionV1<U, V, ?> collection = (baseCollection instanceof ProxyObject) ? ((RESTCollectionV1ProxyHandler<U, V,
+                ?>) ((ProxyObject) baseCollection).getHandler()).getCollection() : baseCollection;
         // Remove the item if it's found
-        final List<? extends RESTBaseCollectionItemV1<?, ?, ?>> originalItems = CollectionUtilities.toArrayList(collection.getItems());
-        for (final RESTBaseCollectionItemV1<?, ?, ?> item : originalItems) {
+        final List<? extends RESTBaseCollectionItemV1<U, V, ?>> originalItems = CollectionUtilities.toArrayList(collection.getItems());
+        for (final RESTBaseCollectionItemV1<U, V, ?> item : originalItems) {
             if (unwrappedEntity.equals(item.getItem())) {
                 collection.getItems().remove(item);
             }
         }
 
-        getItems().remove(entity);
+        getEntities().remove(entity);
     }
 }
