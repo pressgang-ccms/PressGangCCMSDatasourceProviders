@@ -173,7 +173,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
         notifyLogMessage(logMessage);
 
         // Persist the new entity
-        getEntityManager().persist(topic.unwrap());
+        getEntityManager().merge(topic.unwrap());
 
         // Flush the changes to the database
         getEntityManager().flush();
@@ -193,7 +193,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
         notifyLogMessage(logMessage);
 
         // Persist the changes
-        getEntityManager().persist(topic.unwrap());
+        getEntityManager().merge(topic.unwrap());
 
         // Flush the changes to the database
         getEntityManager().flush();

@@ -73,7 +73,7 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
 
 //    @Override
 //    public CSNodeWrapper createCSNode(CSNodeWrapper node) throws Exception {
-//        getEntityManager().persist(node.unwrap());
+//        getEntityManager().merge(node.unwrap());
 //
 //        // Flush the changes to the database
 //        getEntityManager().flush();
@@ -83,7 +83,7 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
 //
 //    @Override
 //    public CSNodeWrapper updateCSNode(CSNodeWrapper node) throws Exception {
-//        getEntityManager().persist(node.unwrap());
+//        getEntityManager().merge(node.unwrap());
 //
 //        // Flush the changes to the database
 //        getEntityManager().flush();
@@ -94,7 +94,7 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
 //    @Override
 //    public boolean deleteCSNode(Integer id) throws Exception {
 //        final CSNode node = getEntityManager().find(CSNode.class, id);
-//        getEntityManager().remove(node);
+//        getEntityManager().merge(node);
 //
 //        // Flush the changes to the database
 //        getEntityManager().flush();
@@ -105,7 +105,7 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
 //    @Override
 //    public CollectionWrapper<CSNodeWrapper> createCSNodes(CollectionWrapper<CSNodeWrapper> nodes) throws Exception {
 //        for (final CSNodeWrapper topic : nodes.getItems()) {
-//            getEntityManager().persist(topic.unwrap());
+//            getEntityManager().merge(topic.unwrap());
 //        }
 //
 //        // Flush the changes to the database
@@ -117,7 +117,7 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
 //    @Override
 //    public CollectionWrapper<CSNodeWrapper> updateCSNodes(CollectionWrapper<CSNodeWrapper> nodes) throws Exception {
 //        for (final CSNodeWrapper topic : nodes.getItems()) {
-//            getEntityManager().persist(topic.unwrap());
+//            getEntityManager().merge(topic.unwrap());
 //        }
 //
 //        // Flush the changes to the database

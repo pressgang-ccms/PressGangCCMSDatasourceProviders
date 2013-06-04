@@ -42,6 +42,8 @@ public class DBDataProvider extends DataProvider {
             if (entity == null) {
                 throw new NotFoundException();
             } else {
+                // Detach the entity so no changes are recorded
+                getEntityManager().detach(entity);
                 return entity;
             }
         } catch (Exception e) {
@@ -83,7 +85,11 @@ public class DBDataProvider extends DataProvider {
 
     protected <T> List<T> executeQuery(final CriteriaQuery<T> query) {
         try {
-            return getEntityManager().createQuery(query).getResultList();
+            final List<T> entities = getEntityManager().createQuery(query).getResultList();
+            for (final T entity : entities) {
+                getEntityManager().detach(entity);
+            }
+            return entities;
         } catch (Exception e) {
             throw handleException(e);
         }
