@@ -59,7 +59,7 @@ public class DBTranslatedCSNodeProvider extends DBDataProvider implements Transl
 
         // Persist the new entities
         for (final TranslatedCSNodeWrapper topic : nodes.getItems()) {
-            getEntityManager().merge(topic.unwrap());
+            getEntityManager().persist(topic.unwrap());
         }
 
         // Flush the changes to the database

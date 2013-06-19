@@ -96,7 +96,7 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
         notifyCreateEntity(translatedContentSpec);
 
         // Persist the new entity
-        getEntityManager().merge(translatedContentSpec.unwrap());
+        getEntityManager().persist(translatedContentSpec.unwrap());
 
         // Flush the changes to the database
         getEntityManager().flush();
