@@ -38,11 +38,6 @@ public abstract class RESTBaseTopicV1Wrapper<T extends BaseTopicWrapper<T>, U ex
     }
 
     @Override
-    public String getHtml() {
-        return getProxyEntity().getHtml();
-    }
-
-    @Override
     public boolean hasTag(final int tagId) {
         return ComponentBaseTopicV1.hasTag(getProxyEntity(), tagId);
     }

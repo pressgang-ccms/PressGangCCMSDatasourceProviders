@@ -87,6 +87,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedTopicStringColl
 import org.jboss.pressgang.ccms.wrapper.collection.RESTUserCollectionV1Wrapper;
 
 public class RESTWrapperFactory extends WrapperFactory {
+    public RESTWrapperFactory() {
+    }
 
     public RESTWrapperFactory(final DataProviderFactory providerFactory) {
         super(providerFactory);

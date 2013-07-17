@@ -14,6 +14,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class RESTContentSpecProvider extends RESTDataProvider implements ContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTContentSpecProvider.class);
+    private int count = -1000;
 
     protected RESTContentSpecProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
@@ -407,8 +409,14 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
     @Override
     public void cleanEntityForSave(final RESTBaseEntityV1<?, ?, ?> entity) throws InvocationTargetException, IllegalAccessException {
-        if (entity instanceof RESTCSNodeV1) {
+        if (entity instanceof RESTBaseCSNodeV1) {
             final RESTCSNodeV1 node = (RESTCSNodeV1) entity;
+
+            // Give new nodes a negative id so that serialization can track the linked list
+            if (node.getId() == null) {
+                node.setId(count);
+                count--;
+            }
 
             // Remove a CSNode parent element to eliminate recursive serialization issues, since it can't be explicitly set.
             if (node.getParent() != null) {

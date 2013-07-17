@@ -68,8 +68,8 @@ public abstract class RESTDataProvider extends DataProvider {
         if (entity == null) return;
 
         for (final Method method : entity.getClass().getMethods()) {
-            // If the method isn't a getter or isn't accessible then skip it.
-            if (!method.getName().startsWith("get") || !method.isAccessible()) continue;
+            // If the method isn't a getter or returns void then skip it
+            if (!method.getName().startsWith("get") || method.getReturnType().equals(Void.TYPE)) continue;
 
             // An entity might have
             if (isCollectionClass(method.getReturnType())) {

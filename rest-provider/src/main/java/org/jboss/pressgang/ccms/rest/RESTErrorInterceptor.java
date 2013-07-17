@@ -17,12 +17,20 @@ public class RESTErrorInterceptor implements ClientErrorInterceptor {
     @Override
     public void handle(ClientResponse<?> response) throws RuntimeException {
         final int status = response.getStatus();
+        String message = null;
+        try {
+            message = (String) response.getEntity();
+        } catch (Exception e) {
+
+        } finally {
+            response.releaseConnection();
+        }
         switch (status) {
-            case HttpURLConnection.HTTP_BAD_REQUEST: throw new BadRequestException();
-            case HttpURLConnection.HTTP_INTERNAL_ERROR: throw new InternalServerErrorException();
-            case HttpURLConnection.HTTP_UNAUTHORIZED: throw new UnauthorisedException();
-            case 426: throw new UpgradeException();
-            case HttpURLConnection.HTTP_NOT_FOUND: throw new NotFoundException();
+            case HttpURLConnection.HTTP_BAD_REQUEST: throw new BadRequestException(message);
+            case HttpURLConnection.HTTP_INTERNAL_ERROR: throw new InternalServerErrorException(message);
+            case HttpURLConnection.HTTP_UNAUTHORIZED: throw new UnauthorisedException(message);
+            case 426: throw new UpgradeException(message);
+            case HttpURLConnection.HTTP_NOT_FOUND: throw new NotFoundException(message);
         }
     }
 }

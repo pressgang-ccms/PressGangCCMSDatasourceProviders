@@ -1,7 +1,5 @@
 package org.jboss.pressgang.ccms.wrapper;
 
-import java.util.Date;
-
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
@@ -58,11 +56,6 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
     @Override
     public void setLocale(String locale) {
         getProxyEntity().explicitSetLocale(locale);
-    }
-
-    @Override
-    public void setHtml(String html) {
-        getProxyEntity().explicitSetHtml(html);
     }
 
     @Override
@@ -185,16 +178,6 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
     @Override
     public void setTranslationPercentage(Integer percentage) {
         getProxyEntity().setTranslationPercentage(percentage);
-    }
-
-    @Override
-    public Date getHtmlUpdated() {
-        return getProxyEntity().getHtmlUpdated();
-    }
-
-    @Override
-    public void setHtmlUpdated(Date htmlUpdated) {
-        getProxyEntity().explicitSetHtmlUpdated(htmlUpdated);
     }
 
     @Override

@@ -88,7 +88,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
 
     @Override
     public void setContentSpec(ContentSpecWrapper contentSpec) {
-        getEntity().explicitSetContentSpec(contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap());
+        getEntity().setContentSpec(contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap());
     }
 
     @Override

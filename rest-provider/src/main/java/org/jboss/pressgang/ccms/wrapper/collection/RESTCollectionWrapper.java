@@ -144,6 +144,10 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
 
     @Override
     public V unwrap() {
+        // Get the original non proxied collection
+        final V baseCollection = getCollection();
+        final V collection = (baseCollection instanceof ProxyObject) ? ((RESTCollectionV1ProxyHandler<U, V,
+                ?>) ((ProxyObject) baseCollection).getHandler()).getCollection() : baseCollection;
         return collection;
     }
 

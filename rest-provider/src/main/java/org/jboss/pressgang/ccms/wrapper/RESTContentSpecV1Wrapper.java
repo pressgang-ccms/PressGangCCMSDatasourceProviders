@@ -48,7 +48,7 @@ public class RESTContentSpecV1Wrapper extends RESTBaseWrapper<ContentSpecWrapper
     }
 
     @Override
-    public void setChildren(CollectionWrapper<CSNodeWrapper> nodes) {
+    public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
         getEntity().explicitSetChildren_OTM(nodes == null ? null : (RESTCSNodeCollectionV1) nodes.unwrap());
     }
 

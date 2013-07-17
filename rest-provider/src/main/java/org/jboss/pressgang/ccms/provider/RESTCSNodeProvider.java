@@ -421,7 +421,17 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     @Override
     public CSRelatedNodeWrapper newCSRelatedNode(final CSNodeWrapper node) {
         final RESTCSNodeV1 csNode = node == null ? null : (RESTCSNodeV1) node.unwrap();
-        return getWrapperFactory().create(new RESTCSRelatedNodeV1(csNode), false, CSRelatedNodeWrapper.class);
+        final RESTCSRelatedNodeV1 relatedNode = new RESTCSRelatedNodeV1();
+        if (csNode != null) {
+            relatedNode.setId(csNode.getId());
+            relatedNode.setTitle(csNode.getTitle());
+            relatedNode.setAdditionalText(csNode.getAdditionalText());
+            relatedNode.setCondition(csNode.getCondition());
+            relatedNode.setEntityId(csNode.getEntityId());
+            relatedNode.setEntityRevision(csNode.getEntityRevision());
+            relatedNode.setTargetId(csNode.getTargetId());
+        }
+        return getWrapperFactory().create(relatedNode, false, CSRelatedNodeWrapper.class);
     }
 
     @Override

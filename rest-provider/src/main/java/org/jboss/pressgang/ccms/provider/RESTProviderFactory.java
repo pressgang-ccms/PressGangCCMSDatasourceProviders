@@ -14,11 +14,12 @@ public class RESTProviderFactory extends DataProviderFactory {
     private Map<Class<?>, RESTDataProvider> providerMap = new HashMap<Class<?>, RESTDataProvider>();
 
     public static RESTProviderFactory create(final String serverUrl) {
-        return (RESTProviderFactory) DataProviderFactory.create(serverUrl);
+        return new RESTProviderFactory(serverUrl);
     }
 
     public RESTProviderFactory(final String serverUrl) {
-        this.restManager = new RESTManager(serverUrl);
+        super(new RESTWrapperFactory());
+        restManager = new RESTManager(serverUrl);
         restManager.getProxyFactory().getProviderFactory().addClientErrorInterceptor(new RESTErrorInterceptor());
         initialiseProviders();
     }

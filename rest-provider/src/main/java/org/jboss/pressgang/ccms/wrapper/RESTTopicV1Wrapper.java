@@ -178,11 +178,6 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
     }
 
     @Override
-    public void setHtml(String html) {
-        getProxyEntity().explicitSetHtml(html);
-    }
-
-    @Override
     public void setTags(CollectionWrapper<TagWrapper> tags) {
         getProxyEntity().explicitSetTags(tags == null ? null : (RESTTagCollectionV1) tags.unwrap());
     }
