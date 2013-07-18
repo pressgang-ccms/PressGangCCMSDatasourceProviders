@@ -17,7 +17,7 @@ import org.jboss.pressgang.ccms.wrapper.WrapperFactory;
  *
  */
 public abstract class DataProviderFactory {
-    private WrapperFactory wrapperFactory = null;
+    private final WrapperFactory wrapperFactory;
     private List<ProviderListener> listeners = new LinkedList<ProviderListener>();
 
     private static ClassLoader getContextClassLoader() {
@@ -149,9 +149,9 @@ public abstract class DataProviderFactory {
         }
     }
 
-    protected DataProviderFactory() {
-        // Get the wrapper factory to be used by the data providers.
-        wrapperFactory = WrapperFactory.getInstance(this);
+    protected DataProviderFactory(final WrapperFactory wrapperFactory) {
+        this.wrapperFactory = wrapperFactory;
+        wrapperFactory.setProviderFactory(this);
     }
 
     /**

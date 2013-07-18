@@ -36,10 +36,6 @@ public interface BaseTopicWrapper<T extends BaseTopicWrapper<T>> extends EntityW
 
     void setLocale(String locale);
 
-    String getHtml();
-
-    void setHtml(String html);
-
     CollectionWrapper<TagWrapper> getTags();
 
     void setTags(CollectionWrapper<TagWrapper> tags);

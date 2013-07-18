@@ -17,6 +17,8 @@ public interface BaseTagWrapper<T extends BaseTagWrapper<T>> extends EntityWrapp
 
     UpdateableCollectionWrapper<CategoryInTagWrapper> getCategories();
 
+    void setCategories(UpdateableCollectionWrapper<CategoryInTagWrapper> categories);
+
     PropertyTagInTagWrapper getProperty(final int propertyId);
 
     boolean containedInCategory(int categoryId);

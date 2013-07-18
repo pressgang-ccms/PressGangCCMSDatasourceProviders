@@ -1,12 +1,5 @@
 package org.jboss.pressgang.ccms.wrapper;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,98 +9,9 @@ import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public abstract class WrapperFactory {
-    private final DataProviderFactory providerFactory;
+    private DataProviderFactory providerFactory;
 
-    private static ClassLoader getContextClassLoader() {
-        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            public ClassLoader run() {
-                ClassLoader cl = null;
-                try {
-                    cl = Thread.currentThread().getContextClassLoader();
-                } catch (SecurityException ex) {
-                }
-                return cl;
-            }
-        });
-    }
-
-    public static WrapperFactory getInstance(DataProviderFactory providerFactory) {
-        try {
-            // Find the defined wrapper factory implementation class.
-            final Class<? extends WrapperFactory> wrapperClass = findWrapperFactoryImpl();
-            final Constructor<? extends WrapperFactory> wrapperFactoryConstructor = wrapperClass.getConstructor(DataProviderFactory.class);
-            return wrapperFactoryConstructor.newInstance(providerFactory);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Class<? extends WrapperFactory> findWrapperFactoryImpl() {
-        ClassLoader classLoader = getContextClassLoader();
-
-        String serviceId = "META-INF/services/" + WrapperFactory.class.getName();
-        // try to find services in CLASSPATH
-        try {
-            InputStream is;
-            if (classLoader == null) {
-                is = ClassLoader.getSystemResourceAsStream(serviceId);
-            } else {
-                is = classLoader.getResourceAsStream(serviceId);
-            }
-
-            if (is != null) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-
-                String factoryClassName = rd.readLine();
-                rd.close();
-
-                if (factoryClassName != null && !"".equals(factoryClassName)) {
-                    try {
-                        return (Class<? extends WrapperFactory>) findClass(factoryClassName, classLoader);
-                    } catch (ClassNotFoundException e) {
-                        URL url = classLoader.getResource(serviceId);
-
-                        throw new ClassNotFoundException("Could not find from factory file" + url, e);
-                    }
-                } else {
-                    URL url = classLoader.getResource(serviceId);
-
-                    throw new ClassNotFoundException("Could not find from factory file" + url);
-                }
-            } else {
-                URL url = classLoader.getResource(serviceId);
-
-                throw new ClassNotFoundException("Could not find from factory file" + url);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    /**
-     * Creates an instance of the specified class using the specified <code>ClassLoader</code> object.
-     *
-     * @throws ClassNotFoundException if the given class could not be found or could not be instantiated
-     */
-    private static Class<?> findClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
-        try {
-            Class<?> spiClass;
-            if (classLoader == null) {
-                spiClass = Class.forName(className);
-            } else {
-                try {
-                    spiClass = Class.forName(className, false, classLoader);
-                } catch (ClassNotFoundException ex) {
-                    spiClass = Class.forName(className);
-                }
-            }
-            return spiClass;
-        } catch (ClassNotFoundException x) {
-            throw x;
-        } catch (Exception x) {
-            throw new ClassNotFoundException("Factory " + className + " could not be instantiated: " + x, x);
-        }
+    protected WrapperFactory() {
     }
 
     protected WrapperFactory(final DataProviderFactory providerFactory) {
@@ -115,7 +19,14 @@ public abstract class WrapperFactory {
     }
 
     protected DataProviderFactory getProviderFactory() {
+        if (providerFactory == null) {
+            throw new IllegalStateException("The Provider Factory has not been registered.");
+        }
         return providerFactory;
+    }
+
+    public void setProviderFactory(final DataProviderFactory providerFactory) {
+        this.providerFactory = providerFactory;
     }
 
     /**
@@ -155,6 +66,6 @@ public abstract class WrapperFactory {
      * @param <T>                  The wrapper class that is returned.
      * @return The Wrapper around the collection of entities.
      */
-    public abstract <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object entity, final Class<?> entityClass,
-            boolean isRevision);
+    public abstract <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
+            boolean isRevisionCollection);
 }
