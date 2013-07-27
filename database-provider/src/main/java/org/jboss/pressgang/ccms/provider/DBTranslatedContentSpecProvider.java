@@ -110,7 +110,7 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
         notifyUpdateEntity(translatedContentSpec);
 
         // Persist the changes
-        getEntityManager().merge(translatedContentSpec.unwrap());
+        getEntityManager().persist(translatedContentSpec.unwrap());
 
         // Flush the changes to the database
         getEntityManager().flush();
@@ -126,7 +126,7 @@ public class DBTranslatedContentSpecProvider extends DBDataProvider implements T
 
         // Persist the new entities
         for (final TranslatedContentSpecWrapper translatedContentSpec : translatedContentSpecs.getItems()) {
-            getEntityManager().merge(translatedContentSpec.unwrap());
+            getEntityManager().persist(translatedContentSpec.unwrap());
         }
 
         // Flush the changes to the database

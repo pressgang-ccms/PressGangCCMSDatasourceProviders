@@ -193,7 +193,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
         notifyLogMessage(logMessage);
 
         // Persist the changes
-        getEntityManager().merge(topic.unwrap());
+        getEntityManager().persist(topic.unwrap());
 
         // Flush the changes to the database
         getEntityManager().flush();

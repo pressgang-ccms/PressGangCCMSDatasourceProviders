@@ -1,10 +1,8 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.DBBaseToPropertyTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class DBContentSpecToPropertyTagWrapper extends DBBaseToPropertyTagWrapper<PropertyTagInContentSpecWrapper, ContentSpecToPropertyTag> implements
         PropertyTagInContentSpecWrapper {
@@ -45,11 +43,5 @@ public class DBContentSpecToPropertyTagWrapper extends DBBaseToPropertyTagWrappe
     @Override
     public Boolean isValid() {
         return getEntity().isValid(getEntityManager(), getEntity().getRevision());
-    }
-
-    @Override
-    public CollectionWrapper<PropertyTagInContentSpecWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
-                ContentSpecToPropertyTag.class, true);
     }
 }

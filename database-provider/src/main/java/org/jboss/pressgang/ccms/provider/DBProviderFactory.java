@@ -16,11 +16,11 @@ public class DBProviderFactory extends DataProviderFactory {
     private boolean providersInitialised = false;
 
     public static DBProviderFactory create(final EntityManager entityManager) {
-        return (DBProviderFactory) DataProviderFactory.create(entityManager);
+        return new DBProviderFactory(entityManager);
     }
 
     public static DBProviderFactory create(final EntityManager entityManager, final TransactionManager transactionManager) {
-        return (DBProviderFactory) DataProviderFactory.create(entityManager, transactionManager);
+        return new DBProviderFactory(entityManager, transactionManager);
     }
 
     public DBProviderFactory(final EntityManager entityManager) {
@@ -28,6 +28,7 @@ public class DBProviderFactory extends DataProviderFactory {
     }
 
     public DBProviderFactory(final EntityManager entityManager, final TransactionManager transactionManager) {
+        super(new DBWrapperFactory());
         this.entityManager = entityManager;
         this.transactionManager = transactionManager;
     }

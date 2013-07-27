@@ -33,12 +33,12 @@ public class DBCSRelatedNodeWrapper extends DBBaseWrapper<CSRelatedNodeWrapper, 
 
     @Override
     public String getTargetId() {
-        return getCSNode().getAdditionalText();
+        return getCSNode().getCSNodeTargetId();
     }
 
     @Override
     public void setTargetId(String targetId) {
-        getCSNode().setAdditionalText(targetId);
+        getCSNode().setCSNodeTargetId(targetId);
     }
 
     @Override

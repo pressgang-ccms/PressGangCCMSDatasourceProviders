@@ -3,11 +3,14 @@ package org.jboss.pressgang.ccms.wrapper.collection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
 
 public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> implements CollectionWrapper<T> {
     private static final Integer NO_STATE = 0;
@@ -15,17 +18,23 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
     private static final Integer REMOVE_STATE = 2;
 
     private final Map<T, Integer> wrapperItems = new HashMap<T, Integer>();
-    private final Map<U, Integer> items = new HashMap<U, Integer>();
+    private final Collection<U> items;
     private final DBWrapperFactory wrapperFactory;
     private final boolean isRevisionList;
+    private Set<CollectionEventListener<U>> listeners = new HashSet<CollectionEventListener<U>>();
 
     protected DBCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
             final Class<T> wrapperClass) {
         this.wrapperFactory = wrapperFactory;
         for (final U item : items) {
             wrapperItems.put((T) wrapperFactory.create(item, isRevisionList, wrapperClass), NO_STATE);
-            this.items.put(item, NO_STATE);
         }
+        if (items instanceof Set) {
+            this.items = new HashSet<U>();
+        } else {
+            this.items = new ArrayList<U>();
+        }
+        this.items.addAll(items);
         this.isRevisionList = isRevisionList;
     }
 
@@ -37,36 +46,52 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
         return wrapperItems;
     }
 
-    protected Map<U, Integer> getCollectionItems() {
+    protected Collection<U> getCollectionItems() {
         return items;
     }
 
+    public void registerEventListener(CollectionEventListener<U> listener) {
+        listeners.add(listener);
+    }
+
+    public void resetEventListeners() {
+        listeners.clear();
+    }
+
+    protected Set<CollectionEventListener<U>> getEventListeners() {
+        return listeners;
+    }
+
     @Override
-    @SuppressWarnings("unchecked")
     public void addItem(T entity) {
         getCollection().put(entity, NO_STATE);
-        getCollectionItems().put((U) entity.unwrap(), NO_STATE);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void addNewItem(T entity) {
         getCollection().put(entity, ADD_STATE);
-        getCollectionItems().put((U) entity.unwrap(), ADD_STATE);
+        if (!isRevisionList()) {
+            final U unwrappedEntity = (U) entity.unwrap();
+            getCollectionItems().add(unwrappedEntity);
+            notifyOnAddEvent(unwrappedEntity);
+        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void addRemoveItem(T entity) {
         getCollection().put(entity, REMOVE_STATE);
-        getCollectionItems().put((U) entity.unwrap(), REMOVE_STATE);
+        if (!isRevisionList()) {
+            final U unwrappedEntity = (U) entity.unwrap();
+            getCollectionItems().remove(unwrappedEntity);
+            notifyOnRemoveEvent(unwrappedEntity);
+        }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void remove(T entity) {
         getCollection().remove(entity);
-        getCollectionItems().remove((U) entity.unwrap());
     }
 
     public List<T> getItems() {
@@ -110,7 +135,7 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
     }
 
     @Override
-    public Map<U, Integer> unwrap() {
+    public Collection<U> unwrap() {
         return items;
     }
 
@@ -126,5 +151,17 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
 
     protected boolean isRevisionList() {
         return isRevisionList;
+    }
+
+    private void notifyOnAddEvent(U entity) {
+        for (final CollectionEventListener<U> listener : getEventListeners()) {
+            listener.onAddItem(entity);
+        }
+    }
+
+    private void notifyOnRemoveEvent(U entity) {
+        for (final CollectionEventListener<U> listener : getEventListeners()) {
+            listener.onRemoveItem(entity);
+        }
     }
 }

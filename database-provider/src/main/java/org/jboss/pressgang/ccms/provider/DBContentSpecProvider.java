@@ -168,7 +168,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
         notifyLogMessage(logMessage);
 
         // Persist the changes
-        getEntityManager().merge(contentSpec.unwrap());
+        getEntityManager().persist(contentSpec.unwrap());
 
         // Flush the changes to the database
         getEntityManager().flush();

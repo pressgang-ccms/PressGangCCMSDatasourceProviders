@@ -2,10 +2,8 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.PropertyTag;
 import org.jboss.pressgang.ccms.model.PropertyTagToPropertyTagCategory;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.DBBasePropertyTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class DBPropertyTagToPropertyTagCategoryWrapper extends DBBasePropertyTagWrapper<PropertyTagInPropertyCategoryWrapper,
         PropertyTagToPropertyTagCategory> implements PropertyTagInPropertyCategoryWrapper {
@@ -26,13 +24,6 @@ public class DBPropertyTagToPropertyTagCategoryWrapper extends DBBasePropertyTag
     @Override
     protected PropertyTag getPropertyTag() {
         return getEntity().getPropertyTag();
-    }
-
-    @Override
-    public CollectionWrapper<PropertyTagInPropertyCategoryWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(
-                EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
-                PropertyTagToPropertyTagCategory.class, true);
     }
 
     @Override

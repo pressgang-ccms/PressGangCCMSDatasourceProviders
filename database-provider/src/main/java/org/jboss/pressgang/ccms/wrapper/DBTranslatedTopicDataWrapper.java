@@ -1,7 +1,9 @@
 package org.jboss.pressgang.ccms.wrapper;
 
-import java.util.Date;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jboss.pressgang.ccms.contentspec.utils.EntityUtilities;
 import org.jboss.pressgang.ccms.model.Tag;
@@ -15,11 +17,26 @@ import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTagCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTopicSourceURLCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTopicToPropertyTagCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicDataCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicStringCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
 public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicWrapper,
         TranslatedTopicData> implements TranslatedTopicWrapper {
+    private final TagCollectionEventListener tagCollectionEventListener = new TagCollectionEventListener();
+    private final SourceUrlCollectionEventListener sourceUrlCollectionEventListener = new SourceUrlCollectionEventListener();
+    private final PropertyCollectionEventListener propertyCollectionEventListener = new PropertyCollectionEventListener();
+    private final RelatedFromTopicCollectionEventListener relatedFromTopicCollectionEventListener = new
+            RelatedFromTopicCollectionEventListener();
+    private final RelatedToTopicCollectionEventListener relatedToTopicCollectionEventListener = new RelatedToTopicCollectionEventListener();
+    private final TranslatedTopicStringCollectionEventListener translatedTopicStringCollectionEventListener = new
+            TranslatedTopicStringCollectionEventListener();
 
     private final TranslatedTopicData translatedTopicData;
 
@@ -101,103 +118,91 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     }
 
     @Override
-    public String getHtml() {
-        return getEntity().getTranslatedXmlRendered();
-    }
-
-    @Override
-    public void setHtml(String html) {
-        getEntity().setTranslatedXmlRendered(html);
-    }
-
-    @Override
     public boolean hasTag(int tagId) {
         return getEnversTopic().isTaggedWith(tagId);
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getTags() {
-        return getWrapperFactory().createCollection(getEnversTopic().getTags(), Tag.class, isRevisionEntity());
+        final CollectionWrapper<TagWrapper> collection = getWrapperFactory().createCollection(getEnversTopic().getTags(), Tag.class,
+                isRevisionEntity());
+        final DBTagCollectionWrapper dbCollection = (DBTagCollectionWrapper) collection;
+        dbCollection.registerEventListener(tagCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setTags(CollectionWrapper<TagWrapper> tags) {
         if (tags == null) return;
-
-        final List<TagWrapper> addTags = tags.getAddItems();
-        final List<TagWrapper> removeTags = tags.getRemoveItems();
-        /*
-         * There is no need to do update tags as when the original entities are altered they will automatically be updated when using
-         * database entities.
-         */
-        //final List<TagWrapper> updateTags = tags.getUpdateItems();
+        final DBTagCollectionWrapper dbTags = (DBTagCollectionWrapper) tags;
+        dbTags.registerEventListener(tagCollectionEventListener);
 
         // Remove Tags
-        for (final TagWrapper removeTag : removeTags) {
-            getEnversTopic().removeTag((Tag) removeTag.unwrap());
+        final List<Tag> currentTags = getEnversTopic().getTags();
+        for (final Tag removeTag : currentTags) {
+            getEnversTopic().removeTag(removeTag);
         }
 
         // Add Tags
-        for (final TagWrapper addTag : addTags) {
-            getEnversTopic().addTag((Tag) addTag.unwrap());
+        final Collection<Tag> newTags = dbTags.unwrap();
+        for (final Tag addTag : newTags) {
+            getEnversTopic().addTag(addTag);
         }
     }
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getOutgoingRelationships() {
-        return getWrapperFactory().createCollection(getEntity().getOutgoingRelatedTranslatedTopicData(getEntityManager()),
-                TranslatedTopicData.class, isRevisionEntity());
+        final CollectionWrapper<TranslatedTopicWrapper> collection = getWrapperFactory().createCollection(
+                getEntity().getOutgoingRelatedTranslatedTopicData(getEntityManager()), TranslatedTopicData.class, isRevisionEntity());
+        final DBTranslatedTopicDataCollectionWrapper dbCollection = (DBTranslatedTopicDataCollectionWrapper) collection;
+        dbCollection.registerEventListener(relatedToTopicCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setOutgoingRelationships(CollectionWrapper<TranslatedTopicWrapper> outgoingTopics) {
         if (outgoingTopics == null) return;
-
-        final List<TranslatedTopicWrapper> addTopics = outgoingTopics.getAddItems();
-        final List<TranslatedTopicWrapper> removeTopics = outgoingTopics.getRemoveItems();
-        /*
-         * There is no need to do update outgoing topics as when the original entities are altered they will automatically be updated when
-         * using database entities.
-         */
-        //final List<TranslatedTopicWrapper> updateTopics = outgoingTopics.getUpdateItems();
-
-        // Add Topics
-        for (final TranslatedTopicWrapper addTopic : addTopics) {
-            getEnversTopic().addRelationshipTo(getEntityManager(), addTopic.getTopicId(), 1);
-        }
+        final DBTranslatedTopicDataCollectionWrapper dbOutgoingTopics = (DBTranslatedTopicDataCollectionWrapper) outgoingTopics;
+        dbOutgoingTopics.registerEventListener(relatedToTopicCollectionEventListener);
 
         // Remove Topics
-        for (final TranslatedTopicWrapper removeTopic : removeTopics) {
+        final List<Topic> currentTopics = getEnversTopic().getOutgoingRelatedTopicsArray();
+        for (final Topic removeTopic : currentTopics) {
             getEnversTopic().removeRelationshipTo(removeTopic.getTopicId(), 1);
+        }
+
+        // Add Topics
+        final Collection<TranslatedTopicData> newTopics = dbOutgoingTopics.unwrap();
+        for (final TranslatedTopicData addTopic : newTopics) {
+            getEnversTopic().addRelationshipTo(getEntityManager(), addTopic.getTranslatedTopic().getTopicId(), 1);
         }
     }
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getIncomingRelationships() {
-        return getWrapperFactory().createCollection(getEntity().getIncomingRelatedTranslatedTopicData(getEntityManager()),
-                TranslatedTopicData.class, isRevisionEntity());
+        final CollectionWrapper<TranslatedTopicWrapper> collection = getWrapperFactory().createCollection(
+                getEntity().getIncomingRelatedTranslatedTopicData(getEntityManager()), TranslatedTopicData.class, isRevisionEntity());
+        final DBTranslatedTopicDataCollectionWrapper dbCollection = (DBTranslatedTopicDataCollectionWrapper) collection;
+        dbCollection.registerEventListener(relatedFromTopicCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setIncomingRelationships(CollectionWrapper<TranslatedTopicWrapper> incomingTopics) {
         if (incomingTopics == null) return;
-
-        final List<TranslatedTopicWrapper> addTopics = incomingTopics.getAddItems();
-        final List<TranslatedTopicWrapper> removeTopics = incomingTopics.getRemoveItems();
-        /*
-         * There is no need to do update incoming topics as when the original entities are altered they will automatically be updated when
-         * using database entities.
-         */
-        //final List<TranslatedTopicWrapper> updateTopics = incomingTopics.getUpdateItems();
-
-        // Add Topics
-        for (final TranslatedTopicWrapper addTopic : addTopics) {
-            getEnversTopic().addRelationshipFrom(getEntityManager(), addTopic.getTopicId(), 1);
-        }
+        final DBTranslatedTopicDataCollectionWrapper dbIncomingTopics = (DBTranslatedTopicDataCollectionWrapper) incomingTopics;
+        dbIncomingTopics.registerEventListener(relatedFromTopicCollectionEventListener);
 
         // Remove Topics
-        for (final TranslatedTopicWrapper removeTopic : removeTopics) {
+        final List<Topic> currentTopics = getEnversTopic().getOutgoingRelatedTopicsArray();
+        for (final Topic removeTopic : currentTopics) {
             getEnversTopic().removeRelationshipFrom(removeTopic.getTopicId(), 1);
+        }
+
+        // Add Topics
+        final Collection<TranslatedTopicData> newTopics = dbIncomingTopics.unwrap();
+        for (final TranslatedTopicData addTopic : newTopics) {
+            getEnversTopic().addRelationshipFrom(getEntityManager(), addTopic.getTranslatedTopic().getTopicId(), 1);
         }
     }
 
@@ -210,29 +215,27 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> getProperties() {
         final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
                 getEnversTopic().getTopicToPropertyTags(), TopicToPropertyTag.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
+        final DBTopicToPropertyTagCollectionWrapper dbCollection = (DBTopicToPropertyTagCollectionWrapper) collection;
+        dbCollection.registerEventListener(propertyCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setProperties(UpdateableCollectionWrapper<PropertyTagInTopicWrapper> properties) {
         if (properties == null) return;
+        final DBTopicToPropertyTagCollectionWrapper dbProperties = (DBTopicToPropertyTagCollectionWrapper) properties;
+        dbProperties.registerEventListener(propertyCollectionEventListener);
 
-        final List<PropertyTagInTopicWrapper> addProperties = properties.getAddItems();
-        final List<PropertyTagInTopicWrapper> removeProperties = properties.getRemoveItems();
-        /*
-         * There is no need to do update properties as when the original entities are altered they will automatically be updated when using
-         * database entities.
-         */
-        //final List<PropertyTagInTopicWrapper> updateProperties = properties.getUpdateItems();
-
-        // Add Properties
-        for (final PropertyTagInTopicWrapper addProperty : addProperties) {
-            getEnversTopic().addPropertyTag((TopicToPropertyTag) addProperty.unwrap());
+        // Remove the current properties
+        final Set<TopicToPropertyTag> propertyTags = new HashSet<TopicToPropertyTag>(getEnversTopic().getTopicToPropertyTags());
+        for (final TopicToPropertyTag propertyTag : propertyTags) {
+            getEnversTopic().removePropertyTag(propertyTag);
         }
 
-        // Remove Properties
-        for (final PropertyTagInTopicWrapper removeProperty : removeProperties) {
-            getEnversTopic().removePropertyTag((TopicToPropertyTag) removeProperty.unwrap());
+        // Set the new properties
+        final Collection<TopicToPropertyTag> newPropertyTags = dbProperties.unwrap();
+        for (final TopicToPropertyTag propertyTag : newPropertyTags) {
+            getEnversTopic().addPropertyTag(propertyTag);
         }
     }
 
@@ -243,14 +246,29 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public CollectionWrapper<TopicSourceURLWrapper> getSourceURLs() {
-        return getWrapperFactory().createCollection(getEnversTopic().getTopicSourceUrls(), TopicSourceUrl.class, isRevisionEntity());
+        final CollectionWrapper<TopicSourceURLWrapper> collection = getWrapperFactory().createCollection(
+                getEnversTopic().getTopicSourceUrls(), TopicSourceUrl.class, isRevisionEntity());
+        final DBTopicSourceURLCollectionWrapper dbCollection = (DBTopicSourceURLCollectionWrapper) collection;
+        dbCollection.registerEventListener(sourceUrlCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setSourceURLs(CollectionWrapper<TopicSourceURLWrapper> sourceURLs) {
-        getEnversTopic().getTopicToTopicSourceUrls().clear();
-        for (final TopicSourceURLWrapper topicSourceUrl : sourceURLs.getItems()) {
-            getEnversTopic().addTopicSourceUrl((TopicSourceUrl) topicSourceUrl.unwrap());
+        if (sourceURLs == null) return;
+        final DBTopicSourceURLCollectionWrapper dbProperties = (DBTopicSourceURLCollectionWrapper) sourceURLs;
+        dbProperties.registerEventListener(sourceUrlCollectionEventListener);
+
+        // Remove the current properties
+        final List<TopicSourceUrl> currentSourceUrls = getEnversTopic().getTopicSourceUrls();
+        for (final TopicSourceUrl sourceUrl : currentSourceUrls) {
+            getEnversTopic().removeTopicSourceUrl(sourceUrl.getId());
+        }
+
+        // Set the new properties
+        final Collection<TopicSourceUrl> newSourceUrls = dbProperties.unwrap();
+        for (final TopicSourceUrl sourceUrl : newSourceUrls) {
+            getEnversTopic().addTopicSourceUrl(sourceUrl);
         }
     }
 
@@ -363,16 +381,6 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     }
 
     @Override
-    public Date getHtmlUpdated() {
-        return getEntity().getTranslatedXmlRenderedUpdated();
-    }
-
-    @Override
-    public void setHtmlUpdated(Date htmlUpdated) {
-        getEntity().setTranslatedXmlRenderedUpdated(htmlUpdated);
-    }
-
-    @Override
     public String getTranslatedXMLCondition() {
         return getEntity().getTranslatedXMLCondition();
     }
@@ -386,29 +394,27 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
         final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
                 getEntity().getTranslatedTopicDataStringsArray(), TranslatedTopicString.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) collection;
+        final DBTranslatedTopicStringCollectionWrapper dbCollection = (DBTranslatedTopicStringCollectionWrapper) collection;
+        dbCollection.registerEventListener(translatedTopicStringCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setTranslatedTopicStrings(UpdateableCollectionWrapper<TranslatedTopicStringWrapper> translatedStrings) {
         if (translatedStrings == null) return;
+        final DBTranslatedTopicStringCollectionWrapper dbTranslatedStrings = (DBTranslatedTopicStringCollectionWrapper) translatedStrings;
+        dbTranslatedStrings.registerEventListener(translatedTopicStringCollectionEventListener);
 
-        final List<TranslatedTopicStringWrapper> addTranslatedStrings = translatedStrings.getAddItems();
-        final List<TranslatedTopicStringWrapper> removeTranslatedStrings = translatedStrings.getRemoveItems();
-        /*
-         * There is no need to do update properties as when the original entities are altered they will automatically be updated when using
-         * database entities.
-         */
-        //final List<TranslatedTopicStringWrapper> updateTranslatedStrings = translatedStrings.getUpdateItems();
-
-        // Add Translated Strings
-        for (final TranslatedTopicStringWrapper addTranslatedString : addTranslatedStrings) {
-            getEntity().addTranslatedTopicString((TranslatedTopicString) addTranslatedString.unwrap());
+        // Remove the current translated strings
+        final Set<TranslatedTopicString> currentTranslatedStrings = getEntity().getTranslatedTopicStrings();
+        for (final TranslatedTopicString translatedString : currentTranslatedStrings) {
+            getEntity().removeTranslatedTopicString(translatedString);
         }
 
-        // Remove Translated Strings
-        for (final TranslatedTopicStringWrapper removeTranslatedString : removeTranslatedStrings) {
-            getEntity().removeTranslatedTopicString((TranslatedTopicString) removeTranslatedString.unwrap());
+        // Set the new translated strings
+        final Collection<TranslatedTopicString> newTranslatedStrings = dbTranslatedStrings.unwrap();
+        for (final TranslatedTopicString translatedString : newTranslatedStrings) {
+            getEntity().addTranslatedTopicString(translatedString);
         }
     }
 
@@ -424,12 +430,146 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public TranslatedCSNodeWrapper getTranslatedCSNode() {
-        return getWrapperFactory().create(getEntity().getTranslatedCSNode(), isRevisionEntity(),
-                TranslatedCSNodeWrapper.class);
+        return getWrapperFactory().create(getEntity().getTranslatedCSNode(), isRevisionEntity(), TranslatedCSNodeWrapper.class);
     }
 
     @Override
     public void setTranslatedCSNode(TranslatedCSNodeWrapper translatedCSNode) {
         getEntity().setTranslatedCSNode(translatedCSNode == null ? null : (TranslatedCSNode) translatedCSNode.unwrap());
+    }
+
+    /**
+     *
+     */
+    private class TranslatedTopicStringCollectionEventListener implements UpdateableCollectionEventListener<TranslatedTopicString> {
+        @Override
+        public void onAddItem(final TranslatedTopicString entity) {
+            getEntity().addTranslatedTopicString(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final TranslatedTopicString entity) {
+            getEntity().addTranslatedTopicString(entity);
+        }
+
+        @Override
+        public void onUpdateItem(final TranslatedTopicString entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof TranslatedTopicStringCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class RelatedToTopicCollectionEventListener implements CollectionEventListener<TranslatedTopicData> {
+
+        @Override
+        public void onAddItem(TranslatedTopicData entity) {
+            getEnversTopic().addRelationshipTo(getEntityManager(), entity.getTranslatedTopic().getTopicId(), 1);
+        }
+
+        @Override
+        public void onRemoveItem(TranslatedTopicData entity) {
+            getEnversTopic().removeRelationshipTo(entity.getTranslatedTopic().getTopicId(), 1);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof RelatedToTopicCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class RelatedFromTopicCollectionEventListener implements CollectionEventListener<TranslatedTopicData> {
+
+        @Override
+        public void onAddItem(TranslatedTopicData entity) {
+            getEnversTopic().addRelationshipFrom(getEntityManager(), entity.getTranslatedTopic().getTopicId(), 1);
+        }
+
+        @Override
+        public void onRemoveItem(TranslatedTopicData entity) {
+            getEnversTopic().removeRelationshipFrom(entity.getTranslatedTopic().getTopicId(), 1);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof RelatedFromTopicCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class TagCollectionEventListener implements CollectionEventListener<Tag> {
+
+        @Override
+        public void onAddItem(Tag entity) {
+            getEnversTopic().addTag(entity);
+        }
+
+        @Override
+        public void onRemoveItem(Tag entity) {
+            getEnversTopic().removeTag(entity);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof TagCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class PropertyCollectionEventListener implements UpdateableCollectionEventListener<TopicToPropertyTag> {
+        @Override
+        public void onAddItem(final TopicToPropertyTag entity) {
+            getEnversTopic().addPropertyTag(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final TopicToPropertyTag entity) {
+            getEnversTopic().removePropertyTag(entity);
+        }
+
+        @Override
+        public void onUpdateItem(final TopicToPropertyTag entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof PropertyCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class SourceUrlCollectionEventListener implements UpdateableCollectionEventListener<TopicSourceUrl> {
+        @Override
+        public void onAddItem(final TopicSourceUrl entity) {
+            getEnversTopic().addTopicSourceUrl(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final TopicSourceUrl entity) {
+            getEnversTopic().removeTopicSourceUrl(entity.getId());
+        }
+
+        @Override
+        public void onUpdateItem(final TopicSourceUrl entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof SourceUrlCollectionEventListener;
+        }
     }
 }

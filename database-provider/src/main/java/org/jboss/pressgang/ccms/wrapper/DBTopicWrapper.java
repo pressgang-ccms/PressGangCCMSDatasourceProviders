@@ -1,8 +1,11 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.Topic;
@@ -13,10 +16,22 @@ import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTagCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTopicCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTopicSourceURLCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTopicToPropertyTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
 public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implements TopicWrapper {
+    private final TagCollectionEventListener tagCollectionEventListener = new TagCollectionEventListener();
+    private final SourceUrlCollectionEventListener sourceUrlCollectionEventListener = new SourceUrlCollectionEventListener();
+    private final PropertyCollectionEventListener propertyCollectionEventListener = new PropertyCollectionEventListener();
+    private final RelatedFromTopicCollectionEventListener relatedFromTopicCollectionEventListener = new
+            RelatedFromTopicCollectionEventListener();
+    private final RelatedToTopicCollectionEventListener relatedToTopicCollectionEventListener = new RelatedToTopicCollectionEventListener();
 
     private final Topic topic;
 
@@ -81,101 +96,91 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
     }
 
     @Override
-    public String getHtml() {
-        return getEntity().getTopicRendered();
-    }
-
-    @Override
-    public void setHtml(String html) {
-        getEntity().setTopicRendered(html);
-    }
-
-    @Override
     public boolean hasTag(int tagId) {
         return getEntity().isTaggedWith(tagId);
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getTags() {
-        return getWrapperFactory().createCollection(getEntity().getTags(), Tag.class, isRevisionEntity());
+        final CollectionWrapper<TagWrapper> collection = getWrapperFactory().createCollection(getEntity().getTags(), Tag.class,
+                isRevisionEntity());
+        final DBTagCollectionWrapper dbCollection = (DBTagCollectionWrapper) collection;
+        dbCollection.registerEventListener(tagCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setTags(CollectionWrapper<TagWrapper> tags) {
         if (tags == null) return;
-
-        final List<TagWrapper> addTags = tags.getAddItems();
-        final List<TagWrapper> removeTags = tags.getRemoveItems();
-        /*
-         * There is no need to do update tags as when the original entities are altered they will automatically be updated when using
-         * database entities.
-         */
-        //final List<TagWrapper> updateTags = tags.getUpdateItems();
+        final DBTagCollectionWrapper dbTags = (DBTagCollectionWrapper) tags;
+        dbTags.registerEventListener(tagCollectionEventListener);
 
         // Remove Tags
-        for (final TagWrapper removeTag : removeTags) {
-            getEntity().removeTag((Tag) removeTag.unwrap());
+        final List<Tag> currentTags = getEntity().getTags();
+        for (final Tag removeTag : currentTags) {
+            getEntity().removeTag(removeTag);
         }
 
         // Add Tags
-        for (final TagWrapper addTag : addTags) {
-            getEntity().addTag((Tag) addTag.unwrap());
+        final Collection<Tag> newTags = dbTags.unwrap();
+        for (final Tag addTag : newTags) {
+            getEntity().addTag(addTag);
         }
     }
 
     @Override
     public CollectionWrapper<TopicWrapper> getOutgoingRelationships() {
-        return getWrapperFactory().createCollection(getEntity().getOutgoingRelatedTopicsArray(), Topic.class, isRevisionEntity());
+        final CollectionWrapper<TopicWrapper> collection = getWrapperFactory().createCollection(getEntity().getOutgoingRelatedTopicsArray(),
+                Topic.class, isRevisionEntity());
+        final DBTopicCollectionWrapper dbCollection = (DBTopicCollectionWrapper) collection;
+        dbCollection.registerEventListener(relatedToTopicCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setOutgoingRelationships(CollectionWrapper<TopicWrapper> outgoingTopics) {
         if (outgoingTopics == null) return;
-
-        final List<TopicWrapper> addTopics = outgoingTopics.getAddItems();
-        final List<TopicWrapper> removeTopics = outgoingTopics.getRemoveItems();
-        /*
-         * There is no need to do update outgoing topics as when the original entities are altered they will automatically be updated when
-         * using database entities.
-         */
-        //final List<TopicWrapper> updateTopics = outgoingTopics.getUpdateItems();
-
-        // Add Topics
-        for (final TopicWrapper addTopic : addTopics) {
-            getEntity().addRelationshipTo(getEntityManager(), (Topic) addTopic.unwrap(), 1);
-        }
+        final DBTopicCollectionWrapper dbOutgoingTopics = (DBTopicCollectionWrapper) outgoingTopics;
+        dbOutgoingTopics.registerEventListener(relatedToTopicCollectionEventListener);
 
         // Remove Topics
-        for (final TopicWrapper removeTopic : removeTopics) {
-            getEntity().removeRelationshipTo(((Topic) removeTopic.unwrap()).getTopicId(), 1);
+        final List<Topic> currentTopics = getEntity().getOutgoingRelatedTopicsArray();
+        for (final Topic removeTopic : currentTopics) {
+            getEntity().removeRelationshipTo(removeTopic.getTopicId(), 1);
+        }
+
+        // Add Topics
+        final Collection<Topic> newTopics = dbOutgoingTopics.unwrap();
+        for (final Topic addTopic : newTopics) {
+            getEntity().addRelationshipTo(getEntityManager(), addTopic, 1);
         }
     }
 
     @Override
     public CollectionWrapper<TopicWrapper> getIncomingRelationships() {
-        return getWrapperFactory().createCollection(getEntity().getIncomingRelatedTopicsArray(), Topic.class, isRevisionEntity());
+        final CollectionWrapper<TopicWrapper> collection = getWrapperFactory().createCollection(getEntity().getIncomingRelatedTopicsArray(),
+                Topic.class, isRevisionEntity());
+        final DBTopicCollectionWrapper dbCollection = (DBTopicCollectionWrapper) collection;
+        dbCollection.registerEventListener(relatedFromTopicCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setIncomingRelationships(CollectionWrapper<TopicWrapper> incomingTopics) {
         if (incomingTopics == null) return;
-
-        final List<TopicWrapper> addTopics = incomingTopics.getAddItems();
-        final List<TopicWrapper> removeTopics = incomingTopics.getRemoveItems();
-        /*
-         * There is no need to do update incoming topics as when the original entities are altered they will automatically be updated when
-         * using database entities.
-         */
-        //final List<TopicWrapper> updateTopics = incomingTopics.getUpdateItems();
-
-        // Add Topics
-        for (final TopicWrapper addTopic : addTopics) {
-            getEntity().addRelationshipFrom(getEntityManager(), (Topic) addTopic.unwrap(), 1);
-        }
+        final DBTopicCollectionWrapper dbIncomingTopics = (DBTopicCollectionWrapper) incomingTopics;
+        dbIncomingTopics.registerEventListener(relatedFromTopicCollectionEventListener);
 
         // Remove Topics
-        for (final TopicWrapper removeTopic : removeTopics) {
+        final List<Topic> currentTopics = getEntity().getOutgoingRelatedTopicsArray();
+        for (final Topic removeTopic : currentTopics) {
             getEntity().removeRelationshipFrom(removeTopic.getTopicId(), 1);
+        }
+
+        // Add Topics
+        final Collection<Topic> newTopics = dbIncomingTopics.unwrap();
+        for (final Topic addTopic : newTopics) {
+            getEntity().addRelationshipFrom(getEntityManager(), addTopic, 1);
         }
     }
 
@@ -188,29 +193,27 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
     public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> getProperties() {
         final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
                 getEntity().getTopicToPropertyTags(), TopicToPropertyTag.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
+        final DBTopicToPropertyTagCollectionWrapper dbCollection = (DBTopicToPropertyTagCollectionWrapper) collection;
+        dbCollection.registerEventListener(propertyCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setProperties(UpdateableCollectionWrapper<PropertyTagInTopicWrapper> properties) {
         if (properties == null) return;
+        final DBTopicToPropertyTagCollectionWrapper dbProperties = (DBTopicToPropertyTagCollectionWrapper) properties;
+        dbProperties.registerEventListener(propertyCollectionEventListener);
 
-        final List<PropertyTagInTopicWrapper> addProperties = properties.getAddItems();
-        final List<PropertyTagInTopicWrapper> removeProperties = properties.getRemoveItems();
-        /*
-         * There is no need to do update properties as when the original entities are altered they will automatically be updated when using
-         * database entities.
-         */
-        //final List<PropertyTagInTopicWrapper> updateProperties = properties.getUpdateItems();
-
-        // Add Properties
-        for (final PropertyTagInTopicWrapper addProperty : addProperties) {
-            getEntity().addPropertyTag((TopicToPropertyTag) addProperty.unwrap());
+        // Remove the current properties
+        final Set<TopicToPropertyTag> propertyTags = new HashSet<TopicToPropertyTag>(getEntity().getTopicToPropertyTags());
+        for (final TopicToPropertyTag propertyTag : propertyTags) {
+            getEntity().removePropertyTag(propertyTag);
         }
 
-        // Remove Properties
-        for (final PropertyTagInTopicWrapper removeProperty : removeProperties) {
-            getEntity().removePropertyTag((TopicToPropertyTag) removeProperty.unwrap());
+        // Set the new properties
+        final Collection<TopicToPropertyTag> newPropertyTags = dbProperties.unwrap();
+        for (final TopicToPropertyTag propertyTag : newPropertyTags) {
+            getEntity().addPropertyTag(propertyTag);
         }
     }
 
@@ -221,29 +224,29 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
 
     @Override
     public CollectionWrapper<TopicSourceURLWrapper> getSourceURLs() {
-        return getWrapperFactory().createCollection(getEntity().getTopicSourceUrls(), TopicSourceUrl.class, isRevisionEntity());
+        final CollectionWrapper<TopicSourceURLWrapper> collection = getWrapperFactory().createCollection(getEntity().getTopicSourceUrls(),
+                TopicSourceUrl.class, isRevisionEntity());
+        final DBTopicSourceURLCollectionWrapper dbCollection = (DBTopicSourceURLCollectionWrapper) collection;
+        dbCollection.registerEventListener(sourceUrlCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setSourceURLs(CollectionWrapper<TopicSourceURLWrapper> sourceURLs) {
         if (sourceURLs == null) return;
+        final DBTopicSourceURLCollectionWrapper dbProperties = (DBTopicSourceURLCollectionWrapper) sourceURLs;
+        dbProperties.registerEventListener(sourceUrlCollectionEventListener);
 
-        final List<TopicSourceURLWrapper> addSourceUrls = sourceURLs.getAddItems();
-        final List<TopicSourceURLWrapper> removeSourceUrls = sourceURLs.getRemoveItems();
-        /*
-         * There is no need to do update properties as when the original entities are altered they will automatically be updated when using
-         * database entities.
-         */
-        //final List<TopicSourceURLWrapper> updateProperties = sourceURLs.getUpdateItems();
-
-        // Add Source URLs
-        for (final TopicSourceURLWrapper addProperty : addSourceUrls) {
-            getEntity().addTopicSourceUrl((TopicSourceUrl) addProperty.unwrap());
+        // Remove the current properties
+        final List<TopicSourceUrl> currentSourceUrls = getEntity().getTopicSourceUrls();
+        for (final TopicSourceUrl sourceUrl : currentSourceUrls) {
+            getEntity().removeTopicSourceUrl(sourceUrl.getId());
         }
 
-        // Remove Source URLs
-        for (final TopicSourceURLWrapper removeSourceUrl : removeSourceUrls) {
-            getEntity().removeTopicSourceUrl(((TopicSourceUrl) removeSourceUrl.unwrap()).getId());
+        // Set the new properties
+        final Collection<TopicSourceUrl> newSourceUrls = dbProperties.unwrap();
+        for (final TopicSourceUrl sourceUrl : newSourceUrls) {
+            getEntity().addTopicSourceUrl(sourceUrl);
         }
     }
 
@@ -339,5 +342,116 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopics() {
         return getWrapperFactory().createCollection(getEntity().getTranslatedTopics(getEntityManager(), getRevision()),
                 TranslatedTopic.class, isRevisionEntity());
+    }
+
+    /**
+     *
+     */
+    private class RelatedToTopicCollectionEventListener implements CollectionEventListener<Topic> {
+
+        @Override
+        public void onAddItem(Topic entity) {
+            getEntity().addRelationshipTo(getEntityManager(), entity, 1);
+        }
+
+        @Override
+        public void onRemoveItem(Topic entity) {
+            getEntity().removeRelationshipTo(entity.getId(), 1);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof RelatedToTopicCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class RelatedFromTopicCollectionEventListener implements CollectionEventListener<Topic> {
+
+        @Override
+        public void onAddItem(Topic entity) {
+            getEntity().addRelationshipFrom(getEntityManager(), entity, 1);
+        }
+
+        @Override
+        public void onRemoveItem(Topic entity) {
+            getEntity().removeRelationshipFrom(entity.getId(), 1);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof RelatedFromTopicCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class TagCollectionEventListener implements CollectionEventListener<Tag> {
+
+        @Override
+        public void onAddItem(Tag entity) {
+            getEntity().addTag(entity);
+        }
+
+        @Override
+        public void onRemoveItem(Tag entity) {
+            getEntity().removeTag(entity);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof TagCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class PropertyCollectionEventListener implements UpdateableCollectionEventListener<TopicToPropertyTag> {
+        @Override
+        public void onAddItem(final TopicToPropertyTag entity) {
+            getEntity().addPropertyTag(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final TopicToPropertyTag entity) {
+            getEntity().removePropertyTag(entity);
+        }
+
+        @Override
+        public void onUpdateItem(final TopicToPropertyTag entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof PropertyCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class SourceUrlCollectionEventListener implements UpdateableCollectionEventListener<TopicSourceUrl> {
+        @Override
+        public void onAddItem(final TopicSourceUrl entity) {
+            getEntity().addTopicSourceUrl(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final TopicSourceUrl entity) {
+            getEntity().removeTopicSourceUrl(entity.getId());
+        }
+
+        @Override
+        public void onUpdateItem(final TopicSourceUrl entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof SourceUrlCollectionEventListener;
+        }
     }
 }

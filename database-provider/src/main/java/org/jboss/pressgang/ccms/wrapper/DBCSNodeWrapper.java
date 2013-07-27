@@ -1,15 +1,26 @@
 package org.jboss.pressgang.ccms.wrapper;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
 
 public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implements CSNodeWrapper {
+    private CSNodeCollectionEventListener csNodeCollectionEventListener = new CSNodeCollectionEventListener();
+    private final CSRelatedToNodeCollectionEventListener csRelatedToNodeCollectionEventListener =
+            new CSRelatedToNodeCollectionEventListener();
+    private final CSRelatedFromNodeCollectionEventListener csRelatedFromNodeCollectionEventListener =
+            new CSRelatedFromNodeCollectionEventListener();
+
     private final CSNode csNode;
 
     public DBCSNodeWrapper(final DBProviderFactory providerFactory, final CSNode csNode, boolean isRevision) {
@@ -26,29 +37,28 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedToNodes() {
         final CollectionWrapper<CSRelatedNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getRelatedToNodes(),
                 CSNodeToCSNode.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) collection;
+        final DBCSRelatedNodeCollectionWrapper dbCollection = (DBCSRelatedNodeCollectionWrapper) collection;
+        dbCollection.registerEventListener(csRelatedToNodeCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setRelatedToNodes(UpdateableCollectionWrapper<CSRelatedNodeWrapper> relatedToNodes) {
         if (relatedToNodes == null) return;
+        final DBCSRelatedNodeCollectionWrapper dbRelatedToNodes = (DBCSRelatedNodeCollectionWrapper) relatedToNodes;
+        dbRelatedToNodes.registerEventListener(csRelatedToNodeCollectionEventListener);
 
-        final List<CSRelatedNodeWrapper> addRelatedToNodes = relatedToNodes.getAddItems();
-        final List<CSRelatedNodeWrapper> removeRelatedToNodes = relatedToNodes.getRemoveItems();
-        /*
-         * There is no need to do update the related to nodes as when the original entities are altered they will automatically be updated
-         * when using database entities.
-         */
-        //final List<PropertyTagInTopicWrapper> updateRelatedToNodes = relatedToNodes.getUpdateItems();
-
-        // Add Related Nodes
-        for (final CSRelatedNodeWrapper addRelatedToNode : addRelatedToNodes) {
-            getEntity().addRelatedTo((CSNodeToCSNode) addRelatedToNode.unwrap());
+        // Remove the current Related Nodes
+        final Set<CSNodeToCSNode> currentRelatedToNodes = new HashSet<CSNodeToCSNode>(getEntity().getRelatedToNodes());
+        for (final CSNodeToCSNode relatedToNode : currentRelatedToNodes) {
+            getEntity().removeRelatedTo(relatedToNode);
         }
 
-        // Remove Related Nodes
-        for (final CSRelatedNodeWrapper removeRelatedToNode : removeRelatedToNodes) {
-            getEntity().removeRelatedTo((CSNodeToCSNode) removeRelatedToNode.unwrap());
+        // Add new Related Nodes
+        final Collection<CSNodeToCSNode> newRelatedToNodes = dbRelatedToNodes.unwrap();
+        for (final CSNodeToCSNode relatedToNode : newRelatedToNodes) {
+            relatedToNode.setMainNode(getEntity());
+            getEntity().addRelatedTo(relatedToNode);
         }
     }
 
@@ -56,29 +66,28 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedFromNodes() {
         final CollectionWrapper<CSRelatedNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getRelatedFromNodes(),
                 CSNodeToCSNode.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) collection;
+        final DBCSRelatedNodeCollectionWrapper dbCollection = (DBCSRelatedNodeCollectionWrapper) collection;
+        dbCollection.registerEventListener(csRelatedFromNodeCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setRelatedFromNodes(UpdateableCollectionWrapper<CSRelatedNodeWrapper> relatedFromNodes) {
         if (relatedFromNodes == null) return;
+        final DBCSRelatedNodeCollectionWrapper dbRelatedFromNodes = (DBCSRelatedNodeCollectionWrapper) relatedFromNodes;
+        dbRelatedFromNodes.registerEventListener(csRelatedFromNodeCollectionEventListener);
 
-        final List<CSRelatedNodeWrapper> addRelatedFromNodes = relatedFromNodes.getAddItems();
-        final List<CSRelatedNodeWrapper> removeRelatedFromNodes = relatedFromNodes.getRemoveItems();
-        /*
-         * There is no need to do update the related from nodes as when the original entities are altered they will automatically be
-         * updated when using database entities.
-         */
-        //final List<CSRelatedNodeWrapper> updateRelatedFromNodes = relatedFromNodes.getUpdateItems();
-
-        // Add Related Nodes
-        for (final CSRelatedNodeWrapper addRelatedFromNode : addRelatedFromNodes) {
-            getEntity().addRelatedFrom((CSNodeToCSNode) addRelatedFromNode.unwrap());
+        // Remove the current Related Nodes
+        final Set<CSNodeToCSNode> currentRelatedFromNodes = new HashSet<CSNodeToCSNode>(getEntity().getRelatedFromNodes());
+        for (final CSNodeToCSNode relatedFromNode : currentRelatedFromNodes) {
+            getEntity().removeRelatedFrom(relatedFromNode);
         }
 
-        // Remove Related Nodes
-        for (final CSRelatedNodeWrapper removeRelatedFromNode : removeRelatedFromNodes) {
-            getEntity().removeRelatedFrom((CSNodeToCSNode) removeRelatedFromNode.unwrap());
+        // Add new Related Nodes
+        final Collection<CSNodeToCSNode> newRelatedFromNodes = dbRelatedFromNodes.unwrap();
+        for (final CSNodeToCSNode relatedFromNode : newRelatedFromNodes) {
+            relatedFromNode.setMainNode(getEntity());
+            getEntity().addRelatedFrom(relatedFromNode);
         }
     }
 
@@ -106,29 +115,27 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
         final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getChildren(), CSNode.class,
                 isRevisionEntity());
-        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+        final DBCSNodeCollectionWrapper dbCollection = (DBCSNodeCollectionWrapper) collection;
+        dbCollection.registerEventListener(csNodeCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
         if (nodes == null) return;
+        final DBCSNodeCollectionWrapper dbNodes = (DBCSNodeCollectionWrapper) nodes;
+        dbNodes.registerEventListener(csNodeCollectionEventListener);
 
-        final List<CSNodeWrapper> addNodes = nodes.getAddItems();
-        final List<CSNodeWrapper> removeNodes = nodes.getRemoveItems();
-        /*
-         * There is no need to do update the child nodes as when the original entities are altered they will automatically be
-         * updated when using database entities.
-         */
-        //final List<CSNodeWrapper> updateNodes = relatedFromNodes.getUpdateItems();
-
-        // Add Child Nodes
-        for (final CSNodeWrapper addNode : addNodes) {
-            getEntity().addChild((CSNode) addNode.unwrap());
+        // Remove the current children
+        final Set<CSNode> children = new HashSet<CSNode>(getEntity().getChildren());
+        for (final CSNode child : children) {
+            getEntity().removeChild(child);
         }
 
-        // Remove Child Nodes
-        for (final CSNodeWrapper removeNode : removeNodes) {
-            getEntity().removeChild((CSNode) removeNode.unwrap());
+        // Set the new children
+        final Collection<CSNode> newChildren = dbNodes.unwrap();
+        for (final CSNode child : newChildren) {
+            getEntity().addChild(child);
         }
     }
 
@@ -220,5 +227,77 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     @Override
     public CSNode unwrap() {
         return csNode;
+    }
+
+    /**
+     *
+     */
+    private class CSNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNode> {
+        @Override
+        public void onAddItem(final CSNode entity) {
+            getEntity().addChild(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final CSNode entity) {
+            getEntity().removeChild(entity);
+        }
+
+        @Override
+        public void onUpdateItem(final CSNode entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof CSNodeCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class CSRelatedToNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNodeToCSNode> {
+        @Override
+        public void onAddItem(final CSNodeToCSNode entity) {
+            getEntity().addRelatedTo(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final CSNodeToCSNode entity) {
+            getEntity().removeRelatedTo(entity);
+        }
+
+        @Override
+        public void onUpdateItem(final CSNodeToCSNode entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof CSRelatedToNodeCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class CSRelatedFromNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNodeToCSNode> {
+        @Override
+        public void onAddItem(final CSNodeToCSNode entity) {
+            getEntity().addRelatedFrom(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final CSNodeToCSNode entity) {
+            getEntity().removeRelatedFrom(entity);
+        }
+
+        @Override
+        public void onUpdateItem(final CSNodeToCSNode entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof CSRelatedFromNodeCollectionEventListener;
+        }
     }
 }

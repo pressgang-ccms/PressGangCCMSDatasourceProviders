@@ -5,8 +5,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.pressgang.ccms.provider.exception.BadRequestException;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
 
 public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, U> extends DBCollectionWrapper<T,
         U> implements UpdateableCollectionWrapper<T> {
@@ -20,8 +23,15 @@ public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, 
     @Override
     @SuppressWarnings("unchecked")
     public void addUpdateItem(T entity) {
-        getCollection().put(entity, UPDATE_STATE);
-        getCollectionItems().put((U) entity.unwrap(), UPDATE_STATE);
+        final U unwrappedEntity = (U) entity.unwrap();
+        if (getCollectionItems().contains(unwrappedEntity)) {
+            getCollection().put(entity, UPDATE_STATE);
+            if (!isRevisionList()) {
+                notifyOnUpdateEvent(unwrappedEntity);
+            }
+        } else {
+            throw new BadRequestException("Update Entity is not part of the collection");
+        }
     }
 
     @Override
@@ -34,5 +44,17 @@ public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, 
         }
 
         return updateItems;
+    }
+
+    public void registerEventListener(UpdateableCollectionEventListener<U> listener) {
+        super.registerEventListener(listener);
+    }
+
+    private void notifyOnUpdateEvent(U entity) {
+        for (final CollectionEventListener<U> listener : getEventListeners()) {
+            if (listener instanceof UpdateableCollectionEventListener) {
+                ((UpdateableCollectionEventListener) listener).onUpdateItem(entity);
+            }
+        }
     }
 }

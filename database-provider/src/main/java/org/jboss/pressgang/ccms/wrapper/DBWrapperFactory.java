@@ -22,10 +22,10 @@ import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.model.User;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
-import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
-import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.provider.DataProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
@@ -33,9 +33,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBBlobConstantCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeStringCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryInTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecToPropertyTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBImageCollectionWrapper;
@@ -49,11 +48,16 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBTagToPropertyTagCollectionW
 import org.jboss.pressgang.ccms.wrapper.collection.DBTopicCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTopicSourceURLCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTopicToPropertyTagCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeStringCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicDataCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicStringCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBUserCollectionWrapper;
 
 public class DBWrapperFactory extends WrapperFactory {
+    public DBWrapperFactory() {
+    }
+
     public DBWrapperFactory(DataProviderFactory providerFactory) {
         super(providerFactory);
     }
@@ -158,7 +162,7 @@ public class DBWrapperFactory extends WrapperFactory {
             wrapper = new DBTopicSourceURLCollectionWrapper(this, (Collection<TopicSourceUrl>) collection, isRevisionCollection);
         } else if (entityClass == TranslatedTopicData.class) {
             // TRANSLATED TOPIC
-            wrapper = new DBTranslatedTopicCollectionWrapper(this, (Collection<TranslatedTopicData>) collection, isRevisionCollection);
+            wrapper = new DBTranslatedTopicDataCollectionWrapper(this, (Collection<TranslatedTopicData>) collection, isRevisionCollection);
         } else if (entityClass == TranslatedTopicString.class) {
             // TRANSLATED TOPIC STRING
             wrapper = new DBTranslatedTopicStringCollectionWrapper(this, (Collection<TranslatedTopicString>) collection,
@@ -272,7 +276,7 @@ public class DBWrapperFactory extends WrapperFactory {
         if (entityClass == TagToCategory.class && wrapperClass == TagInCategoryWrapper.class) {
             wrapper = new DBTagInCategoryCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
         } else if (entityClass == TagToCategory.class && wrapperClass == CategoryInTagWrapper.class) {
-            wrapper = new DBTagInCategoryCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
+            wrapper = new DBCategoryInTagCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
         } else {
             wrapper = createCollection(collection, entityClass, isRevisionCollection);
         }

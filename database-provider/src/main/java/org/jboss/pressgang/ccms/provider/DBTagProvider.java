@@ -126,7 +126,7 @@ public class DBTagProvider extends DBDataProvider implements TagProvider {
 
     @Override
     public CollectionWrapper<TagWrapper> newTagCollection() {
-        return getWrapperFactory().createCollection(new Tag(), Tag.class, false);
+        return getWrapperFactory().createCollection(new ArrayList<Tag>(), Tag.class, false);
     }
 
     @Override

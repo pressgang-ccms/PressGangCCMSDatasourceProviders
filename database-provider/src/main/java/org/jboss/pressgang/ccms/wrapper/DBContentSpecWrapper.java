@@ -1,7 +1,10 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
@@ -11,9 +14,15 @@ import org.jboss.pressgang.ccms.model.contentspec.TranslatedContentSpec;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecToPropertyTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
 
 public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, ContentSpec> implements ContentSpecWrapper {
+    private final CSNodeCollectionEventListener csNodeCollectionEventListener = new CSNodeCollectionEventListener();
+    private final PropertyCollectionEventListener propertyCollectionEventListener = new PropertyCollectionEventListener();
+
     private final ContentSpec contentSpec;
 
     public DBContentSpecWrapper(final DBProviderFactory providerFactory, final ContentSpec contentSpec, boolean isRevision) {
@@ -35,52 +44,38 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
     public void setTags(CollectionWrapper<TagWrapper> tags) {
         if (tags == null) return;
 
-        final List<TagWrapper> addTags = tags.getAddItems();
-        final List<TagWrapper> removeTags = tags.getRemoveItems();
-        /*
-         * There is no need to do update tags as when the original entities are alter they will automatically be updated when using
-         * database entities.
-         */
-        //final List<TagWrapper> updateTags = tags.getUpdateItems();
-
-        // Remove Tags
-        for (final TagWrapper removeTag : removeTags) {
-            getEntity().removeTag((Tag) removeTag.unwrap());
-        }
-
-        // Add Tags
-        for (final TagWrapper addTag : addTags) {
-            getEntity().addTag((Tag) addTag.unwrap());
+        final List<Tag> unwrappedTags = (List<Tag>) tags.unwrap();
+        getEntity().getContentSpecToTags().clear();
+        for (final Tag tag : unwrappedTags) {
+            getEntity().addTag(tag);
         }
     }
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
-        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getTopCSNodes(),
-                CSNode.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getTopCSNodes(), CSNode.class,
+                isRevisionEntity());
+        final DBCSNodeCollectionWrapper dbCollection = (DBCSNodeCollectionWrapper) collection;
+        dbCollection.registerEventListener(csNodeCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
-    public void setChildren(CollectionWrapper<CSNodeWrapper> nodes) {
+    public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
         if (nodes == null) return;
+        final DBCSNodeCollectionWrapper dbNodes = (DBCSNodeCollectionWrapper) nodes;
+        dbNodes.registerEventListener(csNodeCollectionEventListener);
 
-        final List<CSNodeWrapper> addNodes = nodes.getAddItems();
-        final List<CSNodeWrapper> removeNodes = nodes.getRemoveItems();
-        /*
-         * There is no need to do update nodes as when the original entities are altered they will automatically be updated when using
-         * database entities.
-         */
-        //final List<CSNodeWrapper> updateMetaDatas = nodes.getUpdateItems();
-
-        // Add Nodes
-        for (final CSNodeWrapper addNode : addNodes) {
-            getEntity().addChild((CSNode) addNode.unwrap());
+        // Remove the current children
+        final List<CSNode> children = getEntity().getTopCSNodes();
+        for (final CSNode child : children) {
+            getEntity().removeChild(child);
         }
 
-        // Remove Nodes
-        for (final CSNodeWrapper removeNode : removeNodes) {
-            getEntity().removeChild((CSNode) removeNode.unwrap());
+        // Set the new children
+        final Collection<CSNode> newChildren = dbNodes.unwrap();
+        for (final CSNode child : newChildren) {
+            getEntity().addChild(child);
         }
     }
 
@@ -88,29 +83,28 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
     public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getProperties() {
         final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
                 getEntity().getContentSpecToPropertyTags(), ContentSpecToPropertyTag.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
+        final DBContentSpecToPropertyTagCollectionWrapper dbCollection = (DBContentSpecToPropertyTagCollectionWrapper) collection;
+        dbCollection.registerEventListener(propertyCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setProperties(UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> properties) {
         if (properties == null) return;
+        final DBContentSpecToPropertyTagCollectionWrapper dbProperties = (DBContentSpecToPropertyTagCollectionWrapper) properties;
+        dbProperties.registerEventListener(propertyCollectionEventListener);
 
-        final List<PropertyTagInContentSpecWrapper> addProperties = properties.getAddItems();
-        final List<PropertyTagInContentSpecWrapper> removeProperties = properties.getRemoveItems();
-        /*
-         * There is no need to do update properties as when the original entities are altered they will automatically be updated when using
-         * database entities.
-         */
-        //final List<PropertyTagInContentSpecWrapper> updateProperties = properties.getUpdateItems();
-
-        // Add Properties
-        for (final PropertyTagInContentSpecWrapper addProperty : addProperties) {
-            getEntity().addPropertyTag((ContentSpecToPropertyTag) addProperty.unwrap());
+        // Remove the current properties
+        final Set<ContentSpecToPropertyTag> propertyTags = new HashSet<ContentSpecToPropertyTag>(getEntity().getContentSpecToPropertyTags
+                ());
+        for (final ContentSpecToPropertyTag propertyTag : propertyTags) {
+            getEntity().removePropertyTag(propertyTag);
         }
 
-        // Remove Properties
-        for (final PropertyTagInContentSpecWrapper removeProperty : removeProperties) {
-            getEntity().removePropertyTag((ContentSpecToPropertyTag) removeProperty.unwrap());
+        // Set the new properties
+        final Collection<ContentSpecToPropertyTag> newPropertyTags = dbProperties.unwrap();
+        for (final ContentSpecToPropertyTag propertyTag : newPropertyTags) {
+            getEntity().addPropertyTag(propertyTag);
         }
     }
 
@@ -191,5 +185,53 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
     @Override
     public ContentSpec unwrap() {
         return contentSpec;
+    }
+
+    /**
+     *
+     */
+    private class CSNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNode> {
+        @Override
+        public void onAddItem(final CSNode entity) {
+            getEntity().addChild(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final CSNode entity) {
+            getEntity().removeChild(entity);
+        }
+
+        @Override
+        public void onUpdateItem(final CSNode entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof CSNodeCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class PropertyCollectionEventListener implements UpdateableCollectionEventListener<ContentSpecToPropertyTag> {
+        @Override
+        public void onAddItem(final ContentSpecToPropertyTag entity) {
+            getEntity().addPropertyTag(entity);
+        }
+
+        @Override
+        public void onRemoveItem(final ContentSpecToPropertyTag entity) {
+            getEntity().removePropertyTag(entity);
+        }
+
+        @Override
+        public void onUpdateItem(final ContentSpecToPropertyTag entity) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof PropertyCollectionEventListener;
+        }
     }
 }

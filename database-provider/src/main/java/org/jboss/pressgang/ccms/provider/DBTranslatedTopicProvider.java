@@ -188,7 +188,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
         notifyUpdateEntity(translatedTopic);
 
         // Persist the changes
-        getEntityManager().merge(translatedTopic.unwrap());
+        getEntityManager().persist(translatedTopic.unwrap());
 
         // Flush the changes to the database
         getEntityManager().flush();
@@ -204,7 +204,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
         // Persist the changes for each entity
         for (final TranslatedTopicWrapper topic : translatedTopics.getItems()) {
-            getEntityManager().merge(topic.unwrap());
+            getEntityManager().persist(topic.unwrap());
         }
 
         // Flush the changes to the database
