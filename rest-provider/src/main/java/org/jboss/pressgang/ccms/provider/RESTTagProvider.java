@@ -108,11 +108,6 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     }
 
     @Override
-    public CollectionWrapper<TagWrapper> getTagsByName(final String name) {
-        return getWrapperFactory().createCollection(getRESTTagsByName(name), RESTTagV1.class, false);
-    }
-
-    @Override
     public TagWrapper getTagByName(final String name) {
         final RESTTagCollectionV1 tags = getRESTTagsByName(name);
         if (tags != null && tags.getItems() != null && !tags.getItems().isEmpty()) {
