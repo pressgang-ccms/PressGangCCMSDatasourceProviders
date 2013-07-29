@@ -104,6 +104,7 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
         // Set the new properties
         final Collection<ContentSpecToPropertyTag> newPropertyTags = dbProperties.unwrap();
         for (final ContentSpecToPropertyTag propertyTag : newPropertyTags) {
+            propertyTag.setContentSpec(getEntity());
             getEntity().addPropertyTag(propertyTag);
         }
     }

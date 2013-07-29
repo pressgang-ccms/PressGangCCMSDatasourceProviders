@@ -213,6 +213,7 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
         // Set the new properties
         final Collection<TopicToPropertyTag> newPropertyTags = dbProperties.unwrap();
         for (final TopicToPropertyTag propertyTag : newPropertyTags) {
+            propertyTag.setTopic(getEntity());
             getEntity().addPropertyTag(propertyTag);
         }
     }
