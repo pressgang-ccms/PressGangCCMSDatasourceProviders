@@ -11,6 +11,10 @@ public interface ContentSpecWrapper extends EntityWrapper<ContentSpecWrapper> {
 
     void setTags(CollectionWrapper<TagWrapper> tags);
 
+    CollectionWrapper<TagWrapper> getBookTags();
+
+    void setBookTags(CollectionWrapper<TagWrapper> bookTags);
+
     UpdateableCollectionWrapper<CSNodeWrapper> getChildren();
 
     void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes);

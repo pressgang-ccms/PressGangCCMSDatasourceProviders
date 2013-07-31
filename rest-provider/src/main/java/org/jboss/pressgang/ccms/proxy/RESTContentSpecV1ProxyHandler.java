@@ -31,6 +31,8 @@ public class RESTContentSpecV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<
                     retValue = getProvider().getRESTContentSpecProperties(contentSpec.getId(), getEntityRevision());
                 } else if (methodName.equals("getTags")) {
                     retValue = getProvider().getRESTContentSpecTags(contentSpec.getId(), getEntityRevision());
+                } else if (methodName.equals("getBookTags")) {
+                    retValue = getProvider().getRESTContentSpecBookTags(contentSpec.getId(), getEntityRevision());
                 } else if (methodName.equals("getRevisions")) {
                     retValue = getProvider().getRESTContentSpecRevisions(contentSpec.getId(), getEntityRevision());
                 }

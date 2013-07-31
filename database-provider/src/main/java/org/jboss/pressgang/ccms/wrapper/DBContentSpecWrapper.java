@@ -16,12 +16,16 @@ import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecToPropertyTagCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
 import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
 
 public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, ContentSpec> implements ContentSpecWrapper {
     private final CSNodeCollectionEventListener csNodeCollectionEventListener = new CSNodeCollectionEventListener();
     private final PropertyCollectionEventListener propertyCollectionEventListener = new PropertyCollectionEventListener();
+    private final TagCollectionEventListener tagCollectionEventListener = new TagCollectionEventListener();
+    private final BookTagCollectionEventListener bookTagCollectionEventListener = new BookTagCollectionEventListener();
 
     private final ContentSpec contentSpec;
 
@@ -37,17 +41,57 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
 
     @Override
     public CollectionWrapper<TagWrapper> getTags() {
-        return getWrapperFactory().createCollection(getEntity().getTags(), Tag.class, isRevisionEntity());
+        final CollectionWrapper<TagWrapper> collection = getWrapperFactory().createCollection(getEntity().getTags(), Tag.class,
+                isRevisionEntity());
+        final DBTagCollectionWrapper dbCollection = (DBTagCollectionWrapper) collection;
+        dbCollection.registerEventListener(tagCollectionEventListener);
+        return dbCollection;
     }
 
     @Override
     public void setTags(CollectionWrapper<TagWrapper> tags) {
         if (tags == null) return;
+        final DBTagCollectionWrapper dbTags = (DBTagCollectionWrapper) tags;
+        dbTags.registerEventListener(tagCollectionEventListener);
 
-        final List<Tag> unwrappedTags = (List<Tag>) tags.unwrap();
-        getEntity().getContentSpecToTags().clear();
+        // Remove the current tags
+        final List<Tag> existingTags = getEntity().getTags();
+        for (final Tag tag : existingTags) {
+            getEntity().removeTag(tag);
+        }
+
+        // Set the new tags
+        final Collection<Tag> unwrappedTags = dbTags.unwrap();
         for (final Tag tag : unwrappedTags) {
             getEntity().addTag(tag);
+        }
+    }
+
+    @Override
+    public CollectionWrapper<TagWrapper> getBookTags() {
+        final CollectionWrapper<TagWrapper> collection = getWrapperFactory().createCollection(getEntity().getBookTags(), Tag.class,
+                isRevisionEntity());
+        final DBTagCollectionWrapper dbCollection = (DBTagCollectionWrapper) collection;
+        dbCollection.registerEventListener(bookTagCollectionEventListener);
+        return dbCollection;
+    }
+
+    @Override
+    public void setBookTags(CollectionWrapper<TagWrapper> bookTags) {
+        if (bookTags == null) return;
+        final DBTagCollectionWrapper dbTags = (DBTagCollectionWrapper) bookTags;
+        dbTags.registerEventListener(bookTagCollectionEventListener);
+
+        // Remove the current tags
+        final List<Tag> existingTags = getEntity().getBookTags();
+        for (final Tag tag : existingTags) {
+            getEntity().removeBookTag(tag);
+        }
+
+        // Set the new tags
+        final Collection<Tag> unwrappedTags = dbTags.unwrap();
+        for (final Tag tag : unwrappedTags) {
+            getEntity().addBookTag(tag);
         }
     }
 
@@ -233,6 +277,48 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
         @Override
         public boolean equals(Object o) {
             return o instanceof PropertyCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class TagCollectionEventListener implements CollectionEventListener<Tag> {
+
+        @Override
+        public void onAddItem(Tag entity) {
+            getEntity().addTag(entity);
+        }
+
+        @Override
+        public void onRemoveItem(Tag entity) {
+            getEntity().removeTag(entity);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof TagCollectionEventListener;
+        }
+    }
+
+    /**
+     *
+     */
+    private class BookTagCollectionEventListener implements CollectionEventListener<Tag> {
+
+        @Override
+        public void onAddItem(Tag entity) {
+            getEntity().addBookTag(entity);
+        }
+
+        @Override
+        public void onRemoveItem(Tag entity) {
+            getEntity().removeBookTag(entity);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof TagCollectionEventListener;
         }
     }
 }

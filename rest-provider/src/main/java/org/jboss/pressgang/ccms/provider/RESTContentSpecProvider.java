@@ -138,6 +138,38 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         return getWrapperFactory().createCollection(getRESTContentSpecTags(id, revision), RESTTagV1.class, revision != null);
     }
 
+    public RESTTagCollectionV1 getRESTContentSpecBookTags(int id, Integer revision) {
+        try {
+            RESTContentSpecV1 contentSpec = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                contentSpec = getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
+
+                if (contentSpec.getBookTags() != null) {
+                    return contentSpec.getBookTags();
+                }
+            }
+
+            // We need to expand the tags in the content spec
+            final String expandString = getExpansionString(RESTContentSpecV1.BOOK_TAGS_NAME);
+
+            // Load the content spec from the REST Interface
+            final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
+
+            if (contentSpec == null) {
+                contentSpec = tempContentSpec;
+                getRESTEntityCache().add(contentSpec, revision);
+            } else {
+                contentSpec.setBookTags(tempContentSpec.getBookTags());
+            }
+
+            return contentSpec.getTags();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Book Tags for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            throw handleException(e);
+        }
+    }
+
     public RESTCSNodeCollectionV1 getRESTContentSpecNodes(int id, Integer revision) {
         try {
             RESTContentSpecV1 contentSpec = null;

@@ -41,6 +41,16 @@ public class RESTContentSpecV1Wrapper extends RESTBaseWrapper<ContentSpecWrapper
     }
 
     @Override
+    public CollectionWrapper<TagWrapper> getBookTags() {
+        return getWrapperFactory().createCollection(getProxyEntity().getBookTags(), RESTTagV1.class, isRevisionEntity());
+    }
+
+    @Override
+    public void setBookTags(CollectionWrapper<TagWrapper> bookTags) {
+        getEntity().explicitSetBookTags(bookTags == null ? null : (RESTTagCollectionV1) bookTags.unwrap());
+    }
+
+    @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
         final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getProxyEntity().getChildren_OTM(),
                 RESTCSNodeV1.class, isRevisionEntity());
