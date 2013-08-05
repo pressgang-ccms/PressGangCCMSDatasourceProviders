@@ -1,10 +1,10 @@
-package org.jboss.pressgang.ccms.wrapper;
+package org.jboss.pressgang.ccms.wrapper.base;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 
 public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, ?, ?>> implements EntityWrapper<T> {
 
@@ -34,7 +34,8 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
 
     @SuppressWarnings("unchecked")
     protected U getEntity() {
-        return ((RESTBaseEntityV1ProxyHandler<U>) ((ProxyObject) getProxyEntity()).getHandler()).getEntity();
+        return getProxyEntity() == null ? null : ((RESTBaseEntityV1ProxyHandler<U>) ((ProxyObject) getProxyEntity()).getHandler())
+                .getEntity();
     }
 
     @Override
@@ -55,5 +56,14 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
     @Override
     public boolean isRevisionEntity() {
         return isRevision;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (o instanceof RESTBaseWrapper && getProxyEntity() != null) {
+            return getEntity().equals(o);
+        } else {
+            return super.equals(o);
+        }
     }
 }

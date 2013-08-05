@@ -3,6 +3,7 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTUserV1Wrapper extends RESTBaseWrapper<UserWrapper, RESTUserV1> implements UserWrapper {
