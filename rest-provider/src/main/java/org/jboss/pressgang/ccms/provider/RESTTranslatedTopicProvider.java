@@ -398,7 +398,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
         try {
             // We need to expand the all the translated topics in the collection
-            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME, RESTTranslatedTopicV1.TOPIC_NAME);
             final RESTTranslatedTopicCollectionV1 topics = getRESTClient().getJSONTranslatedTopicsWithQuery(
                     new PathSegmentImpl(query, false), expandString);
             getRESTEntityCache().add(topics);
