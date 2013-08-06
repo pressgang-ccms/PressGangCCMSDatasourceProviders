@@ -262,6 +262,7 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
     private class PropertyCollectionEventListener implements UpdateableCollectionEventListener<ContentSpecToPropertyTag> {
         @Override
         public void onAddItem(final ContentSpecToPropertyTag entity) {
+            entity.setContentSpec(getEntity());
             getEntity().addPropertyTag(entity);
         }
 

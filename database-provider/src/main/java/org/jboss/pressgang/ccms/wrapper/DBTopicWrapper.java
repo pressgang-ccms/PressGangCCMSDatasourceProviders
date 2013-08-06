@@ -414,6 +414,7 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
     private class PropertyCollectionEventListener implements UpdateableCollectionEventListener<TopicToPropertyTag> {
         @Override
         public void onAddItem(final TopicToPropertyTag entity) {
+            entity.setTopic(getEntity());
             getEntity().addPropertyTag(entity);
         }
 

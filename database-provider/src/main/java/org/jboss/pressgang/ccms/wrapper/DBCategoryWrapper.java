@@ -80,6 +80,7 @@ public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper, Category> 
         // Set the new tags
         final Collection<TagToCategory> newTags = dbTags.unwrap();
         for (final TagToCategory tag : newTags) {
+            tag.setCategory(getEntity());
             getEntity().addTagRelationship(tag);
         }
     }
@@ -90,6 +91,7 @@ public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper, Category> 
     private class TagCollectionEventListener implements UpdateableCollectionEventListener<TagToCategory> {
         @Override
         public void onAddItem(TagToCategory entity) {
+            entity.setCategory(getEntity());
             getEntity().addTagRelationship(entity);
         }
 

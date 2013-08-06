@@ -259,6 +259,7 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     private class CSRelatedToNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNodeToCSNode> {
         @Override
         public void onAddItem(final CSNodeToCSNode entity) {
+            entity.setMainNode(getEntity());
             getEntity().addRelatedTo(entity);
         }
 
@@ -283,6 +284,7 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     private class CSRelatedFromNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNodeToCSNode> {
         @Override
         public void onAddItem(final CSNodeToCSNode entity) {
+            entity.setMainNode(getEntity());
             getEntity().addRelatedFrom(entity);
         }
 

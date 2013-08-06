@@ -80,8 +80,9 @@ public class DBTagWrapper extends DBBaseWrapper<TagWrapper, Tag> implements TagW
         }
 
         // Set the new children
-        final Collection<TagToCategory> newLanguageImages = dbCategories.unwrap();
-        for (final TagToCategory category : newLanguageImages) {
+        final Collection<TagToCategory> newCategories = dbCategories.unwrap();
+        for (final TagToCategory category : newCategories) {
+            category.setTag(getEntity());
             getEntity().addCategoryRelationship(category);
         }
     }
@@ -115,6 +116,7 @@ public class DBTagWrapper extends DBBaseWrapper<TagWrapper, Tag> implements TagW
     private class CategoryCollectionEventListener implements UpdateableCollectionEventListener<TagToCategory> {
         @Override
         public void onAddItem(final TagToCategory entity) {
+            entity.setTag(getEntity());
             getEntity().addCategoryRelationship(entity);
         }
 
