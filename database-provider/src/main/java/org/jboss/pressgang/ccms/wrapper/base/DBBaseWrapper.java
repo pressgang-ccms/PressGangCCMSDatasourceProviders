@@ -77,7 +77,7 @@ public abstract class DBBaseWrapper<T extends EntityWrapper<T>, U extends Audite
     @Override
     public boolean equals(final Object o) {
         if (o instanceof DBBaseWrapper && getEntity() != null) {
-            return getEntity().equals(o);
+            return getEntity().equals(((DBBaseWrapper) o).getEntity());
         } else {
             return super.equals(o);
         }

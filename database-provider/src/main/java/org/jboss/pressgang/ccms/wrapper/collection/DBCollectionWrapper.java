@@ -73,8 +73,10 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
         getCollection().put(entity, ADD_STATE);
         if (!isRevisionList()) {
             final U unwrappedEntity = (U) entity.unwrap();
-            getCollectionItems().add(unwrappedEntity);
-            notifyOnAddEvent(unwrappedEntity);
+            if (!getCollectionItems().contains(unwrappedEntity)) {
+                getCollectionItems().add(unwrappedEntity);
+                notifyOnAddEvent(unwrappedEntity);
+            }
         }
     }
 

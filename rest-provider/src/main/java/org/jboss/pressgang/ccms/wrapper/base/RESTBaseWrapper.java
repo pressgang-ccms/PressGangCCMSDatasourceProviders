@@ -61,7 +61,7 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
     @Override
     public boolean equals(final Object o) {
         if (o instanceof RESTBaseWrapper && getProxyEntity() != null) {
-            return getEntity().equals(o);
+            return getEntity().equals(((RESTBaseWrapper) o).getEntity());
         } else {
             return super.equals(o);
         }
