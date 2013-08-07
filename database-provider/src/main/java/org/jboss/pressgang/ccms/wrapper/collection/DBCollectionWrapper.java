@@ -104,7 +104,7 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
     public List<T> getUnchangedItems() {
         final List<T> unchangedItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : getCollection().entrySet()) {
-            if (entity.getValue() == NO_STATE) {
+            if (NO_STATE.equals(entity.getValue())) {
                 unchangedItems.add(entity.getKey());
             }
         }
@@ -116,7 +116,7 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
     public List<T> getAddItems() {
         final List<T> newItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : getCollection().entrySet()) {
-            if (entity.getValue() == ADD_STATE) {
+            if (ADD_STATE.equals(entity.getValue())) {
                 newItems.add(entity.getKey());
             }
         }
@@ -128,7 +128,7 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
     public List<T> getRemoveItems() {
         final List<T> removeItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : getCollection().entrySet()) {
-            if (entity.getValue() == REMOVE_STATE) {
+            if (REMOVE_STATE.equals(entity.getValue())) {
                 removeItems.add(entity.getKey());
             }
         }

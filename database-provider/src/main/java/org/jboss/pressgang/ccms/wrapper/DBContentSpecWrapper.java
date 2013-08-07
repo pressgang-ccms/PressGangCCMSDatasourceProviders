@@ -320,7 +320,7 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof TagCollectionEventListener;
+            return o instanceof BookTagCollectionEventListener;
         }
     }
 }

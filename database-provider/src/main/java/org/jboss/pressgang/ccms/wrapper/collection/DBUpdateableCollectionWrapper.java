@@ -38,7 +38,7 @@ public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, 
     public List<T> getUpdateItems() {
         final List<T> updateItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : getCollection().entrySet()) {
-            if (entity.getValue() == UPDATE_STATE) {
+            if (UPDATE_STATE.equals(entity.getValue())) {
                 updateItems.add(entity.getKey());
             }
         }
