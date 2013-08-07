@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.User;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 
 public class DBUserWrapper extends DBBaseWrapper<UserWrapper, User> implements UserWrapper {
 

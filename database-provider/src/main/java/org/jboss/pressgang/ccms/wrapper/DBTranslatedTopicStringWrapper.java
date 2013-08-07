@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 
 public class DBTranslatedTopicStringWrapper extends DBBaseWrapper<TranslatedTopicStringWrapper,
         TranslatedTopicString> implements TranslatedTopicStringWrapper {

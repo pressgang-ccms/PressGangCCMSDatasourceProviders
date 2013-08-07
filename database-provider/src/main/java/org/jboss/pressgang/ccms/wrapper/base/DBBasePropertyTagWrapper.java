@@ -3,7 +3,6 @@ package org.jboss.pressgang.ccms.wrapper.base;
 import org.jboss.pressgang.ccms.model.PropertyTag;
 import org.jboss.pressgang.ccms.model.base.AuditedEntity;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.DBBaseWrapper;
 
 public abstract class DBBasePropertyTagWrapper<T extends BasePropertyTagWrapper<T>, U extends AuditedEntity> extends DBBaseWrapper<T, U> implements
         BasePropertyTagWrapper<T> {

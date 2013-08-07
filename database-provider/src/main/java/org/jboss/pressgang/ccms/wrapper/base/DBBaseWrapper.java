@@ -1,11 +1,11 @@
-package org.jboss.pressgang.ccms.wrapper;
+package org.jboss.pressgang.ccms.wrapper.base;
 
 import javax.persistence.EntityManager;
 
 import org.jboss.pressgang.ccms.model.base.AuditedEntity;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public abstract class DBBaseWrapper<T extends EntityWrapper<T>, U extends AuditedEntity> implements EntityWrapper<T> {
@@ -71,6 +71,24 @@ public abstract class DBBaseWrapper<T extends EntityWrapper<T>, U extends Audite
         } else {
             return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
                     clazz, true);
+        }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (o instanceof DBBaseWrapper && getEntity() != null) {
+            return getEntity().equals(o);
+        } else {
+            return super.equals(o);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        if (getEntity() != null) {
+            return getEntity().hashCode();
+        } else {
+            return super.hashCode();
         }
     }
 }

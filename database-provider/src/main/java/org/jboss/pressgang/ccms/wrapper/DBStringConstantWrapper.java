@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.StringConstants;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 
 public class DBStringConstantWrapper extends DBBaseWrapper<StringConstantWrapper, StringConstants> implements StringConstantWrapper {
 
