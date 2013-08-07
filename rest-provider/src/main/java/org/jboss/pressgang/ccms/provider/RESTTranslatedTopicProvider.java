@@ -440,7 +440,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             final RESTTranslatedTopicV1 updatedTopic = getRESTClient().updateJSONTranslatedTopic("",
                     ((RESTTranslatedTopicV1Wrapper) topic).unwrap());
             if (updatedTopic != null) {
-                getRESTEntityCache().expire(RESTTranslatedTopicV1.class, topic.getId());
+                getRESTEntityCache().expire(RESTTranslatedTopicV1.class, updatedTopic.getId());
                 getRESTEntityCache().add(updatedTopic);
                 return getWrapperFactory().create(updatedTopic, false);
             } else {
@@ -493,7 +493,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().updateJSONTranslatedTopics(expandString, unwrappedTopics);
             if (updatedTopics != null) {
                 // Expire the old cached data
-                for (final RESTTranslatedTopicV1 topic : unwrappedTopics.returnItems()) {
+                for (final RESTTranslatedTopicV1 topic : updatedTopics.returnItems()) {
                     getRESTEntityCache().expire(RESTTranslatedTopicV1.class, topic.getId());
                 }
                 // Add the new data to the cache

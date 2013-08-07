@@ -181,7 +181,6 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec("",
                     translatedContentSpec);
             if (updatedTranslatedContentSpec != null) {
-                getRESTEntityCache().expire(RESTTranslatedContentSpecV1.class, translatedContentSpecEntity.getId());
                 getRESTEntityCache().add(updatedTranslatedContentSpec);
                 return getWrapperFactory().create(updatedTranslatedContentSpec, false);
             } else {
@@ -205,7 +204,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().updateJSONTranslatedContentSpec("",
                     translatedContentSpec);
             if (updatedTranslatedContentSpec != null) {
-                getRESTEntityCache().expire(RESTTranslatedContentSpecV1.class, translatedContentSpecEntity.getId());
+                getRESTEntityCache().expire(RESTTranslatedContentSpecV1.class, updatedTranslatedContentSpec.getId());
                 getRESTEntityCache().add(updatedTranslatedContentSpec);
                 return getWrapperFactory().create(updatedTranslatedContentSpec, false);
             } else {

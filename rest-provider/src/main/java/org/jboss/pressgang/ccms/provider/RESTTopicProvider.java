@@ -488,7 +488,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 updatedTopic = client.updateJSONTopic("", topic);
             }
             if (updatedTopic != null) {
-                entityCache.expire(RESTTopicV1.class, topicEntity.getId());
+                entityCache.expire(RESTTopicV1.class, updatedTopic.getId());
                 entityCache.add(updatedTopic);
                 return getWrapperFactory().create(updatedTopic, false);
             } else {
@@ -575,7 +575,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             }
             if (updatedTopics != null) {
                 // Expire the old cached data
-                for (final RESTTopicV1 topic : unwrappedTopics.returnItems()) {
+                for (final RESTTopicV1 topic : updatedTopics.returnItems()) {
                     entityCache.expire(RESTTopicV1.class, topic.getId());
                 }
                 // Add the new data to the cache
