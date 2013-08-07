@@ -16,11 +16,11 @@ public abstract class DBBaseWrapper<T extends EntityWrapper<T>, U extends Audite
     private final Class<U> clazz;
     private final Class<T> wrapperClazz;
 
-    public DBBaseWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<U> clazz) {
+    protected DBBaseWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<U> clazz) {
         this(providerFactory, isRevision, null, clazz);
     }
 
-    public DBBaseWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<T> wrapperClazz, Class<U> clazz) {
+    protected DBBaseWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<T> wrapperClazz, Class<U> clazz) {
         this.providerFactory = providerFactory;
         this.isRevision = isRevision;
         this.clazz = clazz;

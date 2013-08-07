@@ -43,7 +43,7 @@ public abstract class RESTUpdateableCollectionWrapper<T extends EntityWrapper<T>
     public List<T> getUpdateItems() {
         final List<T> updateItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : getEntities().entrySet()) {
-            if (entity.getValue() == RESTBaseUpdateCollectionItemV1.UPDATE_STATE) {
+            if (RESTBaseUpdateCollectionItemV1.UPDATE_STATE.equals(entity.getValue())) {
                 updateItems.add(entity.getKey());
             }
         }

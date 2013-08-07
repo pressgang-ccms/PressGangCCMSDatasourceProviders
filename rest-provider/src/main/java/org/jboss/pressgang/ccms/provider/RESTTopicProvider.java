@@ -46,8 +46,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     protected RESTTopicProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        this.client = restManager.getRESTClient();
-        this.entityCache = restManager.getRESTEntityCache();
+        client = restManager.getRESTClient();
+        entityCache = restManager.getRESTEntityCache();
     }
 
     protected RESTTopicV1 loadTopic(int id, Integer revision, String expandString) {

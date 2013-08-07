@@ -5,8 +5,6 @@ import java.lang.reflect.Method;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTUserProvider;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
-import org.jboss.pressgang.ccms.wrapper.UserWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTUserV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTUserV1> {
 

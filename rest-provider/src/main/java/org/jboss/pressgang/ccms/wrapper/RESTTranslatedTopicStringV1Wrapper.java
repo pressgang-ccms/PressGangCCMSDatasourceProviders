@@ -15,7 +15,7 @@ public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseWrapper<Translat
     protected RESTTranslatedTopicStringV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedTopicStringV1 topic,
             boolean isRevision, final RESTTranslatedTopicV1 parent) {
         super(providerFactory, isRevision);
-        this.translatedTopicString = RESTEntityProxyFactory.createProxy(providerFactory, topic, isRevision);
+        translatedTopicString = RESTEntityProxyFactory.createProxy(providerFactory, topic, isRevision);
         this.parent = parent;
     }
 

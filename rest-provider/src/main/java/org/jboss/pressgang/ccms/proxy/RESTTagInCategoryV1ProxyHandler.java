@@ -6,8 +6,6 @@ import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTagInCategoryProvider;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
-import org.jboss.pressgang.ccms.wrapper.TagWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTTagInCategoryV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTagInCategoryV1> {
 

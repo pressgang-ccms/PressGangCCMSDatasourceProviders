@@ -131,8 +131,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
         final ContentSpecWrapper contentSpecWrapper = getContentSpec(id, revision);
         if (contentSpecWrapper == null) return null;
 
-        final CSTransformer transformer = new CSTransformer();
-        final org.jboss.pressgang.ccms.contentspec.ContentSpec contentSpec = transformer.transform(contentSpecWrapper, providerFactory);
+        final org.jboss.pressgang.ccms.contentspec.ContentSpec contentSpec = CSTransformer.transform(contentSpecWrapper, providerFactory);
         return contentSpec.toString();
     }
 

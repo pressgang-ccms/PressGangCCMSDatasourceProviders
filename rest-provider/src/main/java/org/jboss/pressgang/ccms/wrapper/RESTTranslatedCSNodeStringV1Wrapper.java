@@ -14,7 +14,7 @@ public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseWrapper<Transla
     protected RESTTranslatedCSNodeStringV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeStringV1 topic,
             boolean isRevision, final RESTTranslatedCSNodeV1 parent) {
         super(providerFactory, isRevision);
-        this.translatedTopicString = RESTEntityProxyFactory.createProxy(providerFactory, topic, isRevision);
+        translatedTopicString = RESTEntityProxyFactory.createProxy(providerFactory, topic, isRevision);
         this.parent = parent;
     }
 

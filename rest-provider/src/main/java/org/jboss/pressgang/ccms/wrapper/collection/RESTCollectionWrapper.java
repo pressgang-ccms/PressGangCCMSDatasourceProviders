@@ -89,7 +89,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
     public List<T> getUnchangedItems() {
         final List<T> unchangedItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : entities.entrySet()) {
-            if (entity.getValue() == RESTBaseCollectionItemV1.UNCHANGED_STATE) {
+            if (RESTBaseCollectionItemV1.UNCHANGED_STATE.equals(entity.getValue())) {
                 unchangedItems.add(entity.getKey());
             }
         }
@@ -101,7 +101,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
     public List<T> getAddItems() {
         final List<T> newItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : entities.entrySet()) {
-            if (entity.getValue() == RESTBaseCollectionItemV1.ADD_STATE) {
+            if (RESTBaseCollectionItemV1.ADD_STATE.equals(entity.getValue())) {
                 newItems.add(entity.getKey());
             }
         }
@@ -113,7 +113,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
     public List<T> getRemoveItems() {
         final List<T> removeItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : entities.entrySet()) {
-            if (entity.getValue() == RESTBaseCollectionItemV1.REMOVE_STATE) {
+            if (RESTBaseCollectionItemV1.REMOVE_STATE.equals(entity.getValue())) {
                 removeItems.add(entity.getKey());
             }
         }

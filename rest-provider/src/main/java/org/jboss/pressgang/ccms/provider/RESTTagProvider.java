@@ -36,9 +36,9 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
     protected RESTTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        this.client = restManager.getRESTClient();
-        this.entityCache = restManager.getRESTEntityCache();
-        this.collectionsCache = restManager.getRESTCollectionCache();
+        client = restManager.getRESTClient();
+        entityCache = restManager.getRESTEntityCache();
+        collectionsCache = restManager.getRESTCollectionCache();
     }
 
     protected RESTTagV1 loadTag(int id, Integer revision, String expandString) {

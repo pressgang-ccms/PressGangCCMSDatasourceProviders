@@ -15,7 +15,7 @@ public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, 
         U> implements UpdateableCollectionWrapper<T> {
     private static final Integer UPDATE_STATE = 3;
 
-    public DBUpdateableCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
+    protected DBUpdateableCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
             Class<T> wrapperClass) {
         super(wrapperFactory, items, isRevisionList, wrapperClass);
     }
@@ -53,7 +53,7 @@ public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, 
     private void notifyOnUpdateEvent(U entity) {
         for (final CollectionEventListener<U> listener : getEventListeners()) {
             if (listener instanceof UpdateableCollectionEventListener) {
-                ((UpdateableCollectionEventListener) listener).onUpdateItem(entity);
+                ((UpdateableCollectionEventListener<U>) listener).onUpdateItem(entity);
             }
         }
     }
