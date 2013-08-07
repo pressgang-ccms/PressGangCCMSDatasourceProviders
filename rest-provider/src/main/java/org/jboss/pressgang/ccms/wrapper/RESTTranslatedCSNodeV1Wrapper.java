@@ -53,7 +53,7 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSN
 
     @Override
     public void setNodeRevision(Integer revision) {
-        getEntity().setNodeRevision(revision);
+        getEntity().explicitSetNodeRevision(revision);
     }
 
     @Override
