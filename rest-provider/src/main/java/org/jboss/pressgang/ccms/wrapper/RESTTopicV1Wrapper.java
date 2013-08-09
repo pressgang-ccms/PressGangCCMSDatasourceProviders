@@ -132,7 +132,7 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
     }
 
     @Override
-    public void setSourceURLs(CollectionWrapper<TopicSourceURLWrapper> sourceURLs) {
+    public void setSourceURLs(UpdateableCollectionWrapper<TopicSourceURLWrapper> sourceURLs) {
         getProxyEntity().explicitSetSourceUrls_OTM(sourceURLs == null ? null : (RESTTopicSourceUrlCollectionV1) sourceURLs.unwrap());
     }
 

@@ -6,7 +6,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
 
-public class RESTTopicSourceURLCollectionV1Wrapper extends RESTCollectionWrapper<TopicSourceURLWrapper, RESTTopicSourceUrlV1,
+public class RESTTopicSourceURLCollectionV1Wrapper extends RESTUpdateableCollectionWrapper<TopicSourceURLWrapper, RESTTopicSourceUrlV1,
         RESTTopicSourceUrlCollectionV1> implements CollectionWrapper<TopicSourceURLWrapper> {
 
     public RESTTopicSourceURLCollectionV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicSourceUrlCollectionV1 collection,

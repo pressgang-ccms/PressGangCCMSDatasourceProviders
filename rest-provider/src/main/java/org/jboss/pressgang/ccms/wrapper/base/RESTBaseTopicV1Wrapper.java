@@ -67,8 +67,9 @@ public abstract class RESTBaseTopicV1Wrapper<T extends BaseTopicWrapper<T>, U ex
     }
 
     @Override
-    public CollectionWrapper<TopicSourceURLWrapper> getSourceURLs() {
-        return getWrapperFactory().createCollection(getProxyEntity().getSourceUrls_OTM(), RESTTopicSourceUrlV1.class, isRevisionEntity(),
-                getProxyEntity());
+    public UpdateableCollectionWrapper<TopicSourceURLWrapper> getSourceURLs() {
+        final CollectionWrapper<TopicSourceURLWrapper> collection = getWrapperFactory().createCollection(
+                getProxyEntity().getSourceUrls_OTM(), RESTTopicSourceUrlV1.class, isRevisionEntity(), getProxyEntity());
+        return (UpdateableCollectionWrapper<TopicSourceURLWrapper>) collection;
     }
 }

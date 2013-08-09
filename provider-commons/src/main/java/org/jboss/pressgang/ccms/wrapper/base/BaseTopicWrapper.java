@@ -52,9 +52,9 @@ public interface BaseTopicWrapper<T extends BaseTopicWrapper<T>> extends EntityW
 
     void setProperties(UpdateableCollectionWrapper<PropertyTagInTopicWrapper> properties);
 
-    CollectionWrapper<TopicSourceURLWrapper> getSourceURLs();
+    UpdateableCollectionWrapper<TopicSourceURLWrapper> getSourceURLs();
 
-    void setSourceURLs(CollectionWrapper<TopicSourceURLWrapper> sourceURLs);
+    void setSourceURLs(UpdateableCollectionWrapper<TopicSourceURLWrapper> sourceURLs);
 
     List<TagWrapper> getTagsInCategories(final List<Integer> categoryIds);
 

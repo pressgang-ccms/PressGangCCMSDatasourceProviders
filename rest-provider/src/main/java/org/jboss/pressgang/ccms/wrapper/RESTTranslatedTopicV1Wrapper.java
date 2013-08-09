@@ -136,7 +136,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
     }
 
     @Override
-    public void setSourceURLs(CollectionWrapper<TopicSourceURLWrapper> sourceURLs) {
+    public void setSourceURLs(UpdateableCollectionWrapper<TopicSourceURLWrapper> sourceURLs) {
         getProxyEntity().setSourceUrls_OTM(sourceURLs == null ? null : (RESTTopicSourceUrlCollectionV1) sourceURLs.unwrap());
     }
 
