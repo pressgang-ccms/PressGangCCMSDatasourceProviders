@@ -16,6 +16,7 @@ import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,8 +224,9 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
     }
 
     @Override
-    public CollectionWrapper<TopicSourceURLWrapper> newTopicSourceURLCollection(final TopicWrapper topic) {
-        return getWrapperFactory().createCollection(new RESTTopicSourceUrlCollectionV1(), RESTTopicSourceUrlV1.class, false,
-                (RESTBaseTopicV1<?, ?, ?>) topic.unwrap());
+    public UpdateableCollectionWrapper<TopicSourceURLWrapper> newTopicSourceURLCollection(final TopicWrapper topic) {
+        final CollectionWrapper<TopicSourceURLWrapper> collection = getWrapperFactory().createCollection(
+                new RESTTopicSourceUrlCollectionV1(), RESTTopicSourceUrlV1.class, false, (RESTBaseTopicV1<?, ?, ?>) topic.unwrap());
+        return (UpdateableCollectionWrapper<TopicSourceURLWrapper>) collection;
     }
 }

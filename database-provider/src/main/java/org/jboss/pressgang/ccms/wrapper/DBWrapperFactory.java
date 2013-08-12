@@ -287,7 +287,7 @@ public class DBWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<?> entityClass,
+    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
             boolean isRevisionCollection, final Class<T> wrapperClass) {
         return createCollection(collection, entityClass, isRevisionCollection);
     }

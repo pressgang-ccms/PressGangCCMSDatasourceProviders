@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper.base;
 
 import javax.persistence.EntityManager;
+import java.util.Map;
 
 import org.jboss.pressgang.ccms.model.base.AuditedEntity;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
@@ -65,12 +66,11 @@ public abstract class DBBaseWrapper<T extends EntityWrapper<T>, U extends Audite
 
     @Override
     public CollectionWrapper<T> getRevisions() {
+        final Map<Number, U> entities = EnversUtilities.getRevisionEntities(getEntityManager(), getEntity());
         if (wrapperClazz != null) {
-            return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
-                    clazz, true, wrapperClazz);
+            return getWrapperFactory().createCollection(entities.values(), clazz, true, wrapperClazz);
         } else {
-            return getWrapperFactory().createCollection(EnversUtilities.getRevisionEntities(getEntityManager(), getEntity()),
-                    clazz, true);
+            return getWrapperFactory().createCollection(entities.values(), clazz, true);
         }
     }
 

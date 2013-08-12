@@ -10,6 +10,7 @@ import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBTopicSourceURLProvider extends DBDataProvider implements TopicSourceURLProvider {
 
@@ -29,7 +30,9 @@ public class DBTopicSourceURLProvider extends DBDataProvider implements TopicSou
     }
 
     @Override
-    public CollectionWrapper<TopicSourceURLWrapper> newTopicSourceURLCollection(TopicWrapper parent) {
-        return getWrapperFactory().createCollection(new ArrayList<TopicSourceUrl>(), TopicSourceUrl.class, false);
+    public UpdateableCollectionWrapper<TopicSourceURLWrapper> newTopicSourceURLCollection(TopicWrapper parent) {
+        final CollectionWrapper<TopicSourceURLWrapper> collection = getWrapperFactory().createCollection(new ArrayList<TopicSourceUrl>(),
+                TopicSourceUrl.class, false);
+        return (UpdateableCollectionWrapper<TopicSourceURLWrapper>) collection;
     }
 }
