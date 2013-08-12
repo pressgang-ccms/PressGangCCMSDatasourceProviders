@@ -1,7 +1,10 @@
 package org.jboss.pressgang.ccms.wrapper.collection.handler;
 
-public interface DBCollectionHandler<U> {
-    void addItem(U entity);
+import java.util.Collection;
+import java.util.Map;
 
-    void removeItem(U entity);
+public interface DBCollectionHandler<U> {
+    void addItem(Collection<U> items, U entity);
+
+    void removeItem(Collection<U> items, U entity);
 }

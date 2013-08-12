@@ -1,5 +1,8 @@
 package org.jboss.pressgang.ccms.wrapper.collection.handler;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.jboss.pressgang.ccms.model.Category;
 import org.jboss.pressgang.ccms.model.TagToCategory;
 
@@ -11,21 +14,23 @@ public class DBTagInCategoryCollectionHandler implements DBUpdateableCollectionH
     }
 
     @Override
-    public void updateItem(final TagToCategory entity) {
+    public void updateItem(Collection<TagToCategory> items, final TagToCategory entity) {
     }
 
     @Override
-    public void addItem(final TagToCategory entity) {
+    public void addItem(Collection<TagToCategory> items, final TagToCategory entity) {
         entity.setCategory(parent);
         parent.addTag(entity);
+        if (items instanceof List) {
+            ((List) items).add(entity);
+        }
     }
 
     @Override
-    public void removeItem(final TagToCategory entity) {
+    public void removeItem(Collection<TagToCategory> items, final TagToCategory entity) {
         parent.removeTag(entity);
-    }
-
-    public void setParent(final Category parent) {
-        this.parent = parent;
+        if (items instanceof List) {
+            ((List) items).remove(entity);
+        }
     }
 }

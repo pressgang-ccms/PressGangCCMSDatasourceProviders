@@ -1,5 +1,8 @@
 package org.jboss.pressgang.ccms.wrapper.collection.handler;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.interfaces.HasCSNodes;
 
@@ -11,16 +14,22 @@ public class DBCSNodeCollectionHandler implements DBUpdateableCollectionHandler<
     }
 
     @Override
-    public void updateItem(final CSNode entity) {
+    public void updateItem(Collection<CSNode> items, final CSNode entity) {
     }
 
     @Override
-    public void addItem(final CSNode entity) {
+    public void addItem(Collection<CSNode> items, final CSNode entity) {
         parent.addChild(entity);
+        if (items instanceof List) {
+            ((List) items).add(entity);
+        }
     }
 
     @Override
-    public void removeItem(final CSNode entity) {
+    public void removeItem(Collection<CSNode> items, final CSNode entity) {
         parent.removeChild(entity);
+        if (items instanceof List) {
+            ((List) items).remove(entity);
+        }
     }
 }

@@ -30,6 +30,7 @@ import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.provider.DataProviderFactory;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBBlobConstantCollectionWrapper;
@@ -37,6 +38,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryInTagCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecToPropertyTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBFileCollectionWrapper;
@@ -58,12 +60,16 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicDataCollecti
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicStringCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBUserCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.structures.DBWrapperCache;
+import org.jboss.pressgang.ccms.wrapper.structures.DBWrapperKey;
 
 public class DBWrapperFactory extends WrapperFactory {
+    private final DBWrapperCache wrapperCache = new DBWrapperCache();
+
     public DBWrapperFactory() {
     }
 
-    public DBWrapperFactory(DataProviderFactory providerFactory) {
+    public DBWrapperFactory(final DataProviderFactory providerFactory) {
         super(providerFactory);
     }
 
@@ -79,7 +85,16 @@ public class DBWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final EntityWrapper wrapper;
+        // Create the key
+        final DBWrapperKey key = new DBWrapperKey(entity);
+
+        // Check to see if a wrapper has already been cached for the key
+        final DBBaseWrapper cachedWrapper = wrapperCache.get(key);
+        if (cachedWrapper != null) {
+            return (T) cachedWrapper;
+        }
+
+        final DBBaseWrapper wrapper;
 
         if (entity instanceof Topic) {
             // TOPIC
@@ -152,6 +167,9 @@ public class DBWrapperFactory extends WrapperFactory {
             throw new IllegalArgumentException("Failed to create a Wrapper instance as there is no wrapper available for the Entity.");
         }
 
+        // Add the wrapper to the cache
+        wrapperCache.put(key, wrapper);
+
         return (T) wrapper;
     }
 
@@ -168,7 +186,16 @@ public class DBWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final CollectionWrapper wrapper;
+        // Create the key
+        final DBWrapperKey key = new DBWrapperKey(collection);
+
+        // Check to see if a wrapper has already been cached for the key
+        final DBCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
+        if (cachedWrapper != null) {
+            return cachedWrapper;
+        }
+
+        final DBCollectionWrapper wrapper;
 
         if (entityClass == Topic.class) {
             // TOPIC
@@ -245,6 +272,9 @@ public class DBWrapperFactory extends WrapperFactory {
                     "Failed to create a Collection Wrapper instance as there is no wrapper available for the Collection.");
         }
 
+        // Add the wrapper to the cache
+        wrapperCache.putCollection(key, wrapper);
+
         return wrapper;
     }
 
@@ -263,12 +293,27 @@ public class DBWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final EntityWrapper wrapper;
+        // Create the key
+        final DBWrapperKey key = new DBWrapperKey(entity, wrapperClass);
+
+        // Check to see if a wrapper has already been cached for the key
+        final DBBaseWrapper cachedWrapper = wrapperCache.get(key);
+        if (cachedWrapper != null) {
+            return (T) cachedWrapper;
+        }
+
+        final DBBaseWrapper wrapper;
 
         if (entity instanceof TagToCategory && wrapperClass == TagInCategoryWrapper.class) {
             wrapper = new DBTagInCategoryWrapper(getProviderFactory(), (TagToCategory) entity, isRevision);
+
+            // Add the wrapper to the cache
+            wrapperCache.put(key, wrapper);
         } else if (entity instanceof TagToCategory && wrapperClass == CategoryInTagWrapper.class) {
             wrapper = new DBCategoryInTagWrapper(getProviderFactory(), (TagToCategory) entity, isRevision);
+
+            // Add the wrapper to the cache
+            wrapperCache.put(key, wrapper);
         } else {
             wrapper = create(entity, isRevision);
         }
@@ -289,7 +334,36 @@ public class DBWrapperFactory extends WrapperFactory {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
             boolean isRevisionCollection, final Class<T> wrapperClass) {
-        return createCollection(collection, entityClass, isRevisionCollection);
+        if (collection == null) {
+            return null;
+        }
+
+        // Create the key
+        final DBWrapperKey key = new DBWrapperKey(collection);
+
+        // Check to see if a wrapper has already been cached for the key
+        final DBCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
+        if (cachedWrapper != null) {
+            return cachedWrapper;
+        }
+
+        final DBCollectionWrapper wrapper;
+
+        if (entityClass == TagToCategory.class && wrapperClass == TagInCategoryWrapper.class) {
+            wrapper = new DBTagInCategoryCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
+
+            // Add the wrapper to the cache
+            wrapperCache.putCollection(key, wrapper);
+        } else if (entityClass == TagToCategory.class && wrapperClass == CategoryInTagWrapper.class) {
+            wrapper = new DBCategoryInTagCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
+
+            // Add the wrapper to the cache
+            wrapperCache.putCollection(key, wrapper);
+        } else {
+            wrapper = (DBCollectionWrapper) createCollection(collection, entityClass, isRevisionCollection);
+        }
+
+        return wrapper;
     }
 
     /**
@@ -309,14 +383,8 @@ public class DBWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final CollectionWrapper wrapper;
-
-        if (entityClass == Tag.class) {
-            wrapper = new DBTagCollectionWrapper(this, (Collection<Tag>) collection, isRevisionCollection,
-                    (DBCollectionHandler<Tag>) handler);
-        } else {
-            wrapper = createCollection(collection, entityClass, isRevisionCollection);
-        }
+        final DBCollectionWrapper wrapper = (DBCollectionWrapper) createCollection(collection, entityClass, isRevisionCollection);
+        wrapper.setHandler(handler);
 
         return wrapper;
     }
@@ -340,17 +408,9 @@ public class DBWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final CollectionWrapper wrapper;
-
-        if (entityClass == TagToCategory.class && wrapperClass == TagInCategoryWrapper.class) {
-            wrapper = new DBTagInCategoryCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection,
-                    (DBCollectionHandler<TagToCategory>) handler);
-        } else if (entityClass == TagToCategory.class && wrapperClass == CategoryInTagWrapper.class) {
-            wrapper = new DBCategoryInTagCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection,
-                    (DBCollectionHandler<TagToCategory>) handler);
-        } else {
-            wrapper = createCollection(collection, entityClass, isRevisionCollection, wrapperClass);
-        }
+        final DBCollectionWrapper wrapper = (DBCollectionWrapper) createCollection(collection, entityClass, isRevisionCollection,
+                wrapperClass);
+        wrapper.setHandler(handler);
 
         return wrapper;
     }

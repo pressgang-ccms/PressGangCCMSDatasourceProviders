@@ -59,7 +59,7 @@ public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, 
 
     private void notifyOnUpdateEvent(U entity) {
         if (getHandler() instanceof DBUpdateableCollectionHandler) {
-            ((DBUpdateableCollectionHandler<U>) getHandler()).updateItem(entity);
+            ((DBUpdateableCollectionHandler<U>) getHandler()).updateItem(getCollectionItems(), entity);
         }
         for (final CollectionEventListener<U> listener : getEventListeners()) {
             if (listener instanceof UpdateableCollectionEventListener) {

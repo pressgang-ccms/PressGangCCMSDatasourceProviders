@@ -28,7 +28,7 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
 
     protected DBCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
             final Class<T> wrapperClass) {
-        this(wrapperFactory, items, isRevisionList, wrapperClass, new DBDefaultCollectionHandler<U>(items));
+        this(wrapperFactory, items, isRevisionList, wrapperClass, new DBDefaultCollectionHandler<U>());
     }
 
     protected DBCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
@@ -166,14 +166,14 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
     }
 
     private void notifyOnAddEvent(U entity) {
-        handler.addItem(entity);
+        handler.addItem(items, entity);
         for (final CollectionEventListener<U> listener : getEventListeners()) {
             listener.onAddItem(entity);
         }
     }
 
     private void notifyOnRemoveEvent(U entity) {
-        handler.removeItem(entity);
+        handler.removeItem(items, entity);
         for (final CollectionEventListener<U> listener : getEventListeners()) {
             listener.onRemoveItem(entity);
         }

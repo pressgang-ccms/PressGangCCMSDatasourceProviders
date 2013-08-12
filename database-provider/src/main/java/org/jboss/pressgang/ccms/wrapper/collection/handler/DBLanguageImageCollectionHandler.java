@@ -1,5 +1,8 @@
 package org.jboss.pressgang.ccms.wrapper.collection.handler;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.jboss.pressgang.ccms.model.ImageFile;
 import org.jboss.pressgang.ccms.model.LanguageImage;
 
@@ -11,16 +14,22 @@ public class DBLanguageImageCollectionHandler implements DBUpdateableCollectionH
     }
 
     @Override
-    public void updateItem(LanguageImage entity) {
+    public void updateItem(Collection<LanguageImage> items, LanguageImage entity) {
     }
 
     @Override
-    public void addItem(final LanguageImage entity) {
+    public void addItem(Collection<LanguageImage> items, final LanguageImage entity) {
         parent.addLanguageImage(entity);
+        if (items instanceof List) {
+            ((List) items).add(entity);
+        }
     }
 
     @Override
-    public void removeItem(final LanguageImage entity) {
+    public void removeItem(Collection<LanguageImage> items, final LanguageImage entity) {
         parent.removeLanguageImage(entity);
+        if (items instanceof List) {
+            ((List) items).remove(entity);
+        }
     }
 }
