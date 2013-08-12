@@ -53,6 +53,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeStringColle
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicDataCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicStringCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBUserCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCollectionHandler;
 
 public class DBWrapperFactory extends WrapperFactory {
     public DBWrapperFactory() {
@@ -145,8 +146,13 @@ public class DBWrapperFactory extends WrapperFactory {
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
+            boolean isRevisionCollection) {
+        return createCollection((Collection) collection, entityClass, isRevisionCollection);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
             boolean isRevisionCollection) {
         if (collection == null) {
             return null;
@@ -265,8 +271,55 @@ public class DBWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
+    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<?> entityClass,
             boolean isRevisionCollection, final Class<T> wrapperClass) {
+        return createCollection(collection, entityClass, isRevisionCollection);
+    }
+
+    /**
+     * Create a wrapper around a collection of entities.
+     *
+     * @param collection           The collection to be wrapped.
+     * @param entityClass          The class of the entity that the collection contains.
+     * @param isRevisionCollection Whether or not the collection is a collection of revision entities.
+     * @param handler
+     * @param <T>                  The wrapper class that is returned.
+     * @return The Wrapper around the collection of entities.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
+            boolean isRevisionCollection, final DBCollectionHandler<U> handler) {
+        if (collection == null) {
+            return null;
+        }
+
+        final CollectionWrapper wrapper;
+
+        if (entityClass == Tag.class) {
+            wrapper = new DBTagCollectionWrapper(this, (Collection<Tag>) collection, isRevisionCollection,
+                    (DBCollectionHandler<Tag>) handler);
+        } else {
+            wrapper = createCollection(collection, entityClass, isRevisionCollection);
+        }
+
+        return wrapper;
+    }
+
+    /**
+     * Create a wrapper around a collection of entities.
+     *
+     * @param collection           The collection to be wrapped.
+     * @param entityClass          The class of the entity that the collection contains.
+     * @param isRevisionCollection Whether or not the collection is a collection of revision entities.
+     * @param wrapperClass         The return wrapper class, incase the entities wrapper can't be determined by it's class.
+     * @param handler
+     * @param <T>                  The wrapper class that is returned.
+     * @param <U>
+     * @return The Wrapper around the collection of entities.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
+            boolean isRevisionCollection, final Class<T> wrapperClass, final DBCollectionHandler<U> handler) {
         if (collection == null) {
             return null;
         }
@@ -274,11 +327,13 @@ public class DBWrapperFactory extends WrapperFactory {
         final CollectionWrapper wrapper;
 
         if (entityClass == TagToCategory.class && wrapperClass == TagInCategoryWrapper.class) {
-            wrapper = new DBTagInCategoryCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
+            wrapper = new DBTagInCategoryCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection,
+                    (DBCollectionHandler<TagToCategory>) handler);
         } else if (entityClass == TagToCategory.class && wrapperClass == CategoryInTagWrapper.class) {
-            wrapper = new DBCategoryInTagCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
+            wrapper = new DBCategoryInTagCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection,
+                    (DBCollectionHandler<TagToCategory>) handler);
         } else {
-            wrapper = createCollection(collection, entityClass, isRevisionCollection);
+            wrapper = createCollection(collection, entityClass, isRevisionCollection, wrapperClass);
         }
 
         return wrapper;
@@ -293,7 +348,7 @@ public class DBWrapperFactory extends WrapperFactory {
      * @param <T>            The wrapper class that is returned.
      * @return An ArrayList of wrapped entities.
      */
-    public <T extends EntityWrapper<T>> List<T> createList(final Collection<?> entities, boolean isRevisionList,
+    public <T extends EntityWrapper<T>, U> List<T> createList(final Collection<U> entities, boolean isRevisionList,
             final Class<T> wrapperClass) {
         final List<T> retValue = new ArrayList<T>();
         for (final Object object : entities) {

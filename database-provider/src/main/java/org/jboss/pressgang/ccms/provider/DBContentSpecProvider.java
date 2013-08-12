@@ -98,7 +98,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
         if (contentSpec == null) {
             return null;
         } else {
-            final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(contentSpec.unwrap().getTopCSNodes(),
+            final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(contentSpec.unwrap().getChildrenList(),
                     CSNode.class, revision != null);
             return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
         }

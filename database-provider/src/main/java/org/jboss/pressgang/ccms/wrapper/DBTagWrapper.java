@@ -12,16 +12,16 @@ import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryInTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCategoryInTagCollectionHandler;
 
 public class DBTagWrapper extends DBBaseWrapper<TagWrapper, Tag> implements TagWrapper {
-    private final CategoryCollectionEventListener categoryCollectionEventListener = new CategoryCollectionEventListener();
-
+    private final DBCategoryInTagCollectionHandler categoryCollectionHandler;
     private final Tag tag;
 
     public DBTagWrapper(final DBProviderFactory providerFactory, final Tag tag, boolean isRevision) {
         super(providerFactory, isRevision, Tag.class);
         this.tag = tag;
+        categoryCollectionHandler = new DBCategoryInTagCollectionHandler(tag);
     }
 
     @Override
@@ -62,29 +62,35 @@ public class DBTagWrapper extends DBBaseWrapper<TagWrapper, Tag> implements TagW
     @Override
     public UpdateableCollectionWrapper<CategoryInTagWrapper> getCategories() {
         final CollectionWrapper<CategoryInTagWrapper> collection = getWrapperFactory().createCollection(getEntity().getTagToCategories(),
-                TagToCategory.class, isRevisionEntity(), CategoryInTagWrapper.class);
-        final DBCategoryInTagCollectionWrapper dbCollection = (DBCategoryInTagCollectionWrapper) collection;
-        dbCollection.registerEventListener(categoryCollectionEventListener);
-        return dbCollection;
+                TagToCategory.class, isRevisionEntity(), CategoryInTagWrapper.class, categoryCollectionHandler);
+        return (UpdateableCollectionWrapper<CategoryInTagWrapper>) collection;
     }
 
     @Override
     public void setCategories(UpdateableCollectionWrapper<CategoryInTagWrapper> categories) {
         if (categories == null) return;
         final DBCategoryInTagCollectionWrapper dbCategories = (DBCategoryInTagCollectionWrapper) categories;
-        dbCategories.registerEventListener(categoryCollectionEventListener);
+        dbCategories.setHandler(categoryCollectionHandler);
 
-        // Remove the current children
-        final Set<TagToCategory> currentCategories = new HashSet<TagToCategory>(getEntity().getTagToCategories());
-        for (final TagToCategory category : currentCategories) {
-            getEntity().removeCategoryRelationship(category);
-        }
+        // Only bother readjusting the collection if its a different collection than the current
+        if (dbCategories.unwrap() != getEntity().getTagToCategories()) {
+            // Add new categories and skip any existing categories
+            final Set<TagToCategory> currentCategories = new HashSet<TagToCategory>(getEntity().getTagToCategories());
+            final Collection<TagToCategory> newCategories = dbCategories.unwrap();
+            for (final TagToCategory category : newCategories) {
+                if (currentCategories.contains(category)) {
+                    currentCategories.remove(category);
+                    continue;
+                } else {
+                    category.setTag(getEntity());
+                    getEntity().addCategory(category);
+                }
+            }
 
-        // Set the new children
-        final Collection<TagToCategory> newCategories = dbCategories.unwrap();
-        for (final TagToCategory category : newCategories) {
-            category.setTag(getEntity());
-            getEntity().addCategoryRelationship(category);
+            // Remove categories that should no longer exist in the collection
+            for (final TagToCategory removeCategory : currentCategories) {
+                getEntity().removeCategory(removeCategory);
+            }
         }
     }
 
@@ -109,30 +115,5 @@ public class DBTagWrapper extends DBBaseWrapper<TagWrapper, Tag> implements TagW
         }
 
         return false;
-    }
-
-    /**
-     *
-     */
-    private class CategoryCollectionEventListener implements UpdateableCollectionEventListener<TagToCategory> {
-        @Override
-        public void onAddItem(final TagToCategory entity) {
-            entity.setTag(getEntity());
-            getEntity().addCategoryRelationship(entity);
-        }
-
-        @Override
-        public void onRemoveItem(final TagToCategory entity) {
-            getEntity().removeCategoryRelationship(entity);
-        }
-
-        @Override
-        public void onUpdateItem(final TagToCategory entity) {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof CategoryCollectionEventListener;
-        }
     }
 }

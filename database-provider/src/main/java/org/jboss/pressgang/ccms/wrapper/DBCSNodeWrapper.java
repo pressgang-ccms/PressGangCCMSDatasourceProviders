@@ -13,20 +13,23 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCSNodeCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBRelatedFromCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBRelatedToCollectionHandler;
 
 public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implements CSNodeWrapper {
-    private CSNodeCollectionEventListener csNodeCollectionEventListener = new CSNodeCollectionEventListener();
-    private final CSRelatedToNodeCollectionEventListener csRelatedToNodeCollectionEventListener =
-            new CSRelatedToNodeCollectionEventListener();
-    private final CSRelatedFromNodeCollectionEventListener csRelatedFromNodeCollectionEventListener =
-            new CSRelatedFromNodeCollectionEventListener();
+    private final DBCSNodeCollectionHandler csNodeCollectionHandler;
+    private final DBRelatedToCollectionHandler<CSNodeToCSNode> relatedToCollectionHandler;
+    private final DBRelatedFromCollectionHandler<CSNodeToCSNode> relatedFromNodeCollectionHandler;
 
     private final CSNode csNode;
 
     public DBCSNodeWrapper(final DBProviderFactory providerFactory, final CSNode csNode, boolean isRevision) {
         super(providerFactory, isRevision, CSNode.class);
         this.csNode = csNode;
+        csNodeCollectionHandler = new DBCSNodeCollectionHandler(csNode);
+        relatedToCollectionHandler = new DBRelatedToCollectionHandler<CSNodeToCSNode>(csNode);
+        relatedFromNodeCollectionHandler = new DBRelatedFromCollectionHandler<CSNodeToCSNode>(csNode);
     }
 
     @Override
@@ -37,58 +40,68 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     @Override
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedToNodes() {
         final CollectionWrapper<CSRelatedNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getRelatedToNodes(),
-                CSNodeToCSNode.class, isRevisionEntity());
-        final DBCSRelatedNodeCollectionWrapper dbCollection = (DBCSRelatedNodeCollectionWrapper) collection;
-        dbCollection.registerEventListener(csRelatedToNodeCollectionEventListener);
-        return dbCollection;
+                CSNodeToCSNode.class, isRevisionEntity(), relatedToCollectionHandler);
+        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) collection;
     }
 
     @Override
     public void setRelatedToNodes(UpdateableCollectionWrapper<CSRelatedNodeWrapper> relatedToNodes) {
         if (relatedToNodes == null) return;
         final DBCSRelatedNodeCollectionWrapper dbRelatedToNodes = (DBCSRelatedNodeCollectionWrapper) relatedToNodes;
-        dbRelatedToNodes.registerEventListener(csRelatedToNodeCollectionEventListener);
+        dbRelatedToNodes.setHandler(relatedToCollectionHandler);
 
-        // Remove the current Related Nodes
-        final Set<CSNodeToCSNode> currentRelatedToNodes = new HashSet<CSNodeToCSNode>(getEntity().getRelatedToNodes());
-        for (final CSNodeToCSNode relatedToNode : currentRelatedToNodes) {
-            getEntity().removeRelatedTo(relatedToNode);
-        }
+        // Only bother readjusting the collection if its a different collection than the current
+        if (dbRelatedToNodes.unwrap() != getEntity().getRelatedToNodes()) {
+            // Add new related nodes and skip any existing relationships
+            final Set<CSNodeToCSNode> currentRelationships = new HashSet<CSNodeToCSNode>(getEntity().getRelatedToNodes());
+            final Collection<CSNodeToCSNode> newRelationships = dbRelatedToNodes.unwrap();
+            for (final CSNodeToCSNode relationship : newRelationships) {
+                if (currentRelationships.contains(relationship)) {
+                    currentRelationships.remove(relationship);
+                    continue;
+                } else {
+                    getEntity().addRelationshipTo(relationship);
+                }
+            }
 
-        // Add new Related Nodes
-        final Collection<CSNodeToCSNode> newRelatedToNodes = dbRelatedToNodes.unwrap();
-        for (final CSNodeToCSNode relatedToNode : newRelatedToNodes) {
-            relatedToNode.setMainNode(getEntity());
-            getEntity().addRelatedTo(relatedToNode);
+            // Remove children that should no longer exist in the collection
+            for (final CSNodeToCSNode removeRelationship : currentRelationships) {
+                getEntity().removeRelationshipTo(removeRelationship);
+            }
         }
     }
 
     @Override
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedFromNodes() {
         final CollectionWrapper<CSRelatedNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getRelatedFromNodes(),
-                CSNodeToCSNode.class, isRevisionEntity());
-        final DBCSRelatedNodeCollectionWrapper dbCollection = (DBCSRelatedNodeCollectionWrapper) collection;
-        dbCollection.registerEventListener(csRelatedFromNodeCollectionEventListener);
-        return dbCollection;
+                CSNodeToCSNode.class, isRevisionEntity(), relatedFromNodeCollectionHandler);
+        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) collection;
     }
 
     @Override
     public void setRelatedFromNodes(UpdateableCollectionWrapper<CSRelatedNodeWrapper> relatedFromNodes) {
         if (relatedFromNodes == null) return;
         final DBCSRelatedNodeCollectionWrapper dbRelatedFromNodes = (DBCSRelatedNodeCollectionWrapper) relatedFromNodes;
-        dbRelatedFromNodes.registerEventListener(csRelatedFromNodeCollectionEventListener);
+        dbRelatedFromNodes.setHandler(relatedFromNodeCollectionHandler);
 
-        // Remove the current Related Nodes
-        final Set<CSNodeToCSNode> currentRelatedFromNodes = new HashSet<CSNodeToCSNode>(getEntity().getRelatedFromNodes());
-        for (final CSNodeToCSNode relatedFromNode : currentRelatedFromNodes) {
-            getEntity().removeRelatedFrom(relatedFromNode);
-        }
+        // Only bother readjusting the collection if its a different collection than the current
+        if (dbRelatedFromNodes.unwrap() != getEntity().getRelatedFromNodes()) {
+            // Add new related nodes and skip any existing relationships
+            final Set<CSNodeToCSNode> currentRelationships = new HashSet<CSNodeToCSNode>(getEntity().getRelatedFromNodes());
+            final Collection<CSNodeToCSNode> newRelationships = dbRelatedFromNodes.unwrap();
+            for (final CSNodeToCSNode relationship : newRelationships) {
+                if (currentRelationships.contains(relationship)) {
+                    currentRelationships.remove(relationship);
+                    continue;
+                } else {
+                    getEntity().addRelationshipFrom(relationship);
+                }
+            }
 
-        // Add new Related Nodes
-        final Collection<CSNodeToCSNode> newRelatedFromNodes = dbRelatedFromNodes.unwrap();
-        for (final CSNodeToCSNode relatedFromNode : newRelatedFromNodes) {
-            relatedFromNode.setMainNode(getEntity());
-            getEntity().addRelatedFrom(relatedFromNode);
+            // Remove children that should no longer exist in the collection
+            for (final CSNodeToCSNode removeRelationship : currentRelationships) {
+                getEntity().removeRelationshipFrom(removeRelationship);
+            }
         }
     }
 
@@ -115,28 +128,34 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
         final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getChildren(), CSNode.class,
-                isRevisionEntity());
-        final DBCSNodeCollectionWrapper dbCollection = (DBCSNodeCollectionWrapper) collection;
-        dbCollection.registerEventListener(csNodeCollectionEventListener);
-        return dbCollection;
+                isRevisionEntity(), csNodeCollectionHandler);
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
 
     @Override
     public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
         if (nodes == null) return;
         final DBCSNodeCollectionWrapper dbNodes = (DBCSNodeCollectionWrapper) nodes;
-        dbNodes.registerEventListener(csNodeCollectionEventListener);
+        dbNodes.setHandler(csNodeCollectionHandler);
 
-        // Remove the current children
-        final Set<CSNode> children = new HashSet<CSNode>(getEntity().getChildren());
-        for (final CSNode child : children) {
-            getEntity().removeChild(child);
-        }
+        // Only bother readjusting the collection if its a different collection than the current
+        if (dbNodes.unwrap() != getEntity().getChildren()) {
+            // Add new children and skip any existing children
+            final Set<CSNode> currentChildren = new HashSet<CSNode>(getEntity().getChildren());
+            final Collection<CSNode> newChildren = dbNodes.unwrap();
+            for (final CSNode child : newChildren) {
+                if (currentChildren.contains(child)) {
+                    currentChildren.remove(child);
+                    continue;
+                } else {
+                    getEntity().addChild(child);
+                }
+            }
 
-        // Set the new children
-        final Collection<CSNode> newChildren = dbNodes.unwrap();
-        for (final CSNode child : newChildren) {
-            getEntity().addChild(child);
+            // Remove children that should no longer exist in the collection
+            for (final CSNode removeChild : currentChildren) {
+                getEntity().removeChild(removeChild);
+            }
         }
     }
 
@@ -228,79 +247,5 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     @Override
     public CSNode unwrap() {
         return csNode;
-    }
-
-    /**
-     *
-     */
-    private class CSNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNode> {
-        @Override
-        public void onAddItem(final CSNode entity) {
-            getEntity().addChild(entity);
-        }
-
-        @Override
-        public void onRemoveItem(final CSNode entity) {
-            getEntity().removeChild(entity);
-        }
-
-        @Override
-        public void onUpdateItem(final CSNode entity) {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof CSNodeCollectionEventListener;
-        }
-    }
-
-    /**
-     *
-     */
-    private class CSRelatedToNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNodeToCSNode> {
-        @Override
-        public void onAddItem(final CSNodeToCSNode entity) {
-            entity.setMainNode(getEntity());
-            getEntity().addRelatedTo(entity);
-        }
-
-        @Override
-        public void onRemoveItem(final CSNodeToCSNode entity) {
-            getEntity().removeRelatedTo(entity);
-        }
-
-        @Override
-        public void onUpdateItem(final CSNodeToCSNode entity) {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof CSRelatedToNodeCollectionEventListener;
-        }
-    }
-
-    /**
-     *
-     */
-    private class CSRelatedFromNodeCollectionEventListener implements UpdateableCollectionEventListener<CSNodeToCSNode> {
-        @Override
-        public void onAddItem(final CSNodeToCSNode entity) {
-            entity.setMainNode(getEntity());
-            getEntity().addRelatedFrom(entity);
-        }
-
-        @Override
-        public void onRemoveItem(final CSNodeToCSNode entity) {
-            getEntity().removeRelatedFrom(entity);
-        }
-
-        @Override
-        public void onUpdateItem(final CSNodeToCSNode entity) {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof CSRelatedFromNodeCollectionEventListener;
-        }
     }
 }

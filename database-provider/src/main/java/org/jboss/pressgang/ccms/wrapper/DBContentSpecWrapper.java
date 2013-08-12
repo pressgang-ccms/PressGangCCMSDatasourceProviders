@@ -19,20 +19,27 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecToPropertyTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
 import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCSBookTagCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCSNodeCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBPropertyTagCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTagCollectionHandler;
 
 public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, ContentSpec> implements ContentSpecWrapper {
-    private final CSNodeCollectionEventListener csNodeCollectionEventListener = new CSNodeCollectionEventListener();
-    private final PropertyCollectionEventListener propertyCollectionEventListener = new PropertyCollectionEventListener();
-    private final TagCollectionEventListener tagCollectionEventListener = new TagCollectionEventListener();
-    private final BookTagCollectionEventListener bookTagCollectionEventListener = new BookTagCollectionEventListener();
+    private final DBCSNodeCollectionHandler csNodeCollectionHandler;
+    private final DBPropertyTagCollectionHandler<ContentSpecToPropertyTag> propertyCollectionHandler;
+    private final DBTagCollectionHandler tagCollectionHandler;
+    private final DBCSBookTagCollectionHandler bookTagCollectionHandler;
 
     private final ContentSpec contentSpec;
 
     public DBContentSpecWrapper(final DBProviderFactory providerFactory, final ContentSpec contentSpec, boolean isRevision) {
         super(providerFactory, isRevision, ContentSpec.class);
         this.contentSpec = contentSpec;
+        csNodeCollectionHandler = new DBCSNodeCollectionHandler(contentSpec);
+        propertyCollectionHandler = new DBPropertyTagCollectionHandler<ContentSpecToPropertyTag>(contentSpec);
+        tagCollectionHandler = new DBTagCollectionHandler(contentSpec);
+        bookTagCollectionHandler = new DBCSBookTagCollectionHandler(contentSpec);
     }
 
     @Override
@@ -42,115 +49,134 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
 
     @Override
     public CollectionWrapper<TagWrapper> getTags() {
-        final CollectionWrapper<TagWrapper> collection = getWrapperFactory().createCollection(getEntity().getTags(), Tag.class,
-                isRevisionEntity());
-        final DBTagCollectionWrapper dbCollection = (DBTagCollectionWrapper) collection;
-        dbCollection.registerEventListener(tagCollectionEventListener);
-        return dbCollection;
+        return getWrapperFactory().createCollection(getEntity().getTags(), Tag.class, isRevisionEntity(), tagCollectionHandler);
     }
 
     @Override
     public void setTags(CollectionWrapper<TagWrapper> tags) {
         if (tags == null) return;
         final DBTagCollectionWrapper dbTags = (DBTagCollectionWrapper) tags;
-        dbTags.registerEventListener(tagCollectionEventListener);
+        dbTags.setHandler(tagCollectionHandler);
 
-        // Remove the current tags
-        final List<Tag> existingTags = getEntity().getTags();
-        for (final Tag tag : existingTags) {
-            getEntity().removeTag(tag);
+        // Since tags in a content spec are generated from a set and not cached, there is no way to see if this collection is the same as
+        // the collection passed. So just process all the tags anyway.
+
+        // Add new tags and skip any existing tags
+        final List<Tag> currentTags = getEntity().getTags();
+        final Collection<Tag> newTags = dbTags.unwrap();
+        for (final Tag tag : newTags) {
+            if (currentTags.contains(tag)) {
+                currentTags.remove(tag);
+                continue;
+            } else {
+                getEntity().addTag(tag);
+            }
         }
 
-        // Set the new tags
-        final Collection<Tag> unwrappedTags = dbTags.unwrap();
-        for (final Tag tag : unwrappedTags) {
-            getEntity().addTag(tag);
+        // Remove tags that should no longer exist in the collection
+        for (final Tag removeTag : currentTags) {
+            getEntity().removeTag(removeTag);
         }
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getBookTags() {
-        final CollectionWrapper<TagWrapper> collection = getWrapperFactory().createCollection(getEntity().getBookTags(), Tag.class,
-                isRevisionEntity());
-        final DBTagCollectionWrapper dbCollection = (DBTagCollectionWrapper) collection;
-        dbCollection.registerEventListener(bookTagCollectionEventListener);
-        return dbCollection;
+        return getWrapperFactory().createCollection(getEntity().getBookTags(), Tag.class, isRevisionEntity(), bookTagCollectionHandler);
     }
 
     @Override
     public void setBookTags(CollectionWrapper<TagWrapper> bookTags) {
         if (bookTags == null) return;
         final DBTagCollectionWrapper dbTags = (DBTagCollectionWrapper) bookTags;
-        dbTags.registerEventListener(bookTagCollectionEventListener);
+        dbTags.setHandler(bookTagCollectionHandler);
 
-        // Remove the current tags
-        final List<Tag> existingTags = getEntity().getBookTags();
-        for (final Tag tag : existingTags) {
-            getEntity().removeBookTag(tag);
+        // Since book tags in a content spec are generated from a set and not cached, there is no way to see if this collection is the same
+        // as the collection passed. So just process all the tags anyway.
+
+        // Add new tags and skip any existing tags
+        final List<Tag> currentBookTags = getEntity().getBookTags();
+        final Collection<Tag> newBookTags = dbTags.unwrap();
+        for (final Tag bookTag : newBookTags) {
+            if (currentBookTags.contains(bookTag)) {
+                currentBookTags.remove(bookTag);
+                continue;
+            } else {
+                getEntity().addBookTag(bookTag);
+            }
         }
 
-        // Set the new tags
-        final Collection<Tag> unwrappedTags = dbTags.unwrap();
-        for (final Tag tag : unwrappedTags) {
-            getEntity().addBookTag(tag);
+        // Remove tags that should no longer exist in the collection
+        for (final Tag removeBookTag : currentBookTags) {
+            getEntity().removeBookTag(removeBookTag);
         }
     }
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
-        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getTopCSNodes(), CSNode.class,
-                isRevisionEntity());
-        final DBCSNodeCollectionWrapper dbCollection = (DBCSNodeCollectionWrapper) collection;
-        dbCollection.registerEventListener(csNodeCollectionEventListener);
-        return dbCollection;
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getChildrenList(), CSNode.class,
+                isRevisionEntity(), csNodeCollectionHandler);
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
 
     @Override
     public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
         if (nodes == null) return;
         final DBCSNodeCollectionWrapper dbNodes = (DBCSNodeCollectionWrapper) nodes;
-        dbNodes.registerEventListener(csNodeCollectionEventListener);
+        dbNodes.setHandler(csNodeCollectionHandler);
 
-        // Remove the current children
-        final List<CSNode> children = getEntity().getTopCSNodes();
-        for (final CSNode child : children) {
-            getEntity().removeChild(child);
-        }
+        // Since children nodes in a content spec are generated from a set and not cached, there is no way to see if this collection is
+        // the same as the collection passed. So just process all the nodes anyway.
 
-        // Set the new children
+        // Add new tags and skip any existing tags
+        final Set<CSNode> currentChildren = getEntity().getChildren();
         final Collection<CSNode> newChildren = dbNodes.unwrap();
         for (final CSNode child : newChildren) {
-            getEntity().addChild(child);
+            if (currentChildren.contains(child)) {
+                currentChildren.remove(child);
+                continue;
+            } else {
+                getEntity().addChild(child);
+            }
+        }
+
+        // Remove tags that should no longer exist in the collection
+        for (final CSNode removeChild : currentChildren) {
+            getEntity().removeChild(removeChild);
         }
     }
 
     @Override
     public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getProperties() {
         final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
-                getEntity().getContentSpecToPropertyTags(), ContentSpecToPropertyTag.class, isRevisionEntity());
-        final DBContentSpecToPropertyTagCollectionWrapper dbCollection = (DBContentSpecToPropertyTagCollectionWrapper) collection;
-        dbCollection.registerEventListener(propertyCollectionEventListener);
-        return dbCollection;
+                getEntity().getContentSpecToPropertyTags(), ContentSpecToPropertyTag.class, isRevisionEntity(), propertyCollectionHandler);
+        return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
     }
 
     @Override
     public void setProperties(UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> properties) {
         if (properties == null) return;
         final DBContentSpecToPropertyTagCollectionWrapper dbProperties = (DBContentSpecToPropertyTagCollectionWrapper) properties;
-        dbProperties.registerEventListener(propertyCollectionEventListener);
+        dbProperties.setHandler(propertyCollectionHandler);
 
-        // Remove the current properties
-        final Set<ContentSpecToPropertyTag> propertyTags = new HashSet<ContentSpecToPropertyTag>(getEntity().getContentSpecToPropertyTags
-                ());
-        for (final ContentSpecToPropertyTag propertyTag : propertyTags) {
-            getEntity().removePropertyTag(propertyTag);
-        }
+        // Only bother readjusting the collection if its a different collection than the current
+        if (dbProperties.unwrap() != getEntity().getPropertyTags()) {
+            // Add new property tags and skip any existing tags
+            final Set<ContentSpecToPropertyTag> currentProperties = new HashSet<ContentSpecToPropertyTag>(getEntity().getPropertyTags());
+            final Collection<ContentSpecToPropertyTag> newProperties = dbProperties.unwrap();
+            for (final ContentSpecToPropertyTag property : newProperties) {
+                if (currentProperties.contains(property)) {
+                    currentProperties.remove(property);
+                    continue;
+                } else {
+                    property.setContentSpec(getEntity());
+                    getEntity().addPropertyTag(property);
+                }
+            }
 
-        // Set the new properties
-        final Collection<ContentSpecToPropertyTag> newPropertyTags = dbProperties.unwrap();
-        for (final ContentSpecToPropertyTag propertyTag : newPropertyTags) {
-            propertyTag.setContentSpec(getEntity());
-            getEntity().addPropertyTag(propertyTag);
+            // Remove property tags that should no longer exist in the collection
+            for (final ContentSpecToPropertyTag removeProperty : currentProperties) {
+                getEntity().removePropertyTag(removeProperty);
+            }
         }
     }
 
@@ -254,73 +280,6 @@ public class DBContentSpecWrapper extends DBBaseWrapper<ContentSpecWrapper, Cont
         @Override
         public boolean equals(Object o) {
             return o instanceof CSNodeCollectionEventListener;
-        }
-    }
-
-    /**
-     *
-     */
-    private class PropertyCollectionEventListener implements UpdateableCollectionEventListener<ContentSpecToPropertyTag> {
-        @Override
-        public void onAddItem(final ContentSpecToPropertyTag entity) {
-            entity.setContentSpec(getEntity());
-            getEntity().addPropertyTag(entity);
-        }
-
-        @Override
-        public void onRemoveItem(final ContentSpecToPropertyTag entity) {
-            getEntity().removePropertyTag(entity);
-        }
-
-        @Override
-        public void onUpdateItem(final ContentSpecToPropertyTag entity) {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof PropertyCollectionEventListener;
-        }
-    }
-
-    /**
-     *
-     */
-    private class TagCollectionEventListener implements CollectionEventListener<Tag> {
-
-        @Override
-        public void onAddItem(Tag entity) {
-            getEntity().addTag(entity);
-        }
-
-        @Override
-        public void onRemoveItem(Tag entity) {
-            getEntity().removeTag(entity);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof TagCollectionEventListener;
-        }
-    }
-
-    /**
-     *
-     */
-    private class BookTagCollectionEventListener implements CollectionEventListener<Tag> {
-
-        @Override
-        public void onAddItem(Tag entity) {
-            getEntity().addBookTag(entity);
-        }
-
-        @Override
-        public void onRemoveItem(Tag entity) {
-            getEntity().removeBookTag(entity);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof BookTagCollectionEventListener;
         }
     }
 }

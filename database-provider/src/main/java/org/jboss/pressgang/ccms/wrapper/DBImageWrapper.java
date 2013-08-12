@@ -11,16 +11,17 @@ import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBLanguageImageCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBLanguageImageCollectionHandler;
 
 public class DBImageWrapper extends DBBaseWrapper<ImageWrapper, ImageFile> implements ImageWrapper {
-    private final LanguageImageCollectionEventListener languageImageCollectionEventListener = new LanguageImageCollectionEventListener();
+    private final DBLanguageImageCollectionHandler languageImageCollectionHandler;
 
     private final ImageFile image;
 
     public DBImageWrapper(final DBProviderFactory providerFactory, final ImageFile image, boolean isRevision) {
         super(providerFactory, isRevision, ImageFile.class);
         this.image = image;
+        languageImageCollectionHandler = new DBLanguageImageCollectionHandler(image);
     }
 
     @Override
@@ -51,52 +52,34 @@ public class DBImageWrapper extends DBBaseWrapper<ImageWrapper, ImageFile> imple
     @Override
     public UpdateableCollectionWrapper<LanguageImageWrapper> getLanguageImages() {
         final CollectionWrapper<LanguageImageWrapper> collection = getWrapperFactory().createCollection(getEntity().getLanguageImages(),
-                LanguageImage.class, isRevisionEntity());
-        final DBLanguageImageCollectionWrapper dbCollection = (DBLanguageImageCollectionWrapper) collection;
-        dbCollection.registerEventListener(languageImageCollectionEventListener);
-        return dbCollection;
+                LanguageImage.class, isRevisionEntity(), languageImageCollectionHandler);
+        return (UpdateableCollectionWrapper<LanguageImageWrapper>) collection;
     }
 
     @Override
     public void setLanguageImages(UpdateableCollectionWrapper<LanguageImageWrapper> languageImages) {
         if (languageImages == null) return;
         final DBLanguageImageCollectionWrapper dbLanguageImages = (DBLanguageImageCollectionWrapper) languageImages;
-        dbLanguageImages.registerEventListener(languageImageCollectionEventListener);
+        dbLanguageImages.setHandler(languageImageCollectionHandler);
 
-        // Remove the current children
-        final Set<LanguageImage> currentLanguageImages = new HashSet<LanguageImage>(getEntity().getLanguageImages());
-        for (final LanguageImage languageImage : currentLanguageImages) {
-            getEntity().removeLanguageImage(languageImage);
-        }
+        // Only bother readjusting the collection if its a different collection than the current
+        if (dbLanguageImages.unwrap() != getEntity().getLanguageImages()) {
+            // Add new language images and skip any existing language images
+            final Set<LanguageImage> currentLanguageImages = new HashSet<LanguageImage>(getEntity().getLanguageImages());
+            final Collection<LanguageImage> newLanguageImages = dbLanguageImages.unwrap();
+            for (final LanguageImage languageImage : newLanguageImages) {
+                if (currentLanguageImages.contains(languageImage)) {
+                    currentLanguageImages.remove(languageImage);
+                    continue;
+                } else {
+                    getEntity().addLanguageImage(languageImage);
+                }
+            }
 
-        // Set the new children
-        final Collection<LanguageImage> newLanguageImages = dbLanguageImages.unwrap();
-        for (final LanguageImage languageImage : newLanguageImages) {
-            getEntity().addLanguageImage(languageImage);
-        }
-    }
-
-    /**
-     *
-     */
-    private class LanguageImageCollectionEventListener implements UpdateableCollectionEventListener<LanguageImage> {
-        @Override
-        public void onAddItem(final LanguageImage entity) {
-            getEntity().addLanguageImage(entity);
-        }
-
-        @Override
-        public void onRemoveItem(final LanguageImage entity) {
-            getEntity().removeLanguageImage(entity);
-        }
-
-        @Override
-        public void onUpdateItem(final LanguageImage entity) {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof LanguageImageCollectionEventListener;
+            // Remove language images that should no longer exist in the collection
+            for (final LanguageImage removeLanguageImage : currentLanguageImages) {
+                getEntity().removeLanguageImage(removeLanguageImage);
+            }
         }
     }
 }

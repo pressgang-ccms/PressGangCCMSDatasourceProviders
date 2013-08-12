@@ -10,6 +10,8 @@ import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
 import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBUpdateableCollectionHandler;
 
 public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, U> extends DBCollectionWrapper<T,
         U> implements UpdateableCollectionWrapper<T> {
@@ -18,6 +20,11 @@ public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, 
     protected DBUpdateableCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
             Class<T> wrapperClass) {
         super(wrapperFactory, items, isRevisionList, wrapperClass);
+    }
+
+    protected DBUpdateableCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
+            Class<T> wrapperClass, final DBCollectionHandler<U> handler) {
+        super(wrapperFactory, items, isRevisionList, wrapperClass, handler);
     }
 
     @Override
@@ -51,6 +58,9 @@ public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, 
     }
 
     private void notifyOnUpdateEvent(U entity) {
+        if (getHandler() instanceof DBUpdateableCollectionHandler) {
+            ((DBUpdateableCollectionHandler<U>) getHandler()).updateItem(entity);
+        }
         for (final CollectionEventListener<U> listener : getEventListeners()) {
             if (listener instanceof UpdateableCollectionEventListener) {
                 ((UpdateableCollectionEventListener<U>) listener).onUpdateItem(entity);

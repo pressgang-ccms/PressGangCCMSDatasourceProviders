@@ -11,15 +11,16 @@ import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagInCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTagInCategoryCollectionHandler;
 
 public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper, Category> implements CategoryWrapper {
-    private final TagCollectionEventListener tagCollectionEventListener = new TagCollectionEventListener();
+    private final DBTagInCategoryCollectionHandler tagCollectionHandler;
     private final Category category;
 
     public DBCategoryWrapper(final DBProviderFactory providerFactory, final Category category, boolean isRevision) {
         super(providerFactory, isRevision, Category.class);
         this.category = category;
+        tagCollectionHandler = new DBTagInCategoryCollectionHandler(category);
     }
 
     @Override
@@ -60,54 +61,35 @@ public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper, Category> 
     @Override
     public UpdateableCollectionWrapper<TagInCategoryWrapper> getTags() {
         final CollectionWrapper<TagInCategoryWrapper> collection = getWrapperFactory().createCollection(getEntity().getTagToCategories(),
-                TagToCategory.class, isRevisionEntity());
-        final DBTagInCategoryCollectionWrapper dbCollection = (DBTagInCategoryCollectionWrapper) collection;
-        dbCollection.registerEventListener(tagCollectionEventListener);
-        return dbCollection;
+                TagToCategory.class, isRevisionEntity(), TagInCategoryWrapper.class, tagCollectionHandler);
+        return (UpdateableCollectionWrapper<TagInCategoryWrapper>) collection;
     }
 
     @Override
     public void setTags(UpdateableCollectionWrapper<TagInCategoryWrapper> tags) {
         if (tags == null) return;
         final DBTagInCategoryCollectionWrapper dbTags = (DBTagInCategoryCollectionWrapper) tags;
-        dbTags.registerEventListener(tagCollectionEventListener);
+        dbTags.setHandler(tagCollectionHandler);
 
-        // Remove the current tags
-        final Set<TagToCategory> currentTags = new HashSet<TagToCategory>(getEntity().getTagToCategories());
-        for (final TagToCategory tag : currentTags) {
-            getEntity().removeTagRelationship(tag);
-        }
+        // Only bother readjusting the collection if its a different collection than the current
+        if (dbTags.unwrap() != getEntity().getTagToCategories()) {
+            // Add new tags and skip any existing tags
+            final Set<TagToCategory> currentTags = new HashSet<TagToCategory>(getEntity().getTagToCategories());
+            final Collection<TagToCategory> newTags = dbTags.unwrap();
+            for (final TagToCategory tag : newTags) {
+                if (currentTags.contains(tag)) {
+                    currentTags.remove(tag);
+                    continue;
+                } else {
+                    tag.setCategory(getEntity());
+                    getEntity().addTag(tag);
+                }
+            }
 
-        // Set the new tags
-        final Collection<TagToCategory> newTags = dbTags.unwrap();
-        for (final TagToCategory tag : newTags) {
-            tag.setCategory(getEntity());
-            getEntity().addTagRelationship(tag);
-        }
-    }
-
-    /**
-     *
-     */
-    private class TagCollectionEventListener implements UpdateableCollectionEventListener<TagToCategory> {
-        @Override
-        public void onAddItem(TagToCategory entity) {
-            entity.setCategory(getEntity());
-            getEntity().addTagRelationship(entity);
-        }
-
-        @Override
-        public void onRemoveItem(TagToCategory entity) {
-            getEntity().removeTagRelationship(entity);
-        }
-
-        @Override
-        public void onUpdateItem(TagToCategory entity) {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof TagCollectionEventListener;
+            // Remove tags that should no longer exist in the collection
+            for (final TagToCategory removeTag : currentTags) {
+                getEntity().removeTag(removeTag);
+            }
         }
     }
 }

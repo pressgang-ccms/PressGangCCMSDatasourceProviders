@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
@@ -12,17 +13,17 @@ import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeStringCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTranslatedStringCollectionHandler;
 
 public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWrapper, TranslatedCSNode> implements TranslatedCSNodeWrapper {
-    private final TranslatedCSNodeStringCollectionEventListener translatedCSNodeStringCollectionEventListener = new
-            TranslatedCSNodeStringCollectionEventListener();
+    private final DBTranslatedStringCollectionHandler<TranslatedCSNodeString> translatedStringCollectionHandler;
 
     private final TranslatedCSNode csNode;
 
     public DBTranslatedCSNodeWrapper(final DBProviderFactory providerFactory, final TranslatedCSNode csNode, boolean isRevision) {
         super(providerFactory, isRevision, TranslatedCSNode.class);
         this.csNode = csNode;
+        translatedStringCollectionHandler = new DBTranslatedStringCollectionHandler<TranslatedCSNodeString>(csNode);
     }
 
     @Override
@@ -83,28 +84,34 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
     public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedStrings() {
         final CollectionWrapper<TranslatedCSNodeStringWrapper> collection = getWrapperFactory().createCollection(
                 getEntity().getTranslatedCSNodeStrings(), TranslatedCSNodeString.class, isRevisionEntity(),
-                TranslatedCSNodeStringWrapper.class);
-        final DBTranslatedCSNodeStringCollectionWrapper dbCollection = (DBTranslatedCSNodeStringCollectionWrapper) collection;
-        dbCollection.registerEventListener(translatedCSNodeStringCollectionEventListener);
-        return dbCollection;
+                TranslatedCSNodeStringWrapper.class, translatedStringCollectionHandler);
+        return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) collection;
     }
 
     @Override
     public void setTranslatedStrings(UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> translatedStrings) {
         if (translatedStrings == null) return;
         final DBTranslatedCSNodeStringCollectionWrapper dbTranslatedStrings = (DBTranslatedCSNodeStringCollectionWrapper) translatedStrings;
-        dbTranslatedStrings.registerEventListener(translatedCSNodeStringCollectionEventListener);
+        dbTranslatedStrings.setHandler(translatedStringCollectionHandler);
 
-        // Remove the current translated strings
-        final Set<TranslatedCSNodeString> currentTranslatedStrings = getEntity().getTranslatedCSNodeStrings();
-        for (final TranslatedCSNodeString translatedString : currentTranslatedStrings) {
-            getEntity().removeTranslatedString(translatedString);
-        }
+        // Only bother readjusting the collection if its a different collection than the current
+        if (dbTranslatedStrings.unwrap() != getEntity().getTranslatedCSNodeStrings()) {
+            // Add new translated strings and skip any existing strings
+            final Set<TranslatedCSNodeString> currentStrings = new HashSet<TranslatedCSNodeString>(getEntity().getTranslatedCSNodeStrings());
+            final Collection<TranslatedCSNodeString> newStrings = dbTranslatedStrings.unwrap();
+            for (final TranslatedCSNodeString string : newStrings) {
+                if (currentStrings.contains(string)) {
+                    currentStrings.remove(string);
+                    continue;
+                } else {
+                    getEntity().addTranslatedString(string);
+                }
+            }
 
-        // Set the new translated strings
-        final Collection<TranslatedCSNodeString> newTranslatedStrings = dbTranslatedStrings.unwrap();
-        for (final TranslatedCSNodeString translatedString : newTranslatedStrings) {
-            getEntity().addTranslatedString(translatedString);
+            // Remove strings that should no longer exist in the collection
+            for (final TranslatedCSNodeString removeString : currentStrings) {
+                getEntity().removeTranslatedString(removeString);
+            }
         }
     }
 
@@ -131,29 +138,5 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
     @Override
     public void setTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
         getEntity().setTranslatedTopicData(translatedTopic == null ? null : (TranslatedTopicData) translatedTopic.unwrap());
-    }
-
-    /**
-     *
-     */
-    private class TranslatedCSNodeStringCollectionEventListener implements UpdateableCollectionEventListener<TranslatedCSNodeString> {
-        @Override
-        public void onAddItem(final TranslatedCSNodeString entity) {
-            getEntity().addTranslatedString(entity);
-        }
-
-        @Override
-        public void onRemoveItem(final TranslatedCSNodeString entity) {
-            getEntity().removeTranslatedString(entity);
-        }
-
-        @Override
-        public void onUpdateItem(final TranslatedCSNodeString entity) {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof TranslatedCSNodeStringCollectionEventListener;
-        }
     }
 }

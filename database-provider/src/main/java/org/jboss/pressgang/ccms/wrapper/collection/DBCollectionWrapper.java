@@ -11,6 +11,8 @@ import java.util.Set;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBDefaultCollectionHandler;
 
 public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> implements CollectionWrapper<T> {
     private static final Integer NO_STATE = 0;
@@ -21,21 +23,23 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
     private final Collection<U> items;
     private final DBWrapperFactory wrapperFactory;
     private final boolean isRevisionList;
-    private Set<CollectionEventListener<U>> listeners = new HashSet<CollectionEventListener<U>>();
+    private DBCollectionHandler<U> handler;
+    private final Set<CollectionEventListener<U>> listeners = new HashSet<CollectionEventListener<U>>();
 
     protected DBCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
             final Class<T> wrapperClass) {
+        this(wrapperFactory, items, isRevisionList, wrapperClass, new DBDefaultCollectionHandler<U>(items));
+    }
+
+    protected DBCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<U> items, boolean isRevisionList,
+            final Class<T> wrapperClass, final DBCollectionHandler<U> handler) {
         this.wrapperFactory = wrapperFactory;
         for (final U item : items) {
             wrapperItems.put((T) wrapperFactory.create(item, isRevisionList, wrapperClass), NO_STATE);
         }
-        if (items instanceof Set) {
-            this.items = new HashSet<U>();
-        } else {
-            this.items = new ArrayList<U>();
-        }
-        this.items.addAll(items);
+        this.items = items;
         this.isRevisionList = isRevisionList;
+        this.handler = handler;
     }
 
     protected DBWrapperFactory getWrapperFactory() {
@@ -48,6 +52,14 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
 
     protected Collection<U> getCollectionItems() {
         return items;
+    }
+
+    public DBCollectionHandler<U> getHandler() {
+        return handler;
+    }
+
+    public void setHandler(final DBCollectionHandler<U> handler) {
+        this.handler = handler;
     }
 
     public void registerEventListener(CollectionEventListener<U> listener) {
@@ -74,7 +86,6 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
         if (!isRevisionList()) {
             final U unwrappedEntity = (U) entity.unwrap();
             if (!getCollectionItems().contains(unwrappedEntity)) {
-                getCollectionItems().add(unwrappedEntity);
                 notifyOnAddEvent(unwrappedEntity);
             }
         }
@@ -86,7 +97,6 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
         getCollection().put(entity, REMOVE_STATE);
         if (!isRevisionList()) {
             final U unwrappedEntity = (U) entity.unwrap();
-            getCollectionItems().remove(unwrappedEntity);
             notifyOnRemoveEvent(unwrappedEntity);
         }
     }
@@ -156,12 +166,14 @@ public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> impleme
     }
 
     private void notifyOnAddEvent(U entity) {
+        handler.addItem(entity);
         for (final CollectionEventListener<U> listener : getEventListeners()) {
             listener.onAddItem(entity);
         }
     }
 
     private void notifyOnRemoveEvent(U entity) {
+        handler.removeItem(entity);
         for (final CollectionEventListener<U> listener : getEventListeners()) {
             listener.onRemoveItem(entity);
         }
