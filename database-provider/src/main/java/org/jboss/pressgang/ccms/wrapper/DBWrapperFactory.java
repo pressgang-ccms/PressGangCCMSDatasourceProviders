@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.BlobConstants;
 import org.jboss.pressgang.ccms.model.Category;
+import org.jboss.pressgang.ccms.model.File;
 import org.jboss.pressgang.ccms.model.ImageFile;
+import org.jboss.pressgang.ccms.model.LanguageFile;
 import org.jboss.pressgang.ccms.model.LanguageImage;
 import org.jboss.pressgang.ccms.model.PropertyTag;
 import org.jboss.pressgang.ccms.model.PropertyTagToPropertyTagCategory;
@@ -37,7 +39,9 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryInTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBContentSpecToPropertyTagCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBFileCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBImageCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBLanguageFileCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBLanguageImageCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBPropertyTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBPropertyTagInPropertyCategoryCollectionWrapper;
@@ -115,6 +119,12 @@ public class DBWrapperFactory extends WrapperFactory {
         } else if (entity instanceof StringConstants) {
             // STRING CONSTANT
             wrapper = new DBStringConstantWrapper(getProviderFactory(), (StringConstants) entity, isRevision);
+        } else if (entity instanceof File) {
+            // FILE
+            wrapper = new DBFileWrapper(getProviderFactory(), (File) entity, isRevision);
+        } else if (entity instanceof LanguageFile) {
+            // LANGUAGE FILE
+            wrapper = new DBLanguageFileWrapper(getProviderFactory(), (LanguageFile) entity, isRevision);
         } else if (entity instanceof ImageFile) {
             // IMAGE
             wrapper = new DBImageWrapper(getProviderFactory(), (ImageFile) entity, isRevision);
@@ -200,6 +210,12 @@ public class DBWrapperFactory extends WrapperFactory {
         } else if (entityClass == StringConstants.class) {
             // STRING CONSTANT
             wrapper = new DBStringConstantCollectionWrapper(this, (Collection<StringConstants>) collection, isRevisionCollection);
+        } else if (entityClass == File.class) {
+            // FILE
+            wrapper = new DBFileCollectionWrapper(this, (Collection<File>) collection, isRevisionCollection);
+        } else if (entityClass == LanguageFile.class) {
+            // LANGUAGE IMAGE
+            wrapper = new DBLanguageFileCollectionWrapper(this, (Collection<LanguageFile>) collection, isRevisionCollection);
         } else if (entityClass == ImageFile.class) {
             // IMAGE
             wrapper = new DBImageCollectionWrapper(this, (Collection<ImageFile>) collection, isRevisionCollection);

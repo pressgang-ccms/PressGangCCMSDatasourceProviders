@@ -8,7 +8,9 @@ import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTBlobConstantV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyTagV1;
@@ -106,6 +108,12 @@ public class RESTEntityProxyFactory {
         } else if (entity instanceof RESTCategoryInTagV1) {
             return new RESTCategoryInTagV1ProxyHandler<RESTCategoryInTagV1>(providerFactory, (RESTCategoryInTagV1) entity, isRevision,
                     (RESTBaseTagV1<?, ?, ?>) parent);
+        } else if (entity instanceof RESTFileV1) {
+            // FILE
+            return new RESTFileV1ProxyHandler(providerFactory, (RESTFileV1) entity, isRevision);
+        } else if (entity instanceof RESTLanguageFileV1) {
+            // LANGUAGE FILE
+            return new RESTLanguageFileV1ProxyHandler(providerFactory, (RESTLanguageFileV1) entity, isRevision, (RESTFileV1) parent);
         } else if (entity instanceof RESTImageV1) {
             // IMAGE
             return new RESTImageV1ProxyHandler(providerFactory, (RESTImageV1) entity, isRevision);

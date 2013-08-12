@@ -77,6 +77,16 @@ public class RESTProviderFactory extends DataProviderFactory {
         providerMap.put(RESTBlobConstantProvider.class, blobConstantProvider);
         providerMap.put(BlobConstantProvider.class, blobConstantProvider);
 
+        // File Provider
+        final RESTFileProvider fileProvider = new RESTFileProvider(getRESTManager(), getWrapperFactory());
+        providerMap.put(RESTFileProvider.class, fileProvider);
+        providerMap.put(FileProvider.class, fileProvider);
+
+        // Language File Provider
+        final RESTLanguageFileProvider languageFileProvider = new RESTLanguageFileProvider(getRESTManager(), getWrapperFactory());
+        providerMap.put(RESTLanguageFileProvider.class, languageFileProvider);
+        providerMap.put(LanguageFileProvider.class, languageFileProvider);
+
         // Image Provider
         final RESTImageProvider imageProvider = new RESTImageProvider(getRESTManager(), getWrapperFactory());
         providerMap.put(RESTImageProvider.class, imageProvider);

@@ -127,6 +127,17 @@ public class DBProviderFactory extends DataProviderFactory {
         providerMap.put(DBBlobConstantProvider.class, blobConstantProvider);
         providerMap.put(BlobConstantProvider.class, blobConstantProvider);
 
+        // File Provider
+        final DBFileProvider fileProvider = new DBFileProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        providerMap.put(DBFileProvider.class, fileProvider);
+        providerMap.put(FileProvider.class, fileProvider);
+
+        // Language File Provider
+        final DBLanguageFileProvider languageFileProvider = new DBLanguageFileProvider(getEntityManager(), getWrapperFactory(),
+                getListeners());
+        providerMap.put(DBLanguageFileProvider.class, languageFileProvider);
+        providerMap.put(LanguageFileProvider.class, languageFileProvider);
+
         // Image Provider
         final DBImageProvider imageProvider = new DBImageProvider(getEntityManager(), getWrapperFactory(), getListeners());
         providerMap.put(DBImageProvider.class, imageProvider);
