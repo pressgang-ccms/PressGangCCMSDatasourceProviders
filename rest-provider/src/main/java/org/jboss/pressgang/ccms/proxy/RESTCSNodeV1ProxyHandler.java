@@ -28,7 +28,7 @@ public class RESTCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTC
                     retValue = getProvider().getRESTCSRelatedFromNodes(contentSpec.getId(), getEntityRevision());
                 } else if (methodName.equals("getRelatedToNodes")) {
                     retValue = getProvider().getRESTCSRelatedToNodes(contentSpec.getId(), getEntityRevision());
-                } else if (methodName.equals("getChildren")) {
+                } else if (methodName.equals("getChildren_OTM")) {
                     retValue = getProvider().getRESTCSNodeChildren(contentSpec.getId(), getEntityRevision());
                 } else if (methodName.equals("getRevisions")) {
                     retValue = getProvider().getRESTCSNodeRevisions(contentSpec.getId(), getEntityRevision());
