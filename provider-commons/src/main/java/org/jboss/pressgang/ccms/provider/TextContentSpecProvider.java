@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
+import org.jboss.pressgang.ccms.wrapper.TextCSProcessingOptionsWrapper;
 import org.jboss.pressgang.ccms.wrapper.TextContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
@@ -15,11 +16,17 @@ public interface TextContentSpecProvider {
 
     TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpec);
 
-    TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpec, LogMessageWrapper logMessage);
+    TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpec, TextCSProcessingOptionsWrapper processingOptions);
+
+    TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpec, TextCSProcessingOptionsWrapper processingOptions, LogMessageWrapper logMessage);
 
     TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpec);
 
-    TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpec, LogMessageWrapper logMessage);
+    TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpec, TextCSProcessingOptionsWrapper processingOptions);
+
+    TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpec, TextCSProcessingOptionsWrapper processingOptions, LogMessageWrapper logMessage);
 
     TextContentSpecWrapper newTextContentSpec();
+
+    TextCSProcessingOptionsWrapper newTextProcessingOptions();
 }

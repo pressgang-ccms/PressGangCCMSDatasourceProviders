@@ -5,10 +5,13 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTextContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextCSProcessingOptionsV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTTextCSProcessingOptionsV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTTextContentSpecV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.TextCSProcessingOptionsWrapper;
 import org.jboss.pressgang.ccms.wrapper.TextContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
@@ -189,13 +192,23 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
 
     @Override
     public TextContentSpecWrapper createTextContentSpec(final TextContentSpecWrapper contentSpecEntity) {
-        return createTextContentSpec(contentSpecEntity, null);
+        return createTextContentSpec(contentSpecEntity, null, null);
     }
 
     @Override
-    public TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpecEntity, LogMessageWrapper logMessage) {
+    public TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpecEntity,
+            TextCSProcessingOptionsWrapper processingOptions) {
+        return createTextContentSpec(contentSpecEntity, processingOptions, null);
+    }
+
+    @Override
+    public TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpecEntity,
+            TextCSProcessingOptionsWrapper processingOptions, LogMessageWrapper logMessage) {
         try {
             final RESTTextContentSpecV1 contentSpec = ((RESTTextContentSpecV1Wrapper) contentSpecEntity).unwrap();
+            if (processingOptions != null) {
+                contentSpec.setProcessingOptions(((RESTTextCSProcessingOptionsV1Wrapper) processingOptions).unwrap());
+            }
 
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(contentSpec);
@@ -220,13 +233,23 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
 
     @Override
     public TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpecEntity) {
-        return updateTextContentSpec(contentSpecEntity, null);
+        return updateTextContentSpec(contentSpecEntity, null, null);
     }
 
     @Override
-    public TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpecEntity, LogMessageWrapper logMessage) {
+    public TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpecEntity,
+            TextCSProcessingOptionsWrapper processingOptions) {
+        return updateTextContentSpec(contentSpecEntity, processingOptions, null);
+    }
+
+    @Override
+    public TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpecEntity,
+            TextCSProcessingOptionsWrapper processingOptions, LogMessageWrapper logMessage) {
         try {
             final RESTTextContentSpecV1 contentSpec = ((RESTTextContentSpecV1Wrapper) contentSpecEntity).unwrap();
+            if (processingOptions != null) {
+                contentSpec.setProcessingOptions(((RESTTextCSProcessingOptionsV1Wrapper) processingOptions).unwrap());
+            }
 
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(contentSpec);
@@ -253,5 +276,10 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
     @Override
     public TextContentSpecWrapper newTextContentSpec() {
         return getWrapperFactory().create(new RESTTextContentSpecV1(), false);
+    }
+
+    @Override
+    public TextCSProcessingOptionsWrapper newTextProcessingOptions() {
+        return new RESTTextCSProcessingOptionsV1Wrapper(new RESTTextCSProcessingOptionsV1());
     }
 }

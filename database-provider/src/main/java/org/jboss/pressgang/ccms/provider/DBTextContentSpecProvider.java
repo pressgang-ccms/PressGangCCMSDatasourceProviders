@@ -16,8 +16,10 @@ import org.jboss.pressgang.ccms.model.Filter;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
+import org.jboss.pressgang.ccms.wrapper.DBTextCSProcessingOptionsWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
+import org.jboss.pressgang.ccms.wrapper.TextCSProcessingOptionsWrapper;
 import org.jboss.pressgang.ccms.wrapper.TextContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
@@ -78,46 +80,45 @@ public class DBTextContentSpecProvider extends DBDataProvider implements TextCon
 
     @Override
     public TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpec) {
-        return createTextContentSpec(contentSpec, null);
+        return createTextContentSpec(contentSpec, null, null);
     }
 
     @Override
-    public TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpec, LogMessageWrapper logMessage) {
-        // Send the notification events
-        notifyCreateEntity(contentSpec);
-        notifyLogMessage(logMessage);
+    public TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpec,
+            TextCSProcessingOptionsWrapper processingOptions) {
+        return createTextContentSpec(contentSpec, processingOptions, null);
+    }
 
-        // Merge the new entity
-        getEntityManager().persist(contentSpec.unwrap());
-
-        // Flush the changes to the database
-        getEntityManager().flush();
-
-        return contentSpec;
+    @Override
+    public TextContentSpecWrapper createTextContentSpec(TextContentSpecWrapper contentSpec,
+            TextCSProcessingOptionsWrapper processingOptions, LogMessageWrapper logMessage) {
+        throw new UnsupportedOperationException("Creating via text has no implementation");
     }
 
     @Override
     public TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpec) {
-        return updateTextContentSpec(contentSpec, null);
+        return updateTextContentSpec(contentSpec, null, null);
     }
 
     @Override
-    public TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpec, LogMessageWrapper logMessage) {
-        // Send the notification events
-        notifyUpdateEntity(contentSpec);
-        notifyLogMessage(logMessage);
+    public TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpec,
+            TextCSProcessingOptionsWrapper processingOptions) {
+        return updateTextContentSpec(contentSpec, processingOptions, null);
+    }
 
-        // Persist the changes
-        getEntityManager().persist(contentSpec.unwrap());
-
-        // Flush the changes to the database
-        getEntityManager().flush();
-
-        return contentSpec;
+    @Override
+    public TextContentSpecWrapper updateTextContentSpec(TextContentSpecWrapper contentSpec,
+            TextCSProcessingOptionsWrapper processingOptions, LogMessageWrapper logMessage) {
+        throw new UnsupportedOperationException("Updating via text has no implementation");
     }
 
     @Override
     public TextContentSpecWrapper newTextContentSpec() {
         return getWrapperFactory().create(new ContentSpec(), false, TextContentSpecWrapper.class);
+    }
+
+    @Override
+    public TextCSProcessingOptionsWrapper newTextProcessingOptions() {
+        return new DBTextCSProcessingOptionsWrapper();
     }
 }
