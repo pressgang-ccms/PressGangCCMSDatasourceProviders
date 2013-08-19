@@ -285,6 +285,11 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     }
 
     @Override
+    public List<PropertyTagInTopicWrapper> getProperties(int propertyId) {
+        return getWrapperFactory().createList(getEnversTopic().getProperties(propertyId), isRevisionEntity());
+    }
+
+    @Override
     public UpdateableCollectionWrapper<TopicSourceURLWrapper> getSourceURLs() {
         final CollectionWrapper<TopicSourceURLWrapper> collection = getWrapperFactory().createCollection(
                 getEnversTopic().getTopicSourceUrls(), TopicSourceUrl.class, isRevisionEntity(), sourceUrlCollectionHandler);

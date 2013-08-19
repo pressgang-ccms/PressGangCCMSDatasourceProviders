@@ -62,6 +62,8 @@ public interface BaseTopicWrapper<T extends BaseTopicWrapper<T>> extends EntityW
 
     PropertyTagInTopicWrapper getProperty(final int propertyId);
 
+    List<PropertyTagInTopicWrapper> getProperties(final int propertyId);
+
     String getBugzillaBuildId();
 
     String getEditorURL(final ZanataDetails zanataDetails);

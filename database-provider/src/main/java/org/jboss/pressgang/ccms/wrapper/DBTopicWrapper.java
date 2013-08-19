@@ -260,6 +260,11 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
     }
 
     @Override
+    public List<PropertyTagInTopicWrapper> getProperties(int propertyId) {
+        return getWrapperFactory().createList(getEntity().getProperties(propertyId), isRevisionEntity());
+    }
+
+    @Override
     public UpdateableCollectionWrapper<TopicSourceURLWrapper> getSourceURLs() {
         final CollectionWrapper<TopicSourceURLWrapper> collection = getWrapperFactory().createCollection(getEntity().getTopicSourceUrls(),
                 TopicSourceUrl.class, isRevisionEntity(), sourceUrlCollectionHandler);
