@@ -38,4 +38,10 @@ public class DBTextContentSpecWrapper extends DBBaseContentSpecWrapper<TextConte
     public String getFailed() {
         return getEntity().getFailedContentSpec();
     }
+
+    @Override
+    public void setFailed(String failed) {
+        getEntity().setFailedContentSpec(failed);
+
+    }
 }

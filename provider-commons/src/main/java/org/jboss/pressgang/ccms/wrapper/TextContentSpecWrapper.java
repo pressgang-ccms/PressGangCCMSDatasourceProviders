@@ -12,4 +12,6 @@ public interface TextContentSpecWrapper extends BaseContentSpecWrapper<TextConte
     void setErrors(String errors);
 
     String getFailed();
+
+    void setFailed(String failed);
 }

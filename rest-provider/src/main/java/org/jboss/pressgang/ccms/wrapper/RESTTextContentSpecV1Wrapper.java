@@ -77,6 +77,11 @@ public class RESTTextContentSpecV1Wrapper extends RESTBaseWrapper<TextContentSpe
     }
 
     @Override
+    public void setFailed(String failed) {
+        getEntity().setFailedContentSpec(failed);
+    }
+
+    @Override
     public String getTitle() {
         return getProxyEntity().getTitle();
     }
