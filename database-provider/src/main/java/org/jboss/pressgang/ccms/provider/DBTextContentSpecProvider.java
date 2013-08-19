@@ -34,7 +34,7 @@ public class DBTextContentSpecProvider extends DBDataProvider implements TextCon
 
     @Override
     public TextContentSpecWrapper getTextContentSpec(int id) {
-        return getWrapperFactory().create(getEntity(ContentSpec.class, id), false);
+        return getWrapperFactory().create(getEntity(ContentSpec.class, id), false, TextContentSpecWrapper.class);
     }
 
     @Override

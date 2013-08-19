@@ -44,7 +44,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
 
     @Override
     public ContentSpecWrapper getContentSpec(int id) {
-        return getWrapperFactory().create(getEntity(ContentSpec.class, id), false);
+        return getWrapperFactory().create(getEntity(ContentSpec.class, id), false, ContentSpecWrapper.class);
     }
 
     @Override
