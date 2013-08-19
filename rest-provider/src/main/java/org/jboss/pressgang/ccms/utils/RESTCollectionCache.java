@@ -14,7 +14,7 @@ public class RESTCollectionCache {
     private static final String CACHE_MAX_SIZE_PROPERTY = "pressgang.rest.cache.collection.maxSize";
     private static final String CACHE_TIMEOUT_PROPERTY = "pressgang.rest.cache.collection.timeout";
     private static final Long DEFAULT_MAX_CACHE_SIZE = 100L;
-    private static final Long DEFAULT_CACHE_TIMEOUT = 10L;
+    private static final Long DEFAULT_CACHE_TIMEOUT = 5L;
 
     protected final RESTEntityCache entityCache;
     protected final Cache<String, RESTBaseCollectionV1<?, ?, ?>> collectionCache;

@@ -39,7 +39,7 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
             if (getRESTEntityCache().containsKeyValue(RESTBlobConstantV1.class, id, revision)) {
                 blobConstant = getRESTEntityCache().get(RESTBlobConstantV1.class, id, revision);
             } else {
-                blobConstant = getRESTClient().getJSONBlobConstantRevision(id, revision, "");
+                blobConstant = loadBlobConstant(id, revision, "");
                 getRESTEntityCache().add(blobConstant, revision);
             }
             return blobConstant;

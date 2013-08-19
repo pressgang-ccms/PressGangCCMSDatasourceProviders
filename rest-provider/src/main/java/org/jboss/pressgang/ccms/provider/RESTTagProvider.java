@@ -13,10 +13,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTTagQueryBuilderV1;
-import org.jboss.pressgang.ccms.utils.RESTCollectionCache;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
@@ -30,22 +27,15 @@ import org.slf4j.LoggerFactory;
 public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTagProvider.class);
 
-    private final RESTEntityCache entityCache;
-    private final RESTCollectionCache collectionsCache;
-    private final RESTInterfaceV1 client;
-
     protected RESTTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
-        collectionsCache = restManager.getRESTCollectionCache();
     }
 
     protected RESTTagV1 loadTag(int id, Integer revision, String expandString) {
         if (revision == null) {
-            return client.getJSONTag(id, expandString);
+            return getRESTClient().getJSONTag(id, expandString);
         } else {
-            return client.getJSONTagRevision(id, revision, expandString);
+            return getRESTClient().getJSONTagRevision(id, revision, expandString);
         }
     }
 
@@ -61,11 +51,11 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     public RESTTagV1 getRESTTag(int id, Integer revision) {
         try {
             final RESTTagV1 tag;
-            if (entityCache.containsKeyValue(RESTTagV1.class, id, revision)) {
-                tag = entityCache.get(RESTTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTagV1.class, id, revision)) {
+                tag = getRESTEntityCache().get(RESTTagV1.class, id, revision);
             } else {
                 tag = loadTag(id, revision, "");
-                entityCache.add(tag, revision);
+                getRESTEntityCache().add(tag, revision);
             }
             return tag;
         } catch (Exception e) {
@@ -86,8 +76,8 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
         try {
             final RESTTagCollectionV1 tags;
-            if (collectionsCache.containsKey(RESTTagV1.class, keys)) {
-                tags = collectionsCache.get(RESTTagV1.class, RESTTagCollectionV1.class, keys);
+            if (getRESTCollectionCache().containsKey(RESTTagV1.class, keys)) {
+                tags = getRESTCollectionCache().get(RESTTagV1.class, RESTTagCollectionV1.class, keys);
             } else {
                 final RESTTagQueryBuilderV1 queryBuilder = new RESTTagQueryBuilderV1();
                 queryBuilder.setTagName(name);
@@ -96,8 +86,8 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
                 final String expandString = getExpansionString(RESTv1Constants.TAGS_EXPANSION_NAME);
 
                 // Load the tags from the REST Interface
-                tags = client.getJSONTagsWithQuery(queryBuilder.buildQueryPath(), expandString);
-                entityCache.add(tags);
+                tags = getRESTClient().getJSONTagsWithQuery(queryBuilder.buildQueryPath(), expandString);
+                getRESTCollectionCache().add(RESTTagV1.class, tags, keys);
             }
 
             return tags;
@@ -125,8 +115,8 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTagV1.class, id, revision)) {
-                tag = entityCache.get(RESTTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTagV1.class, id, revision)) {
+                tag = getRESTEntityCache().get(RESTTagV1.class, id, revision);
 
                 if (tag.getCategories() != null) {
                     return tag.getCategories();
@@ -141,7 +131,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             if (tag == null) {
                 tag = tempTag;
-                entityCache.add(tag, revision);
+                getRESTEntityCache().add(tag, revision);
             } else {
                 tag.setCategories(tempTag.getCategories());
             }
@@ -164,8 +154,8 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTagV1.class, id, revision)) {
-                tag = entityCache.get(RESTTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTagV1.class, id, revision)) {
+                tag = getRESTEntityCache().get(RESTTagV1.class, id, revision);
 
                 if (tag.getChildTags() != null) {
                     return tag.getChildTags();
@@ -180,7 +170,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             if (tag == null) {
                 tag = tempTag;
-                entityCache.add(tag, revision);
+                getRESTEntityCache().add(tag, revision);
             } else {
                 tag.setChildTags(tempTag.getChildTags());
             }
@@ -201,8 +191,8 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTagV1.class, id, revision)) {
-                tag = entityCache.get(RESTTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTagV1.class, id, revision)) {
+                tag = getRESTEntityCache().get(RESTTagV1.class, id, revision);
 
                 if (tag.getParentTags() != null) {
                     return tag.getParentTags();
@@ -217,7 +207,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             if (tag == null) {
                 tag = tempTag;
-                entityCache.add(tag, revision);
+                getRESTEntityCache().add(tag, revision);
             } else {
                 tag.setParentTags(tempTag.getParentTags());
             }
@@ -238,8 +228,8 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTagV1.class, id, revision)) {
-                tag = entityCache.get(RESTTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTagV1.class, id, revision)) {
+                tag = getRESTEntityCache().get(RESTTagV1.class, id, revision);
 
                 if (tag.getProperties() != null) {
                     return tag.getProperties();
@@ -254,7 +244,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             if (tag == null) {
                 tag = tempTag;
-                entityCache.add(tag, revision);
+                getRESTEntityCache().add(tag, revision);
             } else {
                 tag.setProperties(tempTag.getProperties());
             }
@@ -277,8 +267,8 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTagV1.class, id, revision)) {
-                tag = entityCache.get(RESTTagV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTagV1.class, id, revision)) {
+                tag = getRESTEntityCache().get(RESTTagV1.class, id, revision);
 
                 if (tag.getRevisions() != null) {
                     return tag.getRevisions();
@@ -293,7 +283,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
             if (tag == null) {
                 tag = tempTag;
-                entityCache.add(tag, revision);
+                getRESTEntityCache().add(tag, revision);
             } else {
                 tag.setRevisions(tempTag.getRevisions());
             }

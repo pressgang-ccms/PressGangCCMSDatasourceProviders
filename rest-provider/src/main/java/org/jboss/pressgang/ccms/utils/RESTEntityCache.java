@@ -12,7 +12,7 @@ public class RESTEntityCache {
     private static final String CACHE_MAX_SIZE_PROPERTY = "pressgang.rest.cache.maxSize";
     private static final String CACHE_TIMEOUT_PROPERTY = "pressgang.rest.cache.timeout";
     private static final Long DEFAULT_MAX_CACHE_SIZE = 2500L;
-    private static final Long DEFAULT_CACHE_TIMEOUT = 10L;
+    private static final Long DEFAULT_CACHE_TIMEOUT = 5L;
 
     protected final Cache<String, RESTBaseEntityV1<?, ?, ?>> entityCache;
 

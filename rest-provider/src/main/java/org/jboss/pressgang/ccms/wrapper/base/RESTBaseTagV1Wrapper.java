@@ -53,7 +53,7 @@ public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extend
 
     @Override
     public PropertyTagInTagWrapper getProperty(int propertyId) {
-        return getWrapperFactory().create(ComponentTagV1.returnProperty(getProxyEntity(), propertyId), isRevisionEntity(),
+        return getWrapperFactory().create(ComponentTagV1.returnProperty(getProxyEntity(), propertyId), isRevisionEntity(), getProxyEntity(),
                 PropertyTagInTagWrapper.class);
     }
 

@@ -10,8 +10,6 @@ import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTag
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -21,20 +19,15 @@ import org.slf4j.LoggerFactory;
 public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInTagProvider.class);
 
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
-
     protected RESTPropertyTagInTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
     }
 
     protected RESTTagV1 loadTag(Integer id, Integer revision, String expandString) {
         if (revision == null) {
-            return client.getJSONTag(id, expandString);
+            return getRESTClient().getJSONTag(id, expandString);
         } else {
-            return client.getJSONTagRevision(id, revision, expandString);
+            return getRESTClient().getJSONTagRevision(id, revision, expandString);
         }
     }
 
@@ -46,8 +39,8 @@ public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider {
         try {
             RESTTagV1 tag = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTagV1.class, tagId, tagRevision)) {
-                tag = entityCache.get(RESTTagV1.class, tagId, tagRevision);
+            if (getRESTEntityCache().containsKeyValue(RESTTagV1.class, tagId, tagRevision)) {
+                tag = getRESTEntityCache().get(RESTTagV1.class, tagId, tagRevision);
             }
 
             // We need to expand the all property tag revisions in the tag
@@ -58,7 +51,7 @@ public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider {
 
             if (tag == null) {
                 tag = tempTag;
-                entityCache.add(tag, tagRevision);
+                getRESTEntityCache().add(tag, tagRevision);
             } else if (tag.getProperties() == null) {
                 tag.setProperties(tempTag.getProperties());
             } else {

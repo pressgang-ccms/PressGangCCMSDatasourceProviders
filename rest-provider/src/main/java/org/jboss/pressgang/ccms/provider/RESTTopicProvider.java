@@ -19,9 +19,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTTopicQueryBuilderV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
@@ -41,20 +39,15 @@ import org.slf4j.LoggerFactory;
 public class RESTTopicProvider extends RESTDataProvider implements TopicProvider {
     private static final Logger LOG = LoggerFactory.getLogger(RESTTopicProvider.class);
 
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
-
     protected RESTTopicProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
     }
 
     protected RESTTopicV1 loadTopic(int id, Integer revision, String expandString) {
         if (revision == null) {
-            return client.getJSONTopic(id, expandString);
+            return getRESTClient().getJSONTopic(id, expandString);
         } else {
-            return client.getJSONTopicRevision(id, revision, expandString);
+            return getRESTClient().getJSONTopicRevision(id, revision, expandString);
         }
     }
 
@@ -70,11 +63,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     public RESTTopicV1 getRESTTopic(int id, Integer revision) {
         try {
             final RESTTopicV1 topic;
-            if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
-                topic = entityCache.get(RESTTopicV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
             } else {
                 topic = loadTopic(id, revision, "");
-                entityCache.add(topic, revision);
+                getRESTEntityCache().add(topic, revision);
             }
             return topic;
         } catch (Exception e) {
@@ -92,8 +85,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
-                topic = entityCache.get(RESTTopicV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
 
                 if (topic.getTags() != null) {
                     return topic.getTags();
@@ -108,7 +101,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             if (topic == null) {
                 topic = tempTopic;
-                entityCache.add(topic, revision);
+                getRESTEntityCache().add(topic, revision);
             } else {
                 topic.setTags(tempTopic.getTags());
             }
@@ -133,10 +126,10 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             final Set<Integer> queryIds = new HashSet<Integer>();
 
             for (final Integer id : ids) {
-                if (!entityCache.containsKeyValue(RESTTopicV1.class, id)) {
+                if (!getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id)) {
                     queryIds.add(id);
                 } else {
-                    topics.addItem(entityCache.get(RESTTopicV1.class, id));
+                    topics.addItem(getRESTEntityCache().get(RESTTopicV1.class, id));
                 }
             }
 
@@ -149,8 +142,9 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
 
                 // Load the topics from the REST Interface
-                final RESTTopicCollectionV1 downloadedTopics = client.getJSONTopicsWithQuery(queryBuilder.buildQueryPath(), expandString);
-                entityCache.add(downloadedTopics);
+                final RESTTopicCollectionV1 downloadedTopics = getRESTClient().getJSONTopicsWithQuery(queryBuilder.buildQueryPath(),
+                        expandString);
+                getRESTEntityCache().add(downloadedTopics);
 
                 // Transfer the downloaded data to the current topic list
                 if (downloadedTopics != null && downloadedTopics.getItems() != null) {
@@ -182,8 +176,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             // We need to expand the all the topics in the collection
             final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
 
-            final RESTTopicCollectionV1 topics = client.getJSONTopicsWithQuery(new PathSegmentImpl(query, false), expandString);
-            entityCache.add(topics);
+            final RESTTopicCollectionV1 topics = getRESTClient().getJSONTopicsWithQuery(new PathSegmentImpl(query, false), expandString);
+            getRESTEntityCache().add(topics);
 
             return topics;
         } catch (Exception e) {
@@ -203,8 +197,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
-                topic = entityCache.get(RESTTopicV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
 
                 if (topic.getTranslatedTopics_OTM() != null) {
                     return topic.getTranslatedTopics_OTM();
@@ -219,7 +213,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             if (topic == null) {
                 topic = tempTopic;
-                entityCache.add(topic, revision);
+                getRESTEntityCache().add(topic, revision);
             } else {
                 topic.setTranslatedTopics_OTM(tempTopic.getTranslatedTopics_OTM());
             }
@@ -240,8 +234,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
-                topic = entityCache.get(RESTTopicV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
 
                 if (topic.getRevisions() != null) {
                     return topic.getRevisions();
@@ -256,7 +250,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             if (topic == null) {
                 topic = tempTopic;
-                entityCache.add(topic, revision);
+                getRESTEntityCache().add(topic, revision);
             } else {
                 topic.setRevisions(tempTopic.getRevisions());
             }
@@ -277,8 +271,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
-                topic = entityCache.get(RESTTopicV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
 
                 if (topic.getProperties() != null) {
                     return topic.getProperties();
@@ -293,7 +287,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             if (topic == null) {
                 topic = tempTopic;
-                entityCache.add(topic, revision);
+                getRESTEntityCache().add(topic, revision);
             } else {
                 topic.setProperties(tempTopic.getProperties());
             }
@@ -322,8 +316,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
-                topic = entityCache.get(RESTTopicV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
 
                 if (topic.getOutgoingRelationships() != null) {
                     return topic.getOutgoingRelationships();
@@ -338,7 +332,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             if (topic == null) {
                 topic = tempTopic;
-                entityCache.add(topic, revision);
+                getRESTEntityCache().add(topic, revision);
             } else {
                 topic.setOutgoingRelationships(tempTopic.getOutgoingRelationships());
             }
@@ -360,8 +354,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
-                topic = entityCache.get(RESTTopicV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
 
                 if (topic.getIncomingRelationships() != null) {
                     return topic.getIncomingRelationships();
@@ -376,7 +370,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             if (topic == null) {
                 topic = tempTopic;
-                entityCache.add(topic, revision);
+                getRESTEntityCache().add(topic, revision);
             } else {
                 topic.setIncomingRelationships(tempTopic.getIncomingRelationships());
             }
@@ -403,8 +397,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         try {
             RESTTopicV1 topic = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTTopicV1.class, id, revision)) {
-                topic = entityCache.get(RESTTopicV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
+                topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
 
                 if (topic.getSourceUrls_OTM() != null) {
                     return topic.getSourceUrls_OTM();
@@ -419,7 +413,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             if (topic == null) {
                 topic = tempTopic;
-                entityCache.add(topic, revision);
+                getRESTEntityCache().add(topic, revision);
             } else {
                 topic.setSourceUrls_OTM(tempTopic.getSourceUrls_OTM());
             }
@@ -452,18 +446,19 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             final RESTTopicV1 updatedTopic;
             if (logMessage != null) {
-                updatedTopic = client.createJSONTopic("", topic, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser());
+                updatedTopic = getRESTClient().createJSONTopic("", topic, logMessage.getMessage(), logMessage.getFlags(),
+                        logMessage.getUser());
             } else {
-                updatedTopic = client.createJSONTopic("", topic);
+                updatedTopic = getRESTClient().createJSONTopic("", topic);
             }
             if (updatedTopic != null) {
-                entityCache.add(updatedTopic);
+                getRESTEntityCache().add(updatedTopic);
                 return getWrapperFactory().create(updatedTopic, false);
             } else {
                 return null;
             }
         } catch (Exception e) {
-            LOG.debug("", e);
+            LOG.debug("Failed to create Topic", e);
             throw handleException(e);
         }
     }
@@ -483,19 +478,20 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             final RESTTopicV1 updatedTopic;
             if (logMessage != null) {
-                updatedTopic = client.updateJSONTopic("", topic, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser());
+                updatedTopic = getRESTClient().updateJSONTopic("", topic, logMessage.getMessage(), logMessage.getFlags(),
+                        logMessage.getUser());
             } else {
-                updatedTopic = client.updateJSONTopic("", topic);
+                updatedTopic = getRESTClient().updateJSONTopic("", topic);
             }
             if (updatedTopic != null) {
-                entityCache.expire(RESTTopicV1.class, updatedTopic.getId());
-                entityCache.add(updatedTopic);
+                getRESTEntityCache().expire(RESTTopicV1.class, updatedTopic.getId());
+                getRESTEntityCache().add(updatedTopic);
                 return getWrapperFactory().create(updatedTopic, false);
             } else {
                 return null;
             }
         } catch (Exception e) {
-            LOG.debug("", e);
+            LOG.debug("Failed to update Topic " + topicEntity.getId(), e);
             throw handleException(e);
         }
     }
@@ -509,12 +505,12 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     public boolean deleteTopic(Integer id, LogMessageWrapper logMessage) {
         try {
             if (logMessage != null) {
-                return client.deleteJSONTopic(id, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(), "") != null;
+                return getRESTClient().deleteJSONTopic(id, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(), "") != null;
             } else {
-                return client.deleteJSONTopic(id, "") != null;
+                return getRESTClient().deleteJSONTopic(id, "") != null;
             }
         } catch (Exception e) {
-            LOG.debug("", e);
+            LOG.debug("Failed to delete Topic " + id, e);
             throw handleException(e);
         }
     }
@@ -535,19 +531,19 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
             final RESTTopicCollectionV1 createdTopics;
             if (logMessage != null) {
-                createdTopics = client.createJSONTopics(expandString, unwrappedTopics, logMessage.getMessage(), logMessage.getFlags(),
-                        logMessage.getUser());
+                createdTopics = getRESTClient().createJSONTopics(expandString, unwrappedTopics, logMessage.getMessage(),
+                        logMessage.getFlags(), logMessage.getUser());
             } else {
-                createdTopics = client.createJSONTopics(expandString, unwrappedTopics);
+                createdTopics = getRESTClient().createJSONTopics(expandString, unwrappedTopics);
             }
             if (createdTopics != null) {
-                entityCache.add(createdTopics, false);
+                getRESTEntityCache().add(createdTopics, false);
                 return getWrapperFactory().createCollection(createdTopics, RESTTopicV1.class, false);
             } else {
                 return null;
             }
         } catch (Exception e) {
-            LOG.debug("", e);
+            LOG.debug("Failed to create Topics", e);
             throw handleException(e);
         }
     }
@@ -568,18 +564,18 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
             final RESTTopicCollectionV1 updatedTopics;
             if (logMessage != null) {
-                updatedTopics = client.updateJSONTopics(expandString, unwrappedTopics, logMessage.getMessage(), logMessage.getFlags(),
+                updatedTopics = getRESTClient().updateJSONTopics(expandString, unwrappedTopics, logMessage.getMessage(), logMessage.getFlags(),
                         logMessage.getUser());
             } else {
-                updatedTopics = client.updateJSONTopics(expandString, unwrappedTopics);
+                updatedTopics = getRESTClient().updateJSONTopics(expandString, unwrappedTopics);
             }
             if (updatedTopics != null) {
                 // Expire the old cached data
                 for (final RESTTopicV1 topic : updatedTopics.returnItems()) {
-                    entityCache.expire(RESTTopicV1.class, topic.getId());
+                    getRESTEntityCache().expire(RESTTopicV1.class, topic.getId());
                 }
                 // Add the new data to the cache
-                entityCache.add(updatedTopics, false);
+                getRESTEntityCache().add(updatedTopics, false);
                 return getWrapperFactory().createCollection(updatedTopics, RESTTopicV1.class, false);
             } else {
                 return null;
@@ -601,12 +597,12 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
             final PathSegment path = new PathSegmentImpl(pathString, false);
             if (logMessage != null) {
-                return client.deleteJSONTopics(path, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(), "") != null;
+                return getRESTClient().deleteJSONTopics(path, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(), "") != null;
             } else {
-                return client.deleteJSONTopics(path, "") != null;
+                return getRESTClient().deleteJSONTopics(path, "") != null;
             }
         } catch (Exception e) {
-            LOG.debug("", e);
+            LOG.debug("Failed to delete Topics " + CollectionUtilities.toSeperatedString(topicIds, ", "), e);
             throw handleException(e);
         }
     }

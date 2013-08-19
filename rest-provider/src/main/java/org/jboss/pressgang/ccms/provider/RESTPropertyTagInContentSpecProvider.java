@@ -10,8 +10,6 @@ import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTAssignedPrope
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
-import org.jboss.pressgang.ccms.utils.RESTEntityCache;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -21,20 +19,15 @@ import org.slf4j.LoggerFactory;
 public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInContentSpecProvider.class);
 
-    private final RESTEntityCache entityCache;
-    private final RESTInterfaceV1 client;
-
     protected RESTPropertyTagInContentSpecProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
-        client = restManager.getRESTClient();
-        entityCache = restManager.getRESTEntityCache();
     }
 
     protected RESTContentSpecV1 loadContentSpec(Integer id, Integer revision, String expandString) {
         if (revision == null) {
-            return client.getJSONContentSpec(id, expandString);
+            return getRESTClient().getJSONContentSpec(id, expandString);
         } else {
-            return client.getJSONContentSpecRevision(id, revision, expandString);
+            return getRESTClient().getJSONContentSpecRevision(id, revision, expandString);
         }
     }
 
@@ -47,8 +40,8 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
         try {
             RESTContentSpecV1 contentSpec = null;
             // Check the cache first
-            if (entityCache.containsKeyValue(RESTContentSpecV1.class, contentSpecId, contentSpecRevision)) {
-                contentSpec = entityCache.get(RESTContentSpecV1.class, contentSpecId, contentSpecRevision);
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, contentSpecId, contentSpecRevision)) {
+                contentSpec = getRESTEntityCache().get(RESTContentSpecV1.class, contentSpecId, contentSpecRevision);
             }
 
             // We need to expand the all the items in the contentSpec collection
@@ -59,7 +52,7 @@ public class RESTPropertyTagInContentSpecProvider extends RESTPropertyTagProvide
 
             if (contentSpec == null) {
                 contentSpec = tempContentSpec;
-                entityCache.add(contentSpec, contentSpecRevision);
+                getRESTEntityCache().add(contentSpec, contentSpecRevision);
             } else if (contentSpec.getProperties() == null) {
                 contentSpec.setProperties(tempContentSpec.getProperties());
             } else {

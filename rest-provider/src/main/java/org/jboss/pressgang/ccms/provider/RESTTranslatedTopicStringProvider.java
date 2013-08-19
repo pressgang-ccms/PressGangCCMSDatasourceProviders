@@ -148,11 +148,13 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
                 RESTTranslatedTopicStringV1.class, revision != null, parent);
     }
 
+    @Override
     public TranslatedTopicStringWrapper newTranslatedTopicString(final TranslatedTopicWrapper translatedTopic) {
         return getWrapperFactory().create(new RESTTranslatedTopicStringV1(), false,
                 translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap());
     }
 
+    @Override
     public CollectionWrapper<TranslatedTopicStringWrapper> newTranslatedTopicStringCollection(
             final TranslatedTopicWrapper translatedTopic) {
         return getWrapperFactory().createCollection(new RESTTranslatedTopicStringCollectionV1(), RESTTranslatedTopicStringV1.class, false,
