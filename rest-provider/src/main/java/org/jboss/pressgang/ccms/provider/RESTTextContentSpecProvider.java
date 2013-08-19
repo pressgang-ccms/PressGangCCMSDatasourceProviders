@@ -210,15 +210,18 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
                 contentSpec.setProcessingOptions(((RESTTextCSProcessingOptionsV1Wrapper) processingOptions).unwrap());
             }
 
+            // Expand the text
+            final String expandString = getExpansionString(RESTTextContentSpecV1.TEXT_NAME);
+
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(contentSpec);
 
             final RESTTextContentSpecV1 createdContentSpec;
             if (logMessage != null) {
-                createdContentSpec = getRESTClient().createJSONTextContentSpec("", contentSpec, logMessage.getMessage(),
+                createdContentSpec = getRESTClient().createJSONTextContentSpec(expandString, contentSpec, logMessage.getMessage(),
                         logMessage.getFlags(), logMessage.getUser());
             } else {
-                createdContentSpec = getRESTClient().createJSONTextContentSpec("", contentSpec);
+                createdContentSpec = getRESTClient().createJSONTextContentSpec(expandString, contentSpec);
             }
             if (createdContentSpec != null) {
                 getRESTEntityCache().add(createdContentSpec);
@@ -251,15 +254,18 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
                 contentSpec.setProcessingOptions(((RESTTextCSProcessingOptionsV1Wrapper) processingOptions).unwrap());
             }
 
+            // Expand the text
+            final String expandString = getExpansionString(RESTTextContentSpecV1.TEXT_NAME);
+
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(contentSpec);
 
             final RESTTextContentSpecV1 updatedContentSpec;
             if (logMessage != null) {
-                updatedContentSpec = getRESTClient().updateJSONTextContentSpec("", contentSpec, logMessage.getMessage(),
+                updatedContentSpec = getRESTClient().updateJSONTextContentSpec(expandString, contentSpec, logMessage.getMessage(),
                         logMessage.getFlags(), logMessage.getUser());
             } else {
-                updatedContentSpec = getRESTClient().updateJSONTextContentSpec("", contentSpec);
+                updatedContentSpec = getRESTClient().updateJSONTextContentSpec(expandString, contentSpec);
             }
             if (updatedContentSpec != null) {
                 getRESTEntityCache().expire(RESTTextContentSpecV1.class, contentSpecEntity.getId());
