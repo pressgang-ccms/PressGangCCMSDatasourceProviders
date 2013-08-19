@@ -52,7 +52,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
         if (revision == null) {
             return getContentSpec(id);
         } else {
-            return getWrapperFactory().create(getRevisionEntity(ContentSpec.class, id, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(ContentSpec.class, id, revision), true, ContentSpecWrapper.class);
         }
     }
 
@@ -79,7 +79,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
         final ContentSpecFilterQueryBuilder queryBuilder = new ContentSpecFilterQueryBuilder(getEntityManager());
         final CriteriaQuery<ContentSpec> criteriaQuery = FilterUtilities.buildQuery(filter, queryBuilder);
 
-        return getWrapperFactory().createCollection(executeQuery(criteriaQuery), ContentSpec.class, false);
+        return getWrapperFactory().createCollection(executeQuery(criteriaQuery), ContentSpec.class, false, ContentSpecWrapper.class);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
     @Override
     public CollectionWrapper<ContentSpecWrapper> getContentSpecRevisions(int id, Integer revision) {
         final List<ContentSpec> revisions = getRevisionList(ContentSpec.class, id);
-        return getWrapperFactory().createCollection(revisions, ContentSpec.class, revision != null);
+        return getWrapperFactory().createCollection(revisions, ContentSpec.class, revision != null, ContentSpecWrapper.class);
     }
 
     @Override

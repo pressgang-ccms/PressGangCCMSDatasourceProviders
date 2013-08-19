@@ -123,7 +123,8 @@ public class DBProviderFactory extends DataProviderFactory {
         providerMap.put(StringConstantProvider.class, stringConstantProvider);
 
         // Blob Constant Provider
-        final DBBlobConstantProvider blobConstantProvider = new DBBlobConstantProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBBlobConstantProvider blobConstantProvider = new DBBlobConstantProvider(getEntityManager(), getWrapperFactory(),
+                getListeners());
         providerMap.put(DBBlobConstantProvider.class, blobConstantProvider);
         providerMap.put(BlobConstantProvider.class, blobConstantProvider);
 
@@ -161,7 +162,8 @@ public class DBProviderFactory extends DataProviderFactory {
         providerMap.put(TopicSourceURLProvider.class, topicSourceURLProvider);
 
         // PropertyTag Provider
-        final DBPropertyTagProvider propertyTagProvider = new DBPropertyTagProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBPropertyTagProvider propertyTagProvider = new DBPropertyTagProvider(getEntityManager(), getWrapperFactory(),
+                getListeners());
         providerMap.put(DBPropertyTagProvider.class, propertyTagProvider);
         providerMap.put(PropertyTagProvider.class, propertyTagProvider);
 
@@ -170,6 +172,12 @@ public class DBProviderFactory extends DataProviderFactory {
                 getListeners());
         providerMap.put(DBContentSpecProvider.class, contentSpecProvider);
         providerMap.put(ContentSpecProvider.class, contentSpecProvider);
+
+        // Text Content Spec Provider
+        final DBTextContentSpecProvider textContentSpecProvider = new DBTextContentSpecProvider(this, getEntityManager(),
+                getWrapperFactory(), getListeners());
+        providerMap.put(DBTextContentSpecProvider.class, textContentSpecProvider);
+        providerMap.put(TextContentSpecProvider.class, textContentSpecProvider);
 
         // Content Spec Node Provider
         final DBCSNodeProvider csNodeProvider = new DBCSNodeProvider(getEntityManager(), getWrapperFactory(), getListeners());

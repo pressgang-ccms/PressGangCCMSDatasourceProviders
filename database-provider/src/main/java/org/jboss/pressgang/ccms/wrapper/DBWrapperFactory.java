@@ -151,7 +151,7 @@ public class DBWrapperFactory extends WrapperFactory {
             wrapper = new DBUserWrapper(getProviderFactory(), (User) entity, isRevision);
         } else if (entity instanceof ContentSpec) {
             // CONTENT SPEC
-            wrapper = new DBContentSpecWrapper(getProviderFactory(), (ContentSpec) entity, isRevision);
+            throw new UnsupportedOperationException("A return class needs to be specified for ContentSpec entities.");
         } else if (entity instanceof CSNode) {
             // CONTENT SPEC NODE
             wrapper = new DBCSNodeWrapper(getProviderFactory(), (CSNode) entity, isRevision);
@@ -311,6 +311,18 @@ public class DBWrapperFactory extends WrapperFactory {
             wrapperCache.put(key, wrapper);
         } else if (entity instanceof TagToCategory && wrapperClass == CategoryInTagWrapper.class) {
             wrapper = new DBCategoryInTagWrapper(getProviderFactory(), (TagToCategory) entity, isRevision);
+
+            // Add the wrapper to the cache
+            wrapperCache.put(key, wrapper);
+        } else if (entity instanceof ContentSpec && wrapperClass == ContentSpecWrapper.class) {
+            // CONTENT SPEC
+            wrapper = new DBContentSpecWrapper(getProviderFactory(), (ContentSpec) entity, isRevision);
+
+            // Add the wrapper to the cache
+            wrapperCache.put(key, wrapper);
+        } else if (entity instanceof ContentSpec && wrapperClass == TextContentSpecWrapper.class) {
+            // TEXT CONTENT SPEC
+            wrapper = new DBTextContentSpecWrapper(getProviderFactory(), (ContentSpec) entity, isRevision);
 
             // Add the wrapper to the cache
             wrapperCache.put(key, wrapper);

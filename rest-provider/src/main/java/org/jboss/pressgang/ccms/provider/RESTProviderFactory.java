@@ -142,6 +142,11 @@ public class RESTProviderFactory extends DataProviderFactory {
         providerMap.put(RESTContentSpecProvider.class, contentSpecProvider);
         providerMap.put(ContentSpecProvider.class, contentSpecProvider);
 
+        // Text Content Spec Provider
+        final RESTTextContentSpecProvider textContentSpecProvider = new RESTTextContentSpecProvider(getRESTManager(), getWrapperFactory());
+        providerMap.put(RESTTextContentSpecProvider.class, textContentSpecProvider);
+        providerMap.put(TextContentSpecProvider.class, textContentSpecProvider);
+
         // Content Spec Node Provider
         final RESTCSNodeProvider csNodeProvider = new RESTCSNodeProvider(getRESTManager(), getWrapperFactory());
         providerMap.put(RESTCSNodeProvider.class, csNodeProvider);

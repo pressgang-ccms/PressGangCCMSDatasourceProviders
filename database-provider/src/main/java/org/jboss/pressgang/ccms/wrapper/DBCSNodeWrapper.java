@@ -117,7 +117,7 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
 
     @Override
     public ContentSpecWrapper getContentSpec() {
-        return getWrapperFactory().create(getEntity().getContentSpec(), isRevisionEntity());
+        return getWrapperFactory().create(getEntity().getContentSpec(), isRevisionEntity(), ContentSpecWrapper.class);
     }
 
     @Override

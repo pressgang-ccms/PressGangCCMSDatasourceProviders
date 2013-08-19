@@ -55,6 +55,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
@@ -169,6 +170,9 @@ public class RESTWrapperFactory extends WrapperFactory {
         } else if (entity instanceof RESTContentSpecV1) {
             // CONTENT SPEC
             wrapper = new RESTContentSpecV1Wrapper(getProviderFactory(), (RESTContentSpecV1) unwrappedEntity, isRevision);
+        } else if (entity instanceof RESTTextContentSpecV1) {
+            // TEXT CONTENT SPEC
+            wrapper = new RESTTextContentSpecV1Wrapper(getProviderFactory(), (RESTTextContentSpecV1) unwrappedEntity, isRevision);
         } else if (entity instanceof RESTCSNodeV1) {
             // CONTENT SPEC NODE
             wrapper = new RESTCSNodeV1Wrapper(getProviderFactory(), (RESTCSNodeV1) unwrappedEntity, isRevision);
