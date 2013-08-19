@@ -40,7 +40,7 @@ public class DBDataProvider extends DataProvider {
         try {
             final T entity = getEntityManager().find(clazz, id);
             if (entity == null) {
-                throw new NotFoundException();
+                throw new NotFoundException("Unable to find " + clazz.getSimpleName()  + " with id " + id);
             } else {
                 return entity;
             }
