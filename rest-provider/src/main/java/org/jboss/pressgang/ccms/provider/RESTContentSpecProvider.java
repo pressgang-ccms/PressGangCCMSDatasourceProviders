@@ -163,7 +163,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 contentSpec.setBookTags(tempContentSpec.getBookTags());
             }
 
-            return contentSpec.getTags();
+            return contentSpec.getBookTags();
         } catch (Exception e) {
             log.debug("Failed to retrieve the Book Tags for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
             throw handleException(e);
