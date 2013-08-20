@@ -19,9 +19,8 @@ public class RESTErrorInterceptor implements ClientErrorInterceptor {
         final int status = response.getStatus();
         String message = null;
         try {
-            message = (String) response.getEntity();
+            message = response.getEntity(String.class);
         } catch (Exception e) {
-
         } finally {
             response.releaseConnection();
         }
