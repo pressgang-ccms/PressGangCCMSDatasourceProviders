@@ -38,6 +38,13 @@ import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyC
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
 
 public class RESTEntityProxyFactory {
+    private static final MethodFilter FINALIZE_FILTER = new MethodFilter() {
+        public boolean isHandled(Method m) {
+            // skip finalize methods
+            return !( m.getParameterTypes().length == 0 && m.getName().equals( "finalize" ) );
+        }
+    };
+
     @SuppressWarnings("unchecked")
     public static <T extends RESTBaseEntityV1<T, ?, ?>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
             boolean isRevision) {
@@ -50,12 +57,7 @@ public class RESTEntityProxyFactory {
         final Class<?> clazz = entity.getClass();
 
         final ProxyFactory factory = new ProxyFactory();
-        factory.setFilter(new MethodFilter() {
-            @Override
-            public boolean isHandled(Method method) {
-                return method.getName().startsWith("get");
-            }
-        });
+        factory.setFilter(FINALIZE_FILTER);
         factory.setSuperclass(clazz);
 
         Class<?> cl = factory.createClass();

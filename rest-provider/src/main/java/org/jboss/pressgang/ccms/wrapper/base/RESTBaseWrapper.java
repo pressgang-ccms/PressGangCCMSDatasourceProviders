@@ -45,7 +45,7 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
 
     @Override
     public void setId(Integer id) {
-        getProxyEntity().setId(id);
+        getEntity().setId(id);
     }
 
     @Override
