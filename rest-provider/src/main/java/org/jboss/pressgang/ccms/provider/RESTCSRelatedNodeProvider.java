@@ -1,9 +1,11 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javassist.util.proxy.ProxyObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.RESTManager;
@@ -11,9 +13,6 @@ import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.items.join.RESTC
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
-import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
-import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider {
     private static Logger log = LoggerFactory.getLogger(RESTCSRelatedNodeProvider.class);
-    private static ObjectMapper mapper = new ObjectMapper();
 
     protected RESTCSRelatedNodeProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
@@ -40,20 +38,11 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider {
                 csNode = getRESTEntityCache().get(RESTCSNodeV1.class, csNodeId, csNodeRevision);
             }
 
-            /*
-             * We need to expand the all the related nodes in the csNode collection. This has to be done as we don't know which side of
-             * the node the related node comes from (to/from side), so we need to expand and check both.
-             */
-            final ExpandDataTrunk expand = new ExpandDataTrunk();
-            final ExpandDataTrunk expandRelatedToNodes = new ExpandDataTrunk(new ExpandDataDetails(RESTCSNodeV1.RELATED_TO_NAME));
-            final ExpandDataTrunk expandRelatedFromNodes = new ExpandDataTrunk(new ExpandDataDetails(RESTCSNodeV1.RELATED_FROM_NAME));
-            final ExpandDataTrunk expandRevisions = new ExpandDataTrunk(new ExpandDataDetails(RESTCSRelatedNodeV1.REVISIONS_NAME));
-
-            expandRelatedToNodes.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-            expandRelatedFromNodes.setBranches(CollectionUtilities.toArrayList(expandRevisions));
-            expand.setBranches(CollectionUtilities.toArrayList(expandRelatedToNodes, expandRelatedFromNodes));
-
-            final String expandString = mapper.writeValueAsString(expand);
+            // We need to expand the relationships and their revisions
+            final Map<String, List<String>> expandMap = new HashMap<String, List<String>>();
+            expandMap.put(RESTCSNodeV1.RELATED_TO_NAME, Arrays.asList(RESTCSRelatedNodeV1.REVISIONS_NAME));
+            expandMap.put(RESTCSNodeV1.RELATED_FROM_NAME, Arrays.asList(RESTCSRelatedNodeV1.REVISIONS_NAME));
+            final String expandString = getExpansionString(expandMap);
 
             // Load the content spec node from the REST Interface
             final RESTCSNodeV1 tempCSNode = loadCSNode(csNodeId, csNodeRevision, expandString);

@@ -6,6 +6,7 @@ import org.jboss.pressgang.ccms.provider.RESTPropertyTagInContentSpecProvider;
 import org.jboss.pressgang.ccms.provider.RESTPropertyTagInTagProvider;
 import org.jboss.pressgang.ccms.provider.RESTPropertyTagInTopicProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
@@ -20,38 +21,37 @@ public class RESTAssignedPropertyTagV1ProxyHandler extends RESTBaseEntityV1Proxy
     }
 
     @Override
-    public Object invoke(Object proxy, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTAssignedPropertyTagV1 propertyTag = getEntity();
+    public Object internalInvoke(RESTAssignedPropertyTagV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (propertyTag.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(propertyTag, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getRevisions")) {
                     final RESTBaseEntityV1<?, ?, ?> parent = getParent();
                     if (parent instanceof RESTContentSpecV1) {
                         final RESTPropertyTagInContentSpecProvider provider = getProviderFactory().getProvider(
                                 RESTPropertyTagInContentSpecProvider.class);
-                        retValue = provider.getRESTPropertyTagInContentSpecRevisions(propertyTag.getId(), getEntityRevision(),
+                        retValue = provider.getRESTPropertyTagInContentSpecRevisions(entity.getId(), getEntityRevision(),
                                 (RESTContentSpecV1) parent);
                     } else if (parent instanceof RESTBaseTopicV1) {
                         final RESTPropertyTagInTopicProvider provider = getProviderFactory().getProvider(
                                 RESTPropertyTagInTopicProvider.class);
-                        retValue = provider.getRESTPropertyTagInTopicRevisions(propertyTag.getId(), getEntityRevision(),
+                        retValue = provider.getRESTPropertyTagInTopicRevisions(entity.getId(), getEntityRevision(),
                                 (RESTBaseTopicV1) parent);
                     } else if (parent instanceof RESTBaseTagV1) {
                         final RESTPropertyTagInTagProvider provider = getProviderFactory().getProvider(RESTPropertyTagInTagProvider.class);
-                        retValue = provider.getRESTPropertyTagInTagRevisions(propertyTag.getId(), getEntityRevision(),
+                        retValue = provider.getRESTPropertyTagInTagRevisions(entity.getId(), getEntityRevision(),
                                 (RESTBaseTagV1<?, ?, ?>) parent);
                     }
+                    entity.setRevisions((RESTAssignedPropertyTagCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(proxy, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 }

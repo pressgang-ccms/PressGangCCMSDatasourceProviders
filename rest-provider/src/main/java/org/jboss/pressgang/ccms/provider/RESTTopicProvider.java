@@ -105,6 +105,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             } else {
                 topic.setTags(tempTopic.getTags());
             }
+            getRESTEntityCache().add(topic.getTags(), revision != null);
 
             return topic.getTags();
         } catch (Exception e) {

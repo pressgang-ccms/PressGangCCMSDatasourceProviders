@@ -125,6 +125,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             } else {
                 contentSpec.setTags(tempContentSpec.getTags());
             }
+            getRESTEntityCache().add(contentSpec.getTags(), revision != null);
 
             return contentSpec.getTags();
         } catch (Exception e) {
@@ -162,6 +163,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             } else {
                 contentSpec.setBookTags(tempContentSpec.getBookTags());
             }
+            getRESTEntityCache().add(contentSpec.getBookTags(), revision != null);
 
             return contentSpec.getBookTags();
         } catch (Exception e) {
@@ -183,7 +185,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             }
 
             // We need to expand the tags in the content spec
-            final String expandString = getExpansionString(RESTContentSpecV1.CHILDREN_NAME);
+            final String expandString = getExpansionString(RESTContentSpecV1.CHILDREN_NAME, RESTCSNodeV1.NEXT_NODE_NAME);
 
             // Load the content spec from the REST Interface
             final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
@@ -194,6 +196,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             } else {
                 contentSpec.setChildren_OTM(tempContentSpec.getChildren_OTM());
             }
+            getRESTEntityCache().add(contentSpec.getChildren_OTM(), revision != null);
 
             return contentSpec.getChildren_OTM();
         } catch (Exception e) {
@@ -234,6 +237,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             } else {
                 contentSpec.setTranslatedContentSpecs(tempContentSpec.getTranslatedContentSpecs());
             }
+            getRESTEntityCache().add(contentSpec.getTranslatedContentSpecs(), revision != null);
 
             return contentSpec.getTranslatedContentSpecs();
         } catch (Exception e) {
@@ -288,13 +292,13 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
     public RESTAssignedPropertyTagCollectionV1 getRESTContentSpecProperties(int id, final Integer revision) {
         try {
-            RESTContentSpecV1 topic = null;
+            RESTContentSpecV1 contentspec = null;
             // Check the cache first
             if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
-                topic = getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
+                contentspec = getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
 
-                if (topic.getProperties() != null) {
-                    return topic.getProperties();
+                if (contentspec.getProperties() != null) {
+                    return contentspec.getProperties();
                 }
             }
 
@@ -304,14 +308,15 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             // Load the content spec from the REST Interface
             final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
 
-            if (topic == null) {
-                topic = tempContentSpec;
-                getRESTEntityCache().add(topic, revision);
+            if (contentspec == null) {
+                contentspec = tempContentSpec;
+                getRESTEntityCache().add(contentspec, revision);
             } else {
-                topic.setProperties(tempContentSpec.getProperties());
+                contentspec.setProperties(tempContentSpec.getProperties());
             }
+            getRESTEntityCache().add(tempContentSpec.getProperties(), revision != null);
 
-            return topic.getProperties();
+            return contentspec.getProperties();
         } catch (Exception e) {
             log.debug("Failed to retrieve the Properties for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
             throw handleException(e);

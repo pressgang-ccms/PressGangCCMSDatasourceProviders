@@ -135,6 +135,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
             } else {
                 tag.setCategories(tempTag.getCategories());
             }
+            getRESTEntityCache().add(tag.getCategories(), revision != null);
 
             return tag.getCategories();
         } catch (Exception e) {
@@ -174,6 +175,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
             } else {
                 tag.setChildTags(tempTag.getChildTags());
             }
+            getRESTEntityCache().add(tag.getChildTags(), revision != null);
 
             return tag.getChildTags();
         } catch (Exception e) {
@@ -211,6 +213,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
             } else {
                 tag.setParentTags(tempTag.getParentTags());
             }
+            getRESTEntityCache().add(tag.getParentTags(), revision != null);
 
             return tag.getParentTags();
         } catch (Exception e) {
@@ -248,6 +251,7 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
             } else {
                 tag.setProperties(tempTag.getProperties());
             }
+            getRESTEntityCache().add(tag.getProperties(), revision != null);
 
             return tag.getProperties();
         } catch (Exception e) {

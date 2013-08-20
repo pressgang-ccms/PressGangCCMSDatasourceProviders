@@ -113,6 +113,7 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
             } else {
                 contentSpec.setTags(tempContentSpec.getTags());
             }
+            getRESTEntityCache().add(contentSpec.getTags(), revision != null);
 
             return contentSpec.getTags();
         } catch (Exception e) {
@@ -160,13 +161,13 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
 
     public RESTAssignedPropertyTagCollectionV1 getRESTContentSpecProperties(int id, final Integer revision) {
         try {
-            RESTTextContentSpecV1 topic = null;
+            RESTTextContentSpecV1 contentspec = null;
             // Check the cache first
             if (getRESTEntityCache().containsKeyValue(RESTTextContentSpecV1.class, id, revision)) {
-                topic = getRESTEntityCache().get(RESTTextContentSpecV1.class, id, revision);
+                contentspec = getRESTEntityCache().get(RESTTextContentSpecV1.class, id, revision);
 
-                if (topic.getProperties() != null) {
-                    return topic.getProperties();
+                if (contentspec.getProperties() != null) {
+                    return contentspec.getProperties();
                 }
             }
 
@@ -176,14 +177,15 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
             // Load the content spec from the REST Interface
             final RESTTextContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
 
-            if (topic == null) {
-                topic = tempContentSpec;
-                getRESTEntityCache().add(topic, revision);
+            if (contentspec == null) {
+                contentspec = tempContentSpec;
+                getRESTEntityCache().add(contentspec, revision);
             } else {
-                topic.setProperties(tempContentSpec.getProperties());
+                contentspec.setProperties(tempContentSpec.getProperties());
             }
+            getRESTEntityCache().add(contentspec.getProperties(), revision != null);
 
-            return topic.getProperties();
+            return contentspec.getProperties();
         } catch (Exception e) {
             log.debug("Failed to retrieve the Properties for Content Spec " + id + (revision == null ? "" : (", Revision " + revision)), e);
             throw handleException(e);

@@ -4,6 +4,11 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTopicProvider;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 
 public class RESTTopicV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTopicV1> {
@@ -20,35 +25,40 @@ public class RESTTopicV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTo
     }
 
     @Override
-    public Object invoke(Object proxy, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTTopicV1 topic = getEntity();
+    public Object internalInvoke(RESTTopicV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (topic.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(topic, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getTags")) {
-                    retValue = getProvider().getRESTTopicTags(topic.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTopicTags(entity.getId(), getEntityRevision());
+                    entity.setTags((RESTTagCollectionV1) retValue);
                 } else if (methodName.equals("getSourceUrls_OTM")) {
-                    retValue = getProvider().getRESTTopicSourceUrls(topic.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTopicSourceUrls(entity.getId(), getEntityRevision());
+                    entity.setSourceUrls_OTM((RESTTopicSourceUrlCollectionV1) retValue);
                 } else if (methodName.equals("getProperties")) {
-                    retValue = getProvider().getRESTTopicProperties(topic.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTopicProperties(entity.getId(), getEntityRevision());
+                    entity.setProperties((RESTAssignedPropertyTagCollectionV1) retValue);
                 } else if (methodName.equals("getOutgoingRelationships")) {
-                    retValue = getProvider().getRESTTopicOutgoingRelationships(topic.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTopicOutgoingRelationships(entity.getId(), getEntityRevision());
+                    entity.setOutgoingRelationships((RESTTopicCollectionV1) retValue);
                 } else if (methodName.equals("getIncomingRelationships")) {
-                    retValue = getProvider().getRESTTopicIncomingRelationships(topic.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTopicIncomingRelationships(entity.getId(), getEntityRevision());
+                    entity.setIncomingRelationships((RESTTopicCollectionV1) retValue);
                 } else if (methodName.equals("getTranslatedTopics_OTM")) {
-                    retValue = getProvider().getRESTTopicTranslations(topic.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTopicTranslations(entity.getId(), getEntityRevision());
+                    entity.setTranslatedTopics_OTM((RESTTranslatedTopicCollectionV1) retValue);
                 } else if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTTopicRevisions(topic.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTopicRevisions(entity.getId(), getEntityRevision());
+                    entity.setRevisions((RESTTopicCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(proxy, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 }

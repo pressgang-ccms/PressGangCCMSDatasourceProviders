@@ -82,6 +82,7 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
             } else {
                 image.setLanguageImages_OTM(tempImage.getLanguageImages_OTM());
             }
+            getRESTEntityCache().add(image.getLanguageImages_OTM(), revision != null);
 
             return image.getLanguageImages_OTM();
         } catch (Exception e) {

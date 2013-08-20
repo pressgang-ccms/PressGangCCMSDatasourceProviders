@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTBlobConstantProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTBlobConstantCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTBlobConstantV1;
 
 public class RESTBlobConstantV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTBlobConstantV1> {
@@ -17,25 +18,25 @@ public class RESTBlobConstantV1ProxyHandler extends RESTBaseEntityV1ProxyHandler
     }
 
     @Override
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTBlobConstantV1 blobConstant = getEntity();
+    public Object internalInvoke(RESTBlobConstantV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (blobConstant.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(blobConstant, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTBlobConstantRevisions(blobConstant.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTBlobConstantRevisions(entity.getId(), getEntityRevision());
+                    entity.setRevisions((RESTBlobConstantCollectionV1) retValue);
                 } else if (methodName.equals("getValue")) {
-                    return getProvider().getBlobConstantValue(blobConstant.getId(), getEntityRevision());
+                    retValue = getProvider().getBlobConstantValue(entity.getId(), getEntityRevision());
+                    entity.setValue((byte[]) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(self, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 }

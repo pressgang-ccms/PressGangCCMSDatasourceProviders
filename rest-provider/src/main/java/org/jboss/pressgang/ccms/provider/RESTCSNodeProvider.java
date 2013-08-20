@@ -47,8 +47,10 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
                 node = getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
             } else {
-                node = loadCSNode(id, revision, "");
+                final String expansionString = getExpansionString(RESTCSNodeV1.NEXT_NODE_NAME);
+                node = loadCSNode(id, revision, expansionString);
                 getRESTEntityCache().add(node, revision);
+                getRESTEntityCache().add(node.getNextNode(), revision != null);
             }
             return node;
         } catch (Exception e) {
@@ -151,7 +153,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             }
 
             // We need to expand the children nodes in the content spec node
-            final String expandString = getExpansionString(RESTCSNodeV1.CHILDREN_NAME);
+            final String expandString = getExpansionString(RESTCSNodeV1.CHILDREN_NAME, RESTCSNodeV1.NEXT_NODE_NAME);
 
             // Load the content spec node from the REST Interface
             final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
@@ -162,6 +164,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             } else {
                 csNode.setChildren_OTM(tempNode.getChildren_OTM());
             }
+            getRESTEntityCache().add(csNode.getChildren_OTM(), revision != null);
 
             return csNode.getChildren_OTM();
         } catch (Exception e) {
@@ -240,6 +243,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             } else {
                 csNode.setNextNode(tempNode.getNextNode());
             }
+            getRESTEntityCache().add(csNode.getNextNode(), revision != null);
 
             return csNode.getNextNode();
         } catch (Exception e) {
@@ -273,6 +277,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             } else {
                 csNode.setParent(tempNode.getParent());
             }
+            getRESTEntityCache().add(csNode.getParent(), revision != null);
 
             return csNode.getParent();
         } catch (Exception e) {
@@ -306,6 +311,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             } else {
                 csNode.setContentSpec(tempNode.getContentSpec());
             }
+            getRESTEntityCache().add(csNode.getContentSpec(), revision != null);
 
             return csNode.getContentSpec();
         } catch (Exception e) {

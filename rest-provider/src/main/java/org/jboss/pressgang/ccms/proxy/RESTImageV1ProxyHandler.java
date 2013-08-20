@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTImageProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTImageCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 
 public class RESTImageV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTImageV1> {
@@ -16,25 +18,25 @@ public class RESTImageV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTIm
     }
 
     @Override
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTImageV1 image = getEntity();
+    public Object internalInvoke(RESTImageV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (image.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(image, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getLanguageImages_OTM")) {
-                    retValue = getProvider().getRESTImageLanguageImages(image.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTImageLanguageImages(entity.getId(), getEntityRevision());
+                    entity.setLanguageImages_OTM((RESTLanguageImageCollectionV1) retValue);
                 } else if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTImageRevisions(image.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTImageRevisions(entity.getId(), getEntityRevision());
+                    entity.setRevisions((RESTImageCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(self, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 }

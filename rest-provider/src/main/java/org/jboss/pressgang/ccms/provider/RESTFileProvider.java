@@ -82,6 +82,7 @@ public class RESTFileProvider extends RESTDataProvider implements FileProvider {
             } else {
                 file.setLanguageFiles_OTM(tempFile.getLanguageFiles_OTM());
             }
+            getRESTEntityCache().add(file.getLanguageFiles_OTM(), revision != null);
 
             return file.getLanguageFiles_OTM();
         } catch (Exception e) {

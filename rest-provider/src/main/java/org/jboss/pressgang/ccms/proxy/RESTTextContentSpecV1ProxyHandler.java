@@ -4,6 +4,9 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTextContentSpecProvider;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTextContentSpecCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 
 public class RESTTextContentSpecV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTextContentSpecV1> {
@@ -17,27 +20,28 @@ public class RESTTextContentSpecV1ProxyHandler extends RESTBaseEntityV1ProxyHand
     }
 
     @Override
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTTextContentSpecV1 contentSpec = getEntity();
+    public Object internalInvoke(RESTTextContentSpecV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (contentSpec.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(contentSpec, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getProperties")) {
-                    retValue = getProvider().getRESTContentSpecProperties(contentSpec.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTContentSpecProperties(entity.getId(), getEntityRevision());
+                    entity.setProperties((RESTAssignedPropertyTagCollectionV1) retValue);
                 } else if (methodName.equals("getTags")) {
-                    retValue = getProvider().getRESTTextContentSpecTags(contentSpec.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTextContentSpecTags(entity.getId(), getEntityRevision());
+                    entity.setTags((RESTTagCollectionV1) retValue);
                 } else if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTTextContentSpecRevisions(contentSpec.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTTextContentSpecRevisions(entity.getId(), getEntityRevision());
+                    entity.setRevisions((RESTTextContentSpecCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(self, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 }

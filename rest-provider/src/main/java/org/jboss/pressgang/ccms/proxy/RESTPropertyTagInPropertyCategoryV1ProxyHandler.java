@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTPropertyTagInPropertyCategoryProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTPropertyTagInPropertyCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyCategoryV1;
 
@@ -19,25 +20,24 @@ public class RESTPropertyTagInPropertyCategoryV1ProxyHandler extends RESTBaseEnt
     }
 
     @Override
-    public Object invoke(Object proxy, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTPropertyTagInPropertyCategoryV1 propertyTag = getEntity();
+    public Object internalInvoke(RESTPropertyTagInPropertyCategoryV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (propertyTag.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(propertyTag, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTPropertyTagInPropertyCategoryRevisions(propertyTag.getId(), getEntityRevision(),
+                    retValue = getProvider().getRESTPropertyTagInPropertyCategoryRevisions(entity.getId(), getEntityRevision(),
                             getParent());
+                    entity.setRevisions((RESTPropertyTagInPropertyCategoryCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(proxy, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 
     @Override

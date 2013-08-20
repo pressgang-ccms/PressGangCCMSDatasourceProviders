@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTCSRelatedNodeProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 
@@ -20,24 +21,23 @@ public class RESTCSRelatedNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandle
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTCSRelatedNodeV1 relatedNode = getEntity();
+    public Object internalInvoke(RESTCSRelatedNodeV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (relatedNode.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(relatedNode, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTCSRelatedNodeRevisions(relatedNode.getId(), getEntityRevision(), getParent());
+                    retValue = getProvider().getRESTCSRelatedNodeRevisions(entity.getId(), getEntityRevision(), getParent());
+                    entity.setRevisions((RESTCSRelatedNodeCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(self, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 
     @Override

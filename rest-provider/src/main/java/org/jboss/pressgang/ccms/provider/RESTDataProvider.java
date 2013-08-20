@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.provider.exception.BadRequestException;
@@ -142,6 +146,37 @@ public abstract class RESTDataProvider extends DataProvider {
             expandData.setBranches(Arrays.asList(expandSubData));
         }
         expand.setBranches(Arrays.asList(expandData));
+        return mapper.writeValueAsString(expand);
+    }
+
+    protected String getExpansionString(final Collection<String> expansionNames) throws IOException {
+        final ExpandDataTrunk expand = new ExpandDataTrunk();
+        final List<ExpandDataTrunk> expandDataTrunks = new ArrayList<ExpandDataTrunk>();
+        for (final String expansionName : expansionNames) {
+            expandDataTrunks.add(new ExpandDataTrunk(new ExpandDataDetails(expansionName)));
+        }
+        expand.setBranches(expandDataTrunks);
+        return mapper.writeValueAsString(expand);
+    }
+
+    protected String getExpansionString(final Map<String, List<String>> expansionNames) throws IOException {
+        final ExpandDataTrunk expand = new ExpandDataTrunk();
+        final List<ExpandDataTrunk> expandDataTrunks = new ArrayList<ExpandDataTrunk>();
+        for (final Map.Entry<String, List<String>> expansionName : expansionNames.entrySet()) {
+            final ExpandDataTrunk expandData = new ExpandDataTrunk(new ExpandDataDetails(expansionName.getKey()));
+
+            // Add the sub expansions
+            if (expansionName.getValue() != null) {
+                final List<ExpandDataTrunk> subExpandDataTrunks = new ArrayList<ExpandDataTrunk>();
+                for (final String subExpansionName : expansionName.getValue()) {
+                    subExpandDataTrunks.add(new ExpandDataTrunk(new ExpandDataDetails(subExpansionName)));
+                }
+                expandData.setBranches(subExpandDataTrunks);
+            }
+
+            expandDataTrunks.add(expandData);
+        }
+        expand.setBranches(expandDataTrunks);
         return mapper.writeValueAsString(expand);
     }
 

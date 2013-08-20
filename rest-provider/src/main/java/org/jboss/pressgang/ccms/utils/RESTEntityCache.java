@@ -94,6 +94,8 @@ public class RESTEntityCache {
     }
 
     public void add(final RESTBaseEntityV1<?, ?, ?> value, final boolean isRevision) {
+        if (value == null) return;
+
         // Add a null revision to specify it's the latest, if the entity isn't a revision
         if (!isRevision) {
             add(value, null);
@@ -103,6 +105,8 @@ public class RESTEntityCache {
     }
 
     public void add(final RESTBaseEntityV1<?, ?, ?> value, final String id, final boolean isRevision) {
+        if (value == null) return;
+
         // Add a null revision to specify it's the latest, if the entity isn't a revision
         if (!isRevision) {
             add(value, id, null);
@@ -122,9 +126,13 @@ public class RESTEntityCache {
     }
 
     public void add(final RESTBaseEntityV1<?, ?, ?> value, final String id, final Number revision) {
+        if (value == null) return;
+
         // Add the entity
         final String key = buildKey(value, id, revision);
-        entityCache.put(key, value);
+        if (entityCache.getIfPresent(key) == null) {
+            entityCache.put(key, value);
+        }
 
         // Add any revisions to the cache
         if (value.getRevisions() != null) {

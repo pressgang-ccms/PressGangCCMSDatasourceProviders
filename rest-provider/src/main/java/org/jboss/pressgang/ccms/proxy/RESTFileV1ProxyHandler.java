@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTFileProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTFileCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageFileCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 
 public class RESTFileV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTFileV1> {
@@ -16,25 +18,25 @@ public class RESTFileV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTFil
     }
 
     @Override
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTFileV1 file = getEntity();
+    public Object internalInvoke(RESTFileV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (file.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(file, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getLanguageFiles_OTM")) {
-                    retValue = getProvider().getRESTFileLanguageFiles(file.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTFileLanguageFiles(entity.getId(), getEntityRevision());
+                    entity.setLanguageFiles_OTM((RESTLanguageFileCollectionV1) retValue);
                 } else if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTFileRevisions(file.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTFileRevisions(entity.getId(), getEntityRevision());
+                    entity.setRevisions((RESTFileCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(self, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 }

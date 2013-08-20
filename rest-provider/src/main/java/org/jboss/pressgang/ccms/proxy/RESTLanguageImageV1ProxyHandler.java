@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTLanguageImageProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
 
@@ -19,30 +20,32 @@ public class RESTLanguageImageV1ProxyHandler extends RESTBaseEntityV1ProxyHandle
     }
 
     @Override
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTLanguageImageV1 languageImage = getEntity();
+    public Object internalInvoke(RESTLanguageImageV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (languageImage.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(languageImage, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getImageData")) {
-                    retValue = getProvider().getLanguageImageData(languageImage.getId(), getEntityRevision(), getParent());
+                    retValue = getProvider().getLanguageImageData(entity.getId(), getEntityRevision(), getParent());
+                    entity.setImageData((byte[]) retValue);
                 } else if (methodName.equals("getImageDataBase64")) {
-                    retValue = getProvider().getLanguageImageDataBase64(languageImage.getId(), getEntityRevision(), getParent());
+                    retValue = getProvider().getLanguageImageDataBase64(entity.getId(), getEntityRevision(), getParent());
+                    entity.setImageDataBase64((byte[]) retValue);
                 } else if (methodName.equals("getThumbnail")) {
-                    retValue = getProvider().getLanguageImageThumbnail(languageImage.getId(), getEntityRevision(), getParent());
+                    retValue = getProvider().getLanguageImageThumbnail(entity.getId(), getEntityRevision(), getParent());
+                    entity.setThumbnail((byte[]) retValue);
                 } else if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTLanguageImageRevisions(languageImage.getId(), getEntityRevision(), getParent());
+                    retValue = getProvider().getRESTLanguageImageRevisions(entity.getId(), getEntityRevision(), getParent());
+                    entity.setRevisions((RESTLanguageImageCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(self, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 
     @Override

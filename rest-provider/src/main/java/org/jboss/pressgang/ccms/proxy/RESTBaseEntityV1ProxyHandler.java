@@ -1,6 +1,8 @@
 package org.jboss.pressgang.ccms.proxy;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 import javassist.util.proxy.MethodHandler;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
@@ -15,6 +17,7 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
     private final RESTBaseEntityV1<?, ?, ?> parent;
     private final U entity;
     private final boolean isRevision;
+    private final Set<String> processedMethodNames = new HashSet<String>();
 
     protected RESTBaseEntityV1ProxyHandler(final RESTProviderFactory providerFactory, final U entity, boolean isRevisionEntity) {
         this.entity = entity;
@@ -41,10 +44,22 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
 
     @Override
     @SuppressWarnings("rawtypes")
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
+    public final Object invoke(Object proxy, Method thisMethod, Method proceed, Object[] args) throws Throwable {
         final U object = getEntity();
-        final Object retValue = thisMethod.invoke(object, args);
+        final String methodName = thisMethod.getName();
+        final Object retValue;
+        if (!processedMethodNames.contains(methodName)) {
+            processedMethodNames.add(methodName);
+            retValue = internalInvoke(object, thisMethod, args);
+        } else {
+            retValue = thisMethod.invoke(object, args);
+        }
+        // Check if the returned object is a collection instance, if so proxy the collections items.
         return checkAndProxyReturnValue(retValue);
+    }
+
+    protected Object internalInvoke(U entity, Method method, Object[] args) throws Throwable {
+        return method.invoke(entity, args);
     }
 
     /**
@@ -53,7 +68,7 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
      * @param retValue The value to be returned.
      * @return The return value with proxied content.
      */
-    protected Object checkAndProxyReturnValue(Object retValue) {
+    private Object checkAndProxyReturnValue(Object retValue) {
         if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
             // The parent will either be a user defined parent, or the entity itself.
             RESTBaseEntityV1 parent = this.parent == null ? getProxyEntity() : this.parent;

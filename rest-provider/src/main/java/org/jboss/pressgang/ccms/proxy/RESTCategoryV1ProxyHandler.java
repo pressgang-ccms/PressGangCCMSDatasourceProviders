@@ -4,11 +4,13 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTCategoryProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTCategoryCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
 
-public class RESTCategoryV1ProxyHandler<T extends RESTBaseCategoryV1<T, ?, ?>> extends RESTBaseEntityV1ProxyHandler<T> {
+public class RESTCategoryV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTCategoryV1> {
 
-    public RESTCategoryV1ProxyHandler(RESTProviderFactory providerFactory, T entity, boolean isRevisionEntity) {
+    public RESTCategoryV1ProxyHandler(RESTProviderFactory providerFactory, RESTCategoryV1 entity, boolean isRevisionEntity) {
         super(providerFactory, entity, isRevisionEntity);
     }
 
@@ -17,25 +19,25 @@ public class RESTCategoryV1ProxyHandler<T extends RESTBaseCategoryV1<T, ?, ?>> e
     }
 
     @Override
-    public Object invoke(Object proxy, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTBaseCategoryV1<?, ?, ?> category = getEntity();
+    public Object internalInvoke(RESTCategoryV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (category.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(category, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getTags")) {
-                    retValue = getProvider().getRESTCategoryTags(category.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTCategoryTags(entity.getId(), getEntityRevision());
+                    entity.setTags((RESTTagInCategoryCollectionV1) retValue);
                 } else if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTCategoryRevisions(category.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTCategoryRevisions(entity.getId(), getEntityRevision());
+                    entity.setRevisions((RESTCategoryCollectionV1) retValue);
                 }
             }
 
-            // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(proxy, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 }

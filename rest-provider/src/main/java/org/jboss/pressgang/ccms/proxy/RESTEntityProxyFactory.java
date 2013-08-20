@@ -41,7 +41,7 @@ public class RESTEntityProxyFactory {
     private static final MethodFilter FINALIZE_FILTER = new MethodFilter() {
         public boolean isHandled(Method m) {
             // skip finalize methods
-            return !( m.getParameterTypes().length == 0 && m.getName().equals( "finalize" ) );
+            return !(m.getParameterTypes().length == 0 && m.getName().equals("finalize"));
         }
     };
 
@@ -107,10 +107,10 @@ public class RESTEntityProxyFactory {
             return new RESTBlobConstantV1ProxyHandler(providerFactory, (RESTBlobConstantV1) entity, isRevision);
         } else if (entity instanceof RESTCategoryV1) {
             // CATEGORIES
-            return new RESTCategoryV1ProxyHandler<RESTCategoryV1>(providerFactory, (RESTCategoryV1) entity, isRevision);
+            return new RESTCategoryV1ProxyHandler(providerFactory, (RESTCategoryV1) entity, isRevision);
         } else if (entity instanceof RESTCategoryInTagV1) {
-            return new RESTCategoryInTagV1ProxyHandler<RESTCategoryInTagV1>(providerFactory, (RESTCategoryInTagV1) entity, isRevision,
-                    (RESTBaseTagV1<?, ?, ?>) parent);
+            return new RESTCategoryInTagV1ProxyHandler(providerFactory,
+                    (RESTCategoryInTagV1) entity, isRevision, (RESTBaseTagV1<?, ?, ?>) parent);
         } else if (entity instanceof RESTFileV1) {
             // FILE
             return new RESTFileV1ProxyHandler(providerFactory, (RESTFileV1) entity, isRevision);

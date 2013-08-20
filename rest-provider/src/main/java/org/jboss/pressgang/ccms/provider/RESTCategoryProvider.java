@@ -82,6 +82,7 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
             } else {
                 category.setTags(tempCategory.getTags());
             }
+            getRESTEntityCache().add(category.getTags(), revision != null);
 
             return category.getTags();
         } catch (Exception e) {

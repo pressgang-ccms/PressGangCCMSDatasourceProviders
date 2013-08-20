@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTUserProvider;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTUserCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
 
 public class RESTUserV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTUserV1> {
@@ -17,23 +18,23 @@ public class RESTUserV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTUse
     }
 
     @Override
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        final RESTUserV1 user = getEntity();
+    public Object internalInvoke(RESTUserV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (user.getId() != null && thisMethod.getName().startsWith("get")) {
-            Object retValue = thisMethod.invoke(user, args);
+        if (entity.getId() != null && method.getName().startsWith("get")) {
+            Object retValue = method.invoke(entity, args);
             if (retValue == null) {
-                final String methodName = thisMethod.getName();
+                final String methodName = method.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    retValue = getProvider().getRESTUserRevisions(user.getId(), getEntityRevision());
+                    retValue = getProvider().getRESTUserRevisions(entity.getId(), getEntityRevision());
+                    entity.setRevisions((RESTUserCollectionV1) retValue);
                 }
             }
 
             // Check if the returned object is a collection instance, if so proxy the collections items.
-            return checkAndProxyReturnValue(retValue);
+            return retValue;
         }
 
-        return super.invoke(self, thisMethod, proceed, args);
+        return super.internalInvoke(entity, method, args);
     }
 }
