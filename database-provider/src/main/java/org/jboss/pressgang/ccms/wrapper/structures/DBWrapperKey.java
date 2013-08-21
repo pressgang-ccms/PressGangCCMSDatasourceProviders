@@ -23,6 +23,6 @@ public class DBWrapperKey {
         final DBWrapperKey other = (DBWrapperKey) o;
         if (!EqualsHelper.equals(wrapperClass, other.wrapperClass)) return false;
 
-        return EqualsHelper.equals(o, other.o);
+        return EqualsHelper.equals(this.o, other.o);
     }
 }
