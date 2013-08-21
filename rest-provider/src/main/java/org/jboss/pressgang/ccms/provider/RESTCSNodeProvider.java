@@ -1,6 +1,8 @@
 package org.jboss.pressgang.ccms.provider;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
@@ -18,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvider {
-    private static Logger log = LoggerFactory.getLogger(RESTCSNodeProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(RESTCSNodeProvider.class);
+    private static final List<String> DEFAULT_EXPANSION = Arrays.asList(RESTCSNodeV1.NEXT_NODE_NAME,
+            RESTCSNodeV1.RELATED_TO_NAME);
 
     protected RESTCSNodeProvider(RESTManager restManager, RESTWrapperFactory wrapperFactory) {
         super(restManager, wrapperFactory);
@@ -47,7 +51,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
                 node = getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
             } else {
-                final String expansionString = getExpansionString(RESTCSNodeV1.NEXT_NODE_NAME);
+                final String expansionString = getExpansionString(DEFAULT_EXPANSION);
                 node = loadCSNode(id, revision, expansionString);
                 getRESTEntityCache().add(node, revision);
                 getRESTEntityCache().add(node.getNextNode(), revision != null);
@@ -153,7 +157,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             }
 
             // We need to expand the children nodes in the content spec node
-            final String expandString = getExpansionString(RESTCSNodeV1.CHILDREN_NAME, RESTCSNodeV1.NEXT_NODE_NAME);
+            final String expandString = getExpansionString(RESTCSNodeV1.CHILDREN_NAME, DEFAULT_EXPANSION);
 
             // Load the content spec node from the REST Interface
             final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
@@ -194,7 +198,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             }
 
             // We need to expand the revisions in the content spec node
-            final String expandString = getExpansionString(RESTCSNodeV1.REVISIONS_NAME);
+            final String expandString = getExpansionString(RESTCSNodeV1.REVISIONS_NAME, DEFAULT_EXPANSION);
 
             // Load the content spec node from the REST Interface
             final RESTCSNodeV1 tempCSNode = loadCSNode(id, revision, expandString);

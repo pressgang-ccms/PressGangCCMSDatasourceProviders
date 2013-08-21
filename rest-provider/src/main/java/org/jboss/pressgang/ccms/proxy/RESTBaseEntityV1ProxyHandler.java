@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javassist.util.proxy.MethodHandler;
+import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionV1ProxyHandler;
 
 public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U, ?, ?>> implements MethodHandler {
 
@@ -47,15 +49,19 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
     public final Object invoke(Object proxy, Method thisMethod, Method proceed, Object[] args) throws Throwable {
         final U object = getEntity();
         final String methodName = thisMethod.getName();
-        final Object retValue;
-        if (!processedMethodNames.contains(methodName)) {
-            processedMethodNames.add(methodName);
-            retValue = internalInvoke(object, thisMethod, args);
+        if (methodName.equals("equals")) {
+            return thisMethod.invoke(object, unproxyArgs(args));
         } else {
-            retValue = thisMethod.invoke(object, args);
+            final Object retValue;
+            if (!processedMethodNames.contains(methodName)) {
+                processedMethodNames.add(methodName);
+                retValue = internalInvoke(object, thisMethod, args);
+            } else {
+                retValue = thisMethod.invoke(object, args);
+            }
+            // Check if the returned object is a collection instance, if so proxy the collections items.
+            return checkAndProxyReturnValue(retValue);
         }
-        // Check if the returned object is a collection instance, if so proxy the collections items.
-        return checkAndProxyReturnValue(retValue);
     }
 
     protected Object internalInvoke(U entity, Method method, Object[] args) throws Throwable {
@@ -92,5 +98,23 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
 
     protected RESTBaseEntityV1<?, ?, ?> getParent() {
         return parent;
+    }
+
+    protected Object[] unproxyArgs(Object[] args) {
+        if (args == null) return null;
+
+        for (int i = 0; i < args.length; i++) {
+            final Object o = args[i];
+            if (o instanceof ProxyObject) {
+                final ProxyObject proxy = (ProxyObject) o;
+                if (proxy.getHandler() instanceof RESTCollectionV1ProxyHandler) {
+                    args[i] = ((RESTCollectionV1ProxyHandler) proxy.getHandler()).getCollection();
+                } else if (proxy.getHandler() instanceof RESTBaseEntityV1ProxyHandler) {
+                    args[i] = ((RESTBaseEntityV1ProxyHandler) proxy.getHandler()).getEntity();
+                }
+            }
+        }
+
+        return args;
     }
 }

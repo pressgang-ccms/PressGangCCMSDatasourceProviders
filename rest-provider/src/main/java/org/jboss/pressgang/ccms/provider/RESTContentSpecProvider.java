@@ -1,6 +1,8 @@
 package org.jboss.pressgang.ccms.provider;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
@@ -16,6 +18,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
+import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
@@ -32,6 +35,10 @@ import org.slf4j.LoggerFactory;
 
 public class RESTContentSpecProvider extends RESTDataProvider implements ContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTContentSpecProvider.class);
+    private static final List<String> SUB_EXPANSION_WITH_CHILDREN = Arrays.asList(RESTCSNodeV1.NEXT_NODE_NAME, RESTCSNodeV1.RELATED_TO_NAME,
+            RESTCSNodeV1.CHILDREN_NAME);
+    private static final List<String> SUB_EXPANSION = Arrays.asList(RESTCSNodeV1.NEXT_NODE_NAME, RESTCSNodeV1.RELATED_TO_NAME);
+
     private int count = -1000;
 
     protected RESTContentSpecProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
@@ -184,8 +191,11 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
                 }
             }
 
-            // We need to expand the tags in the content spec
-            final String expandString = getExpansionString(RESTContentSpecV1.CHILDREN_NAME, RESTCSNodeV1.NEXT_NODE_NAME);
+            // We need to recursively expand the children in the content spec, since there is too much data to lazy load and it all is
+            // likely to be needed.
+            final ExpandDataTrunk expand = getExpansion(RESTContentSpecV1.CHILDREN_NAME, null);
+            recursiveChildrenExpand(expand, SUB_EXPANSION_WITH_CHILDREN, 0, 5);
+            final String expandString = getExpansionString(expand);
 
             // Load the content spec from the REST Interface
             final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
@@ -206,10 +216,22 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         }
     }
 
+    protected void recursiveChildrenExpand(final ExpandDataTrunk expandDataTrunk, final List<String> subExpansionNames, int depth,
+            int maxDepth) {
+        expandDataTrunk.setBranches(getExpansionBranches(subExpansionNames));
+        if (depth < maxDepth) {
+            for (final ExpandDataTrunk expandDataTrunk1 : expandDataTrunk.getBranches()) {
+                if (expandDataTrunk1.getTrunk().getName().equals(RESTCSNodeV1.CHILDREN_NAME)) {
+                    recursiveChildrenExpand(expandDataTrunk1, subExpansionNames, depth + 1, maxDepth);
+                }
+            }
+        }
+    }
+
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getContentSpecNodes(int id, Integer revision) {
-        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getRESTContentSpecNodes(id, revision),
-                RESTCSNodeV1.class, revision != null);
+        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(
+                getRESTContentSpecNodes(id, revision), RESTCSNodeV1.class, revision != null);
         return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
     }
 

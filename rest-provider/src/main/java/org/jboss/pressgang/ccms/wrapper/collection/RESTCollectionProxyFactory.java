@@ -1,5 +1,8 @@
 package org.jboss.pressgang.ccms.wrapper.collection;
 
+import java.lang.reflect.Method;
+
+import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
@@ -8,6 +11,12 @@ import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 
 public class RESTCollectionProxyFactory {
+    private static final MethodFilter FINALIZE_FILTER = new MethodFilter() {
+        public boolean isHandled(Method m) {
+            // skip finalize methods
+            return !(m.getParameterTypes().length == 0 && m.getName().equals("finalize"));
+        }
+    };
 
     public static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseCollectionV1<T, U, V>, V extends RESTBaseCollectionItemV1<T, U,
             V>> U create(
@@ -22,6 +31,7 @@ public class RESTCollectionProxyFactory {
         final Class<?> clazz = collection.getClass();
 
         final ProxyFactory factory = new ProxyFactory();
+        factory.setFilter(FINALIZE_FILTER);
         factory.setSuperclass(clazz);
 
         Class<?> cl = factory.createClass();

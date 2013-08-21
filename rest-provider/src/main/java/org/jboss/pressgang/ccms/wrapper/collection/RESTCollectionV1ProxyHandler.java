@@ -75,6 +75,9 @@ public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T, U, V>, U
                 args[0] = ((RESTBaseEntityV1ProxyHandler<T>) ((ProxyObject) item).getHandler()).getEntity();
             }
             return thisMethod.invoke(object, args);
+        } else if (thisMethod.getName().equals("equals")) {
+
+            return thisMethod.invoke(object, unproxyArgs(args));
         } else {
             return thisMethod.invoke(object, args);
         }
@@ -86,5 +89,23 @@ public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T, U, V>, U
 
     public void setProxyCollection(U proxyCollection) {
         this.proxyCollection = proxyCollection;
+    }
+
+    protected Object[] unproxyArgs(Object[] args) {
+        if (args == null) return null;
+
+        for (int i = 0; i < args.length; i++) {
+            final Object o = args[i];
+            if (o instanceof ProxyObject) {
+                final ProxyObject proxy = (ProxyObject) o;
+                if (proxy.getHandler() instanceof RESTCollectionV1ProxyHandler) {
+                    args[i] = ((RESTCollectionV1ProxyHandler) proxy.getHandler()).getCollection();
+                } else if (proxy.getHandler() instanceof RESTBaseEntityV1ProxyHandler) {
+                    args[i] = ((RESTBaseEntityV1ProxyHandler) proxy.getHandler()).getEntity();
+                }
+            }
+        }
+
+        return args;
     }
 }

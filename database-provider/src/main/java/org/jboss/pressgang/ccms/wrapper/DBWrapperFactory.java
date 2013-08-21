@@ -303,31 +303,26 @@ public class DBWrapperFactory extends WrapperFactory {
         }
 
         final DBBaseWrapper wrapper;
+        boolean local = true;
 
         if (entity instanceof TagToCategory && wrapperClass == TagInCategoryWrapper.class) {
             wrapper = new DBTagInCategoryWrapper(getProviderFactory(), (TagToCategory) entity, isRevision);
-
-            // Add the wrapper to the cache
-            wrapperCache.put(key, wrapper);
         } else if (entity instanceof TagToCategory && wrapperClass == CategoryInTagWrapper.class) {
             wrapper = new DBCategoryInTagWrapper(getProviderFactory(), (TagToCategory) entity, isRevision);
-
-            // Add the wrapper to the cache
-            wrapperCache.put(key, wrapper);
         } else if (entity instanceof ContentSpec && wrapperClass == ContentSpecWrapper.class) {
             // CONTENT SPEC
             wrapper = new DBContentSpecWrapper(getProviderFactory(), (ContentSpec) entity, isRevision);
-
-            // Add the wrapper to the cache
-            wrapperCache.put(key, wrapper);
         } else if (entity instanceof ContentSpec && wrapperClass == TextContentSpecWrapper.class) {
             // TEXT CONTENT SPEC
             wrapper = new DBTextContentSpecWrapper(getProviderFactory(), (ContentSpec) entity, isRevision);
-
-            // Add the wrapper to the cache
-            wrapperCache.put(key, wrapper);
         } else {
             wrapper = create(entity, isRevision);
+            local = false;
+        }
+
+        // Add the wrapper to the cache if it was found in this method
+        if (local) {
+            wrapperCache.put(key, wrapper);
         }
 
         return (T) wrapper;
@@ -351,7 +346,7 @@ public class DBWrapperFactory extends WrapperFactory {
         }
 
         // Create the key
-        final DBWrapperKey key = new DBWrapperKey(collection);
+        final DBWrapperKey key = new DBWrapperKey(collection, wrapperClass);
 
         // Check to see if a wrapper has already been cached for the key
         final DBCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
@@ -360,19 +355,20 @@ public class DBWrapperFactory extends WrapperFactory {
         }
 
         final DBCollectionWrapper wrapper;
+        boolean local = true;
 
         if (entityClass == TagToCategory.class && wrapperClass == TagInCategoryWrapper.class) {
             wrapper = new DBTagInCategoryCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
-
-            // Add the wrapper to the cache
-            wrapperCache.putCollection(key, wrapper);
         } else if (entityClass == TagToCategory.class && wrapperClass == CategoryInTagWrapper.class) {
             wrapper = new DBCategoryInTagCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
-
-            // Add the wrapper to the cache
-            wrapperCache.putCollection(key, wrapper);
         } else {
             wrapper = (DBCollectionWrapper) createCollection(collection, entityClass, isRevisionCollection);
+            local = false;
+        }
+
+        // Add the wrapper to the cache if it was found in this method
+        if (local) {
+            wrapperCache.putCollection(key, wrapper);
         }
 
         return wrapper;

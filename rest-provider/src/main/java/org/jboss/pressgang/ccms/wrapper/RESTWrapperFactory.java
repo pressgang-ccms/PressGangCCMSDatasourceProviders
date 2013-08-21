@@ -64,13 +64,17 @@ import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
+import org.jboss.pressgang.ccms.utils.RESTWrapperCache;
+import org.jboss.pressgang.ccms.utils.RESTWrapperKey;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTBlobConstantCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCSNodeCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCSRelatedNodeCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCategoryCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCategoryInTagCollectionV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTContentSpecCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTFileCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTImageCollectionV1Wrapper;
@@ -94,6 +98,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedTopicStringColl
 import org.jboss.pressgang.ccms.wrapper.collection.RESTUserCollectionV1Wrapper;
 
 public class RESTWrapperFactory extends WrapperFactory {
+    private final RESTWrapperCache wrapperCache = new RESTWrapperCache();
+
     public RESTWrapperFactory() {
     }
 
@@ -113,8 +119,18 @@ public class RESTWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final Object unwrappedEntity = getEntity(entity);
-        final EntityWrapper wrapper;
+        final RESTBaseEntityV1<?, ?, ?> unwrappedEntity = getEntity(entity);
+
+        // Create the key
+        final RESTWrapperKey key = new RESTWrapperKey(unwrappedEntity);
+
+        // Check to see if a wrapper has already been cached for the key
+        final RESTBaseWrapper cachedWrapper = wrapperCache.get(key);
+        if (cachedWrapper != null) {
+            return (T) cachedWrapper;
+        }
+
+        final RESTBaseWrapper wrapper;
 
         if (entity instanceof RESTTopicV1) {
             // TOPIC
@@ -192,6 +208,8 @@ public class RESTWrapperFactory extends WrapperFactory {
             throw new IllegalArgumentException("Failed to create a Wrapper instance as there is no wrapper available for the Entity.");
         }
 
+        wrapperCache.put(key, wrapper);
+
         return (T) wrapper;
     }
 
@@ -203,7 +221,16 @@ public class RESTWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final CollectionWrapper wrapper;
+        // Create the key
+        final RESTWrapperKey key = new RESTWrapperKey((RESTBaseCollectionV1<?, ?, ?>) collection);
+
+        // Check to see if a wrapper has already been cached for the key
+        final RESTCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
+        if (cachedWrapper != null) {
+            return cachedWrapper;
+        }
+
+        final RESTCollectionWrapper wrapper;
 
         if (collection instanceof RESTTopicCollectionV1) {
             // TOPIC
@@ -287,6 +314,8 @@ public class RESTWrapperFactory extends WrapperFactory {
                     "Failed to create a Collection Wrapper instance as there is no wrapper available for the Collection.");
         }
 
+        wrapperCache.putCollection(key, wrapper);
+
         return wrapper;
     }
 
@@ -360,8 +389,19 @@ public class RESTWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final Object unwrappedEntity = getEntity(entity);
-        final EntityWrapper wrapper;
+        final RESTBaseEntityV1 unwrappedEntity = getEntity(entity);
+
+        // Create the key
+        final RESTWrapperKey key = new RESTWrapperKey(unwrappedEntity, parent);
+
+        // Check to see if a wrapper has already been cached for the key
+        final RESTBaseWrapper cachedWrapper = wrapperCache.get(key);
+        if (cachedWrapper != null) {
+            return (T) cachedWrapper;
+        }
+
+        final RESTBaseWrapper wrapper;
+        boolean local = true;
 
         if (entity instanceof RESTTopicSourceUrlV1 && parent instanceof RESTBaseTopicV1) {
             // TOPIC SOURCE URL
@@ -397,6 +437,12 @@ public class RESTWrapperFactory extends WrapperFactory {
                     isRevision, (RESTTranslatedCSNodeV1) parent);
         } else {
             wrapper = create(unwrappedEntity, isRevision);
+            local = false;
+        }
+
+        // Add the wrapper to the cache if it was found in this method
+        if (local) {
+            wrapperCache.put(key, wrapper);
         }
 
         return (T) wrapper;
@@ -419,8 +465,19 @@ public class RESTWrapperFactory extends WrapperFactory {
             return null;
         }
 
-        final Object unwrappedEntity = getEntity(entity);
-        final EntityWrapper wrapper;
+        final RESTBaseEntityV1 unwrappedEntity = getEntity(entity);
+
+        // Create the key
+        final RESTWrapperKey key = new RESTWrapperKey(unwrappedEntity, parent, wrapperClass);
+
+        // Check to see if a wrapper has already been cached for the key
+        final RESTBaseWrapper cachedWrapper = wrapperCache.get(key);
+        if (cachedWrapper != null) {
+            return (T) cachedWrapper;
+        }
+
+        final RESTBaseWrapper wrapper;
+        boolean local = true;
 
         if (wrapperClass == PropertyTagInTopicWrapper.class && entity instanceof RESTAssignedPropertyTagV1) {
             wrapper = new RESTPropertyTagInTopicV1Wrapper(getProviderFactory(), (RESTAssignedPropertyTagV1) unwrappedEntity, isRevision,
@@ -433,6 +490,12 @@ public class RESTWrapperFactory extends WrapperFactory {
                     isRevision, (RESTContentSpecV1) parent);
         } else {
             wrapper = create(unwrappedEntity, isRevision);
+            local = false;
+        }
+
+        // Add the wrapper to the cache if it was found in this method
+        if (local) {
+            wrapperCache.put(key, wrapper);
         }
 
         return (T) wrapper;
@@ -449,13 +512,23 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
-            boolean isRevisionCollection, final RESTBaseEntityV1<?, ?, ?> parent) {
+    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final RESTBaseCollectionV1<?, ?, ?> collection,
+            final Class<?> entityClass, boolean isRevisionCollection, final RESTBaseEntityV1<?, ?, ?> parent) {
         if (collection == null) {
             return null;
         }
 
-        final CollectionWrapper wrapper;
+        // Create the key
+        final RESTWrapperKey key = new RESTWrapperKey(collection, parent);
+
+        // Check to see if a wrapper has already been cached for the key
+        final RESTCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
+        if (cachedWrapper != null) {
+            return cachedWrapper;
+        }
+
+        final RESTCollectionWrapper wrapper;
+        boolean local = true;
 
         if (collection instanceof RESTTopicSourceUrlCollectionV1 && parent instanceof RESTBaseTopicV1) {
             // TOPIC SOURCE URL
@@ -490,7 +563,13 @@ public class RESTWrapperFactory extends WrapperFactory {
             wrapper = new RESTTranslatedCSNodeStringCollectionV1Wrapper(getProviderFactory(),
                     (RESTTranslatedCSNodeStringCollectionV1) collection, isRevisionCollection, (RESTTranslatedCSNodeV1) parent);
         } else {
-            wrapper = createCollection(collection, entityClass, isRevisionCollection);
+            wrapper = (RESTCollectionWrapper) createCollection(collection, entityClass, isRevisionCollection);
+            local = false;
+        }
+
+        // Add the wrapper to the cache if it was found in this method
+        if (local) {
+            wrapperCache.putCollection(key, wrapper);
         }
 
         return wrapper;
@@ -508,13 +587,23 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
-            boolean isRevisionCollection, final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
+    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final RESTBaseCollectionV1<?, ?, ?> collection,
+            final Class<?> entityClass, boolean isRevisionCollection, final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
         if (collection == null) {
             return null;
         }
 
-        final CollectionWrapper wrapper;
+        // Create the key
+        final RESTWrapperKey key = new RESTWrapperKey(collection, parent, wrapperClass);
+
+        // Check to see if a wrapper has already been cached for the key
+        final RESTCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
+        if (cachedWrapper != null) {
+            return cachedWrapper;
+        }
+
+        final RESTCollectionWrapper wrapper;
+        boolean local = true;
 
         if (wrapperClass == PropertyTagInTopicWrapper.class && entityClass == RESTAssignedPropertyTagV1.class) {
             wrapper = new RESTPropertyTagInTopicCollectionV1Wrapper(getProviderFactory(), (RESTAssignedPropertyTagCollectionV1) collection,
@@ -526,7 +615,13 @@ public class RESTWrapperFactory extends WrapperFactory {
             wrapper = new RESTPropertyTagInContentSpecCollectionV1Wrapper(getProviderFactory(),
                     (RESTAssignedPropertyTagCollectionV1) collection, isRevisionCollection, (RESTContentSpecV1) parent);
         } else {
-            wrapper = createCollection(collection, entityClass, isRevisionCollection);
+            wrapper = (RESTCollectionWrapper) createCollection(collection, entityClass, isRevisionCollection);
+            local = false;
+        }
+
+        // Add the wrapper to the cache if it was found in this method
+        if (local) {
+            wrapperCache.putCollection(key, wrapper);
         }
 
         return wrapper;
@@ -678,7 +773,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The unwrapped/non-proxy entity, or the original entity if it wasn't a proxy.
      */
     @SuppressWarnings("rawtypes")
-    protected Object getEntity(final Object entity) {
+    protected RESTBaseEntityV1<?, ?, ?> getEntity(final Object entity) {
         if (entity instanceof ProxyObject) {
             final MethodHandler handler = ((ProxyObject) entity).getHandler();
             if (handler instanceof RESTBaseEntityV1ProxyHandler) {
@@ -686,6 +781,6 @@ public class RESTWrapperFactory extends WrapperFactory {
             }
         }
 
-        return entity;
+        return (RESTBaseEntityV1<?, ?, ?>) entity;
     }
 }

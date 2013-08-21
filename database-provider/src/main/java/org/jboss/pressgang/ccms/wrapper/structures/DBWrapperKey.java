@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper.structures;
 
-import org.hibernate.internal.util.compare.EqualsHelper;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class DBWrapperKey {
     private final Object o;
@@ -21,8 +22,11 @@ public class DBWrapperKey {
         if (!(o instanceof DBWrapperKey)) return false;
 
         final DBWrapperKey other = (DBWrapperKey) o;
-        if (!EqualsHelper.equals(wrapperClass, other.wrapperClass)) return false;
+        return new EqualsBuilder().append(this.o, other.o).append(wrapperClass, other.wrapperClass).isEquals();
+    }
 
-        return EqualsHelper.equals(this.o, other.o);
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(o).append(wrapperClass).toHashCode();
     }
 }

@@ -135,48 +135,69 @@ public abstract class RESTDataProvider extends DataProvider {
     }
 
     protected String getExpansionString(String expansionName) throws IOException {
-        return getExpansionString(expansionName, null);
+        return getExpansionString(expansionName, (List<String>) null);
     }
 
     protected String getExpansionString(String expansionName, String subExpansionName) throws IOException {
+        return getExpansionString(expansionName, Arrays.asList(subExpansionName));
+    }
+
+    protected String getExpansionString(String expansionName, List<String> subExpansionNames) throws IOException {
         final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final ExpandDataTrunk expandData = new ExpandDataTrunk(new ExpandDataDetails(expansionName));
-        if (subExpansionName != null) {
-            final ExpandDataTrunk expandSubData = new ExpandDataTrunk(new ExpandDataDetails(subExpansionName));
-            expandData.setBranches(Arrays.asList(expandSubData));
-        }
-        expand.setBranches(Arrays.asList(expandData));
-        return mapper.writeValueAsString(expand);
+        expand.setBranches(Arrays.asList(getExpansion(expansionName, subExpansionNames)));
+        return getExpansionString(expand);
     }
 
     protected String getExpansionString(final Collection<String> expansionNames) throws IOException {
         final ExpandDataTrunk expand = new ExpandDataTrunk();
-        final List<ExpandDataTrunk> expandDataTrunks = new ArrayList<ExpandDataTrunk>();
-        for (final String expansionName : expansionNames) {
-            expandDataTrunks.add(new ExpandDataTrunk(new ExpandDataDetails(expansionName)));
+        expand.setBranches(getExpansionBranches(expansionNames));
+        return getExpansionString(expand);
+    }
+
+    /**
+     * Get a list of expansion branches created from a list of names.
+     *
+     * @param expansionNames The list of names to create the branches from.
+     * @return The list of expanded branches or null if the input list was null.
+     */
+    protected List<ExpandDataTrunk> getExpansionBranches(final Collection<String> expansionNames) {
+        if (expansionNames != null) {
+            final List<ExpandDataTrunk> expandDataTrunks = new ArrayList<ExpandDataTrunk>();
+            for (final String subExpansionName : expansionNames) {
+                expandDataTrunks.add(new ExpandDataTrunk(new ExpandDataDetails(subExpansionName)));
+            }
+
+            return expandDataTrunks;
         }
-        expand.setBranches(expandDataTrunks);
-        return mapper.writeValueAsString(expand);
+
+        return null;
+    }
+
+    /**
+     * Create an expansion with sub expansions.
+     *
+     * @param expansionName The name of the root expansion.
+     * @param subExpansionNames The list of names to create the branches from.
+     * @return The expansion with the branches set.
+     */
+    protected ExpandDataTrunk getExpansion(final String expansionName, final Collection<String> subExpansionNames) {
+        final ExpandDataTrunk expandData = new ExpandDataTrunk(new ExpandDataDetails(expansionName));
+        // Add the sub expansions
+        expandData.setBranches(getExpansionBranches(subExpansionNames));
+        return expandData;
     }
 
     protected String getExpansionString(final Map<String, List<String>> expansionNames) throws IOException {
         final ExpandDataTrunk expand = new ExpandDataTrunk();
         final List<ExpandDataTrunk> expandDataTrunks = new ArrayList<ExpandDataTrunk>();
-        for (final Map.Entry<String, List<String>> expansionName : expansionNames.entrySet()) {
-            final ExpandDataTrunk expandData = new ExpandDataTrunk(new ExpandDataDetails(expansionName.getKey()));
-
-            // Add the sub expansions
-            if (expansionName.getValue() != null) {
-                final List<ExpandDataTrunk> subExpandDataTrunks = new ArrayList<ExpandDataTrunk>();
-                for (final String subExpansionName : expansionName.getValue()) {
-                    subExpandDataTrunks.add(new ExpandDataTrunk(new ExpandDataDetails(subExpansionName)));
-                }
-                expandData.setBranches(subExpandDataTrunks);
-            }
-
-            expandDataTrunks.add(expandData);
+        for (final Map.Entry<String, List<String>> expansion : expansionNames.entrySet()) {
+            expandDataTrunks.add(getExpansion(expansion.getKey(), expansion.getValue()));
         }
         expand.setBranches(expandDataTrunks);
+        return getExpansionString(expand);
+    }
+
+    protected String getExpansionString(final ExpandDataTrunk expand) throws IOException {
         return mapper.writeValueAsString(expand);
     }
 
