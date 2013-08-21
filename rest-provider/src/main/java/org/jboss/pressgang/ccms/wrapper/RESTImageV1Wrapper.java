@@ -23,16 +23,6 @@ public class RESTImageV1Wrapper extends RESTBaseWrapper<ImageWrapper, RESTImageV
     }
 
     @Override
-    public Integer getId() {
-        return getProxyEntity().getId();
-    }
-
-    @Override
-    public Integer getRevision() {
-        return getProxyEntity().getRevision();
-    }
-
-    @Override
     public RESTImageV1Wrapper clone(boolean deepCopy) {
         return new RESTImageV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity());
     }

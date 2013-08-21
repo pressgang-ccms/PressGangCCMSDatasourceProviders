@@ -21,16 +21,6 @@ public class RESTUserV1Wrapper extends RESTBaseWrapper<UserWrapper, RESTUserV1> 
     }
 
     @Override
-    public Integer getId() {
-        return getProxyEntity().getId();
-    }
-
-    @Override
-    public Integer getRevision() {
-        return getProxyEntity().getRevision();
-    }
-
-    @Override
     public CollectionWrapper<UserWrapper> getRevisions() {
         return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTUserV1.class, isRevisionEntity());
     }

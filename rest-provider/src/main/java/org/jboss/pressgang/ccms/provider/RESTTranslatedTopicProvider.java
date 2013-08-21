@@ -12,7 +12,6 @@ import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTag
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
@@ -523,7 +522,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public TranslatedTopicWrapper newTranslatedTopic() {
-        return getWrapperFactory().create(new RESTTopicV1(), false);
+        return getWrapperFactory().create(new RESTTranslatedTopicV1(), false);
     }
 
     @Override

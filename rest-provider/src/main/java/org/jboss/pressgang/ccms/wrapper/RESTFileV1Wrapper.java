@@ -23,16 +23,6 @@ public class RESTFileV1Wrapper extends RESTBaseWrapper<FileWrapper, RESTFileV1> 
     }
 
     @Override
-    public Integer getId() {
-        return getProxyEntity().getId();
-    }
-
-    @Override
-    public Integer getRevision() {
-        return getProxyEntity().getRevision();
-    }
-
-    @Override
     public RESTFileV1Wrapper clone(boolean deepCopy) {
         return new RESTFileV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity());
     }
