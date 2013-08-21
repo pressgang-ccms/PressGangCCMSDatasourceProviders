@@ -23,7 +23,7 @@ public class RESTCSRelatedNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandle
     @Override
     public Object internalInvoke(RESTCSRelatedNodeV1 entity, Method method, Object[] args) throws Throwable {
         // Check that there is an id defined and the method called is a getter otherwise we can't proxy the object
-        if (entity.getId() != null && method.getName().startsWith("get")) {
+        if (entity.getId() != null && entity.getId() >= 0 && method.getName().startsWith("get")) {
             Object retValue = method.invoke(entity, args);
             if (retValue == null) {
                 final String methodName = method.getName();

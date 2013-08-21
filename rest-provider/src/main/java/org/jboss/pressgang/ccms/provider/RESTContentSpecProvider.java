@@ -248,7 +248,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             }
 
             // We need to expand the tags in the content spec
-            final String expandString = getExpansionString(RESTContentSpecV1.TRANSLATED_CONTENT_SPECS_NAME);
+            final String expandString = getExpansionString(RESTContentSpecV1.TRANSLATED_CONTENT_SPECS_NAME, RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
 
             // Load the content spec from the REST Interface
             final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);

@@ -47,7 +47,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             if (getRESTEntityCache().containsKeyValue(RESTTranslatedContentSpecV1.class, id, revision)) {
                 node = getRESTEntityCache().get(RESTTranslatedContentSpecV1.class, id, revision);
             } else {
-                node = loadTranslatedContentSpec(id, revision, "");
+                final String expandString = super.getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+                node = loadTranslatedContentSpec(id, revision, expandString);
                 getRESTEntityCache().add(node, revision);
             }
             return node;
