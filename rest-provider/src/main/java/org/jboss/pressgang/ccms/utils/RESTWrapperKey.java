@@ -52,18 +52,8 @@ public class RESTWrapperKey {
         if (!(o instanceof RESTWrapperKey)) return false;
 
         final RESTWrapperKey other = (RESTWrapperKey) o;
-        if (new EqualsBuilder().append(this.o, other.o).append(wrapperClass, other.wrapperClass).append(parent,
-                other.parent).isEquals()) {
-            if (this.o instanceof RESTBaseEntityV1) {
-                // Since rest entities may represent the same database entry, the wrapper may need to be different.
-                // An example is CSNode next entities, they will also match the original entity if you use the normal equals method
-                return this.o == other.o;
-            } else {
-                return true;
-            }
-        } else {
-            return false;
-        }
+        return this.o == o && new EqualsBuilder().append(wrapperClass, other.wrapperClass).append(parent,
+                other.parent).isEquals();
     }
 
     @Override

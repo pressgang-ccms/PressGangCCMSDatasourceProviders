@@ -187,7 +187,7 @@ public class DBWrapperFactory extends WrapperFactory {
         }
 
         // Create the key
-        final DBWrapperKey key = new DBWrapperKey(collection);
+        final DBWrapperKey key = new DBWrapperKey(collection, entityClass);
 
         // Check to see if a wrapper has already been cached for the key
         final DBCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
@@ -346,7 +346,7 @@ public class DBWrapperFactory extends WrapperFactory {
         }
 
         // Create the key
-        final DBWrapperKey key = new DBWrapperKey(collection, wrapperClass);
+        final DBWrapperKey key = new DBWrapperKey(collection, entityClass, wrapperClass);
 
         // Check to see if a wrapper has already been cached for the key
         final DBCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
