@@ -10,7 +10,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapper;
 public class RESTWrapperCache {
     final Cache<RESTWrapperKey, RESTBaseWrapper> cache = CacheBuilder.newBuilder()
             .maximumSize(1000)
-            .expireAfterAccess(1, TimeUnit.MINUTES)
+            .expireAfterAccess(30, TimeUnit.SECONDS)
             .build();
 
     final Cache<RESTWrapperKey, RESTCollectionWrapper> collectionCache = CacheBuilder.newBuilder()

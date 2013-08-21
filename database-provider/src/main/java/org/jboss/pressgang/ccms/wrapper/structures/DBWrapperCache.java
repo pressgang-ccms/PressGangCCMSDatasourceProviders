@@ -10,12 +10,12 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBCollectionWrapper;
 public class DBWrapperCache {
     final Cache<DBWrapperKey, DBBaseWrapper> cache = CacheBuilder.newBuilder()
             .maximumSize(1000)
-            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .expireAfterAccess(30, TimeUnit.SECONDS)
             .build();
 
     final Cache<DBWrapperKey, DBCollectionWrapper> collectionCache = CacheBuilder.newBuilder()
             .maximumSize(1000)
-            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .expireAfterAccess(1, TimeUnit.MINUTES)
             .build();
 
     public void put(final DBWrapperKey key, final DBBaseWrapper value) {
