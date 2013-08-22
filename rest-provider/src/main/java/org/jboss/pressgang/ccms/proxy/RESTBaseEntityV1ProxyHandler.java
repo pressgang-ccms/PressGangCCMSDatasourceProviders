@@ -12,6 +12,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionV1ProxyHandler;
 
+@SuppressWarnings("unchecked")
 public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U, ?, ?>> implements MethodHandler {
 
     private final RESTProviderFactory providerFactory;
@@ -77,7 +78,7 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
     private Object checkAndProxyReturnValue(Object retValue) {
         if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
             // The parent will either be a user defined parent, or the entity itself.
-            RESTBaseEntityV1 parent = this.parent == null ? getProxyEntity() : this.parent;
+            final RESTBaseEntityV1<?, ?, ?> parent = this.parent == null ? getProxyEntity() : this.parent;
             return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue, isRevision, parent);
         } else {
             return retValue;

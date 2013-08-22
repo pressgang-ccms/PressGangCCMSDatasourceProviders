@@ -11,8 +11,8 @@ public class RESTPropertyTagInContentSpecV1Wrapper extends RESTBasePropertyTagV1
     private final RESTContentSpecV1 parent;
 
     protected RESTPropertyTagInContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTAssignedPropertyTagV1 propertyTag,
-            boolean isRevision, final RESTContentSpecV1 parent) {
-        super(providerFactory, propertyTag, isRevision, parent);
+            boolean isRevision, final RESTContentSpecV1 parent, boolean isNewEntity) {
+        super(providerFactory, propertyTag, isRevision, parent, isNewEntity);
         this.parent = parent;
     }
 
@@ -43,7 +43,8 @@ public class RESTPropertyTagInContentSpecV1Wrapper extends RESTBasePropertyTagV1
 
     @Override
     public RESTPropertyTagInContentSpecV1Wrapper clone(boolean deepCopy) {
-        return new RESTPropertyTagInContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent);
+        return new RESTPropertyTagInContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent,
+                isNewEntity());
     }
 
     @Override

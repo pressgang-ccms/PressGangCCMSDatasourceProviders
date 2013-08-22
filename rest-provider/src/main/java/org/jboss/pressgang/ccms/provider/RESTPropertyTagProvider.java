@@ -143,45 +143,45 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
 
     @Override
     public PropertyTagWrapper newPropertyTag() {
-        return getWrapperFactory().create(new RESTPropertyTagV1(), false);
+        return getWrapperFactory().create(new RESTPropertyTagV1(), false, true);
     }
 
     @Override
     public PropertyTagInPropertyCategoryWrapper newPropertyTagInPropertyCategory() {
-        return getWrapperFactory().create(new RESTPropertyTagInPropertyCategoryV1(), false);
+        return getWrapperFactory().create(new RESTPropertyTagInPropertyCategoryV1(), false, true);
     }
 
     @Override
     public PropertyTagInTopicWrapper newPropertyTagInTopic(final BaseTopicWrapper<?> topic) {
         final RESTBaseTopicV1<?, ?, ?> unwrapperedTopic = topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap();
-        return getWrapperFactory().create(new RESTAssignedPropertyTagV1(), false, unwrapperedTopic, PropertyTagInTopicWrapper.class);
+        return getWrapperFactory().create(new RESTAssignedPropertyTagV1(), false, unwrapperedTopic, PropertyTagInTopicWrapper.class, true);
     }
 
     @Override
     public PropertyTagInTopicWrapper newPropertyTagInTopic(final PropertyTagWrapper propertyTag, final BaseTopicWrapper<?> topic) {
         final RESTBaseTopicV1<?, ?, ?> unwrapperedTopic = topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap();
         return getWrapperFactory().create(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()),
-                propertyTag.isRevisionEntity(), unwrapperedTopic, PropertyTagInTopicWrapper.class);
+                propertyTag.isRevisionEntity(), unwrapperedTopic, PropertyTagInTopicWrapper.class, true);
     }
 
     @Override
     public PropertyTagInTagWrapper newPropertyTagInTag(final TagWrapper tag) {
         final RESTTagV1 unwrapperTag = tag == null ? null : (RESTTagV1) tag.unwrap();
-        return getWrapperFactory().create(new RESTAssignedPropertyTagV1(), false, unwrapperTag, PropertyTagInTagWrapper.class);
+        return getWrapperFactory().create(new RESTAssignedPropertyTagV1(), false, unwrapperTag, PropertyTagInTagWrapper.class, true);
     }
 
     @Override
     public PropertyTagInTagWrapper newPropertyTagInTag(final PropertyTagWrapper propertyTag, final TagWrapper tag) {
         final RESTTagV1 unwrapperTag = tag == null ? null : (RESTTagV1) tag.unwrap();
         return getWrapperFactory().create(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()),
-                propertyTag.isRevisionEntity(), unwrapperTag, PropertyTagInTagWrapper.class);
+                propertyTag.isRevisionEntity(), unwrapperTag, PropertyTagInTagWrapper.class, true);
     }
 
     @Override
     public PropertyTagInContentSpecWrapper newPropertyTagInContentSpec(final ContentSpecWrapper contentSpec) {
         final RESTContentSpecV1 unwrappedContentSpec = contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap();
         return getWrapperFactory().create(new RESTAssignedPropertyTagV1(), false, unwrappedContentSpec,
-                PropertyTagInContentSpecWrapper.class);
+                PropertyTagInContentSpecWrapper.class, true);
     }
 
     @Override
@@ -189,7 +189,7 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
             final ContentSpecWrapper contentSpec) {
         final RESTContentSpecV1 unwrappedContentSpec = contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap();
         return getWrapperFactory().create(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()),
-                propertyTag.isRevisionEntity(), unwrappedContentSpec, PropertyTagInContentSpecWrapper.class);
+                propertyTag.isRevisionEntity(), unwrappedContentSpec, PropertyTagInContentSpecWrapper.class, true);
     }
 
     @Override

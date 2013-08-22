@@ -239,7 +239,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
     @Override
     public TranslatedContentSpecWrapper newTranslatedContentSpec() {
-        return getWrapperFactory().create(new RESTTranslatedContentSpecV1(), false, TranslatedContentSpecWrapper.class);
+        return getWrapperFactory().create(new RESTTranslatedContentSpecV1(), false, TranslatedContentSpecWrapper.class, true);
     }
 
     @Override

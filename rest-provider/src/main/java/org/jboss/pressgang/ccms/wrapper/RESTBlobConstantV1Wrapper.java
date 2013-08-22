@@ -8,13 +8,13 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 public class RESTBlobConstantV1Wrapper extends RESTBaseWrapper<BlobConstantWrapper, RESTBlobConstantV1> implements BlobConstantWrapper {
 
     protected RESTBlobConstantV1Wrapper(final RESTProviderFactory providerFactory, final RESTBlobConstantV1 blobConstant,
-            boolean isRevision) {
-        super(providerFactory, blobConstant, isRevision);
+            boolean isRevision, boolean isNewEntity) {
+        super(providerFactory, blobConstant, isRevision, isNewEntity);
     }
 
     @Override
     public BlobConstantWrapper clone(boolean deepCopy) {
-        return new RESTBlobConstantV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTBlobConstantV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

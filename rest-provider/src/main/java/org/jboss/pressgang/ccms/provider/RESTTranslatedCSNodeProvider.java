@@ -191,7 +191,7 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
 
     @Override
     public TranslatedCSNodeWrapper newTranslatedCSNode() {
-        return getWrapperFactory().create(new RESTTranslatedCSNodeV1(), false, TranslatedCSNodeWrapper.class);
+        return getWrapperFactory().create(new RESTTranslatedCSNodeV1(), false, TranslatedCSNodeWrapper.class, true);
     }
 
     @Override

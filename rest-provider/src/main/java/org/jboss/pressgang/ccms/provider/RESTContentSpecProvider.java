@@ -458,7 +458,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
     @Override
     public ContentSpecWrapper newContentSpec() {
-        return getWrapperFactory().create(new RESTContentSpecV1(), false);
+        return getWrapperFactory().create(new RESTContentSpecV1(), false, true);
     }
 
     @Override

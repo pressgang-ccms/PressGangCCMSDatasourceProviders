@@ -13,8 +13,9 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNodeV1> implements CSNodeWrapper {
 
-    protected RESTCSNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTCSNodeV1 entity, boolean isRevision) {
-        super(providerFactory, entity, isRevision);
+    protected RESTCSNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTCSNodeV1 entity, boolean isRevision,
+            boolean isNewEntity) {
+        super(providerFactory, entity, isRevision, isNewEntity);
     }
 
     @Override
@@ -24,7 +25,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
 
     @Override
     public CSNodeWrapper clone(boolean deepCopy) {
-        return getWrapperFactory().create(getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTCSNodeV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

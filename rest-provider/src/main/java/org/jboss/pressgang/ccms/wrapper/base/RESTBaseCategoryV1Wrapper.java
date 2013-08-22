@@ -11,13 +11,13 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 public abstract class RESTBaseCategoryV1Wrapper<T extends BaseCategoryWrapper<T>, U extends RESTBaseCategoryV1<U, ?,
         ?>> extends RESTBaseWrapper<T, U> implements BaseCategoryWrapper<T> {
 
-    protected RESTBaseCategoryV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision) {
-        super(providerFactory, entity, isRevision);
+    protected RESTBaseCategoryV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity) {
+        super(providerFactory, entity, isRevision, isNewEntity);
     }
 
-    protected RESTBaseCategoryV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, RESTBaseEntityV1<?, ?,
-            ?> parent) {
-        super(providerFactory, entity, isRevision, parent);
+    protected RESTBaseCategoryV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision,
+            RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity) {
+        super(providerFactory, entity, isRevision, parent, isNewEntity);
     }
 
     @Override

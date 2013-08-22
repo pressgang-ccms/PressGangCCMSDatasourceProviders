@@ -11,8 +11,8 @@ public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseWrapper<Translat
     private final RESTTranslatedTopicV1 parent;
 
     protected RESTTranslatedTopicStringV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedTopicStringV1 topic,
-            boolean isRevision, final RESTTranslatedTopicV1 parent) {
-        super(providerFactory, topic, isRevision, parent);
+            boolean isRevision, final RESTTranslatedTopicV1 parent, boolean isNewEntity) {
+        super(providerFactory, topic, isRevision, parent, isNewEntity);
         this.parent = parent;
     }
 
@@ -23,7 +23,8 @@ public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseWrapper<Translat
 
     @Override
     public TranslatedTopicStringWrapper clone(boolean deepCopy) {
-        return new RESTTranslatedTopicStringV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent);
+        return new RESTTranslatedTopicStringV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent,
+                isNewEntity());
     }
 
     @Override

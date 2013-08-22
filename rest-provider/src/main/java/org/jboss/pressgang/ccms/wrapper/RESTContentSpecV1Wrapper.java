@@ -19,8 +19,9 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTContentSpecV1Wrapper extends RESTBaseWrapper<ContentSpecWrapper, RESTContentSpecV1> implements ContentSpecWrapper {
 
-    protected RESTContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTContentSpecV1 entity, boolean isRevision) {
-        super(providerFactory, entity, isRevision);
+    protected RESTContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTContentSpecV1 entity, boolean isRevision,
+            boolean isNewEntity) {
+        super(providerFactory, entity, isRevision, isNewEntity);
     }
 
     @Override
@@ -149,6 +150,6 @@ public class RESTContentSpecV1Wrapper extends RESTBaseWrapper<ContentSpecWrapper
 
     @Override
     public ContentSpecWrapper clone(boolean deepCopy) {
-        return getWrapperFactory().create(getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 }

@@ -413,7 +413,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public CSNodeWrapper newCSNode() {
-        return getWrapperFactory().create(new RESTCSNodeV1(), false, CSNodeWrapper.class);
+        return getWrapperFactory().create(new RESTCSNodeV1(), false, CSNodeWrapper.class, true);
     }
 
     @Override
@@ -425,7 +425,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public CSRelatedNodeWrapper newCSRelatedNode() {
-        return getWrapperFactory().create(new RESTCSRelatedNodeV1(), false, CSRelatedNodeWrapper.class);
+        return getWrapperFactory().create(new RESTCSRelatedNodeV1(), false, CSRelatedNodeWrapper.class, true);
     }
 
     @Override
@@ -441,7 +441,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             relatedNode.setEntityRevision(csNode.getEntityRevision());
             relatedNode.setTargetId(csNode.getTargetId());
         }
-        return getWrapperFactory().create(relatedNode, false, CSRelatedNodeWrapper.class);
+        return getWrapperFactory().create(relatedNode, false, CSRelatedNodeWrapper.class, true);
     }
 
     @Override

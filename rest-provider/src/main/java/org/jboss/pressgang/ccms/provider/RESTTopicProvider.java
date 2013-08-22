@@ -615,7 +615,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     @Override
     public TopicWrapper newTopic() {
-        return getWrapperFactory().create(new RESTTopicV1(), false);
+        return getWrapperFactory().create(new RESTTopicV1(), false, true);
     }
 
     @Override

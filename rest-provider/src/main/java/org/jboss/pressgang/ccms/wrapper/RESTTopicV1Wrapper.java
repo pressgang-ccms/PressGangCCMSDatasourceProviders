@@ -18,8 +18,9 @@ import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
 public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RESTTopicV1> implements TopicWrapper {
 
-    protected RESTTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicV1 topic, boolean isRevision) {
-        super(providerFactory, topic, isRevision);
+    protected RESTTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicV1 topic, boolean isRevision,
+            boolean isNewEntity) {
+        super(providerFactory, topic, isRevision, isNewEntity);
     }
 
     @Override
@@ -150,7 +151,7 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
 
     @Override
     public TopicWrapper clone(boolean deepCopy) {
-        return new RESTTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity());
+        return new RESTTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

@@ -151,7 +151,7 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
     @Override
     public TranslatedTopicStringWrapper newTranslatedTopicString(final TranslatedTopicWrapper translatedTopic) {
         return getWrapperFactory().create(new RESTTranslatedTopicStringV1(), false,
-                translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap());
+                translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap(), true);
     }
 
     @Override

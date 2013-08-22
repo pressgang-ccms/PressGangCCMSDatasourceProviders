@@ -19,9 +19,9 @@ import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TranslatedTopicWrapper,
         RESTTranslatedTopicV1> implements TranslatedTopicWrapper {
 
-    protected RESTTranslatedTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedTopicV1 topic,
-            boolean isRevision) {
-        super(providerFactory, topic, isRevision);
+    protected RESTTranslatedTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedTopicV1 topic, boolean isRevision,
+            boolean isNewEntity) {
+        super(providerFactory, topic, isRevision, isNewEntity);
     }
 
     @Override
@@ -153,7 +153,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public TranslatedTopicWrapper clone(boolean deepCopy) {
-        return new RESTTranslatedTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity());
+        return new RESTTranslatedTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

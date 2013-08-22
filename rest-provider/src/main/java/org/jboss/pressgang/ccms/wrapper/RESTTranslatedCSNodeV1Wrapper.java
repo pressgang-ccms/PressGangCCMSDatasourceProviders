@@ -14,8 +14,8 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSN
         RESTTranslatedCSNodeV1> implements TranslatedCSNodeWrapper {
 
     protected RESTTranslatedCSNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeV1 entity,
-            boolean isRevision) {
-        super(providerFactory, entity, isRevision);
+            boolean isRevision, boolean isNewEntity) {
+        super(providerFactory, entity, isRevision, isNewEntity);
     }
 
     @Override
@@ -25,7 +25,7 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSN
 
     @Override
     public TranslatedCSNodeWrapper clone(boolean deepCopy) {
-        return getWrapperFactory().create(getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTTranslatedCSNodeV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

@@ -7,8 +7,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTUserV1Wrapper extends RESTBaseWrapper<UserWrapper, RESTUserV1> implements UserWrapper {
 
-    protected RESTUserV1Wrapper(final RESTProviderFactory providerFactory, final RESTUserV1 user, boolean isRevision) {
-        super(providerFactory, user, isRevision);
+    protected RESTUserV1Wrapper(final RESTProviderFactory providerFactory, final RESTUserV1 user, boolean isRevision, boolean isNewEntity) {
+        super(providerFactory, user, isRevision, isNewEntity);
     }
 
     @Override
@@ -18,7 +18,7 @@ public class RESTUserV1Wrapper extends RESTBaseWrapper<UserWrapper, RESTUserV1> 
 
     @Override
     public UserWrapper clone(boolean deepCopy) {
-        return new RESTUserV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity());
+        return new RESTUserV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

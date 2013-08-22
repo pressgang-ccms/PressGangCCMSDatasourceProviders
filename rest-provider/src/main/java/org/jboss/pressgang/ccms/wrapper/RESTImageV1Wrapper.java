@@ -10,13 +10,14 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTImageV1Wrapper extends RESTBaseWrapper<ImageWrapper, RESTImageV1> implements ImageWrapper {
 
-    protected RESTImageV1Wrapper(final RESTProviderFactory providerFactory, final RESTImageV1 image, boolean isRevision) {
-        super(providerFactory, image, isRevision);
+    protected RESTImageV1Wrapper(final RESTProviderFactory providerFactory, final RESTImageV1 image, boolean isRevision,
+            boolean isNewEntity) {
+        super(providerFactory, image, isRevision, isNewEntity);
     }
 
     @Override
     public RESTImageV1Wrapper clone(boolean deepCopy) {
-        return new RESTImageV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTImageV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

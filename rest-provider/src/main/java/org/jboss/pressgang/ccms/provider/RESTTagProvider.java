@@ -306,12 +306,12 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
     @Override
     public TagWrapper newTag() {
-        return getWrapperFactory().create(new RESTTagV1(), false);
+        return getWrapperFactory().create(new RESTTagV1(), false, true);
     }
 
     @Override
     public TagInCategoryWrapper newTagInCategory() {
-        return getWrapperFactory().create(new RESTTagInCategoryV1(), false, TagInCategoryWrapper.class);
+        return getWrapperFactory().create(new RESTTagInCategoryV1(), false, TagInCategoryWrapper.class, true);
     }
 
     @Override

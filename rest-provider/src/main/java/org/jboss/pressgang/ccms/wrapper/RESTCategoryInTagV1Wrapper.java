@@ -13,14 +13,14 @@ public class RESTCategoryInTagV1Wrapper extends RESTBaseCategoryV1Wrapper<Catego
     private final RESTBaseTagV1<?, ?, ?> parent;
 
     protected RESTCategoryInTagV1Wrapper(final RESTProviderFactory providerFactory, final RESTCategoryInTagV1 category, boolean isRevision,
-            final RESTBaseTagV1<?, ?, ?> parent) {
-        super(providerFactory, category, isRevision, parent);
+            final RESTBaseTagV1<?, ?, ?> parent, boolean isNewEntity) {
+        super(providerFactory, category, isRevision, parent, isNewEntity);
         this.parent = parent;
     }
 
     @Override
     public RESTCategoryInTagV1Wrapper clone(boolean deepCopy) {
-        return new RESTCategoryInTagV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent);
+        return new RESTCategoryInTagV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent, isNewEntity());
     }
 
     @Override

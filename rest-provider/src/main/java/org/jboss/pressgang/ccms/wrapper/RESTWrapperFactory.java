@@ -115,6 +115,11 @@ public class RESTWrapperFactory extends WrapperFactory {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision) {
+        return create(entity, isRevision, false);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, boolean isNewEntity) {
         if (entity == null) {
             return null;
         }
@@ -134,29 +139,30 @@ public class RESTWrapperFactory extends WrapperFactory {
 
         if (entity instanceof RESTTopicV1) {
             // TOPIC
-            wrapper = new RESTTopicV1Wrapper(getProviderFactory(), (RESTTopicV1) unwrappedEntity, isRevision);
+            wrapper = new RESTTopicV1Wrapper(getProviderFactory(), (RESTTopicV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTTopicSourceUrlV1) {
             // TOPIC SOURCE URL
             throw new UnsupportedOperationException("A parent is needed to get Topic Source URLs using V1 of the REST Interface.");
         } else if (entity instanceof RESTTranslatedTopicV1) {
             // TRANSLATED TOPIC
-            wrapper = new RESTTranslatedTopicV1Wrapper(getProviderFactory(), (RESTTranslatedTopicV1) unwrappedEntity, isRevision);
+            wrapper = new RESTTranslatedTopicV1Wrapper(getProviderFactory(), (RESTTranslatedTopicV1) unwrappedEntity, isRevision,
+                    isNewEntity);
         } else if (entity instanceof RESTTranslatedTopicStringV1) {
             // TRANSLATED TOPIC STRING
             throw new UnsupportedOperationException("A parent is needed to get Translated Topic Strings using V1 of the REST Interface.");
         } else if (entity instanceof RESTTagV1) {
             // TAG
-            wrapper = new RESTTagV1Wrapper(getProviderFactory(), (RESTTagV1) unwrappedEntity, isRevision);
+            wrapper = new RESTTagV1Wrapper(getProviderFactory(), (RESTTagV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTTagInCategoryV1) {
             throw new UnsupportedOperationException("A parent is needed to get TagInCategories using V1 of the REST Interface.");
         } else if (entity instanceof RESTCategoryV1) {
             // CATEGORY
-            wrapper = new RESTCategoryV1Wrapper(getProviderFactory(), (RESTCategoryV1) unwrappedEntity, isRevision);
+            wrapper = new RESTCategoryV1Wrapper(getProviderFactory(), (RESTCategoryV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTCategoryInTagV1) {
             throw new UnsupportedOperationException("A parent is needed to get CategoryInTags using V1 of the REST Interface.");
         } else if (entity instanceof RESTPropertyTagV1) {
             // PROPERTY TAGS
-            wrapper = new RESTPropertyTagV1Wrapper(getProviderFactory(), (RESTPropertyTagV1) unwrappedEntity, isRevision);
+            wrapper = new RESTPropertyTagV1Wrapper(getProviderFactory(), (RESTPropertyTagV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTAssignedPropertyTagV1) {
             throw new UnsupportedOperationException("The wrapper return class needs to be specified as the type can't be determined.");
         } else if (entity instanceof RESTPropertyTagInPropertyCategoryV1) {
@@ -164,43 +170,45 @@ public class RESTWrapperFactory extends WrapperFactory {
                     "A parent is needed to get PropertyTagInPropertyCategories using V1 of the REST Interface.");
         } else if (entity instanceof RESTBlobConstantV1) {
             // BLOB CONSTANT
-            wrapper = new RESTBlobConstantV1Wrapper(getProviderFactory(), (RESTBlobConstantV1) entity, isRevision);
+            wrapper = new RESTBlobConstantV1Wrapper(getProviderFactory(), (RESTBlobConstantV1) entity, isRevision, isNewEntity);
         } else if (entity instanceof RESTStringConstantV1) {
             // STRING CONSTANT
-            wrapper = new RESTStringConstantV1Wrapper(getProviderFactory(), (RESTStringConstantV1) unwrappedEntity, isRevision);
+            wrapper = new RESTStringConstantV1Wrapper(getProviderFactory(), (RESTStringConstantV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTFileV1) {
             // FILE
-            wrapper = new RESTFileV1Wrapper(getProviderFactory(), (RESTFileV1) unwrappedEntity, isRevision);
+            wrapper = new RESTFileV1Wrapper(getProviderFactory(), (RESTFileV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTLanguageFileV1) {
             // LANGUAGE FILE
             throw new UnsupportedOperationException("A parent is needed to get Language Files using V1 of the REST Interface.");
         } else if (entity instanceof RESTImageV1) {
             // IMAGE
-            wrapper = new RESTImageV1Wrapper(getProviderFactory(), (RESTImageV1) unwrappedEntity, isRevision);
+            wrapper = new RESTImageV1Wrapper(getProviderFactory(), (RESTImageV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTLanguageImageV1) {
             // LANGUAGE IMAGE
             throw new UnsupportedOperationException("A parent is needed to get Language Images using V1 of the REST Interface.");
         } else if (entity instanceof RESTUserV1) {
             // USER
-            wrapper = new RESTUserV1Wrapper(getProviderFactory(), (RESTUserV1) unwrappedEntity, isRevision);
+            wrapper = new RESTUserV1Wrapper(getProviderFactory(), (RESTUserV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTContentSpecV1) {
             // CONTENT SPEC
-            wrapper = new RESTContentSpecV1Wrapper(getProviderFactory(), (RESTContentSpecV1) unwrappedEntity, isRevision);
+            wrapper = new RESTContentSpecV1Wrapper(getProviderFactory(), (RESTContentSpecV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTTextContentSpecV1) {
             // TEXT CONTENT SPEC
-            wrapper = new RESTTextContentSpecV1Wrapper(getProviderFactory(), (RESTTextContentSpecV1) unwrappedEntity, isRevision);
+            wrapper = new RESTTextContentSpecV1Wrapper(getProviderFactory(), (RESTTextContentSpecV1) unwrappedEntity, isRevision,
+                    isNewEntity);
         } else if (entity instanceof RESTCSNodeV1) {
             // CONTENT SPEC NODE
-            wrapper = new RESTCSNodeV1Wrapper(getProviderFactory(), (RESTCSNodeV1) unwrappedEntity, isRevision);
+            wrapper = new RESTCSNodeV1Wrapper(getProviderFactory(), (RESTCSNodeV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTCSRelatedNodeV1) {
-            wrapper = new RESTCSRelatedNodeV1Wrapper(getProviderFactory(), (RESTCSRelatedNodeV1) unwrappedEntity, isRevision);
+            wrapper = new RESTCSRelatedNodeV1Wrapper(getProviderFactory(), (RESTCSRelatedNodeV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTTranslatedContentSpecV1) {
             // TRANSLATED CONTENT SPEC
             wrapper = new RESTTranslatedContentSpecV1Wrapper(getProviderFactory(), (RESTTranslatedContentSpecV1) unwrappedEntity,
-                    isRevision);
+                    isRevision, isNewEntity);
         } else if (entity instanceof RESTTranslatedCSNodeV1) {
             // CONTENT SPEC TRANSLATED NODE
-            wrapper = new RESTTranslatedCSNodeV1Wrapper(getProviderFactory(), (RESTTranslatedCSNodeV1) unwrappedEntity, isRevision);
+            wrapper = new RESTTranslatedCSNodeV1Wrapper(getProviderFactory(), (RESTTranslatedCSNodeV1) unwrappedEntity, isRevision,
+                    isNewEntity);
         } else if (entity instanceof RESTTranslatedCSNodeStringV1) {
             // CONTENT SPEC TRANSLATED NODE STRING
             throw new UnsupportedOperationException("A parent is needed to get CSTranslatedNodeStrings using V1 of the REST Interface.");
@@ -383,8 +391,23 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @param <T>        The wrapper class that is returned.
      * @return The Wrapper around the entity.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
+        return create(entity, isRevision, parent, false);
+    }
+
+    /**
+     * Create a wrapper around a specific entity.
+     *
+     * @param entity      The entity to be wrapped.
+     * @param isRevision  Whether the entity is a revision or not.
+     * @param parent      The parent entity that the entity comes from.
+     * @param isNewEntity
+     * @param <T>         The wrapper class that is returned.
+     * @return The Wrapper around the entity.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
+            final boolean isNewEntity) {
         if (entity == null) {
             return null;
         }
@@ -406,37 +429,37 @@ public class RESTWrapperFactory extends WrapperFactory {
         if (entity instanceof RESTTopicSourceUrlV1 && parent instanceof RESTBaseTopicV1) {
             // TOPIC SOURCE URL
             wrapper = new RESTTopicSourceURLV1Wrapper(getProviderFactory(), (RESTTopicSourceUrlV1) unwrappedEntity, isRevision,
-                    (RESTBaseTopicV1<?, ?, ?>) parent);
+                    (RESTBaseTopicV1<?, ?, ?>) parent, isNewEntity);
         } else if (entity instanceof RESTTranslatedTopicStringV1 && parent instanceof RESTTranslatedTopicV1) {
             // TRANSLATED TOPIC STRING
             wrapper = new RESTTranslatedTopicStringV1Wrapper(getProviderFactory(), (RESTTranslatedTopicStringV1) unwrappedEntity,
-                    isRevision, (RESTTranslatedTopicV1) parent);
+                    isRevision, (RESTTranslatedTopicV1) parent, isNewEntity);
         } else if (entity instanceof RESTLanguageFileV1 && parent instanceof RESTFileV1) {
             // LANGUAGE FILE
             wrapper = new RESTLanguageFileV1Wrapper(getProviderFactory(), (RESTLanguageFileV1) unwrappedEntity, isRevision,
-                    (RESTFileV1) parent);
+                    (RESTFileV1) parent, isNewEntity);
         } else if (entity instanceof RESTLanguageImageV1 && parent instanceof RESTImageV1) {
             // LANGUAGE IMAGE
             wrapper = new RESTLanguageImageV1Wrapper(getProviderFactory(), (RESTLanguageImageV1) unwrappedEntity, isRevision,
-                    (RESTImageV1) parent);
+                    (RESTImageV1) parent, isNewEntity);
         } else if (entity instanceof RESTCategoryInTagV1 && parent instanceof RESTBaseTagV1) {
             // CATEGORY TO TAG
             wrapper = new RESTCategoryInTagV1Wrapper(getProviderFactory(), (RESTCategoryInTagV1) unwrappedEntity, isRevision,
-                    (RESTBaseTagV1<?, ?, ?>) parent);
+                    (RESTBaseTagV1<?, ?, ?>) parent, isNewEntity);
         } else if (entity instanceof RESTTagInCategoryV1 && parent instanceof RESTBaseCategoryV1) {
             // TAG TO CATEGORY
             wrapper = new RESTTagInCategoryV1Wrapper(getProviderFactory(), (RESTTagInCategoryV1) unwrappedEntity, isRevision,
-                    (RESTBaseCategoryV1<?, ?, ?>) parent);
+                    (RESTBaseCategoryV1<?, ?, ?>) parent, isNewEntity);
         } else if (entity instanceof RESTPropertyTagInPropertyCategoryV1 && parent instanceof RESTPropertyCategoryV1) {
             // PROPERTY TAG TO CATEGORY
             wrapper = new RESTPropertyTagInPropertyCategoryV1Wrapper(getProviderFactory(),
-                    (RESTPropertyTagInPropertyCategoryV1) unwrappedEntity, isRevision, (RESTPropertyCategoryV1) parent);
+                    (RESTPropertyTagInPropertyCategoryV1) unwrappedEntity, isRevision, (RESTPropertyCategoryV1) parent, isNewEntity);
         } else if (entity instanceof RESTTranslatedCSNodeStringV1 && parent instanceof RESTTranslatedCSNodeV1) {
             // CONTENT SPEC TRANSLATED NODE STRING
             wrapper = new RESTTranslatedCSNodeStringV1Wrapper(getProviderFactory(), (RESTTranslatedCSNodeStringV1) unwrappedEntity,
-                    isRevision, (RESTTranslatedCSNodeV1) parent);
+                    isRevision, (RESTTranslatedCSNodeV1) parent, isNewEntity);
         } else {
-            wrapper = create(unwrappedEntity, isRevision);
+            wrapper = create(unwrappedEntity, isRevision, isNewEntity);
             local = false;
         }
 
@@ -461,6 +484,22 @@ public class RESTWrapperFactory extends WrapperFactory {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
             final Class<T> wrapperClass) {
+        return create(entity, isRevision, parent, wrapperClass, false);
+    }
+
+    /**
+     * Create a wrapper around a specific entity.
+     *
+     * @param entity       The entity to be wrapped.
+     * @param isRevision   Whether the entity is a revision or not.
+     * @param parent       The parent entity that the entity comes from.
+     * @param wrapperClass The return wrapper class, incase the entities wrapper can't be determined by it's class.
+     * @param <T>          The wrapper class that is returned.
+     * @return The Wrapper around the entity.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
+            final Class<T> wrapperClass, final boolean isNewEntity) {
         if (entity == null) {
             return null;
         }
@@ -481,13 +520,13 @@ public class RESTWrapperFactory extends WrapperFactory {
 
         if (wrapperClass == PropertyTagInTopicWrapper.class && entity instanceof RESTAssignedPropertyTagV1) {
             wrapper = new RESTPropertyTagInTopicV1Wrapper(getProviderFactory(), (RESTAssignedPropertyTagV1) unwrappedEntity, isRevision,
-                    (RESTBaseTopicV1<?, ?, ?>) parent);
+                    (RESTBaseTopicV1<?, ?, ?>) parent, isNewEntity);
         } else if (wrapperClass == PropertyTagInTagWrapper.class && entity instanceof RESTAssignedPropertyTagV1) {
             wrapper = new RESTPropertyTagInTagV1Wrapper(getProviderFactory(), (RESTAssignedPropertyTagV1) unwrappedEntity, isRevision,
-                    (RESTBaseTagV1<?, ?, ?>) parent);
+                    (RESTBaseTagV1<?, ?, ?>) parent, isNewEntity);
         } else if (wrapperClass == PropertyTagInContentSpecWrapper.class && entity instanceof RESTAssignedPropertyTagV1) {
             wrapper = new RESTPropertyTagInContentSpecV1Wrapper(getProviderFactory(), (RESTAssignedPropertyTagV1) unwrappedEntity,
-                    isRevision, (RESTContentSpecV1) parent);
+                    isRevision, (RESTContentSpecV1) parent, isNewEntity);
         } else {
             wrapper = create(unwrappedEntity, isRevision);
             local = false;
@@ -638,12 +677,27 @@ public class RESTWrapperFactory extends WrapperFactory {
      */
     @SuppressWarnings("unchecked")
     public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final Class<T> wrapperClass) {
+        return create(entity, isRevision, wrapperClass, false);
+    }
+
+    /**
+     * Create a wrapper around a specific entity.
+     *
+     * @param entity       The entity to be wrapped.
+     * @param isRevision   Whether the entity is a revision or not.
+     * @param wrapperClass The return wrapper class, incase the entities wrapper can't be determined by it's class.
+     * @param <T>          The wrapper class that is returned.
+     * @return The Wrapper around the entity.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final Class<T> wrapperClass,
+            final boolean isNewEntity) {
         if (entity == null) {
             return null;
         }
 
         // Currently entities need their wrapper class defined and also don't need a parent
-        return (T) create(entity, isRevision);
+        return (T) create(entity, isRevision, isNewEntity);
     }
 
     /**

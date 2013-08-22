@@ -10,15 +10,15 @@ public class RESTLanguageFileV1Wrapper extends RESTBaseWrapper<LanguageFileWrapp
     private final RESTFileV1 parent;
 
     protected RESTLanguageFileV1Wrapper(final RESTProviderFactory providerFactory, final RESTLanguageFileV1 file, boolean isRevision,
-            final RESTFileV1 parent) {
-        super(providerFactory, file, isRevision, parent);
+            final RESTFileV1 parent, boolean isNewEntity) {
+        super(providerFactory, file, isRevision, parent, isNewEntity);
         this.parent = parent;
     }
 
     @Override
     public LanguageFileWrapper clone(boolean deepCopy) {
         return new RESTLanguageFileV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(),
-                (deepCopy ? parent.clone(deepCopy) : parent));
+                (deepCopy ? parent.clone(deepCopy) : parent), isNewEntity());
     }
 
     @Override

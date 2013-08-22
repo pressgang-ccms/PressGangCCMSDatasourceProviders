@@ -10,13 +10,13 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTFileV1Wrapper extends RESTBaseWrapper<FileWrapper, RESTFileV1> implements FileWrapper {
 
-    protected RESTFileV1Wrapper(final RESTProviderFactory providerFactory, final RESTFileV1 file, boolean isRevision) {
-        super(providerFactory, file, isRevision);
+    protected RESTFileV1Wrapper(final RESTProviderFactory providerFactory, final RESTFileV1 file, boolean isRevision, boolean isNewEntity) {
+        super(providerFactory, file, isRevision, isNewEntity);
     }
 
     @Override
     public RESTFileV1Wrapper clone(boolean deepCopy) {
-        return new RESTFileV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTFileV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

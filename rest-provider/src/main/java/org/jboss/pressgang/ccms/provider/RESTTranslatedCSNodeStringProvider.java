@@ -149,7 +149,7 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
     @Override
     public TranslatedCSNodeStringWrapper newTranslatedCSNodeString(final TranslatedCSNodeWrapper translatedNode) {
         return getWrapperFactory().create(new RESTTranslatedCSNodeStringV1(), false,
-                translatedNode == null ? null : (RESTTranslatedCSNodeV1) translatedNode.unwrap());
+                translatedNode == null ? null : (RESTTranslatedCSNodeV1) translatedNode.unwrap(), true);
     }
 
     @Override

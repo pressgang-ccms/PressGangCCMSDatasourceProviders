@@ -10,8 +10,8 @@ public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseWrapper<Transla
     private final RESTTranslatedCSNodeV1 parent;
 
     protected RESTTranslatedCSNodeStringV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeStringV1 translatedString,
-            boolean isRevision, final RESTTranslatedCSNodeV1 parent) {
-        super(providerFactory, translatedString, isRevision, parent);
+            boolean isRevision, final RESTTranslatedCSNodeV1 parent, boolean isNewEntity) {
+        super(providerFactory, translatedString, isRevision, parent, isNewEntity);
         this.parent = parent;
     }
 
@@ -22,7 +22,8 @@ public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseWrapper<Transla
 
     @Override
     public TranslatedCSNodeStringWrapper clone(boolean deepCopy) {
-        return new RESTTranslatedCSNodeStringV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent);
+        return new RESTTranslatedCSNodeStringV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent,
+                isNewEntity());
     }
 
     @Override

@@ -8,8 +8,9 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 public class RESTPropertyTagV1Wrapper extends RESTBasePropertyTagV1Wrapper<PropertyTagWrapper,
         RESTPropertyTagV1> implements PropertyTagWrapper {
 
-    protected RESTPropertyTagV1Wrapper(final RESTProviderFactory providerFactory, final RESTPropertyTagV1 propertyTag, boolean isRevision) {
-        super(providerFactory, propertyTag, isRevision);
+    protected RESTPropertyTagV1Wrapper(final RESTProviderFactory providerFactory, final RESTPropertyTagV1 propertyTag, boolean isRevision,
+            boolean isNewEntity) {
+        super(providerFactory, propertyTag, isRevision, isNewEntity);
     }
 
     @Override
@@ -19,7 +20,7 @@ public class RESTPropertyTagV1Wrapper extends RESTBasePropertyTagV1Wrapper<Prope
 
     @Override
     public RESTPropertyTagV1Wrapper clone(boolean deepCopy) {
-        return new RESTPropertyTagV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTPropertyTagV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

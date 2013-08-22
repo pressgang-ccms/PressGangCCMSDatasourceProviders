@@ -9,8 +9,9 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTCSRelatedNodeV1Wrapper extends RESTBaseWrapper<CSRelatedNodeWrapper, RESTCSRelatedNodeV1> implements CSRelatedNodeWrapper {
 
-    protected RESTCSRelatedNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTCSRelatedNodeV1 entity, boolean isRevision) {
-        super(providerFactory, entity, isRevision);
+    protected RESTCSRelatedNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTCSRelatedNodeV1 entity, boolean isRevision,
+            boolean isNewEntity) {
+        super(providerFactory, entity, isRevision, isNewEntity);
     }
 
     @Override
@@ -20,7 +21,7 @@ public class RESTCSRelatedNodeV1Wrapper extends RESTBaseWrapper<CSRelatedNodeWra
 
     @Override
     public CSRelatedNodeWrapper clone(boolean deepCopy) {
-        return getWrapperFactory().create(getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTCSRelatedNodeV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

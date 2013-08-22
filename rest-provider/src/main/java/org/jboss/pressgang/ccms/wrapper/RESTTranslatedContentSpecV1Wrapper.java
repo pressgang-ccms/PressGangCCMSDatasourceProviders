@@ -15,13 +15,13 @@ public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseWrapper<Translat
         RESTTranslatedContentSpecV1> implements TranslatedContentSpecWrapper {
 
     protected RESTTranslatedContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedContentSpecV1 translatedContentSpec,
-            boolean isRevision) {
-        super(providerFactory, translatedContentSpec, isRevision);
+            boolean isRevision, boolean isNewEntity) {
+        super(providerFactory, translatedContentSpec, isRevision, isNewEntity);
     }
 
     @Override
     public TranslatedContentSpecWrapper clone(boolean deepCopy) {
-        return new RESTTranslatedContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity());
+        return new RESTTranslatedContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

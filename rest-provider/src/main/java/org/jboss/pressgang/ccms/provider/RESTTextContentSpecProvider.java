@@ -283,7 +283,7 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
 
     @Override
     public TextContentSpecWrapper newTextContentSpec() {
-        return getWrapperFactory().create(new RESTTextContentSpecV1(), false);
+        return getWrapperFactory().create(new RESTTextContentSpecV1(), false, true);
     }
 
     @Override

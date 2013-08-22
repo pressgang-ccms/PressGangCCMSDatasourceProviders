@@ -10,15 +10,15 @@ public class RESTLanguageImageV1Wrapper extends RESTBaseWrapper<LanguageImageWra
     private final RESTImageV1 parent;
 
     protected RESTLanguageImageV1Wrapper(final RESTProviderFactory providerFactory, final RESTLanguageImageV1 image, boolean isRevision,
-            final RESTImageV1 parent) {
-        super(providerFactory, image, isRevision, parent);
+            final RESTImageV1 parent, boolean isNewEntity) {
+        super(providerFactory, image, isRevision, parent, isNewEntity);
         this.parent = parent;
     }
 
     @Override
     public LanguageImageWrapper clone(boolean deepCopy) {
         return new RESTLanguageImageV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(),
-                (deepCopy ? parent.clone(deepCopy) : parent));
+                (deepCopy ? parent.clone(deepCopy) : parent), isNewEntity());
     }
 
     @Override

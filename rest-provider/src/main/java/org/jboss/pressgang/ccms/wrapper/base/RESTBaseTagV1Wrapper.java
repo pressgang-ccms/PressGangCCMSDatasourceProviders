@@ -19,13 +19,13 @@ public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extend
         U> implements BaseTagWrapper<T> {
     private final RESTTagProvider dataProvider;
 
-    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision) {
-        this(providerFactory, entity, isRevision, null);
+    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity) {
+        this(providerFactory, entity, isRevision, null, isNewEntity);
     }
 
-    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision, final RESTBaseEntityV1<?, ?,
-            ?> parent) {
-        super(providerFactory, entity, isRevision, parent);
+    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision,
+            final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity) {
+        super(providerFactory, entity, isRevision, parent, isNewEntity);
         dataProvider = providerFactory.getProvider(RESTTagProvider.class);
     }
 

@@ -9,8 +9,8 @@ public class RESTStringConstantV1Wrapper extends RESTBaseWrapper<StringConstantW
         RESTStringConstantV1> implements StringConstantWrapper {
 
     protected RESTStringConstantV1Wrapper(final RESTProviderFactory providerFactory, final RESTStringConstantV1 stringConstant,
-            boolean isRevision) {
-        super(providerFactory, stringConstant, isRevision);
+            boolean isRevision, boolean isNewEntity) {
+        super(providerFactory, stringConstant, isRevision, isNewEntity);
     }
 
     @Override
@@ -25,7 +25,7 @@ public class RESTStringConstantV1Wrapper extends RESTBaseWrapper<StringConstantW
 
     @Override
     public StringConstantWrapper clone(boolean deepCopy) {
-        return new RESTStringConstantV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity());
+        return new RESTStringConstantV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override

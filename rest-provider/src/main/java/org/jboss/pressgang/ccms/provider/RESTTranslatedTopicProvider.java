@@ -522,7 +522,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public TranslatedTopicWrapper newTranslatedTopic() {
-        return getWrapperFactory().create(new RESTTranslatedTopicV1(), false);
+        return getWrapperFactory().create(new RESTTranslatedTopicV1(), false, true);
     }
 
     @Override

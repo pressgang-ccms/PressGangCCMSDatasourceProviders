@@ -12,18 +12,24 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
     private final boolean isRevision;
     private final U proxyEntity;
     private final U entity;
+    private final boolean isNewEntity;
 
-    protected RESTBaseWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision) {
-        this(providerFactory, entity, isRevision, null);
+    protected RESTBaseWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity) {
+        this(providerFactory, entity, isRevision, null, isNewEntity);
     }
 
     protected RESTBaseWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, final RESTBaseEntityV1<?, ?,
-            ?> parent) {
+            ?> parent, boolean isNewEntity) {
         this.providerFactory = providerFactory;
         wrapperFactory = providerFactory.getWrapperFactory();
         this.isRevision = isRevision;
         this.entity = entity;
-        proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision, parent);
+        this.isNewEntity = isNewEntity;
+        if (isNewEntity) {
+            proxyEntity = entity;
+        } else {
+            proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision, parent);
+        }
     }
 
     protected RESTProviderFactory getProviderFactory() {
@@ -73,5 +79,9 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
         } else {
             return super.equals(o);
         }
+    }
+
+    protected boolean isNewEntity() {
+        return isNewEntity;
     }
 }

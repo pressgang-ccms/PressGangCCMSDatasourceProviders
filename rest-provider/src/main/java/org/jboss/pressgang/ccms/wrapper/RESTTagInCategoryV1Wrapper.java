@@ -13,8 +13,8 @@ public class RESTTagInCategoryV1Wrapper extends RESTBaseTagV1Wrapper<TagInCatego
     private final RESTBaseCategoryV1<?, ?, ?> parent;
 
     protected RESTTagInCategoryV1Wrapper(final RESTProviderFactory providerFactory, final RESTTagInCategoryV1 tag, boolean isRevision,
-            final RESTBaseCategoryV1<?, ?, ?> parent) {
-        super(providerFactory, tag, isRevision, parent);
+            final RESTBaseCategoryV1<?, ?, ?> parent, boolean isNewEntity) {
+        super(providerFactory, tag, isRevision, parent, isNewEntity);
         this.parent = parent;
     }
 
@@ -30,7 +30,7 @@ public class RESTTagInCategoryV1Wrapper extends RESTBaseTagV1Wrapper<TagInCatego
 
     @Override
     public RESTTagInCategoryV1Wrapper clone(boolean deepCopy) {
-        return new RESTTagInCategoryV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), parent);
+        return new RESTTagInCategoryV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), parent, isNewEntity());
     }
 
     @Override

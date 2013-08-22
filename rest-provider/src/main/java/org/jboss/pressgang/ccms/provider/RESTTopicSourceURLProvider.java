@@ -220,7 +220,7 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
 
     @Override
     public TopicSourceURLWrapper newTopicSourceURL(final TopicWrapper topic) {
-        return getWrapperFactory().create(new RESTTopicSourceUrlV1(), false, (RESTBaseTopicV1<?, ?, ?>) topic.unwrap());
+        return getWrapperFactory().create(new RESTTopicSourceUrlV1(), false, (RESTBaseTopicV1<?, ?, ?>) topic.unwrap(), true);
     }
 
     @Override

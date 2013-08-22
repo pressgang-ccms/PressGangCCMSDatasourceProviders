@@ -11,14 +11,15 @@ public class RESTTopicSourceURLV1Wrapper extends RESTBaseWrapper<TopicSourceURLW
     private final RESTBaseTopicV1<?, ?, ?> parent;
 
     protected RESTTopicSourceURLV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicSourceUrlV1 topicSourceUrl,
-            boolean isRevision, final RESTBaseTopicV1<?, ?, ?> parent) {
-        super(providerFactory, topicSourceUrl, isRevision, parent);
+            boolean isRevision, final RESTBaseTopicV1<?, ?, ?> parent, boolean isNewEntity) {
+        super(providerFactory, topicSourceUrl, isRevision, parent, isNewEntity);
         this.parent = parent;
     }
 
     @Override
     public TopicSourceURLWrapper clone(boolean deepCopy) {
-        return new RESTTopicSourceURLV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent);
+        return new RESTTopicSourceURLV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent,
+                isNewEntity());
     }
 
     @Override
