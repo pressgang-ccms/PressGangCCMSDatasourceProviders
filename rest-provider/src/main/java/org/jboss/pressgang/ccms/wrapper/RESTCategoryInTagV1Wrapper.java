@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
@@ -12,23 +11,16 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 public class RESTCategoryInTagV1Wrapper extends RESTBaseCategoryV1Wrapper<CategoryInTagWrapper,
         RESTCategoryInTagV1> implements CategoryInTagWrapper {
     private final RESTBaseTagV1<?, ?, ?> parent;
-    private final RESTCategoryInTagV1 category;
 
     protected RESTCategoryInTagV1Wrapper(final RESTProviderFactory providerFactory, final RESTCategoryInTagV1 category, boolean isRevision,
             final RESTBaseTagV1<?, ?, ?> parent) {
-        super(providerFactory, isRevision);
-        this.category = RESTEntityProxyFactory.createProxy(providerFactory, category, isRevision, parent);
+        super(providerFactory, category, isRevision, parent);
         this.parent = parent;
     }
 
     @Override
     public RESTCategoryInTagV1Wrapper clone(boolean deepCopy) {
         return new RESTCategoryInTagV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent);
-    }
-
-    @Override
-    protected RESTCategoryInTagV1 getProxyEntity() {
-        return category;
     }
 
     @Override

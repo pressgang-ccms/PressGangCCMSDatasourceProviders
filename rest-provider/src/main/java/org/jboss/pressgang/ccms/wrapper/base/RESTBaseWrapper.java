@@ -1,8 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper.base;
 
-import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
+import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 
@@ -11,11 +10,20 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
     private final RESTWrapperFactory wrapperFactory;
     private final RESTProviderFactory providerFactory;
     private final boolean isRevision;
+    private final U proxyEntity;
+    private final U entity;
 
-    protected RESTBaseWrapper(final RESTProviderFactory providerFactory, boolean isRevision) {
+    protected RESTBaseWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision) {
+        this(providerFactory, entity, isRevision, null);
+    }
+
+    protected RESTBaseWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, final RESTBaseEntityV1<?, ?,
+            ?> parent) {
         this.providerFactory = providerFactory;
         wrapperFactory = providerFactory.getWrapperFactory();
         this.isRevision = isRevision;
+        this.entity = entity;
+        proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision, parent);
     }
 
     protected RESTProviderFactory getProviderFactory() {
@@ -30,12 +38,12 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
         return getEntity();
     }
 
-    protected abstract U getProxyEntity();
+    protected U getProxyEntity() {
+        return proxyEntity;
+    }
 
-    @SuppressWarnings("unchecked")
     protected U getEntity() {
-        return getProxyEntity() == null ? null : ((RESTBaseEntityV1ProxyHandler<U>) ((ProxyObject) getProxyEntity()).getHandler())
-                .getEntity();
+        return entity;
     }
 
     @Override

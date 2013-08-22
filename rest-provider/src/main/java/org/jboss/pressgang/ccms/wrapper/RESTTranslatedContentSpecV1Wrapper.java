@@ -1,11 +1,10 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTranslatedContentSpecV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -15,17 +14,9 @@ import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseWrapper<TranslatedContentSpecWrapper,
         RESTTranslatedContentSpecV1> implements TranslatedContentSpecWrapper {
 
-    private final RESTTranslatedContentSpecV1 translatedContentSpec;
-
     protected RESTTranslatedContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedContentSpecV1 translatedContentSpec,
             boolean isRevision) {
-        super(providerFactory, isRevision);
-        this.translatedContentSpec = RESTEntityProxyFactory.createProxy(providerFactory, translatedContentSpec, isRevision);
-    }
-
-    @Override
-    protected RESTTranslatedContentSpecV1 getProxyEntity() {
-        return translatedContentSpec;
+        super(providerFactory, translatedContentSpec, isRevision);
     }
 
     @Override

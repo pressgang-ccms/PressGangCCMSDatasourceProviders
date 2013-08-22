@@ -3,7 +3,6 @@ package org.jboss.pressgang.ccms.wrapper;
 import java.util.Date;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentBaseRESTEntityWithPropertiesV1;
@@ -16,16 +15,9 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTTextContentSpecV1Wrapper extends RESTBaseWrapper<TextContentSpecWrapper, 
         RESTTextContentSpecV1> implements TextContentSpecWrapper {
-    private final RESTTextContentSpecV1 contentSpec;
 
     protected RESTTextContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTTextContentSpecV1 entity, boolean isRevision) {
-        super(providerFactory, isRevision);
-        contentSpec = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision);
-    }
-
-    @Override
-    protected RESTTextContentSpecV1 getProxyEntity() {
-        return contentSpec;
+        super(providerFactory, entity, isRevision);
     }
 
     @Override

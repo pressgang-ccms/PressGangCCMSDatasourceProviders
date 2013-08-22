@@ -6,6 +6,7 @@ import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTagProvider;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
 import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
@@ -16,11 +17,15 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extends RESTBaseTagV1<U, ?, ?>> extends RESTBaseWrapper<T,
         U> implements BaseTagWrapper<T> {
-
     private final RESTTagProvider dataProvider;
 
-    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, boolean isRevision) {
-        super(providerFactory, isRevision);
+    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision) {
+        this(providerFactory, entity, isRevision, null);
+    }
+
+    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision, final RESTBaseEntityV1<?, ?,
+            ?> parent) {
+        super(providerFactory, entity, isRevision, parent);
         dataProvider = providerFactory.getProvider(RESTTagProvider.class);
     }
 

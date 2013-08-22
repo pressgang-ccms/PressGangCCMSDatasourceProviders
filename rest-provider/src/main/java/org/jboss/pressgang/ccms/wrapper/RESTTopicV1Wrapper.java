@@ -3,7 +3,6 @@ package org.jboss.pressgang.ccms.wrapper;
 import java.util.Date;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
@@ -19,16 +18,8 @@ import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
 public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RESTTopicV1> implements TopicWrapper {
 
-    private final RESTTopicV1 topic;
-
     protected RESTTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicV1 topic, boolean isRevision) {
-        super(providerFactory, isRevision);
-        this.topic = RESTEntityProxyFactory.createProxy(providerFactory, topic, isRevision);
-    }
-
-    @Override
-    protected RESTTopicV1 getProxyEntity() {
-        return topic;
+        super(providerFactory, topic, isRevision);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
@@ -20,17 +19,9 @@ import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TranslatedTopicWrapper,
         RESTTranslatedTopicV1> implements TranslatedTopicWrapper {
 
-    private RESTTranslatedTopicV1 topic = null;
-
     protected RESTTranslatedTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedTopicV1 topic,
             boolean isRevision) {
-        super(providerFactory, isRevision);
-        this.topic = RESTEntityProxyFactory.createProxy(providerFactory, topic, isRevision);
-    }
-
-    @Override
-    protected RESTTranslatedTopicV1 getProxyEntity() {
-        return topic;
+        super(providerFactory, topic, isRevision);
     }
 
     @Override

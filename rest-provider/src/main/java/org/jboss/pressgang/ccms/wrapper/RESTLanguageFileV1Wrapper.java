@@ -1,26 +1,18 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTLanguageFileV1Wrapper extends RESTBaseWrapper<LanguageFileWrapper, RESTLanguageFileV1> implements LanguageFileWrapper {
-    private RESTLanguageFileV1 file;
     private final RESTFileV1 parent;
 
     protected RESTLanguageFileV1Wrapper(final RESTProviderFactory providerFactory, final RESTLanguageFileV1 file, boolean isRevision,
             final RESTFileV1 parent) {
-        super(providerFactory, isRevision);
+        super(providerFactory, file, isRevision, parent);
         this.parent = parent;
-        this.file = RESTEntityProxyFactory.createProxy(providerFactory, file, isRevision, parent);
-    }
-
-    @Override
-    protected RESTLanguageFileV1 getProxyEntity() {
-        return file;
     }
 
     @Override

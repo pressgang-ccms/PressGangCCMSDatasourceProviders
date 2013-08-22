@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
@@ -9,20 +8,12 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTTopicSourceURLV1Wrapper extends RESTBaseWrapper<TopicSourceURLWrapper,
         RESTTopicSourceUrlV1> implements TopicSourceURLWrapper {
-
-    private final RESTTopicSourceUrlV1 topicSourceUrl;
     private final RESTBaseTopicV1<?, ?, ?> parent;
 
     protected RESTTopicSourceURLV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicSourceUrlV1 topicSourceUrl,
             boolean isRevision, final RESTBaseTopicV1<?, ?, ?> parent) {
-        super(providerFactory, isRevision);
-        this.topicSourceUrl = RESTEntityProxyFactory.createProxy(providerFactory, topicSourceUrl, isRevision, parent);
+        super(providerFactory, topicSourceUrl, isRevision, parent);
         this.parent = parent;
-    }
-
-    @Override
-    public RESTTopicSourceUrlV1 getProxyEntity() {
-        return topicSourceUrl;
     }
 
     @Override

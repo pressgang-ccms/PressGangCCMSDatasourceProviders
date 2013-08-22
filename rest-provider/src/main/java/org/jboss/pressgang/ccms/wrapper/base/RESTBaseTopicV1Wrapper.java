@@ -17,8 +17,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 public abstract class RESTBaseTopicV1Wrapper<T extends BaseTopicWrapper<T>, U extends RESTBaseTopicV1<U, ?,
         ?>> extends RESTBaseWrapper<T, U> implements BaseTopicWrapper<T> {
 
-    protected RESTBaseTopicV1Wrapper(final RESTProviderFactory providerFactory, boolean isRevision) {
-        super(providerFactory, isRevision);
+    protected RESTBaseTopicV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision) {
+        super(providerFactory, entity, isRevision);
     }
 
     @Override

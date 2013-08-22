@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
@@ -13,17 +12,10 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSNodeWrapper,
         RESTTranslatedCSNodeV1> implements TranslatedCSNodeWrapper {
-    private final RESTTranslatedCSNodeV1 node;
 
     protected RESTTranslatedCSNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeV1 entity,
             boolean isRevision) {
-        super(providerFactory, isRevision);
-        node = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision);
-    }
-
-    @Override
-    protected RESTTranslatedCSNodeV1 getProxyEntity() {
-        return node;
+        super(providerFactory, entity, isRevision);
     }
 
     @Override
