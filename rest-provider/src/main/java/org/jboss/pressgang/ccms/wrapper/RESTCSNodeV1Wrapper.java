@@ -97,12 +97,12 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
 
     @Override
     public String getTargetId() {
-        return getProxyEntity().getAdditionalText();
+        return getProxyEntity().getTargetId();
     }
 
     @Override
     public void setTargetId(String targetId) {
-        getEntity().explicitSetAdditionalText(targetId);
+        getEntity().explicitSetTargetId(targetId);
     }
 
     @Override

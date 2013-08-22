@@ -36,12 +36,12 @@ public class RESTCSRelatedNodeV1Wrapper extends RESTBaseWrapper<CSRelatedNodeWra
 
     @Override
     public String getTargetId() {
-        return getProxyEntity().getAdditionalText();
+        return getProxyEntity().getTargetId();
     }
 
     @Override
     public void setTargetId(String targetId) {
-        getEntity().setAdditionalText(targetId);
+        getEntity().setTargetId(targetId);
     }
 
     @Override
