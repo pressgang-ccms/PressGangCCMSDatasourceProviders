@@ -1,9 +1,9 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 public interface TextCSProcessingOptionsWrapper {
-    Boolean getPermissive();
+    Boolean getStrictTitles();
 
-    void setPermissive(boolean permissive);
+    void setStrictTitles(boolean strictTitles);
 
     Object unwrap();
 }

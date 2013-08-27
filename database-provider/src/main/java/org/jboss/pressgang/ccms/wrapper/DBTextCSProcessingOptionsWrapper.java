@@ -4,12 +4,12 @@ public class DBTextCSProcessingOptionsWrapper implements TextCSProcessingOptions
     Boolean permissive = null;
 
     @Override
-    public Boolean getPermissive() {
+    public Boolean getStrictTitles() {
         return permissive;
     }
 
     @Override
-    public void setPermissive(boolean permissive) {
+    public void setStrictTitles(boolean permissive) {
         this.permissive = permissive;
     }
 

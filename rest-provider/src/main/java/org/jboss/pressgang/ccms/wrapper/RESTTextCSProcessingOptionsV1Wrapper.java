@@ -10,13 +10,13 @@ public class RESTTextCSProcessingOptionsV1Wrapper implements TextCSProcessingOpt
     }
 
     @Override
-    public Boolean getPermissive() {
-        return processingOptions.getPermissive();
+    public Boolean getStrictTitles() {
+        return processingOptions.getStrictTitles();
     }
 
     @Override
-    public void setPermissive(boolean permissive) {
-        processingOptions.setPermissive(permissive);
+    public void setStrictTitles(boolean strictTitles) {
+        processingOptions.setStrictTitles(strictTitles);
     }
 
     @Override
