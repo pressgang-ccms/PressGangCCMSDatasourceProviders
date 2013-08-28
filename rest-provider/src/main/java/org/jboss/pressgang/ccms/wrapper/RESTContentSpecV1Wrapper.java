@@ -134,7 +134,7 @@ public class RESTContentSpecV1Wrapper extends RESTBaseWrapper<ContentSpecWrapper
     @Override
     public PropertyTagInContentSpecWrapper getProperty(int propertyId) {
         return getWrapperFactory().create(ComponentBaseRESTEntityWithPropertiesV1.returnProperty(getProxyEntity(), propertyId),
-                isRevisionEntity(), PropertyTagInContentSpecWrapper.class);
+                isRevisionEntity(), getProxyEntity(), PropertyTagInContentSpecWrapper.class);
     }
 
     @Override
