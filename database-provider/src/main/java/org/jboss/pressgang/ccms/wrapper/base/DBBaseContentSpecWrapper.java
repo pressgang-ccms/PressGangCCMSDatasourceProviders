@@ -152,6 +152,27 @@ public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<
     }
 
     @Override
+    public String getErrors() {
+        return getEntity().getErrors();
+    }
+
+    @Override
+    public void setErrors(String errors) {
+        getEntity().setErrors(errors);
+    }
+
+    @Override
+    public String getFailed() {
+        return getEntity().getFailedContentSpec();
+    }
+
+    @Override
+    public void setFailed(String failed) {
+        getEntity().setFailedContentSpec(failed);
+
+    }
+
+    @Override
     public void setId(Integer id) {
         getEntity().setContentSpecId(id);
     }

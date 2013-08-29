@@ -30,5 +30,13 @@ public interface BaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> ext
 
     Date getLastModified();
 
+    String getErrors();
+
+    void setErrors(String errors);
+
+    String getFailed();
+
+    void setFailed(String failed);
+
     PropertyTagInContentSpecWrapper getProperty(final int propertyId);
 }

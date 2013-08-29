@@ -23,25 +23,4 @@ public class DBTextContentSpecWrapper extends DBBaseContentSpecWrapper<TextConte
     public void setText(String text) {
         throw new UnsupportedOperationException("setText(String text) has no implementation.");
     }
-
-    @Override
-    public String getErrors() {
-        return getEntity().getErrors();
-    }
-
-    @Override
-    public void setErrors(String errors) {
-        getEntity().setErrors(errors);
-    }
-
-    @Override
-    public String getFailed() {
-        return getEntity().getFailedContentSpec();
-    }
-
-    @Override
-    public void setFailed(String failed) {
-        getEntity().setFailedContentSpec(failed);
-
-    }
 }

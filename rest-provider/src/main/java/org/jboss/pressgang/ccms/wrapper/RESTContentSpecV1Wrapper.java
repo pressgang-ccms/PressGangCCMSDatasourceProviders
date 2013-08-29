@@ -132,6 +132,26 @@ public class RESTContentSpecV1Wrapper extends RESTBaseWrapper<ContentSpecWrapper
     }
 
     @Override
+    public String getErrors() {
+        return getProxyEntity().getErrors();
+    }
+
+    @Override
+    public void setErrors(String errors) {
+        getEntity().setErrors(errors);
+    }
+
+    @Override
+    public String getFailed() {
+        return getProxyEntity().getFailedContentSpec();
+    }
+
+    @Override
+    public void setFailed(String failed) {
+        getEntity().setFailedContentSpec(failed);
+    }
+
+    @Override
     public PropertyTagInContentSpecWrapper getProperty(int propertyId) {
         return getWrapperFactory().create(ComponentBaseRESTEntityWithPropertiesV1.returnProperty(getProxyEntity(), propertyId),
                 isRevisionEntity(), getProxyEntity(), PropertyTagInContentSpecWrapper.class);

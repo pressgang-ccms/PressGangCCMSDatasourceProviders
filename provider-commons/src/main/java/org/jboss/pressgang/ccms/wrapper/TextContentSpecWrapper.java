@@ -6,12 +6,4 @@ public interface TextContentSpecWrapper extends BaseContentSpecWrapper<TextConte
     String getText();
 
     void setText(String text);
-
-    String getErrors();
-
-    void setErrors(String errors);
-
-    String getFailed();
-
-    void setFailed(String failed);
 }
