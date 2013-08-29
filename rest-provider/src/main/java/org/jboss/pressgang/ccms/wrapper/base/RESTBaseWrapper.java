@@ -81,6 +81,15 @@ public abstract class RESTBaseWrapper<T extends EntityWrapper<T>, U extends REST
         }
     }
 
+    @Override
+    public int hashCode() {
+        if (getProxyEntity() != null) {
+            return getEntity().hashCode();
+        } else {
+            return super.hashCode();
+        }
+    }
+
     protected boolean isNewEntity() {
         return isNewEntity;
     }
