@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.provider;
 
 import javax.ws.rs.core.PathSegment;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +67,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
                 topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
             } else {
-                final String expansionString = getExpansionString(RESTTopicV1.TAGS_NAME);
+                final String expansionString = getExpansionString(Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
                 topic = loadTopic(id, revision, expansionString);
                 getRESTEntityCache().add(topic, revision);
             }
@@ -141,7 +142,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 queryBuilder.setTopicIds(new ArrayList<Integer>(queryIds));
 
                 // We need to expand the topic collection
-                final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME, RESTTopicV1.TAGS_NAME);
+                final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME,
+                        Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
 
                 // Load the topics from the REST Interface
                 final RESTTopicCollectionV1 downloadedTopics = getRESTClient().getJSONTopicsWithQuery(queryBuilder.buildQueryPath(),
@@ -176,7 +178,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
         try {
             // We need to expand the all the topics in the collection
-            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME, RESTTopicV1.TAGS_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME,
+                    Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
 
             final RESTTopicCollectionV1 topics = getRESTClient().getJSONTopicsWithQuery(new PathSegmentImpl(query, false), expandString);
             getRESTEntityCache().add(topics);
@@ -451,12 +454,14 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(topic);
 
+            final String expansionString = getExpansionString(Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
+
             final RESTTopicV1 updatedTopic;
             if (logMessage != null) {
-                updatedTopic = getRESTClient().createJSONTopic("", topic, logMessage.getMessage(), logMessage.getFlags(),
+                updatedTopic = getRESTClient().createJSONTopic(expansionString, topic, logMessage.getMessage(), logMessage.getFlags(),
                         logMessage.getUser());
             } else {
-                updatedTopic = getRESTClient().createJSONTopic("", topic);
+                updatedTopic = getRESTClient().createJSONTopic(expansionString, topic);
             }
             if (updatedTopic != null) {
                 getRESTEntityCache().add(updatedTopic);
@@ -483,12 +488,14 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(topic);
 
+            final String expansionString = getExpansionString(Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
+
             final RESTTopicV1 updatedTopic;
             if (logMessage != null) {
-                updatedTopic = getRESTClient().updateJSONTopic("", topic, logMessage.getMessage(), logMessage.getFlags(),
+                updatedTopic = getRESTClient().updateJSONTopic(expansionString, topic, logMessage.getMessage(), logMessage.getFlags(),
                         logMessage.getUser());
             } else {
-                updatedTopic = getRESTClient().updateJSONTopic("", topic);
+                updatedTopic = getRESTClient().updateJSONTopic(expansionString, topic);
             }
             if (updatedTopic != null) {
                 getRESTEntityCache().expire(RESTTopicV1.class, updatedTopic.getId());
@@ -512,7 +519,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     public boolean deleteTopic(Integer id, LogMessageWrapper logMessage) {
         try {
             if (logMessage != null) {
-                return getRESTClient().deleteJSONTopic(id, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(), "") != null;
+                return getRESTClient().deleteJSONTopic(id, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(),
+                        "") != null;
             } else {
                 return getRESTClient().deleteJSONTopic(id, "") != null;
             }
@@ -535,7 +543,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             // Clean the collection to remove anything that doesn't need to be sent to the server
             cleanCollectionForSave(unwrappedTopics);
 
-            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME,
+                    Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
             final RESTTopicCollectionV1 createdTopics;
             if (logMessage != null) {
                 createdTopics = getRESTClient().createJSONTopics(expandString, unwrappedTopics, logMessage.getMessage(),
@@ -568,11 +577,12 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             // Clean the collection to remove anything that doesn't need to be sent to the server
             cleanCollectionForSave(unwrappedTopics);
 
-            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME,
+                    Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
             final RESTTopicCollectionV1 updatedTopics;
             if (logMessage != null) {
-                updatedTopics = getRESTClient().updateJSONTopics(expandString, unwrappedTopics, logMessage.getMessage(), logMessage.getFlags(),
-                        logMessage.getUser());
+                updatedTopics = getRESTClient().updateJSONTopics(expandString, unwrappedTopics, logMessage.getMessage(),
+                        logMessage.getFlags(), logMessage.getUser());
             } else {
                 updatedTopics = getRESTClient().updateJSONTopics(expandString, unwrappedTopics);
             }
@@ -604,7 +614,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
             final PathSegment path = new PathSegmentImpl(pathString, false);
             if (logMessage != null) {
-                return getRESTClient().deleteJSONTopics(path, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(), "") != null;
+                return getRESTClient().deleteJSONTopics(path, logMessage.getMessage(), logMessage.getFlags(), logMessage.getUser(),
+                        "") != null;
             } else {
                 return getRESTClient().deleteJSONTopics(path, "") != null;
             }
