@@ -66,7 +66,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             if (getRESTEntityCache().containsKeyValue(RESTTopicV1.class, id, revision)) {
                 topic = getRESTEntityCache().get(RESTTopicV1.class, id, revision);
             } else {
-                topic = loadTopic(id, revision, "");
+                final String expansionString = getExpansionString(RESTTopicV1.TAGS_NAME);
+                topic = loadTopic(id, revision, expansionString);
                 getRESTEntityCache().add(topic, revision);
             }
             return topic;
@@ -140,7 +141,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 queryBuilder.setTopicIds(new ArrayList<Integer>(queryIds));
 
                 // We need to expand the topic collection
-                final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
+                final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME, RESTTopicV1.TAGS_NAME);
 
                 // Load the topics from the REST Interface
                 final RESTTopicCollectionV1 downloadedTopics = getRESTClient().getJSONTopicsWithQuery(queryBuilder.buildQueryPath(),
@@ -175,7 +176,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
         try {
             // We need to expand the all the topics in the collection
-            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME, RESTTopicV1.TAGS_NAME);
 
             final RESTTopicCollectionV1 topics = getRESTClient().getJSONTopicsWithQuery(new PathSegmentImpl(query, false), expandString);
             getRESTEntityCache().add(topics);

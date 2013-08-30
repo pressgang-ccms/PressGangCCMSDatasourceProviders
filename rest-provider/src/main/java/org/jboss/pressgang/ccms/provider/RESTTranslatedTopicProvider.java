@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.ws.rs.core.PathSegment;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.rest.RESTManager;
@@ -62,7 +63,8 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             if (getRESTEntityCache().containsKeyValue(RESTTranslatedTopicV1.class, id, revision)) {
                 translatedTopic = getRESTEntityCache().get(RESTTranslatedTopicV1.class, id, revision);
             } else {
-                final String expandString = super.getExpansionString(RESTTranslatedTopicV1.TOPIC_NAME);
+                final String expandString = super.getExpansionString(Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME,
+                        RESTTranslatedTopicV1.TAGS_NAME));
                 translatedTopic = loadTranslatedTopic(id, revision, expandString);
                 getRESTEntityCache().add(translatedTopic, revision);
             }
@@ -397,7 +399,8 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
         try {
             // We need to expand the all the translated topics in the collection
-            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME, RESTTranslatedTopicV1.TOPIC_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME, Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME,
+                    RESTTranslatedTopicV1.TAGS_NAME));
             final RESTTranslatedTopicCollectionV1 topics = getRESTClient().getJSONTranslatedTopicsWithQuery(
                     new PathSegmentImpl(query, false), expandString);
             getRESTEntityCache().add(topics);
