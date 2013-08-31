@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -218,7 +219,14 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
     protected void recursiveChildrenExpand(final ExpandDataTrunk expandDataTrunk, final List<String> subExpansionNames, int depth,
             int maxDepth) {
-        expandDataTrunk.setBranches(getExpansionBranches(subExpansionNames));
+        // Don't include the children expansion on the last recusion
+        if (depth == maxDepth) {
+            final List<String> subNames = new ArrayList<String>(subExpansionNames);
+            subNames.remove(RESTCSNodeV1.CHILDREN_NAME);
+            expandDataTrunk.setBranches(getExpansionBranches(subNames));
+        } else {
+            expandDataTrunk.setBranches(getExpansionBranches(subExpansionNames));
+        }
         if (depth < maxDepth) {
             for (final ExpandDataTrunk expandDataTrunk1 : expandDataTrunk.getBranches()) {
                 if (expandDataTrunk1.getTrunk().getName().equals(RESTCSNodeV1.CHILDREN_NAME)) {

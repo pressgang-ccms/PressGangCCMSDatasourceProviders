@@ -236,7 +236,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             }
 
             // We need to expand the children nodes in the content spec node
-            final String expandString = getExpansionString(RESTCSNodeV1.NEXT_NODE_NAME);
+            final String expandString = getExpansionString(DEFAULT_EXPANSION);
 
             // Load the content spec node from the REST Interface
             final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
