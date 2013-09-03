@@ -127,11 +127,11 @@ public class RESTCSRelatedNodeV1Wrapper extends RESTBaseWrapper<CSRelatedNodeWra
 
     @Override
     public Integer getRelationshipMode() {
-        return RESTCSNodeRelationshipModeV1.getRelationshipTypeId(getProxyEntity().getRelationshipMode());
+        return RESTCSNodeRelationshipModeV1.getRelationshipModeId(getProxyEntity().getRelationshipMode());
     }
 
     @Override
     public void setRelationshipMode(Integer mode) {
-        getEntity().setRelationshipMode(RESTCSNodeRelationshipModeV1.getRelationshipType(mode));
+        getEntity().setRelationshipMode(RESTCSNodeRelationshipModeV1.getRelationshipMode(mode));
     }
 }
