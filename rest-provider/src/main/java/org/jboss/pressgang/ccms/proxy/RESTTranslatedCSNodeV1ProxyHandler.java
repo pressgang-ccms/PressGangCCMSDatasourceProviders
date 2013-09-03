@@ -7,6 +7,7 @@ import org.jboss.pressgang.ccms.provider.RESTTranslatedCSNodeProvider;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 
 public class RESTTranslatedCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTranslatedCSNodeV1> {
@@ -36,6 +37,9 @@ public class RESTTranslatedCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHan
                 } else if (methodName.equals("getRevisions")) {
                     retValue = getProvider().getRESTTranslatedCSNodeRevisions(entity.getId(), getEntityRevision());
                     entity.setRevisions((RESTTranslatedCSNodeCollectionV1) retValue);
+                } else if (methodName.equals("getNode")) {
+                    retValue = getProvider().getRESTTranslatedCSNodeCSNode(entity.getId(), getEntityRevision());
+                    entity.setNode((RESTCSNodeV1) retValue);
                 }
             }
 
