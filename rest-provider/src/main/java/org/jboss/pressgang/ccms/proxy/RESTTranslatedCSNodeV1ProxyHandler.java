@@ -4,9 +4,9 @@ import java.lang.reflect.Method;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTranslatedCSNodeProvider;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 
 public class RESTTranslatedCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTTranslatedCSNodeV1> {
@@ -30,9 +30,9 @@ public class RESTTranslatedCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHan
                 if (methodName.equals("getTranslatedNodeStrings_OTM")) {
                     retValue = getProvider().getRESTTranslatedCSNodeStrings(entity.getId(), getEntityRevision());
                     entity.setTranslatedNodeStrings_OTM((RESTTranslatedCSNodeStringCollectionV1) retValue);
-                } else if (methodName.equals("getTranslatedTopic")) {
-                    retValue = getProvider().getRESTTranslatedCSNodeTranslatedTopic(entity.getId(), getEntityRevision());
-                    entity.setTranslatedTopic((RESTTranslatedTopicV1) retValue);
+                } else if (methodName.equals("getTranslatedTopics_OTM")) {
+                    retValue = getProvider().getRESTTranslatedCSNodeTranslatedTopics(entity.getId(), getEntityRevision());
+                    entity.setTranslatedTopics_OTM((RESTTranslatedTopicCollectionV1) retValue);
                 } else if (methodName.equals("getRevisions")) {
                     retValue = getProvider().getRESTTranslatedCSNodeRevisions(entity.getId(), getEntityRevision());
                     entity.setRevisions((RESTTranslatedCSNodeCollectionV1) retValue);

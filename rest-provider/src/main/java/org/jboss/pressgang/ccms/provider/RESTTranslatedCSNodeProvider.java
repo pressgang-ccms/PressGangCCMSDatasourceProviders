@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
 import org.jboss.pressgang.ccms.rest.RESTManager;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
@@ -137,20 +138,20 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
         return getWrapperFactory().createCollection(getRESTTranslatedCSNodeRevisions(id, revision), RESTTranslatedCSNodeV1.class, true);
     }
 
-    public RESTTranslatedTopicV1 getRESTTranslatedCSNodeTranslatedTopic(int id, Integer revision) {
+    public RESTTranslatedTopicCollectionV1 getRESTTranslatedCSNodeTranslatedTopics(int id, Integer revision) {
         try {
             RESTTranslatedCSNodeV1 translatedCSNode = null;
             // Check the cache first
             if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
                 translatedCSNode = getRESTEntityCache().get(RESTTranslatedCSNodeV1.class, id, revision);
 
-                if (translatedCSNode.getTranslatedTopic() != null) {
-                    return translatedCSNode.getTranslatedTopic();
+                if (translatedCSNode.getTranslatedTopics_OTM() != null) {
+                    return translatedCSNode.getTranslatedTopics_OTM();
                 }
             }
 
             // We need to expand the translated topic in the translated cs node
-            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.TRANSLATED_TOPIC_NAME);
+            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.TRANSLATED_TOPICS_NAME, RESTTranslatedTopicV1.TOPIC_NAME);
 
             // Load the translated content spec node from the REST Interface
             final RESTTranslatedCSNodeV1 tempTranslatedCSNode = loadTranslatedCSNode(id, revision, expandString);
@@ -159,12 +160,12 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
                 translatedCSNode = tempTranslatedCSNode;
                 getRESTEntityCache().add(translatedCSNode, revision);
             } else {
-                translatedCSNode.setTranslatedTopic(tempTranslatedCSNode.getTranslatedTopic());
+                translatedCSNode.setTranslatedTopics_OTM(tempTranslatedCSNode.getTranslatedTopics_OTM());
             }
 
-            return translatedCSNode.getTranslatedTopic();
+            return translatedCSNode.getTranslatedTopics_OTM();
         } catch (Exception e) {
-            log.debug("Unable to retrieve the Translated Topic for Translated ContentSpec Node " + id + (revision == null ? "" : ("," +
+            log.debug("Unable to retrieve the Translated Topics for Translated ContentSpec Node " + id + (revision == null ? "" : ("," +
                     " Revision" + revision)), e);
             throw handleException(e);
         }

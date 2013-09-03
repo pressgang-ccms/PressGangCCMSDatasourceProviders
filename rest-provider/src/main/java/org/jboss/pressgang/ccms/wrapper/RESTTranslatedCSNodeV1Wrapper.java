@@ -93,12 +93,8 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSN
     }
 
     @Override
-    public TranslatedTopicWrapper getTranslatedTopic() {
-        return getWrapperFactory().create(getProxyEntity().getTranslatedTopic(), isRevisionEntity(), TranslatedTopicWrapper.class);
-    }
-
-    @Override
-    public void setTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
-        getEntity().explicitSetTranslatedTopic(translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap());
+    public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopics() {
+        return getWrapperFactory().createCollection(getProxyEntity().getTranslatedTopics_OTM(), RESTTranslatedTopicV1.class,
+                isRevisionEntity(), TranslatedTopicWrapper.class);
     }
 }
