@@ -41,7 +41,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setXml(String xml) {
-        getProxyEntity().explicitSetXml(xml);
+        getEntity().explicitSetXml(xml);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTopicId(Integer id) {
-        getProxyEntity().explicitSetTopicId(id);
+        getEntity().explicitSetTopicId(id);
     }
 
     @Override

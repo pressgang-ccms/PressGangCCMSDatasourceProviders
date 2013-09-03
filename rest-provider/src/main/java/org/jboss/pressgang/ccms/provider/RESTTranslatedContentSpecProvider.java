@@ -47,7 +47,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             if (getRESTEntityCache().containsKeyValue(RESTTranslatedContentSpecV1.class, id, revision)) {
                 node = getRESTEntityCache().get(RESTTranslatedContentSpecV1.class, id, revision);
             } else {
-                final String expandString = super.getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+                final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
                 node = loadTranslatedContentSpec(id, revision, expandString);
                 getRESTEntityCache().add(node, revision);
             }
@@ -149,7 +149,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
         try {
             // We need to expand the all the Translated Content Specs in the collection
-            final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME,
+                    RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
 
             final RESTTranslatedContentSpecCollectionV1 contentSpecs = getRESTClient().getJSONTranslatedContentSpecsWithQuery(
                     new PathSegmentImpl(query, false), expandString);
