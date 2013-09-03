@@ -136,4 +136,14 @@ public class DBCSRelatedNodeWrapper extends DBBaseWrapper<CSRelatedNodeWrapper, 
     public void setRelationshipSort(Integer sort) {
         getEntity().setRelationshipSort(sort);
     }
+
+    @Override
+    public Integer getRelationshipMode() {
+        return getEntity().getRelationshipMode();
+    }
+
+    @Override
+    public void setRelationshipMode(Integer mode) {
+        getEntity().setRelationshipMode(mode);
+    }
 }

@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeRelationshipModeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeRelationshipTypeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeTypeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
@@ -122,5 +123,15 @@ public class RESTCSRelatedNodeV1Wrapper extends RESTBaseWrapper<CSRelatedNodeWra
     @Override
     public void setNodeType(Integer typeId) {
         getEntity().setNodeType(RESTCSNodeTypeV1.getNodeType(typeId));
+    }
+
+    @Override
+    public Integer getRelationshipMode() {
+        return RESTCSNodeRelationshipModeV1.getRelationshipTypeId(getProxyEntity().getRelationshipMode());
+    }
+
+    @Override
+    public void setRelationshipMode(Integer mode) {
+        getEntity().setRelationshipMode(RESTCSNodeRelationshipModeV1.getRelationshipType(mode));
     }
 }
