@@ -325,7 +325,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public String getBugzillaBuildId() {
-        return "Translation " + getTranslatedTopic().getZanataId() + " " + getLocale();
+        return "Translation " + getZanataId() + " " + getLocale();
     }
 
     @Override
@@ -336,7 +336,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
         if (zanataServerUrl != null && !zanataServerUrl.isEmpty() && zanataProject != null && !zanataProject.isEmpty() && zanataVersion
                 != null && !zanataVersion.isEmpty()) {
-            final String zanataId = getTranslatedTopic().getZanataId();
+            final String zanataId = getZanataId();
 
             return zanataServerUrl + "webtrans/Application.html?project=" + zanataProject + "&amp;iteration=" + zanataVersion + "&amp;" +
                     "doc=" + zanataId + "&amp;localeId=" + getLocale() + "#view:doc;doc:" + zanataId;
@@ -373,7 +373,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public String getErrorXRefId() {
-        return CommonConstants.ERROR_XREF_ID_PREFIX + getTranslatedTopic().getZanataId();
+        return CommonConstants.ERROR_XREF_ID_PREFIX + getZanataId();
     }
 
     @Override
@@ -413,7 +413,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public String getZanataId() {
-        return getTranslatedTopic().getZanataId();
+        return getEntity().getZanataId();
     }
 
     @Override
