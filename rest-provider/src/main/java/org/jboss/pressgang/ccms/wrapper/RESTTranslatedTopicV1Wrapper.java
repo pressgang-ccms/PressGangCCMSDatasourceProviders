@@ -36,7 +36,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTitle(String title) {
-        getProxyEntity().setTitle(title);
+        getEntity().setTitle(title);
     }
 
     @Override
@@ -46,12 +46,12 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setLocale(String locale) {
-        getProxyEntity().explicitSetLocale(locale);
+        getEntity().explicitSetLocale(locale);
     }
 
     @Override
     public void setTags(CollectionWrapper<TagWrapper> tags) {
-        getProxyEntity().setTags(tags == null ? null : (RESTTagCollectionV1) tags.unwrap());
+        getEntity().setTags(tags == null ? null : (RESTTagCollectionV1) tags.unwrap());
     }
 
     @Override
@@ -61,7 +61,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTopicRevision(Integer revision) {
-        getProxyEntity().explicitSetTopicRevision(revision);
+        getEntity().explicitSetTopicRevision(revision);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTranslatedTopicId(Integer translatedTopicId) {
-        getProxyEntity().setTranslatedTopicId(translatedTopicId);
+        getEntity().setTranslatedTopicId(translatedTopicId);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setOutgoingRelationships(CollectionWrapper<TranslatedTopicWrapper> outgoingTopics) {
-        getProxyEntity().setOutgoingRelationships((RESTTranslatedTopicCollectionV1) outgoingTopics.unwrap());
+        getEntity().setOutgoingRelationships((RESTTranslatedTopicCollectionV1) outgoingTopics.unwrap());
     }
 
     @Override
@@ -118,7 +118,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setProperties(UpdateableCollectionWrapper<PropertyTagInTopicWrapper> properties) {
-        getProxyEntity().setProperties(properties == null ? null : (RESTAssignedPropertyTagCollectionV1) properties.unwrap());
+        getEntity().setProperties(properties == null ? null : (RESTAssignedPropertyTagCollectionV1) properties.unwrap());
     }
 
     @Override
@@ -128,7 +128,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setSourceURLs(UpdateableCollectionWrapper<TopicSourceURLWrapper> sourceURLs) {
-        getProxyEntity().setSourceUrls_OTM(sourceURLs == null ? null : (RESTTopicSourceUrlCollectionV1) sourceURLs.unwrap());
+        getEntity().setSourceUrls_OTM(sourceURLs == null ? null : (RESTTopicSourceUrlCollectionV1) sourceURLs.unwrap());
     }
 
     @Override
@@ -168,7 +168,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTranslationPercentage(Integer percentage) {
-        getProxyEntity().setTranslationPercentage(percentage);
+        getEntity().explicitSetTranslationPercentage(percentage);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTranslatedXMLCondition(String translatedXMLCondition) {
-        getEntity().setTranslatedXMLCondition(translatedXMLCondition);
+        getEntity().explicitSetTranslatedXMLCondition(translatedXMLCondition);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTranslatedTopicStrings(UpdateableCollectionWrapper<TranslatedTopicStringWrapper> translatedStrings) {
-        getProxyEntity().explicitSetTranslatedTopicString_OTM(
+        getEntity().explicitSetTranslatedTopicString_OTM(
                 translatedStrings == null ? null : (RESTTranslatedTopicStringCollectionV1) translatedStrings.unwrap());
     }
 
@@ -201,7 +201,7 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTopic(TopicWrapper topic) {
-        getProxyEntity().setTopic((RESTTopicV1) topic.unwrap());
+        getEntity().setTopic((RESTTopicV1) topic.unwrap());
     }
 
     @Override
@@ -211,6 +211,6 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public void setTranslatedCSNode(TranslatedCSNodeWrapper translatedCSNode) {
-        getEntity().setTranslatedCSNode(translatedCSNode == null ? null : (RESTTranslatedCSNodeV1) translatedCSNode.unwrap());
+        getEntity().explicitSetTranslatedCSNode(translatedCSNode == null ? null : (RESTTranslatedCSNodeV1) translatedCSNode.unwrap());
     }
 }
