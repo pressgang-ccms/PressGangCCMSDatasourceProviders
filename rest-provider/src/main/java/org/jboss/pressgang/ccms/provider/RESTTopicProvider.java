@@ -211,7 +211,8 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             }
 
             // We need to expand the the translated topics in the topic
-            final String expandString = getExpansionString(RESTTopicV1.TRANSLATEDTOPICS_NAME);
+            final String expandString = getExpansionString(RESTTopicV1.TRANSLATEDTOPICS_NAME, Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME,
+                    RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME, RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
 
             // Load the topic from the REST API
             final RESTTopicV1 tempTopic = loadTopic(id, revision, expandString);
