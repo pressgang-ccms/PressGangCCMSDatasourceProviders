@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.envers.exception.RevisionDoesNotExistException;
 import org.jboss.pressgang.ccms.model.base.AuditedEntity;
 import org.jboss.pressgang.ccms.model.exceptions.CustomConstraintViolationException;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
@@ -90,7 +91,7 @@ public class DBDataProvider extends DataProvider {
     }
 
     protected RuntimeException handleException(final Exception e) {
-        if (e instanceof EntityNotFoundException) {
+        if (e instanceof EntityNotFoundException || e instanceof RevisionDoesNotExistException) {
             return new NotFoundException(e);
         } else if (e instanceof ProviderException) {
             return (ProviderException) e;
