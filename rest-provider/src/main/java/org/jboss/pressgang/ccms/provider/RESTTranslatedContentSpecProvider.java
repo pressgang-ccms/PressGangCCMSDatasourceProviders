@@ -166,7 +166,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
     public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecsWithQuery(String query) {
         if (query == null || query.isEmpty()) return null;
 
-        return getWrapperFactory().createCollection(getTranslatedContentSpecsWithQuery(query), RESTTranslatedContentSpecV1.class, false);
+        return getWrapperFactory().createCollection(getRESTTranslatedContentSpecsWithQuery(query), RESTTranslatedContentSpecV1.class,
+                false);
     }
 
     @Override
