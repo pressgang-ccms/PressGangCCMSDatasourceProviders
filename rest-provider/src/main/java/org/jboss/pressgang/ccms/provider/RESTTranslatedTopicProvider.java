@@ -420,16 +420,21 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public TranslatedTopicWrapper createTranslatedTopic(final TranslatedTopicWrapper topic) {
+    public TranslatedTopicWrapper createTranslatedTopic(final TranslatedTopicWrapper topicEntity) {
         try {
+            final RESTTranslatedTopicV1 translatedTopic = ((RESTTranslatedTopicV1Wrapper) topicEntity).unwrap();
+
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(translatedTopic);
+
             final String expandString = super.getExpansionString(Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME,
                     RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME));
 
-            final RESTTranslatedTopicV1 updatedTopic = getRESTClient().createJSONTranslatedTopic(expandString,
-                    ((RESTTranslatedTopicV1Wrapper) topic).unwrap());
-            if (updatedTopic != null) {
-                getRESTEntityCache().add(updatedTopic);
-                return getWrapperFactory().create(updatedTopic, false);
+            final RESTTranslatedTopicV1 createdTopic = getRESTClient().createJSONTranslatedTopic(expandString,
+                    translatedTopic);
+            if (createdTopic != null) {
+                getRESTEntityCache().add(createdTopic);
+                return getWrapperFactory().create(createdTopic, false);
             } else {
                 return null;
             }
@@ -440,13 +445,18 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper topic) {
+    public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper topicEntity) {
         try {
+            final RESTTranslatedTopicV1 translatedTopic = ((RESTTranslatedTopicV1Wrapper) topicEntity).unwrap();
+
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(translatedTopic);
+
             final String expandString = super.getExpansionString(Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME,
                     RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME, RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
 
             final RESTTranslatedTopicV1 updatedTopic = getRESTClient().updateJSONTranslatedTopic(expandString,
-                    ((RESTTranslatedTopicV1Wrapper) topic).unwrap());
+                    translatedTopic);
             if (updatedTopic != null) {
                 getRESTEntityCache().expire(RESTTranslatedTopicV1.class, updatedTopic.getId());
                 getRESTEntityCache().add(updatedTopic);
