@@ -97,7 +97,8 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
         // Only bother readjusting the collection if its a different collection than the current
         if (dbTranslatedStrings.unwrap() != getEntity().getTranslatedCSNodeStrings()) {
             // Add new translated strings and skip any existing strings
-            final Set<TranslatedCSNodeString> currentStrings = new HashSet<TranslatedCSNodeString>(getEntity().getTranslatedCSNodeStrings());
+            final Set<TranslatedCSNodeString> currentStrings = new HashSet<TranslatedCSNodeString>(
+                    getEntity().getTranslatedCSNodeStrings());
             final Collection<TranslatedCSNodeString> newStrings = dbTranslatedStrings.unwrap();
             for (final TranslatedCSNodeString string : newStrings) {
                 if (currentStrings.contains(string)) {
@@ -132,7 +133,11 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopics() {
-        return getWrapperFactory().createCollection(getEntity().getTranslatedTopicDatas(), TranslatedTopicData.class, isRevisionEntity(),
-                TranslatedTopicWrapper.class);
+        if (getEntity().getTranslatedTopic() == null) {
+            return null;
+        } else {
+            return getWrapperFactory().createCollection(getEntity().getTranslatedTopic().getTranslatedTopicDatas(), TranslatedTopicData.class,
+                    isRevisionEntity(), TranslatedTopicWrapper.class);
+        }
     }
 }

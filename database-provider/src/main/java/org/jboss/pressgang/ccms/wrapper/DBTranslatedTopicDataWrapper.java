@@ -413,7 +413,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public String getZanataId() {
-        return getEntity().getZanataId();
+        return getTranslatedTopic().getZanataId();
     }
 
     @Override
@@ -433,12 +433,12 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public String getTranslatedXMLCondition() {
-        return getEntity().getTranslatedXMLCondition();
+        return getTranslatedTopic().getTranslatedXMLCondition();
     }
 
     @Override
     public void setTranslatedXMLCondition(String translatedXMLCondition) {
-        getEntity().setTranslatedXMLCondition(translatedXMLCondition);
+        getTranslatedTopic().setTranslatedXMLCondition(translatedXMLCondition);
     }
 
     @Override
@@ -488,11 +488,11 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
 
     @Override
     public TranslatedCSNodeWrapper getTranslatedCSNode() {
-        return getWrapperFactory().create(getEntity().getTranslatedCSNode(), isRevisionEntity(), TranslatedCSNodeWrapper.class);
+        return getWrapperFactory().create(getEntity().getTranslatedTopic(), isRevisionEntity(), TranslatedCSNodeWrapper.class);
     }
 
     @Override
     public void setTranslatedCSNode(TranslatedCSNodeWrapper translatedCSNode) {
-        getEntity().setTranslatedCSNode(translatedCSNode == null ? null : (TranslatedCSNode) translatedCSNode.unwrap());
+        getTranslatedTopic().setTranslatedCSNode(translatedCSNode == null ? null : (TranslatedCSNode) translatedCSNode.unwrap());
     }
 }
