@@ -86,6 +86,11 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
     }
 
     @Override
+    public String getInheritedCondition() {
+        return getProxyEntity().getInheritedCondition();
+    }
+
+    @Override
     public String getTitle() {
         return getProxyEntity().getTitle();
     }

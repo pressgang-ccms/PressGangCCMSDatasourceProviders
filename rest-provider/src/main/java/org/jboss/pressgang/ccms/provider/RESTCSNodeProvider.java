@@ -223,6 +223,39 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         return getWrapperFactory().createCollection(getRESTCSNodeRevisions(id, revision), RESTCSNodeV1.class, true);
     }
 
+    public String getRESTCSNodeInheritedCondition(int id, Integer revision) {
+        try {
+            RESTCSNodeV1 csNode = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
+
+                if (csNode.getInheritedCondition() != null) {
+                    return csNode.getInheritedCondition();
+                }
+            }
+
+            // We need to expand the inherited children
+            final String expandString = getExpansionString(RESTCSNodeV1.INHERITED_CONDITION_NAME);
+
+            // Load the content spec node from the REST Interface
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
+
+            if (csNode == null) {
+                csNode = tempNode;
+                getRESTEntityCache().add(csNode, revision);
+            } else {
+                csNode.setInheritedCondition(tempNode.getInheritedCondition());
+            }
+
+            return csNode.getInheritedCondition();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Next Node for Content Spec Node " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
+    }
+
     public RESTCSNodeV1 getRESTCSNextNode(int id, Integer revision) {
         try {
             RESTCSNodeV1 csNode = null;

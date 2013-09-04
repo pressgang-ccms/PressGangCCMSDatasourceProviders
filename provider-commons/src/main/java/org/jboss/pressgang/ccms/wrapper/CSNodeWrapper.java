@@ -27,4 +27,6 @@ public interface CSNodeWrapper extends BaseCSNodeWrapper<CSNodeWrapper> {
     void setNextNode(CSNodeWrapper nextNode);
 
     void setContentSpec(ContentSpecWrapper contentSpec);
+
+    String getInheritedCondition();
 }

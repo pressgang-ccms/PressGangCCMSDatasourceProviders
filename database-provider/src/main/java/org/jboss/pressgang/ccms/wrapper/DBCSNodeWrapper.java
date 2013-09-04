@@ -126,6 +126,11 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     }
 
     @Override
+    public String getInheritedCondition() {
+        return getEntity().getInheritedCondition();
+    }
+
+    @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
         final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getEntity().getChildren(), CSNode.class,
                 isRevisionEntity(), csNodeCollectionHandler);
