@@ -133,11 +133,7 @@ public class DBTranslatedCSNodeWrapper extends DBBaseWrapper<TranslatedCSNodeWra
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopics() {
-        if (getEntity().getTranslatedTopic() == null) {
-            return null;
-        } else {
-            return getWrapperFactory().createCollection(getEntity().getTranslatedTopic().getTranslatedTopicDatas(), TranslatedTopicData.class,
-                    isRevisionEntity(), TranslatedTopicWrapper.class);
-        }
+        return getWrapperFactory().createCollection(getEntity().getTranslatedTopicDatas(), TranslatedTopicData.class,
+                isRevisionEntity(), TranslatedTopicWrapper.class);
     }
 }
