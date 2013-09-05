@@ -21,7 +21,6 @@ import org.jboss.pressgang.ccms.model.Topic;
 import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
-import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTopicWrapper;
@@ -42,8 +41,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
 
     @Override
     public TopicWrapper getTopic(int id) {
-        final Topic topic = getEntityManager().find(Topic.class, id);
-        return getWrapperFactory().create(topic, false);
+        return getWrapperFactory().create(getEntity(Topic.class, id), false);
     }
 
     @Override
@@ -51,10 +49,7 @@ public class DBTopicProvider extends DBDataProvider implements TopicProvider {
         if (revision == null) {
             return getTopic(id);
         } else {
-            final Topic dummyTopic = new Topic();
-            dummyTopic.setTopicId(id);
-
-            return getWrapperFactory().create(EnversUtilities.getRevision(getEntityManager(), dummyTopic, revision), true);
+            return getWrapperFactory().create(getRevisionEntity(Topic.class, id, revision), true);
         }
     }
 
