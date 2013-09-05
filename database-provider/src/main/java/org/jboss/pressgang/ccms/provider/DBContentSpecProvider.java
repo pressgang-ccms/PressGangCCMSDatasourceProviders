@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.pressgang.ccms.contentspec.utils.CSTransformer;
+import org.jboss.pressgang.ccms.contentspec.utils.ContentSpecUtilities;
 import org.jboss.pressgang.ccms.filter.ContentSpecFieldFilter;
 import org.jboss.pressgang.ccms.filter.builder.ContentSpecFilterQueryBuilder;
 import org.jboss.pressgang.ccms.filter.utils.EntityUtilities;
@@ -132,7 +133,11 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
         if (contentSpecWrapper == null) return null;
 
         final org.jboss.pressgang.ccms.contentspec.ContentSpec contentSpec = CSTransformer.transform(contentSpecWrapper, providerFactory);
-        return contentSpec.toString();
+        if (contentSpecWrapper.getFailed() != null) {
+            return ContentSpecUtilities.fixFailedContentSpec(contentSpecWrapper, contentSpec.toString());
+        } else {
+            return contentSpec.toString();
+        }
     }
 
     @Override
