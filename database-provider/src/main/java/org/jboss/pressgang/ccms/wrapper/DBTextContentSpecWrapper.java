@@ -15,8 +15,8 @@ public class DBTextContentSpecWrapper extends DBBaseContentSpecWrapper<TextConte
     public String getText() {
         final ContentSpecProvider contentSpecProvider = getDatabaseProvider().getProvider(ContentSpecProvider.class);
         final org.jboss.pressgang.ccms.contentspec.ContentSpec contentSpec = CSTransformer.transform(
-                contentSpecProvider.getContentSpec(getId(), getRevision()), getDatabaseProvider());
-        return contentSpec.toString();
+                contentSpecProvider.getContentSpec(getId(), getRevision()), getDatabaseProvider(), false);
+        return contentSpec.toString(false);
     }
 
     @Override
