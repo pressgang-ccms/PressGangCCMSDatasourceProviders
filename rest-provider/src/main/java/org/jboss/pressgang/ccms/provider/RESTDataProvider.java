@@ -77,7 +77,7 @@ public abstract class RESTDataProvider extends DataProvider {
 
             // An entity might have
             if (isCollectionClass(method.getReturnType())) {
-                cleanCollectionForSave((RESTBaseCollectionV1<?, ?, ?>) method.invoke(entity));
+                cleanCollectionForSave((RESTBaseCollectionV1<?, ?, ?>) method.invoke(entity), true);
             } else if (isEntityClass(method.getReturnType())) {
                 cleanEntityForSave((RESTBaseEntityV1<?, ?, ?>) method.invoke(entity));
             }
@@ -123,11 +123,14 @@ public abstract class RESTDataProvider extends DataProvider {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    protected void cleanCollectionForSave(final RESTBaseCollectionV1<?, ?, ?> collection) throws InvocationTargetException,
+    protected void cleanCollectionForSave(final RESTBaseCollectionV1<?, ?, ?> collection,
+            boolean cleanTopLevel) throws InvocationTargetException,
             IllegalAccessException {
         if (collection == null) return;
 
-        collection.removeInvalidChangeItemRequests();
+        if (cleanTopLevel) {
+            collection.removeInvalidChangeItemRequests();
+        }
 
         for (final RESTBaseEntityV1<?, ?, ?> item : collection.returnItems()) {
             cleanEntityForSave(item);

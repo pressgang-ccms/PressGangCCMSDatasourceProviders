@@ -542,7 +542,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             final RESTTopicCollectionV1 unwrappedTopics = ((RESTTopicCollectionV1Wrapper) topics).unwrap();
 
             // Clean the collection to remove anything that doesn't need to be sent to the server
-            cleanCollectionForSave(unwrappedTopics);
+            cleanCollectionForSave(unwrappedTopics, false);
 
             final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME,
                     Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
@@ -576,7 +576,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             final RESTTopicCollectionV1 unwrappedTopics = ((RESTTopicCollectionV1Wrapper) topics).unwrap();
 
             // Clean the collection to remove anything that doesn't need to be sent to the server
-            cleanCollectionForSave(unwrappedTopics);
+            cleanCollectionForSave(unwrappedTopics, false);
 
             final String expandString = getExpansionString(RESTv1Constants.TOPICS_EXPANSION_NAME,
                     Arrays.asList(RESTTopicV1.TAGS_NAME, RESTTopicV1.PROPERTIES_NAME));
