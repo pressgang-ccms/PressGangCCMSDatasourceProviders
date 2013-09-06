@@ -32,7 +32,13 @@ public class RESTLogMessageWrapper implements LogMessageWrapper {
 
     @Override
     public String getUser() {
-        return logDetails.getUser() == null ? null : logDetails.getUser().getName();
+        if (logDetails.getUser() == null) {
+            return null;
+        } else if (logDetails.getUser().getId() != null) {
+            return logDetails.getUser().getId().toString();
+        } else {
+            return logDetails.getUser().getName();
+        }
     }
 
     @Override
