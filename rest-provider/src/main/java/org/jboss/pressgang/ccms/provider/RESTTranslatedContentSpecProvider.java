@@ -4,6 +4,7 @@ import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.wrapper.RESTTranslatedContentSpecV1Wrapper;
@@ -181,9 +182,13 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedContentSpec);
 
-            final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec("",
+            final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+
+            final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec(expandString,
                     translatedContentSpec);
             if (updatedTranslatedContentSpec != null) {
+                // Expire any content specs as it's translated content spec collection will now be invalid
+                getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId());
                 getRESTEntityCache().add(updatedTranslatedContentSpec);
                 return getWrapperFactory().create(updatedTranslatedContentSpec, false);
             } else {
@@ -204,11 +209,14 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedContentSpec);
 
-            final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().updateJSONTranslatedContentSpec("",
+            final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+            final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().updateJSONTranslatedContentSpec(expandString,
                     translatedContentSpec);
             if (updatedTranslatedContentSpec != null) {
                 getRESTEntityCache().expire(RESTTranslatedContentSpecV1.class, updatedTranslatedContentSpec.getId());
                 getRESTEntityCache().add(updatedTranslatedContentSpec);
+                // Expire any content specs as it's translated content spec collection will now be invalid
+                getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId());
                 return getWrapperFactory().create(updatedTranslatedContentSpec, false);
             } else {
                 return null;
@@ -225,10 +233,15 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             final RESTTranslatedContentSpecCollectionV1 unwrappedNodes = ((RESTTranslatedContentSpecCollectionV1Wrapper) translatedNodes)
                     .unwrap();
 
-            final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME,
+                    RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
             final RESTTranslatedContentSpecCollectionV1 createdNodes = getRESTClient().createJSONTranslatedContentSpecs(expandString,
                     unwrappedNodes);
             if (createdNodes != null) {
+                // Expire any content specs as it's translated content spec collection will now be invalid
+                for (final RESTTranslatedContentSpecV1 translatedContentSpec : createdNodes.returnItems()) {
+                    getRESTEntityCache().expire(RESTContentSpecV1.class, translatedContentSpec.getContentSpecId());
+                }
                 getRESTEntityCache().add(createdNodes, false);
                 return getWrapperFactory().createCollection(createdNodes, RESTTranslatedContentSpecV1.class, false);
             } else {
