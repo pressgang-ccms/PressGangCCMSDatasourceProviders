@@ -189,6 +189,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             if (updatedTranslatedContentSpec != null) {
                 // Expire any content specs as it's translated content spec collection will now be invalid
                 getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId());
+                getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId(),
+                        updatedTranslatedContentSpec.getContentSpecRevision());
                 getRESTEntityCache().add(updatedTranslatedContentSpec);
                 return getWrapperFactory().create(updatedTranslatedContentSpec, false);
             } else {
@@ -217,6 +219,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 getRESTEntityCache().add(updatedTranslatedContentSpec);
                 // Expire any content specs as it's translated content spec collection will now be invalid
                 getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId());
+                getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId(),
+                        updatedTranslatedContentSpec.getContentSpecRevision());
                 return getWrapperFactory().create(updatedTranslatedContentSpec, false);
             } else {
                 return null;
@@ -241,6 +245,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 // Expire any content specs as it's translated content spec collection will now be invalid
                 for (final RESTTranslatedContentSpecV1 translatedContentSpec : createdNodes.returnItems()) {
                     getRESTEntityCache().expire(RESTContentSpecV1.class, translatedContentSpec.getContentSpecId());
+                    getRESTEntityCache().expire(RESTContentSpecV1.class, translatedContentSpec.getContentSpecId(),
+                            translatedContentSpec.getContentSpecRevision());
                 }
                 getRESTEntityCache().add(createdNodes, false);
                 return getWrapperFactory().createCollection(createdNodes, RESTTranslatedContentSpecV1.class, false);
