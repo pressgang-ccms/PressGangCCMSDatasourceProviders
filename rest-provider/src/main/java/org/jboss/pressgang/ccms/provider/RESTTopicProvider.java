@@ -223,11 +223,6 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             } else {
                 topic.setTranslatedTopics_OTM(tempTopic.getTranslatedTopics_OTM());
             }
-            if (topic.getTranslatedTopics_OTM() != null) {
-                for (final RESTTranslatedTopicV1 translatedTopic : topic.getTranslatedTopics_OTM().returnItems()) {
-                    translatedTopic.setTopic(topic);
-                }
-            }
 
             return topic.getTranslatedTopics_OTM();
         } catch (Exception e) {
