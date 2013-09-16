@@ -5,7 +5,6 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectio
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
@@ -152,7 +151,7 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
             }
 
             // We need to expand the translated topic in the translated cs node
-            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.TRANSLATED_TOPICS_NAME, RESTTranslatedTopicV1.TOPIC_NAME);
+            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.TRANSLATED_TOPICS_NAME);
 
             // Load the translated content spec node from the REST Interface
             final RESTTranslatedCSNodeV1 tempTranslatedCSNode = loadTranslatedCSNode(id, revision, expandString);

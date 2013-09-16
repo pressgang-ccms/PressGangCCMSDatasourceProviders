@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
+
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
@@ -48,7 +50,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             if (getRESTEntityCache().containsKeyValue(RESTTranslatedContentSpecV1.class, id, revision)) {
                 node = getRESTEntityCache().get(RESTTranslatedContentSpecV1.class, id, revision);
             } else {
-                final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+                final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME,
+                        RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME);
                 node = loadTranslatedContentSpec(id, revision, expandString);
                 getRESTEntityCache().add(node, revision);
             }
@@ -132,9 +135,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
             return translatedContentSpec.getRevisions();
         } catch (Exception e) {
-            log.debug(
-                    "Failed to retrieve the Revisions for Translated Content Spec " + id + (revision == null ? "" : (", " +
-                            "Revision " + revision)), e);
+            log.debug("Failed to retrieve the Revisions for Translated Content Spec " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
             throw handleException(e);
         }
     }
@@ -151,7 +153,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
         try {
             // We need to expand the all the Translated Content Specs in the collection
             final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME,
-                    RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+                    Arrays.asList(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME, RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME));
 
             final RESTTranslatedContentSpecCollectionV1 contentSpecs = getRESTClient().getJSONTranslatedContentSpecsWithQuery(
                     new PathSegmentImpl(query, false), expandString);
@@ -173,8 +175,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
     }
 
     @Override
-    public TranslatedContentSpecWrapper createTranslatedContentSpec(
-            TranslatedContentSpecWrapper translatedContentSpecEntity) {
+    public TranslatedContentSpecWrapper createTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpecEntity) {
         try {
             final RESTTranslatedContentSpecV1 translatedContentSpec = ((RESTTranslatedContentSpecV1Wrapper) translatedContentSpecEntity)
                     .unwrap();
@@ -182,7 +183,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedContentSpec);
 
-            final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+            final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME,
+                    RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME);
 
             final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec(expandString,
                     translatedContentSpec);
@@ -202,8 +204,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
     }
 
     @Override
-    public TranslatedContentSpecWrapper updateTranslatedContentSpec(
-            TranslatedContentSpecWrapper translatedContentSpecEntity) {
+    public TranslatedContentSpecWrapper updateTranslatedContentSpec(TranslatedContentSpecWrapper translatedContentSpecEntity) {
         try {
             final RESTTranslatedContentSpecV1 translatedContentSpec = ((RESTTranslatedContentSpecV1Wrapper) translatedContentSpecEntity)
                     .unwrap();
@@ -211,7 +212,8 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedContentSpec);
 
-            final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+            final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME,
+                    RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME);
             final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().updateJSONTranslatedContentSpec(expandString,
                     translatedContentSpec);
             if (updatedTranslatedContentSpec != null) {

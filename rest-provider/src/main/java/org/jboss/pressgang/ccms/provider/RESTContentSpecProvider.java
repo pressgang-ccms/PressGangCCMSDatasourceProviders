@@ -194,7 +194,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
             // We need to recursively expand the children in the content spec, since there is too much data to lazy load and it all is
             // likely to be needed.
-            final ExpandDataTrunk expand = getExpansion(RESTContentSpecV1.CHILDREN_NAME, null);
+            final ExpandDataTrunk expand = getExpansion(RESTContentSpecV1.CHILDREN_NAME);
             recursiveChildrenExpand(expand, SUB_EXPANSION_WITH_CHILDREN, 0, 5);
             final String expandString = getExpansionString(expand);
 

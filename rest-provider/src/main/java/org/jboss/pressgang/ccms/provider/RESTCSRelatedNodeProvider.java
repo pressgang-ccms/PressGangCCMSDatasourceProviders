@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider {
             }
 
             // We need to expand the relationships and their revisions
-            final Map<String, List<String>> expandMap = new HashMap<String, List<String>>();
+            final Map<String, Collection<String>> expandMap = new HashMap<String, Collection<String>>();
             expandMap.put(RESTCSNodeV1.RELATED_TO_NAME, Arrays.asList(RESTCSRelatedNodeV1.REVISIONS_NAME));
             expandMap.put(RESTCSNodeV1.RELATED_FROM_NAME, Arrays.asList(RESTCSRelatedNodeV1.REVISIONS_NAME));
             final String expandString = getExpansionString(expandMap);
