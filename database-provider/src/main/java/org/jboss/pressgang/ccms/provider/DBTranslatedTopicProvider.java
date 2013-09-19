@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.pressgang.ccms.filter.TopicFieldFilter;
+import org.jboss.pressgang.ccms.filter.TranslatedTopicFieldFilter;
 import org.jboss.pressgang.ccms.filter.builder.TranslatedTopicDataFilterQueryBuilder;
 import org.jboss.pressgang.ccms.filter.utils.EntityUtilities;
 import org.jboss.pressgang.ccms.filter.utils.FilterUtilities;
@@ -143,7 +143,7 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
         final Filter filter = EntityUtilities.populateFilter(getEntityManager(), queryParameters, CommonFilterConstants.FILTER_ID,
                 CommonFilterConstants.MATCH_TAG, CommonFilterConstants.GROUP_TAG, CommonFilterConstants.CATEORY_INTERNAL_LOGIC,
-                CommonFilterConstants.CATEORY_EXTERNAL_LOGIC, CommonFilterConstants.MATCH_LOCALE, new TopicFieldFilter());
+                CommonFilterConstants.CATEORY_EXTERNAL_LOGIC, CommonFilterConstants.MATCH_LOCALE, new TranslatedTopicFieldFilter());
 
         final TranslatedTopicDataFilterQueryBuilder queryBuilder = new TranslatedTopicDataFilterQueryBuilder(getEntityManager());
         final CriteriaQuery<TranslatedTopicData> criteriaQuery = FilterUtilities.buildQuery(filter, queryBuilder);
