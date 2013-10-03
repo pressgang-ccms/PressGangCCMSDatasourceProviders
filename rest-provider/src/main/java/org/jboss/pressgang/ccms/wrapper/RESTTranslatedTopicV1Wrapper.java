@@ -182,6 +182,16 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
     }
 
     @Override
+    public String getTranslatedAdditionalXML() {
+        return getProxyEntity().getTranslatedAdditionalXML();
+    }
+
+    @Override
+    public void setTranslatedAdditionalXML(String translatedAdditionalXML) {
+        getEntity().explicitSetTranslatedAdditionalXML(translatedAdditionalXML);
+    }
+
+    @Override
     public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
         final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
                 getProxyEntity().getTranslatedTopicStrings_OTM(), RESTTranslatedTopicStringV1.class, isRevisionEntity(), getProxyEntity());

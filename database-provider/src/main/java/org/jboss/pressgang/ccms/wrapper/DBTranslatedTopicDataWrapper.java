@@ -442,6 +442,16 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
     }
 
     @Override
+    public String getTranslatedAdditionalXML() {
+        return getEntity().getTranslatedAdditionalXml();
+    }
+
+    @Override
+    public void setTranslatedAdditionalXML(String translatedAdditionalXML) {
+        getEntity().setTranslatedAdditionalXml(translatedAdditionalXML);
+    }
+
+    @Override
     public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings() {
         final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
                 getEntity().getTranslatedTopicDataStringsArray(), TranslatedTopicString.class, isRevisionEntity(),

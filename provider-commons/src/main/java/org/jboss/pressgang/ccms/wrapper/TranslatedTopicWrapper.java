@@ -24,6 +24,10 @@ public interface TranslatedTopicWrapper extends BaseTopicWrapper<TranslatedTopic
 
     void setTranslatedXMLCondition(String translatedXMLCondition);
 
+    String getTranslatedAdditionalXML();
+
+    void setTranslatedAdditionalXML(String translatedAdditionalXML);
+
     UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings();
 
     void setTranslatedTopicStrings(UpdateableCollectionWrapper<TranslatedTopicStringWrapper> translatedStrings);
