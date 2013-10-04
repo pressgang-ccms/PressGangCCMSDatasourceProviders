@@ -1,12 +1,23 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaQuery;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.jboss.pressgang.ccms.filter.ContentSpecNodeFieldFilter;
+import org.jboss.pressgang.ccms.filter.builder.ContentSpecNodeFilterQueryBuilder;
+import org.jboss.pressgang.ccms.filter.utils.EntityUtilities;
+import org.jboss.pressgang.ccms.filter.utils.FilterUtilities;
+import org.jboss.pressgang.ccms.model.Filter;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
+import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBCSNodeWrapper;
@@ -31,6 +42,31 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
         } else {
             return getWrapperFactory().create(getRevisionEntity(CSNode.class, id, revision), true);
         }
+    }
+
+    @Override
+    public CollectionWrapper<CSNodeWrapper> getCSNodesWithQuery(final String query) {
+        final String fixedQuery = query.replace("query;", "");
+        final String[] queryValues = fixedQuery.split(";");
+        final Map<String, String> queryParameters = new HashMap<String, String>();
+        for (final String value : queryValues) {
+            if (value.trim().isEmpty()) continue;
+            String[] keyValue = value.split("=", 2);
+            try {
+                queryParameters.put(keyValue[0], URLDecoder.decode(keyValue[1], "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                // Should support UTF-8, if not throw a runtime error.
+                throw new RuntimeException(e);
+            }
+        }
+
+        final Filter filter = EntityUtilities.populateFilter(getEntityManager(), queryParameters, CommonFilterConstants.FILTER_ID, null,
+                null, null, null, CommonFilterConstants.MATCH_LOCALE, new ContentSpecNodeFieldFilter());
+
+        final ContentSpecNodeFilterQueryBuilder queryBuilder = new ContentSpecNodeFilterQueryBuilder(getEntityManager());
+        final CriteriaQuery<CSNode> criteriaQuery = FilterUtilities.buildQuery(filter, queryBuilder);
+
+        return getWrapperFactory().createCollection(executeQuery(criteriaQuery), CSNode.class, false, CSNodeWrapper.class);
     }
 
     @Override

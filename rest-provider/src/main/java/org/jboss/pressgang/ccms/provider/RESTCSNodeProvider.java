@@ -7,6 +7,7 @@ import java.util.List;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
@@ -16,6 +17,7 @@ import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,31 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     @Override
     public CSNodeWrapper getCSNode(int id, Integer revision) {
         return getWrapperFactory().create(getRESTCSNode(id, revision), revision != null);
+    }
+
+    public RESTCSNodeCollectionV1 getRESTCSNodesWithQuery(final String query) {
+        if (query == null || query.isEmpty()) return null;
+
+        try {
+            // We need to expand the all the content specs in the collection
+            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
+
+            final RESTCSNodeCollectionV1 csNodes = getRESTClient().getJSONContentSpecNodesWithQuery(new PathSegmentImpl(query,
+                    false), expandString);
+            getRESTEntityCache().add(csNodes);
+
+            return csNodes;
+        } catch (Exception e) {
+            log.debug("Failed to retrieve CSNodes with Query: " + query, e);
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public CollectionWrapper<CSNodeWrapper> getCSNodesWithQuery(final String query) {
+        if (query == null || query.isEmpty()) return null;
+
+        return getWrapperFactory().createCollection(getRESTCSNodesWithQuery(query), RESTContentSpecV1.class, false);
     }
 
     public RESTCSRelatedNodeCollectionV1 getRESTCSRelatedToNodes(int id, Integer revision) {

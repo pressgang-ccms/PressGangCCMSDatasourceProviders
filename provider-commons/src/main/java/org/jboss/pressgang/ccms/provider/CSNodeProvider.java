@@ -10,6 +10,8 @@ public interface CSNodeProvider {
 
     CSNodeWrapper getCSNode(int id, Integer revision);
 
+    CollectionWrapper<CSNodeWrapper> getCSNodesWithQuery(String query);
+
     CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedToNodes(int id, Integer revision);
 
     CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedFromNodes(int id, Integer revision);
