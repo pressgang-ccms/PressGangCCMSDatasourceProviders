@@ -7,6 +7,7 @@ import java.util.Set;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
+import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -128,6 +129,12 @@ public class DBCSNodeWrapper extends DBBaseWrapper<CSNodeWrapper, CSNode> implem
     @Override
     public String getInheritedCondition() {
         return getEntity().getInheritedCondition();
+    }
+
+    @Override
+    public CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes() {
+        return getWrapperFactory().createCollection(getEntity().getTranslatedNodes(getEntityManager(), getEntityRevision()),
+                TranslatedCSNode.class, isRevisionEntity(), TranslatedCSNodeWrapper.class);
     }
 
     @Override

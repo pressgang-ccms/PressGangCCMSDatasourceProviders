@@ -23,6 +23,7 @@ import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTranslatedTopicDataWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
@@ -153,8 +154,14 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
+        return createTranslatedTopic(translatedTopic, null);
+    }
+
+    @Override
+    public TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic, LogMessageWrapper logMessage) {
         // Send the notification events
         notifyCreateEntity(translatedTopic);
+        notifyLogMessage(logMessage);
 
         // Persist the new entity
         getEntityManager().persist(translatedTopic.unwrap());
@@ -184,8 +191,14 @@ public class DBTranslatedTopicProvider extends DBDataProvider implements Transla
 
     @Override
     public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic) {
+        return updateTranslatedTopic(translatedTopic, null);
+    }
+
+    @Override
+    public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic, LogMessageWrapper logMessage) {
         // Send the notification events
         notifyUpdateEntity(translatedTopic);
+        notifyLogMessage(logMessage);
 
         // Persist the changes
         getEntityManager().persist(translatedTopic.unwrap());

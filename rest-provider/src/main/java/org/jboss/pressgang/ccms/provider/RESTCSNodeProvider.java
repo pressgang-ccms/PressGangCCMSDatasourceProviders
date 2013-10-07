@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
@@ -380,6 +381,39 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             return csNode.getContentSpec();
         } catch (Exception e) {
             log.debug("Failed to retrieve the Content Spec for Content Spec Node " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
+    }
+
+    public RESTTranslatedCSNodeCollectionV1 getRESTTranslatedCSNodes(int id, Integer revision) {
+        try {
+            RESTCSNodeV1 csNode = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
+
+                if (csNode.getTranslatedNodes_OTM() != null) {
+                    return csNode.getTranslatedNodes_OTM();
+                }
+            }
+
+            // We need to expand the related from nodes in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.TRANSLATED_NODES_NAME);
+
+            // Load the content spec node from the REST Interface
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
+
+            if (csNode == null) {
+                csNode = tempNode;
+                getRESTEntityCache().add(csNode, revision);
+            } else {
+                csNode.setTranslatedNodes_OTM(tempNode.getTranslatedNodes_OTM());
+            }
+
+            return csNode.getTranslatedNodes_OTM();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Translated Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
             throw handleException(e);
         }

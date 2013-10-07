@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.provider;
 
 import java.util.List;
 
+import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
@@ -33,9 +34,13 @@ public interface TranslatedTopicProvider {
 
     TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic);
 
+    TranslatedTopicWrapper createTranslatedTopic(TranslatedTopicWrapper translatedTopic, LogMessageWrapper logMessage);
+
     CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(CollectionWrapper<TranslatedTopicWrapper> translatedTopics);
 
     TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic);
+
+    TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper translatedTopic, LogMessageWrapper logMessage);
 
     CollectionWrapper<TranslatedTopicWrapper> updateTranslatedTopics(CollectionWrapper<TranslatedTopicWrapper> translatedTopics);
 

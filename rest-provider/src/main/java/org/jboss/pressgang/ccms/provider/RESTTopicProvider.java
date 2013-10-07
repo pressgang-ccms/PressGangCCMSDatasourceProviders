@@ -477,16 +477,16 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
             final String expansionString = getExpansionString(getDefaultTopicExpansionList());
 
-            final RESTTopicV1 updatedTopic;
+            final RESTTopicV1 createdTopic;
             if (logMessage != null) {
-                updatedTopic = getRESTClient().createJSONTopic(expansionString, topic, logMessage.getMessage(), logMessage.getFlags(),
+                createdTopic = getRESTClient().createJSONTopic(expansionString, topic, logMessage.getMessage(), logMessage.getFlags(),
                         logMessage.getUser());
             } else {
-                updatedTopic = getRESTClient().createJSONTopic(expansionString, topic);
+                createdTopic = getRESTClient().createJSONTopic(expansionString, topic);
             }
-            if (updatedTopic != null) {
-                getRESTEntityCache().add(updatedTopic);
-                return getWrapperFactory().create(updatedTopic, false);
+            if (createdTopic != null) {
+                getRESTEntityCache().add(createdTopic);
+                return getWrapperFactory().create(createdTopic, false);
             } else {
                 return null;
             }

@@ -91,6 +91,12 @@ public class RESTCSNodeV1Wrapper extends RESTBaseWrapper<CSNodeWrapper, RESTCSNo
     }
 
     @Override
+    public CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes() {
+        return getWrapperFactory().createCollection(getProxyEntity().getTranslatedNodes_OTM(), RESTTranslatedCSNodeV1Wrapper.class,
+                isRevisionEntity());
+    }
+
+    @Override
     public String getTitle() {
         return getProxyEntity().getTitle();
     }

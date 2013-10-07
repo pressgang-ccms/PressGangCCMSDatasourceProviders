@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.wrapper.base.BaseCSNodeWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public interface CSNodeWrapper extends BaseCSNodeWrapper<CSNodeWrapper> {
@@ -29,4 +30,6 @@ public interface CSNodeWrapper extends BaseCSNodeWrapper<CSNodeWrapper> {
     void setContentSpec(ContentSpecWrapper contentSpec);
 
     String getInheritedCondition();
+
+    CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes();
 }

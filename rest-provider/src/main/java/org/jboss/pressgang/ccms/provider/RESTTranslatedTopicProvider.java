@@ -22,6 +22,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
+import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTTranslatedTopicV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
@@ -433,16 +434,26 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public TranslatedTopicWrapper createTranslatedTopic(final TranslatedTopicWrapper topicEntity) {
+        return createTranslatedTopic(topicEntity, null);
+    }
+
+    @Override
+    public TranslatedTopicWrapper createTranslatedTopic(final TranslatedTopicWrapper topicEntity, final LogMessageWrapper logMessage) {
         try {
             final RESTTranslatedTopicV1 translatedTopic = ((RESTTranslatedTopicV1Wrapper) topicEntity).unwrap();
 
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedTopic);
 
-            final String expandString = super.getExpansionString(DEFAULT_EXPAND_MAP_WITH_TOPIC);
+            final String expansionString = super.getExpansionString(DEFAULT_EXPAND_MAP_WITH_TOPIC);
 
-            final RESTTranslatedTopicV1 createdTopic = getRESTClient().createJSONTranslatedTopic(expandString,
-                    translatedTopic);
+            final RESTTranslatedTopicV1 createdTopic;
+            if (logMessage != null) {
+                createdTopic = getRESTClient().createJSONTranslatedTopic(expansionString, translatedTopic, logMessage.getMessage(),
+                        logMessage.getFlags(), logMessage.getUser());
+            } else {
+                createdTopic = getRESTClient().createJSONTranslatedTopic(expansionString, translatedTopic);
+            }
             if (createdTopic != null) {
                 getRESTEntityCache().add(createdTopic);
                 return getWrapperFactory().create(createdTopic, false);
@@ -457,16 +468,26 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper topicEntity) {
+        return updateTranslatedTopic(topicEntity, null);
+    }
+
+    @Override
+    public TranslatedTopicWrapper updateTranslatedTopic(TranslatedTopicWrapper topicEntity, LogMessageWrapper logMessage) {
         try {
             final RESTTranslatedTopicV1 translatedTopic = ((RESTTranslatedTopicV1Wrapper) topicEntity).unwrap();
 
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedTopic);
 
-            final String expandString = super.getExpansionString(DEFAULT_EXPAND_MAP_WITH_TOPIC);
+            final String expansionString = super.getExpansionString(DEFAULT_EXPAND_MAP_WITH_TOPIC);
 
-            final RESTTranslatedTopicV1 updatedTopic = getRESTClient().updateJSONTranslatedTopic(expandString,
-                    translatedTopic);
+            final RESTTranslatedTopicV1 updatedTopic;
+            if (logMessage != null) {
+                updatedTopic = getRESTClient().updateJSONTranslatedTopic(expansionString, translatedTopic, logMessage.getMessage(),
+                        logMessage.getFlags(), logMessage.getUser());
+            } else {
+                updatedTopic = getRESTClient().updateJSONTranslatedTopic(expansionString, translatedTopic);
+            }
             if (updatedTopic != null) {
                 getRESTEntityCache().expire(RESTTranslatedTopicV1.class, updatedTopic.getId());
                 getRESTEntityCache().add(updatedTopic);
@@ -492,13 +513,13 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(
-            CollectionWrapper<TranslatedTopicWrapper> topics) {
+    public CollectionWrapper<TranslatedTopicWrapper> createTranslatedTopics(CollectionWrapper<TranslatedTopicWrapper> topics) {
         try {
             final RESTTranslatedTopicCollectionV1 unwrappedTopics = ((RESTTranslatedTopicCollectionV1Wrapper) topics).unwrap();
 
-            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME, Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME,
-                    RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME, RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME,
+                    Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME, RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME,
+                            RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
             final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().createJSONTranslatedTopics(expandString, unwrappedTopics);
             if (updatedTopics != null) {
                 getRESTEntityCache().add(updatedTopics, false);
@@ -513,13 +534,13 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     }
 
     @Override
-    public CollectionWrapper<TranslatedTopicWrapper> updateTranslatedTopics(
-            CollectionWrapper<TranslatedTopicWrapper> topics) {
+    public CollectionWrapper<TranslatedTopicWrapper> updateTranslatedTopics(CollectionWrapper<TranslatedTopicWrapper> topics) {
         try {
             final RESTTranslatedTopicCollectionV1 unwrappedTopics = ((RESTTranslatedTopicCollectionV1Wrapper) topics).unwrap();
 
-            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME, Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME,
-                    RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME, RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME,
+                    Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME, RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME,
+                            RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
             final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().updateJSONTranslatedTopics(expandString, unwrappedTopics);
             if (updatedTopics != null) {
                 // Expire the old cached data
