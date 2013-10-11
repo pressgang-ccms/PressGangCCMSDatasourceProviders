@@ -142,11 +142,6 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
     }
 
     @Override
-    public String getInternalURL() {
-        return ComponentTranslatedTopicV1.returnInternalURL(getProxyEntity());
-    }
-
-    @Override
     public String getPressGangURL() {
         return ComponentTranslatedTopicV1.returnPressGangCCMSURL(getProxyEntity());
     }

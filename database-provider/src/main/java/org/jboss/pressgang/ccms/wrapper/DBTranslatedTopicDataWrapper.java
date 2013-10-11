@@ -351,24 +351,21 @@ public class DBTranslatedTopicDataWrapper extends DBBaseWrapper<TranslatedTopicW
          * If the topic isn't a dummy then link to the translated counterpart. If the topic is a dummy URL and the locale doesn't match
          * the historical topic's
          * locale then it means that the topic has been pushed to zanata so link to the original pushed translation. If neither of these
-         * rules apply then link
-         * to the standard topic.
+         * rules apply then return null.
          */
-        if (EntityUtilities.isDummyTopic(this) || EntityUtilities.hasBeenPushedForTranslation(this)) {
+        if (EntityUtilities.isDummyTopic(this) ) {
+            final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
+            return (serverUrl.endsWith(
+                    "/") ? serverUrl : (serverUrl + "/")) + "#TranslatedTopicResultsAndTranslatedTopicView;query;zanataIds=" +
+                    getZanataId() + ";locale1=" + getLocale() + "1;";
+        } else if (EntityUtilities.hasBeenPushedForTranslation(this)) {
             final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
             return (serverUrl.endsWith(
                     "/") ? serverUrl : (serverUrl + "/")) + "#TranslatedTopicResultsAndTranslatedTopicView;query;zanataIds=" +
                     getZanataId();
         } else {
-            final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
-            return (serverUrl.endsWith("/") ? serverUrl : (serverUrl + "/")) + "#SearchResultsAndTopicView;query;topicIds=" + getTopicId();
+            return null;
         }
-    }
-
-    @Override
-    public String getInternalURL() {
-        return "TranslatedTopic.seam?translatedTopicId=" + getTranslatedTopic().getId() + "&locale=" + getLocale() +
-                "&selectedTab=Rendered+View";
     }
 
     @Override

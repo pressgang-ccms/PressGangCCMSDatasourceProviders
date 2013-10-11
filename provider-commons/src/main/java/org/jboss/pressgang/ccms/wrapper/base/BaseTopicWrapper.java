@@ -70,8 +70,6 @@ public interface BaseTopicWrapper<T extends BaseTopicWrapper<T>> extends EntityW
 
     String getPressGangURL();
 
-    String getInternalURL();
-
     String getErrorXRefId();
 
     String getXRefId();

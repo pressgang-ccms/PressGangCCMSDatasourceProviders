@@ -322,11 +322,6 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
     }
 
     @Override
-    public String getInternalURL() {
-        return "Topic.seam?topicTopicId=" + getId() + "&selectedTab=Rendered+View";
-    }
-
-    @Override
     public String getErrorXRefId() {
         return CommonConstants.ERROR_XREF_ID_PREFIX + getId();
     }

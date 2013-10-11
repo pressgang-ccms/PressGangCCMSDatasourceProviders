@@ -145,11 +145,6 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
     }
 
     @Override
-    public String getInternalURL() {
-        return ComponentTopicV1.returnInternalURL(getProxyEntity());
-    }
-
-    @Override
     public TopicWrapper clone(boolean deepCopy) {
         return new RESTTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
