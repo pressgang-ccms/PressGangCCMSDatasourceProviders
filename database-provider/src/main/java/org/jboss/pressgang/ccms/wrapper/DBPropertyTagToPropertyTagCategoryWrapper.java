@@ -27,11 +27,6 @@ public class DBPropertyTagToPropertyTagCategoryWrapper extends DBBasePropertyTag
     }
 
     @Override
-    public PropertyTagToPropertyTagCategory unwrap() {
-        return propertyTagToPropertyCategory;
-    }
-
-    @Override
     public Integer getSort() {
         return getEntity().getSorting();
     }

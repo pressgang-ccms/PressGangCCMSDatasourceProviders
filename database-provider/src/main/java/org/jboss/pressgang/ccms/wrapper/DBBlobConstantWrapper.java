@@ -2,9 +2,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.BlobConstants;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBBlobConstantWrapper extends DBBaseWrapper<BlobConstantWrapper, BlobConstants> implements BlobConstantWrapper {
+public class DBBlobConstantWrapper extends DBBaseEntityWrapper<BlobConstantWrapper, BlobConstants> implements BlobConstantWrapper {
 
     private final BlobConstants blobConstant;
 
@@ -21,16 +21,6 @@ public class DBBlobConstantWrapper extends DBBaseWrapper<BlobConstantWrapper, Bl
     @Override
     public void setId(Integer id) {
         getEntity().setBlobConstantsId(id);
-    }
-
-    @Override
-    public BlobConstants unwrap() {
-        return blobConstant;
-    }
-
-    @Override
-    public boolean isRevisionEntity() {
-        return getEntity().getRevision() != null;
     }
 
     @Override

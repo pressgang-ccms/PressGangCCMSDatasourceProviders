@@ -9,7 +9,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public abstract class RESTBaseCategoryV1Wrapper<T extends BaseCategoryWrapper<T>, U extends RESTBaseCategoryV1<U, ?,
-        ?>> extends RESTBaseWrapper<T, U> implements BaseCategoryWrapper<T> {
+        ?>> extends RESTBaseEntityWrapper<T, U> implements BaseCategoryWrapper<T> {
 
     protected RESTBaseCategoryV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity) {
         super(providerFactory, entity, isRevision, isNewEntity);

@@ -2,10 +2,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.StringConstants;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBStringConstantWrapper extends DBBaseWrapper<StringConstantWrapper, StringConstants> implements StringConstantWrapper {
-
+public class DBStringConstantWrapper extends DBBaseEntityWrapper<StringConstantWrapper, StringConstants> implements StringConstantWrapper {
     private final StringConstants stringConstant;
 
     public DBStringConstantWrapper(final DBProviderFactory providerFactory, final StringConstants stringConstant, boolean isRevision) {
@@ -24,16 +23,6 @@ public class DBStringConstantWrapper extends DBBaseWrapper<StringConstantWrapper
     }
 
     @Override
-    public StringConstants unwrap() {
-        return stringConstant;
-    }
-
-    @Override
-    public boolean isRevisionEntity() {
-        return getEntity().getRevision() != null;
-    }
-
-    @Override
     public String getName() {
         return getEntity().getConstantName();
     }
@@ -41,7 +30,6 @@ public class DBStringConstantWrapper extends DBBaseWrapper<StringConstantWrapper
     @Override
     public void setName(String name) {
         getEntity().setConstantName(name);
-
     }
 
     @Override
@@ -53,5 +41,4 @@ public class DBStringConstantWrapper extends DBBaseWrapper<StringConstantWrapper
     public void setValue(String value) {
         getEntity().setConstantValue(value);
     }
-
 }

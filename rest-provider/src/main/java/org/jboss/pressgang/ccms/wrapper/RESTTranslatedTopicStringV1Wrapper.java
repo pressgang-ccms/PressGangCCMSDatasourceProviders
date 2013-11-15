@@ -3,10 +3,10 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseWrapper<TranslatedTopicStringWrapper,
+public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseEntityWrapper<TranslatedTopicStringWrapper,
         RESTTranslatedTopicStringV1> implements TranslatedTopicStringWrapper {
     private final RESTTranslatedTopicV1 parent;
 

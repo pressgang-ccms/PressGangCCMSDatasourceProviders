@@ -6,8 +6,8 @@ import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionItemV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionItemV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 
 public class RESTCollectionProxyFactory {
@@ -18,15 +18,15 @@ public class RESTCollectionProxyFactory {
         }
     };
 
-    public static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseCollectionV1<T, U, V>, V extends RESTBaseCollectionItemV1<T, U,
-            V>> U create(
+    public static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseEntityCollectionV1<T, U, V>, V extends RESTBaseEntityCollectionItemV1<T, U,
+                V>> U create(
             final RESTProviderFactory providerFactory, final U collection, boolean isRevision) {
         return create(providerFactory, collection, isRevision, null);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseCollectionV1<T, U, V>, V extends RESTBaseCollectionItemV1<T, U,
-            V>> U create(
+    public static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseEntityCollectionV1<T, U, V>, V extends RESTBaseEntityCollectionItemV1<T, U,
+                V>> U create(
             final RESTProviderFactory providerFactory, final U collection, boolean isRevision, RESTBaseEntityV1<?, ?, ?> parent) {
         final Class<?> clazz = collection.getClass();
 
@@ -51,8 +51,8 @@ public class RESTCollectionProxyFactory {
         return proxy;
     }
 
-    private static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseCollectionV1<T, U, V>, V extends RESTBaseCollectionItemV1<T,
-            U, V>> RESTCollectionV1ProxyHandler<T, U, V> findProxyHandler(
+    private static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseEntityCollectionV1<T, U, V>, V extends RESTBaseEntityCollectionItemV1<T,
+                U, V>> RESTCollectionV1ProxyHandler<T, U, V> findProxyHandler(
             final RESTProviderFactory providerFactory, final U collection, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
 
         return new RESTCollectionV1ProxyHandler<T, U, V>(providerFactory, collection, isRevision, parent);

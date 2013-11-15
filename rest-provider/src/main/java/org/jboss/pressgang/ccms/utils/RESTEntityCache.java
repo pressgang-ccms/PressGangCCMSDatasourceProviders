@@ -4,8 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionItemV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionItemV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 
 public class RESTEntityCache {
@@ -44,7 +44,7 @@ public class RESTEntityCache {
      *
      * @param value The collection of entities to be added to the cache.
      */
-    public void add(final RESTBaseCollectionV1<?, ?, ?> value) {
+    public void add(final RESTBaseEntityCollectionV1<?, ?, ?> value) {
         add(value, false);
     }
 
@@ -54,9 +54,9 @@ public class RESTEntityCache {
      * @param value       The collection of entities to be added to the cache.
      * @param isRevisions Whether or not the collection is a collection of revisions or not.
      */
-    public void add(final RESTBaseCollectionV1<?, ?, ?> value, final boolean isRevisions) {
+    public void add(final RESTBaseEntityCollectionV1<?, ?, ?> value, final boolean isRevisions) {
         if (value != null && value.getItems() != null) {
-            for (final RESTBaseCollectionItemV1<?, ?, ?> item : value.getItems()) {
+            for (final RESTBaseEntityCollectionItemV1<?, ?, ?> item : value.getItems()) {
                 if (item.getItem() != null) {
                     add(item.getItem(), isRevisions);
                 }

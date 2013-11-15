@@ -2,9 +2,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBTranslatedTopicStringWrapper extends DBBaseWrapper<TranslatedTopicStringWrapper,
+public class DBTranslatedTopicStringWrapper extends DBBaseEntityWrapper<TranslatedTopicStringWrapper,
         TranslatedTopicString> implements TranslatedTopicStringWrapper {
 
     private final TranslatedTopicString translatedTopicString;
@@ -23,11 +23,6 @@ public class DBTranslatedTopicStringWrapper extends DBBaseWrapper<TranslatedTopi
     @Override
     public void setId(Integer id) {
         getEntity().setTranslatedTopicStringID(id);
-    }
-
-    @Override
-    public TranslatedTopicString unwrap() {
-        return getEntity();
     }
 
     @Override
@@ -59,5 +54,4 @@ public class DBTranslatedTopicStringWrapper extends DBBaseWrapper<TranslatedTopi
     public void setFuzzy(Boolean fuzzy) {
         getEntity().setFuzzyTranslation(fuzzy);
     }
-
 }

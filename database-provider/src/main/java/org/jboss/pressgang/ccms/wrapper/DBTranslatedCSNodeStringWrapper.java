@@ -2,9 +2,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBTranslatedCSNodeStringWrapper extends DBBaseWrapper<TranslatedCSNodeStringWrapper,
+public class DBTranslatedCSNodeStringWrapper extends DBBaseEntityWrapper<TranslatedCSNodeStringWrapper,
         TranslatedCSNodeString> implements TranslatedCSNodeStringWrapper {
     private final TranslatedCSNodeString translatedCSNodeString;
 
@@ -27,11 +27,6 @@ public class DBTranslatedCSNodeStringWrapper extends DBBaseWrapper<TranslatedCSN
     @Override
     public void setId(Integer id) {
         getEntity().setTranslatedCSNodeStringId(id);
-    }
-
-    @Override
-    public TranslatedCSNodeString unwrap() {
-        return translatedCSNodeString;
     }
 
     @Override

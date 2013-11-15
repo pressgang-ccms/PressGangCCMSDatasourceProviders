@@ -22,9 +22,4 @@ public class DBPropertyTagWrapper extends DBBasePropertyTagWrapper<PropertyTagWr
     protected PropertyTag getPropertyTag() {
         return getEntity();
     }
-
-    @Override
-    public PropertyTag unwrap() {
-        return propertyTag;
-    }
 }

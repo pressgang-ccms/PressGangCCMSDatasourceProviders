@@ -4,7 +4,7 @@ import org.jboss.pressgang.ccms.model.PropertyTag;
 import org.jboss.pressgang.ccms.model.base.AuditedEntity;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 
-public abstract class DBBasePropertyTagWrapper<T extends BasePropertyTagWrapper<T>, U extends AuditedEntity> extends DBBaseWrapper<T, U> implements
+public abstract class DBBasePropertyTagWrapper<T extends BasePropertyTagWrapper<T>, U extends AuditedEntity> extends DBBaseEntityWrapper<T, U> implements
         BasePropertyTagWrapper<T> {
 
     protected DBBasePropertyTagWrapper(final DBProviderFactory providerFactory, boolean isRevision, Class<U> clazz) {

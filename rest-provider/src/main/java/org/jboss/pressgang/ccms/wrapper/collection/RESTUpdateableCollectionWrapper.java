@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseUpdateCollectionItemV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseUpdateCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityUpdateCollectionItemV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTUpdateCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
+import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 
-public abstract class RESTUpdateableCollectionWrapper<T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, V, ?>,
-        V extends RESTBaseUpdateCollectionV1<U, V, ?>> extends RESTCollectionWrapper<T, U, V> implements UpdateableCollectionWrapper<T> {
+public abstract class RESTUpdateableCollectionWrapper<T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>,
+        V extends RESTUpdateCollectionV1<U, ?>> extends RESTCollectionWrapper<T, U, V> implements UpdateableCollectionWrapper<T> {
 
     public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection) {
         super(providerFactory, collection, isRevisionCollection);
@@ -36,14 +37,14 @@ public abstract class RESTUpdateableCollectionWrapper<T extends EntityWrapper<T>
     @Override
     public void addUpdateItem(T entity) {
         getCollection().addUpdateItem(getEntity(entity));
-        getEntities().put(entity, RESTBaseUpdateCollectionItemV1.UPDATE_STATE);
+        getEntities().put(entity, RESTBaseEntityUpdateCollectionItemV1.UPDATE_STATE);
     }
 
     @Override
     public List<T> getUpdateItems() {
         final List<T> updateItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : getEntities().entrySet()) {
-            if (RESTBaseUpdateCollectionItemV1.UPDATE_STATE.equals(entity.getValue())) {
+            if (RESTBaseEntityUpdateCollectionItemV1.UPDATE_STATE.equals(entity.getValue())) {
                 updateItems.add(entity.getKey());
             }
         }

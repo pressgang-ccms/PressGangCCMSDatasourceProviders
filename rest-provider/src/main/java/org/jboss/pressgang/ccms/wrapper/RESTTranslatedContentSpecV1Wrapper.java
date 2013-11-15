@@ -6,12 +6,12 @@ import org.jboss.pressgang.ccms.rest.v1.components.ComponentTranslatedContentSpe
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
-public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseWrapper<TranslatedContentSpecWrapper,
+public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseEntityWrapper<TranslatedContentSpecWrapper,
         RESTTranslatedContentSpecV1> implements TranslatedContentSpecWrapper {
 
     protected RESTTranslatedContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedContentSpecV1 translatedContentSpec,

@@ -2,10 +2,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBTopicSourceURLWrapper extends DBBaseWrapper<TopicSourceURLWrapper, TopicSourceUrl> implements TopicSourceURLWrapper {
-
+public class DBTopicSourceURLWrapper extends DBBaseEntityWrapper<TopicSourceURLWrapper, TopicSourceUrl> implements TopicSourceURLWrapper {
     private final TopicSourceUrl topicSourceUrl;
 
     public DBTopicSourceURLWrapper(final DBProviderFactory providerFactory, final TopicSourceUrl topicSourceUrl, boolean isRevision) {
@@ -21,11 +20,6 @@ public class DBTopicSourceURLWrapper extends DBBaseWrapper<TopicSourceURLWrapper
     @Override
     public void setId(Integer id) {
         getEntity().setTopicSourceUrlId(id);
-    }
-
-    @Override
-    public TopicSourceUrl unwrap() {
-        return topicSourceUrl;
     }
 
     @Override
@@ -57,5 +51,4 @@ public class DBTopicSourceURLWrapper extends DBBaseWrapper<TopicSourceURLWrapper
     public void setDescription(String description) {
         getEntity().setDescription(description);
     }
-
 }

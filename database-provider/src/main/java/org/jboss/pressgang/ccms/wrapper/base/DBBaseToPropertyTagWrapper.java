@@ -15,7 +15,4 @@ public abstract class DBBaseToPropertyTagWrapper<T extends BasePropertyTagWrappe
     protected PropertyTag getPropertyTag() {
         return getEntity().getPropertyTag();
     }
-
-    @Override
-    public abstract U unwrap();
 }

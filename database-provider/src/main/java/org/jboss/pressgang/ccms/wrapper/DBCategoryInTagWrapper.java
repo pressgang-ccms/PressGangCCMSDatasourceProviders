@@ -8,13 +8,13 @@ import org.jboss.pressgang.ccms.model.Category;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.TagToCategory;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagInCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTagInCategoryCollectionHandler;
 
-public class DBCategoryInTagWrapper extends DBBaseWrapper<CategoryInTagWrapper, TagToCategory> implements CategoryInTagWrapper {
+public class DBCategoryInTagWrapper extends DBBaseEntityWrapper<CategoryInTagWrapper, TagToCategory> implements CategoryInTagWrapper {
     private final DBTagInCategoryCollectionHandler tagCollectionHandler;
     private final TagToCategory tagToCategory;
 
@@ -70,16 +70,6 @@ public class DBCategoryInTagWrapper extends DBBaseWrapper<CategoryInTagWrapper, 
     @Override
     public boolean isMutuallyExclusive() {
         return getCategory().isMutuallyExclusive();
-    }
-
-    @Override
-    public TagToCategory unwrap() {
-        return tagToCategory;
-    }
-
-    @Override
-    public boolean isRevisionEntity() {
-        return getEntity().getRevision() != null;
     }
 
     @Override

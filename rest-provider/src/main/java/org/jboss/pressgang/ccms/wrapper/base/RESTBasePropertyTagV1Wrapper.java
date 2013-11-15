@@ -5,7 +5,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBasePropertyTagV1;
 
 public abstract class RESTBasePropertyTagV1Wrapper<T extends BasePropertyTagWrapper<T>, U extends RESTBasePropertyTagV1<U, ?,
-        ?>> extends RESTBaseWrapper<T, U> implements BasePropertyTagWrapper<T> {
+        ?>> extends RESTBaseEntityWrapper<T, U> implements BasePropertyTagWrapper<T> {
 
     protected RESTBasePropertyTagV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity) {
         super(providerFactory, entity, isRevision, isNewEntity);

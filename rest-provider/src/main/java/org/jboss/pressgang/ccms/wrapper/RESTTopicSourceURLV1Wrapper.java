@@ -3,10 +3,10 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class RESTTopicSourceURLV1Wrapper extends RESTBaseWrapper<TopicSourceURLWrapper,
+public class RESTTopicSourceURLV1Wrapper extends RESTBaseEntityWrapper<TopicSourceURLWrapper,
         RESTTopicSourceUrlV1> implements TopicSourceURLWrapper {
     private final RESTBaseTopicV1<?, ?, ?> parent;
 

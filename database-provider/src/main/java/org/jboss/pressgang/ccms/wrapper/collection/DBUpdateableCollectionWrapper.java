@@ -7,13 +7,13 @@ import java.util.Map;
 
 import org.jboss.pressgang.ccms.provider.exception.BadRequestException;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
 import org.jboss.pressgang.ccms.wrapper.collection.base.UpdateableCollectionEventListener;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCollectionHandler;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBUpdateableCollectionHandler;
 
-public abstract class DBUpdateableCollectionWrapper<T extends EntityWrapper<T>, U> extends DBCollectionWrapper<T,
+public abstract class DBUpdateableCollectionWrapper<T extends BaseWrapper<T>, U> extends DBCollectionWrapper<T,
         U> implements UpdateableCollectionWrapper<T> {
     private static final Integer UPDATE_STATE = 3;
 

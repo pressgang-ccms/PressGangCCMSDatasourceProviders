@@ -2,9 +2,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.User;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBUserWrapper extends DBBaseWrapper<UserWrapper, User> implements UserWrapper {
+public class DBUserWrapper extends DBBaseEntityWrapper<UserWrapper, User> implements UserWrapper {
 
     private final User user;
 
@@ -26,10 +26,5 @@ public class DBUserWrapper extends DBBaseWrapper<UserWrapper, User> implements U
     @Override
     public void setId(Integer id) {
         getEntity().setUserId(id);
-    }
-
-    @Override
-    public User unwrap() {
-        return user;
     }
 }

@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.provider.DataProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public abstract class WrapperFactory {
@@ -37,7 +37,7 @@ public abstract class WrapperFactory {
      * @param <T>        The wrapper class that is returned.
      * @return The Wrapper around the entity.
      */
-    public abstract <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision);
+    public abstract <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision);
 
     /**
      * Create a list of wrapped entities.
@@ -48,7 +48,7 @@ public abstract class WrapperFactory {
      * @return An ArrayList of wrapped entities.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>> List<T> createList(final Collection<?> entities, boolean isRevisionList) {
+    public <T extends BaseWrapper<T>> List<T> createList(final Collection<?> entities, boolean isRevisionList) {
         final List<T> retValue = new ArrayList<T>();
         for (final Object object : entities) {
             retValue.add((T) create(object, isRevisionList));
@@ -66,6 +66,6 @@ public abstract class WrapperFactory {
      * @param <T>                  The wrapper class that is returned.
      * @return The Wrapper around the collection of entities.
      */
-    public abstract <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
+    public abstract <T extends BaseWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
             boolean isRevisionCollection);
 }

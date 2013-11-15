@@ -22,6 +22,10 @@ import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.model.User;
+import org.jboss.pressgang.ccms.model.config.ApplicationConfig;
+import org.jboss.pressgang.ccms.model.config.EntitiesConfig;
+import org.jboss.pressgang.ccms.model.config.UndefinedEntity;
+import org.jboss.pressgang.ccms.model.config.UndefinedSetting;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
@@ -30,9 +34,11 @@ import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.provider.DataProviderFactory;
+import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedEntityCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedSettingCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBBlobConstantCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
@@ -80,7 +86,7 @@ public class DBWrapperFactory extends WrapperFactory {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision) {
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision) {
         if (entity == null) {
             return null;
         }
@@ -89,14 +95,26 @@ public class DBWrapperFactory extends WrapperFactory {
         final DBWrapperKey key = new DBWrapperKey(entity);
 
         // Check to see if a wrapper has already been cached for the key
-        final DBBaseWrapper cachedWrapper = wrapperCache.get(key);
+        final BaseWrapper cachedWrapper = wrapperCache.get(key);
         if (cachedWrapper != null) {
             return (T) cachedWrapper;
         }
 
         final DBBaseWrapper wrapper;
 
-        if (entity instanceof Topic) {
+        if (entity instanceof ApplicationConfig) {
+            // APPLICATION CONFIG
+            wrapper = new DBServerSettingsWrapper(getProviderFactory(), (ApplicationConfig) entity);
+        } else if (entity instanceof ApplicationConfig) {
+            // ENTITIES CONFIG
+            wrapper = new DBServerEntitiesWrapper(getProviderFactory(), (EntitiesConfig) entity);
+        } else if (entity instanceof UndefinedEntity) {
+            // UNDEFINED ENTITY
+            wrapper = new DBServerUndefinedEntityWrapper(getProviderFactory(), (UndefinedEntity) entity);
+        } else if (entity instanceof UndefinedSetting) {
+            // UNDEFINED SETTING
+            wrapper = new DBServerUndefinedSettingWrapper(getProviderFactory(), (UndefinedSetting) entity);
+        } else if (entity instanceof Topic) {
             // TOPIC
             wrapper = new DBTopicWrapper(getProviderFactory(), (Topic) entity, isRevision);
         } else if (entity instanceof TopicSourceUrl) {
@@ -174,13 +192,13 @@ public class DBWrapperFactory extends WrapperFactory {
     }
 
     @Override
-    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
+    public <T extends BaseWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
             boolean isRevisionCollection) {
         return createCollection((Collection) collection, entityClass, isRevisionCollection);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
+    public <T extends BaseWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
             boolean isRevisionCollection) {
         if (collection == null) {
             return null;
@@ -267,6 +285,14 @@ public class DBWrapperFactory extends WrapperFactory {
             // CONTENT SPEC TRANSLATED NODE STRING
             wrapper = new DBTranslatedCSNodeStringCollectionWrapper(this, (Collection<TranslatedCSNodeString>) collection,
                     isRevisionCollection);
+        } else if (entityClass == UndefinedEntity.class) {
+            // UNDEFINED APPLICATION ENTITY
+            wrapper = new DBServerUndefinedEntityCollectionWrapper(this, (Collection<UndefinedEntity>) collection,
+                    isRevisionCollection);
+        } else if (entityClass == UndefinedSetting.class) {
+            // UNDEFINED APPLICATION SETTING
+            wrapper = new DBServerUndefinedSettingCollectionWrapper(this, (Collection<UndefinedSetting>) collection,
+                    isRevisionCollection);
         } else {
             throw new IllegalArgumentException(
                     "Failed to create a Collection Wrapper instance as there is no wrapper available for the Collection.");
@@ -288,7 +314,7 @@ public class DBWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the entity.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final Class<T> wrapperClass) {
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision, final Class<T> wrapperClass) {
         if (entity == null) {
             return null;
         }
@@ -339,7 +365,7 @@ public class DBWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
+    public <T extends BaseWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
             boolean isRevisionCollection, final Class<T> wrapperClass) {
         if (collection == null) {
             return null;
@@ -385,7 +411,7 @@ public class DBWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
+    public <T extends BaseWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
             boolean isRevisionCollection, final DBCollectionHandler<U> handler) {
         if (collection == null) {
             return null;
@@ -410,7 +436,7 @@ public class DBWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
+    public <T extends BaseWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
             boolean isRevisionCollection, final Class<T> wrapperClass, final DBCollectionHandler<U> handler) {
         if (collection == null) {
             return null;
@@ -432,7 +458,7 @@ public class DBWrapperFactory extends WrapperFactory {
      * @param <T>            The wrapper class that is returned.
      * @return An ArrayList of wrapped entities.
      */
-    public <T extends EntityWrapper<T>, U> List<T> createList(final Collection<U> entities, boolean isRevisionList,
+    public <T extends BaseWrapper<T>, U> List<T> createList(final Collection<U> entities, boolean isRevisionList,
             final Class<T> wrapperClass) {
         final List<T> retValue = new ArrayList<T>();
         for (final Object object : entities) {

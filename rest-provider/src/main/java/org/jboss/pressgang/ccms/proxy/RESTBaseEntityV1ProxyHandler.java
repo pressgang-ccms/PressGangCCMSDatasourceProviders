@@ -7,7 +7,7 @@ import java.util.Set;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionV1ProxyHandler;
@@ -76,10 +76,10 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
      * @return The return value with proxied content.
      */
     private Object checkAndProxyReturnValue(Object retValue) {
-        if (retValue != null && retValue instanceof RESTBaseCollectionV1) {
+        if (retValue != null && retValue instanceof RESTBaseEntityCollectionV1) {
             // The parent will either be a user defined parent, or the entity itself.
             final RESTBaseEntityV1<?, ?, ?> parent = this.parent == null ? getProxyEntity() : this.parent;
-            return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseCollectionV1) retValue, isRevision, parent);
+            return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseEntityCollectionV1) retValue, isRevision, parent);
         } else {
             return retValue;
         }

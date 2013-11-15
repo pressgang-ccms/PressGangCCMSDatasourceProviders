@@ -16,7 +16,7 @@ import org.jboss.pressgang.ccms.model.TranslatedTopic;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTopicCollectionWrapper;
@@ -30,7 +30,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTagCollectionHandle
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTopicSourceUrlCollectionHandler;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
-public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implements TopicWrapper {
+public class DBTopicWrapper extends DBBaseEntityWrapper<TopicWrapper, Topic> implements TopicWrapper {
     private final static RelationshipTag dummyRelationshipTag = new RelationshipTag();
     static {
         dummyRelationshipTag.setRelationshipTagId(1);
@@ -62,11 +62,6 @@ public class DBTopicWrapper extends DBBaseWrapper<TopicWrapper, Topic> implement
     @Override
     public void setId(Integer id) {
         getEntity().setTopicId(id);
-    }
-
-    @Override
-    public Topic unwrap() {
-        return topic;
     }
 
     @Override

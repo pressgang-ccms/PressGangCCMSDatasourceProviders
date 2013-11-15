@@ -6,11 +6,11 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseWrapper<TranslatedCSNodeWrapper,
+public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseEntityWrapper<TranslatedCSNodeWrapper,
         RESTTranslatedCSNodeV1> implements TranslatedCSNodeWrapper {
 
     protected RESTTranslatedCSNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeV1 entity,

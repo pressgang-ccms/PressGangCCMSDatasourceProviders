@@ -21,7 +21,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBPropertyTagCollectionHandler;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTagCollectionHandler;
 
-public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> extends DBBaseWrapper<T, ContentSpec> implements
+public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> extends DBBaseEntityWrapper<T, ContentSpec> implements
         BaseContentSpecWrapper<T> {
 
     private final DBPropertyTagCollectionHandler<ContentSpecToPropertyTag> propertyCollectionHandler;
@@ -175,10 +175,5 @@ public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<
     @Override
     public void setId(Integer id) {
         getEntity().setContentSpecId(id);
-    }
-
-    @Override
-    public ContentSpec unwrap() {
-        return contentSpec;
     }
 }

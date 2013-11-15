@@ -2,9 +2,9 @@ package org.jboss.pressgang.ccms.wrapper.collection;
 
 import java.util.List;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 
-public interface CollectionWrapper<T extends EntityWrapper<T>> {
+public interface CollectionWrapper<T extends BaseWrapper<T>> {
     public void addItem(T entity);
 
     public void addNewItem(T entity);

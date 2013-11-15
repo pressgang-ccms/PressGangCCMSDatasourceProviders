@@ -2,9 +2,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.LanguageImage;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBLanguageImageWrapper extends DBBaseWrapper<LanguageImageWrapper, LanguageImage> implements LanguageImageWrapper {
+public class DBLanguageImageWrapper extends DBBaseEntityWrapper<LanguageImageWrapper, LanguageImage> implements LanguageImageWrapper {
 
     private final LanguageImage languageImage;
 
@@ -21,16 +21,6 @@ public class DBLanguageImageWrapper extends DBBaseWrapper<LanguageImageWrapper, 
     @Override
     public void setId(Integer id) {
         getEntity().setLanguageImageId(id);
-    }
-
-    @Override
-    public LanguageImage unwrap() {
-        return languageImage;
-    }
-
-    @Override
-    public boolean isRevisionEntity() {
-        return getEntity().getRevision() != null;
     }
 
     @Override

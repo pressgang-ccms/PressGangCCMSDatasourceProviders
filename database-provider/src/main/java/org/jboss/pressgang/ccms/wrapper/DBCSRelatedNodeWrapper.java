@@ -3,9 +3,9 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBCSRelatedNodeWrapper extends DBBaseWrapper<CSRelatedNodeWrapper, CSNodeToCSNode> implements CSRelatedNodeWrapper {
+public class DBCSRelatedNodeWrapper extends DBBaseEntityWrapper<CSRelatedNodeWrapper, CSNodeToCSNode> implements CSRelatedNodeWrapper {
     private final CSNodeToCSNode csNodeToCSNode;
 
     public DBCSRelatedNodeWrapper(final DBProviderFactory providerFactory, final CSNodeToCSNode csNodeToCSNode, boolean isRevision) {
@@ -100,11 +100,6 @@ public class DBCSRelatedNodeWrapper extends DBBaseWrapper<CSRelatedNodeWrapper, 
     @Override
     public void setId(Integer id) {
         getCSNode().setCSNodeId(id);
-    }
-
-    @Override
-    public CSNodeToCSNode unwrap() {
-        return csNodeToCSNode;
     }
 
     @Override

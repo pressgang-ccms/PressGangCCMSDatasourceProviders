@@ -9,11 +9,11 @@ import org.jboss.pressgang.ccms.rest.v1.components.ComponentBaseRESTEntityWithPr
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTContentSpecTypeV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class RESTTextContentSpecV1Wrapper extends RESTBaseWrapper<TextContentSpecWrapper, 
+public class RESTTextContentSpecV1Wrapper extends RESTBaseEntityWrapper<TextContentSpecWrapper,
         RESTTextContentSpecV1> implements TextContentSpecWrapper {
 
     protected RESTTextContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTTextContentSpecV1 entity,

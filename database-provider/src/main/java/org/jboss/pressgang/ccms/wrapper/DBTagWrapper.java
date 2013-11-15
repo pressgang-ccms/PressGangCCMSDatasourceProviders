@@ -8,13 +8,13 @@ import java.util.Set;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.TagToCategory;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryInTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCategoryInTagCollectionHandler;
 
-public class DBTagWrapper extends DBBaseWrapper<TagWrapper, Tag> implements TagWrapper {
+public class DBTagWrapper extends DBBaseEntityWrapper<TagWrapper, Tag> implements TagWrapper {
     private final DBCategoryInTagCollectionHandler categoryCollectionHandler;
     private final Tag tag;
 
@@ -37,11 +37,6 @@ public class DBTagWrapper extends DBBaseWrapper<TagWrapper, Tag> implements TagW
     @Override
     public void setId(Integer id) {
         getEntity().setTagId(id);
-    }
-
-    @Override
-    public Tag unwrap() {
-        return tag;
     }
 
     @Override

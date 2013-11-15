@@ -6,7 +6,6 @@ import org.jboss.pressgang.ccms.wrapper.base.DBBaseToPropertyTagWrapper;
 
 public class DBTagToPropertyTagWrapper extends DBBaseToPropertyTagWrapper<PropertyTagInTagWrapper,
         TagToPropertyTag> implements PropertyTagInTagWrapper {
-
     private final TagToPropertyTag propertyTag;
 
     public DBTagToPropertyTagWrapper(final DBProviderFactory providerFactory, final TagToPropertyTag propertyTag, boolean isRevision) {
@@ -16,11 +15,6 @@ public class DBTagToPropertyTagWrapper extends DBBaseToPropertyTagWrapper<Proper
 
     @Override
     protected TagToPropertyTag getEntity() {
-        return propertyTag;
-    }
-
-    @Override
-    public TagToPropertyTag unwrap() {
         return propertyTag;
     }
 

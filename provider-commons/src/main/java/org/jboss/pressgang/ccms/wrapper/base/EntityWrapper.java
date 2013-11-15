@@ -2,7 +2,7 @@ package org.jboss.pressgang.ccms.wrapper.base;
 
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public abstract interface EntityWrapper<T extends EntityWrapper<T>> {
+public abstract interface EntityWrapper<T extends EntityWrapper<T>> extends BaseWrapper<T> {
     /**
      * Get the Unique ID for the entity.
      *
@@ -30,13 +30,6 @@ public abstract interface EntityWrapper<T extends EntityWrapper<T>> {
      * @return A collection of revision entities for the entity.
      */
     CollectionWrapper<T> getRevisions();
-
-    /**
-     * Get the underlying Entity instance.
-     *
-     * @return
-     */
-    Object unwrap();
 
     /**
      * Clone the entity and wrapper.

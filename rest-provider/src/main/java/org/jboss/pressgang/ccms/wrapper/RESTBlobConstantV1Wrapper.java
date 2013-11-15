@@ -2,10 +2,10 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTBlobConstantV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public class RESTBlobConstantV1Wrapper extends RESTBaseWrapper<BlobConstantWrapper, RESTBlobConstantV1> implements BlobConstantWrapper {
+public class RESTBlobConstantV1Wrapper extends RESTBaseEntityWrapper<BlobConstantWrapper, RESTBlobConstantV1> implements BlobConstantWrapper {
 
     protected RESTBlobConstantV1Wrapper(final RESTProviderFactory providerFactory, final RESTBlobConstantV1 blobConstant,
             boolean isRevision, boolean isNewEntity) {

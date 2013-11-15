@@ -4,11 +4,11 @@ import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageFileCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class RESTFileV1Wrapper extends RESTBaseWrapper<FileWrapper, RESTFileV1> implements FileWrapper {
+public class RESTFileV1Wrapper extends RESTBaseEntityWrapper<FileWrapper, RESTFileV1> implements FileWrapper {
 
     protected RESTFileV1Wrapper(final RESTProviderFactory providerFactory, final RESTFileV1 file, boolean isRevision, boolean isNewEntity) {
         super(providerFactory, file, isRevision, isNewEntity);

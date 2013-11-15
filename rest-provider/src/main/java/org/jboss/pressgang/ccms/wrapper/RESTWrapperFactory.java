@@ -9,6 +9,8 @@ import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.DataProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedEntityCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedSettingCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTBlobConstantCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTFileCollectionV1;
@@ -23,7 +25,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollection
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTUserCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
@@ -34,6 +36,10 @@ import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTag
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTCategoryInTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTPropertyTagInPropertyCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerEntitiesV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerSettingsV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerUndefinedEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerUndefinedSettingV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTBlobConstantV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
@@ -51,6 +57,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
@@ -66,9 +73,11 @@ import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyC
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
 import org.jboss.pressgang.ccms.utils.RESTWrapperCache;
 import org.jboss.pressgang.ccms.utils.RESTWrapperKey;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTServerUndefinedEntityCollectionV1Wrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTServerUndefinedSettingCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTBlobConstantCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCSNodeCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCSRelatedNodeCollectionV1Wrapper;
@@ -114,17 +123,17 @@ public class RESTWrapperFactory extends WrapperFactory {
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision) {
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision) {
         return create(entity, isRevision, false);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, boolean isNewEntity) {
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision, boolean isNewEntity) {
         if (entity == null) {
             return null;
         }
 
-        final RESTBaseEntityV1<?, ?, ?> unwrappedEntity = getEntity(entity);
+        final RESTBaseObjectV1<?> unwrappedEntity = getEntity(entity);
 
         // Create the key
         final RESTWrapperKey key = new RESTWrapperKey(unwrappedEntity);
@@ -137,7 +146,20 @@ public class RESTWrapperFactory extends WrapperFactory {
 
         final RESTBaseWrapper wrapper;
 
-        if (entity instanceof RESTTopicV1) {
+        if (entity instanceof RESTServerSettingsV1) {
+            // APPLICATION SETTINGS
+            wrapper = new RESTServerSettingsV1Wrapper(getProviderFactory(), (RESTServerSettingsV1) unwrappedEntity);
+        } else if (entity instanceof RESTServerEntitiesV1) {
+            // ENTITY SETTINGS
+            wrapper = new RESTServerEntitiesV1Wrapper(getProviderFactory(), (RESTServerEntitiesV1) unwrappedEntity);
+        } else if (entity instanceof RESTServerUndefinedSettingV1) {
+            // UNDEFINED APPLICATION SETTINGS
+            wrapper = new RESTServerUndefinedSettingV1Wrapper(getProviderFactory(),
+                    (RESTServerUndefinedSettingV1) unwrappedEntity);
+        } else if (entity instanceof RESTServerUndefinedEntityV1) {
+            // UNDEFINED ENTITY SETTINGS
+            wrapper = new RESTServerUndefinedEntityV1Wrapper(getProviderFactory(), (RESTServerUndefinedEntityV1) unwrappedEntity);
+        } else if (entity instanceof RESTTopicV1) {
             // TOPIC
             wrapper = new RESTTopicV1Wrapper(getProviderFactory(), (RESTTopicV1) unwrappedEntity, isRevision, isNewEntity);
         } else if (entity instanceof RESTTopicSourceUrlV1) {
@@ -173,7 +195,8 @@ public class RESTWrapperFactory extends WrapperFactory {
             wrapper = new RESTBlobConstantV1Wrapper(getProviderFactory(), (RESTBlobConstantV1) entity, isRevision, isNewEntity);
         } else if (entity instanceof RESTStringConstantV1) {
             // STRING CONSTANT
-            wrapper = new RESTStringConstantV1Wrapper(getProviderFactory(), (RESTStringConstantV1) unwrappedEntity, isRevision, isNewEntity);
+            wrapper = new RESTStringConstantV1Wrapper(getProviderFactory(), (RESTStringConstantV1) unwrappedEntity, isRevision,
+                    isNewEntity);
         } else if (entity instanceof RESTFileV1) {
             // FILE
             wrapper = new RESTFileV1Wrapper(getProviderFactory(), (RESTFileV1) unwrappedEntity, isRevision, isNewEntity);
@@ -223,14 +246,14 @@ public class RESTWrapperFactory extends WrapperFactory {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
+    public <T extends BaseWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
             boolean isRevisionCollection) {
         if (collection == null) {
             return null;
         }
 
         // Create the key
-        final RESTWrapperKey key = new RESTWrapperKey((RESTBaseCollectionV1<?, ?, ?>) collection);
+        final RESTWrapperKey key = new RESTWrapperKey((RESTCollectionV1<?, ?>) collection);
 
         // Check to see if a wrapper has already been cached for the key
         final RESTCollectionWrapper cachedWrapper = wrapperCache.getCollection(key);
@@ -240,7 +263,15 @@ public class RESTWrapperFactory extends WrapperFactory {
 
         final RESTCollectionWrapper wrapper;
 
-        if (collection instanceof RESTTopicCollectionV1) {
+        if (collection instanceof RESTServerUndefinedSettingCollectionV1) {
+            // UNDEFINED APPLICATION SETTING
+            wrapper = new RESTServerUndefinedSettingCollectionV1Wrapper(getProviderFactory(),
+                    (RESTServerUndefinedSettingCollectionV1) collection, isRevisionCollection);
+        } else if (collection instanceof RESTServerUndefinedEntityCollectionV1) {
+            // UNDEFINED APPLICATION ENTITY
+            wrapper = new RESTServerUndefinedEntityCollectionV1Wrapper(getProviderFactory(),
+                    (RESTServerUndefinedEntityCollectionV1) collection, isRevisionCollection);
+        } else if (collection instanceof RESTTopicCollectionV1) {
             // TOPIC
             wrapper = new RESTTopicCollectionV1Wrapper(getProviderFactory(), (RESTTopicCollectionV1) collection, isRevisionCollection);
         } else if (collection instanceof RESTTopicSourceUrlCollectionV1) {
@@ -337,8 +368,8 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @param <V>            The class of the collection.
      * @return An ArrayList of wrapped entities.
      */
-    public <T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, V, ?>, V extends RESTBaseCollectionV1<U, V, ?>> List<T> createList(
-            final V entities, boolean isRevisionList) {
+    public <T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>, V extends RESTCollectionV1<U, ?>> List<T> createList(final V entities,
+            boolean isRevisionList) {
         if (entities == null) {
             return null;
         }
@@ -363,8 +394,8 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return An ArrayList of wrapped entities.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, V, ?>, V extends RESTBaseCollectionV1<U, V, ?>> List<T> createList(
-            final V entities, boolean isRevisionList, final RESTBaseEntityV1<?, ?, ?> parent) {
+    public <T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>, V extends RESTCollectionV1<U, ?>> List<T> createList(final V entities,
+            boolean isRevisionList, final RESTBaseEntityV1<?, ?, ?> parent) {
         if (entities == null) {
             return null;
         }
@@ -391,7 +422,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @param <T>        The wrapper class that is returned.
      * @return The Wrapper around the entity.
      */
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
         return create(entity, isRevision, parent, false);
     }
 
@@ -406,13 +437,13 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the entity.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
             final boolean isNewEntity) {
         if (entity == null) {
             return null;
         }
 
-        final RESTBaseEntityV1 unwrappedEntity = getEntity(entity);
+        final RESTBaseObjectV1<?> unwrappedEntity = getEntity(entity);
 
         // Create the key
         final RESTWrapperKey key = new RESTWrapperKey(unwrappedEntity, parent);
@@ -482,7 +513,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the entity.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
             final Class<T> wrapperClass) {
         return create(entity, isRevision, parent, wrapperClass, false);
     }
@@ -498,13 +529,13 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the entity.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent,
             final Class<T> wrapperClass, final boolean isNewEntity) {
         if (entity == null) {
             return null;
         }
 
-        final RESTBaseEntityV1 unwrappedEntity = getEntity(entity);
+        final RESTBaseObjectV1<?> unwrappedEntity = getEntity(entity);
 
         // Create the key
         final RESTWrapperKey key = new RESTWrapperKey(unwrappedEntity, parent, wrapperClass);
@@ -551,7 +582,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final RESTBaseCollectionV1<?, ?, ?> collection,
+    public <T extends BaseWrapper<T>> CollectionWrapper<T> createCollection(final RESTCollectionV1<?, ?> collection,
             final Class<?> entityClass, boolean isRevisionCollection, final RESTBaseEntityV1<?, ?, ?> parent) {
         if (collection == null) {
             return null;
@@ -626,7 +657,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final RESTBaseCollectionV1<?, ?, ?> collection,
+    public <T extends BaseWrapper<T>> CollectionWrapper<T> createCollection(final RESTCollectionV1<?, ?> collection,
             final Class<?> entityClass, boolean isRevisionCollection, final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
         if (collection == null) {
             return null;
@@ -676,7 +707,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the entity.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final Class<T> wrapperClass) {
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision, final Class<T> wrapperClass) {
         return create(entity, isRevision, wrapperClass, false);
     }
 
@@ -690,7 +721,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the entity.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>> T create(final Object entity, boolean isRevision, final Class<T> wrapperClass,
+    public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision, final Class<T> wrapperClass,
             final boolean isNewEntity) {
         if (entity == null) {
             return null;
@@ -711,7 +742,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The Wrapper around the collection of entities.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
+    public <T extends BaseWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
             boolean isRevisionCollection, final Class<T> wrapperClass) {
         if (collection == null) {
             return null;
@@ -731,7 +762,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return An ArrayList of wrapped entities.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>> List<T> createList(final Collection<?> entities, boolean isRevisionList,
+    public <T extends BaseWrapper<T>> List<T> createList(final Collection<?> entities, boolean isRevisionList,
             final Class<T> wrapperClass) {
         final List<T> retValue = new ArrayList<T>();
         for (final Object object : entities) {
@@ -752,7 +783,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return An ArrayList of wrapped entities.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>> List<T> createList(final Collection<?> entities, boolean isRevisionList,
+    public <T extends BaseWrapper<T>> List<T> createList(final Collection<?> entities, boolean isRevisionList,
             final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
         final List<T> retValue = new ArrayList<T>();
         for (final Object object : entities) {
@@ -774,8 +805,8 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return An ArrayList of wrapped entities.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, V, ?>, V extends RESTBaseCollectionV1<U, V, ?>> List<T> createList(
-            final V entities, boolean isRevisionList, final Class<T> wrapperClass) {
+    public <T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>, V extends RESTCollectionV1<U, ?>> List<T> createList(final V entities,
+            boolean isRevisionList, final Class<T> wrapperClass) {
         if (entities == null) {
             return null;
         }
@@ -801,8 +832,8 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return An ArrayList of wrapped entities.
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, V, ?>, V extends RESTBaseCollectionV1<U, V, ?>> List<T> createList(
-            final V entities, boolean isRevisionList, final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
+    public <T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>, V extends RESTCollectionV1<U, ?>> List<T> createList(final V entities,
+            boolean isRevisionList, final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
         if (entities == null) {
             return null;
         }
@@ -827,7 +858,7 @@ public class RESTWrapperFactory extends WrapperFactory {
      * @return The unwrapped/non-proxy entity, or the original entity if it wasn't a proxy.
      */
     @SuppressWarnings("rawtypes")
-    protected RESTBaseEntityV1<?, ?, ?> getEntity(final Object entity) {
+    protected RESTBaseObjectV1<?> getEntity(final Object entity) {
         if (entity instanceof ProxyObject) {
             final MethodHandler handler = ((ProxyObject) entity).getHandler();
             if (handler instanceof RESTBaseEntityV1ProxyHandler) {
@@ -835,6 +866,6 @@ public class RESTWrapperFactory extends WrapperFactory {
             }
         }
 
-        return (RESTBaseEntityV1<?, ?, ?>) entity;
+        return (RESTBaseObjectV1<?>) entity;
     }
 }

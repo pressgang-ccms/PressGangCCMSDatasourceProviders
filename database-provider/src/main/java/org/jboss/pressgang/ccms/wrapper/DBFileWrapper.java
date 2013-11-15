@@ -7,13 +7,13 @@ import java.util.Set;
 import org.jboss.pressgang.ccms.model.File;
 import org.jboss.pressgang.ccms.model.LanguageFile;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBLanguageFileCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBLanguageFileCollectionHandler;
 
-public class DBFileWrapper extends DBBaseWrapper<FileWrapper, File> implements FileWrapper {
+public class DBFileWrapper extends DBBaseEntityWrapper<FileWrapper, File> implements FileWrapper {
     private final DBLanguageFileCollectionHandler languageFileCollectionHandler;
 
     private final File file;
@@ -32,16 +32,6 @@ public class DBFileWrapper extends DBBaseWrapper<FileWrapper, File> implements F
     @Override
     public void setId(Integer id) {
         getEntity().setFileId(id);
-    }
-
-    @Override
-    public File unwrap() {
-        return file;
-    }
-
-    @Override
-    public boolean isRevisionEntity() {
-        return getEntity().getRevision() != null;
     }
 
     @Override

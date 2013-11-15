@@ -2,9 +2,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.LanguageFile;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
-public class DBLanguageFileWrapper extends DBBaseWrapper<LanguageFileWrapper, LanguageFile> implements LanguageFileWrapper {
+public class DBLanguageFileWrapper extends DBBaseEntityWrapper<LanguageFileWrapper, LanguageFile> implements LanguageFileWrapper {
 
     private final LanguageFile languageFile;
 
@@ -21,16 +21,6 @@ public class DBLanguageFileWrapper extends DBBaseWrapper<LanguageFileWrapper, La
     @Override
     public void setId(Integer id) {
         getEntity().setLanguageFileId(id);
-    }
-
-    @Override
-    public LanguageFile unwrap() {
-        return languageFile;
-    }
-
-    @Override
-    public boolean isRevisionEntity() {
-        return getEntity().getRevision() != null;
     }
 
     @Override

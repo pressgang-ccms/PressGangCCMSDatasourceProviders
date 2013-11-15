@@ -7,13 +7,13 @@ import java.util.Set;
 import org.jboss.pressgang.ccms.model.Category;
 import org.jboss.pressgang.ccms.model.TagToCategory;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagInCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTagInCategoryCollectionHandler;
 
-public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper, Category> implements CategoryWrapper {
+public class DBCategoryWrapper extends DBBaseEntityWrapper<CategoryWrapper, Category> implements CategoryWrapper {
     private final DBTagInCategoryCollectionHandler tagCollectionHandler;
     private final Category category;
 
@@ -46,16 +46,6 @@ public class DBCategoryWrapper extends DBBaseWrapper<CategoryWrapper, Category> 
     @Override
     public boolean isMutuallyExclusive() {
         return getEntity().isMutuallyExclusive();
-    }
-
-    @Override
-    public Category unwrap() {
-        return category;
-    }
-
-    @Override
-    public boolean isRevisionEntity() {
-        return getEntity().getRevision() != null;
     }
 
     @Override

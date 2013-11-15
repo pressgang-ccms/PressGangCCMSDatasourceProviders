@@ -207,6 +207,12 @@ public class DBProviderFactory extends DataProviderFactory {
         providerMap.put(DBLogMessageProvider.class, logMessageProvider);
         providerMap.put(LogMessageProvider.class, logMessageProvider);
 
+        // Server Settings Provider
+        final DBServerSettingsProvider serverSettingsProvider = new DBServerSettingsProvider(getEntityManager(), getWrapperFactory(),
+                getListeners());
+        providerMap.put(DBServerSettingsProvider.class, serverSettingsProvider);
+        providerMap.put(ServerSettingsProvider.class, serverSettingsProvider);
+
         providersInitialised = true;
     }
 }

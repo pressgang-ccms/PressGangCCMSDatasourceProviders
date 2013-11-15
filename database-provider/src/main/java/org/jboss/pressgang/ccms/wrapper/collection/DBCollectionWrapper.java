@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.base.CollectionEventListener;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCollectionHandler;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBDefaultCollectionHandler;
 
-public abstract class DBCollectionWrapper<T extends EntityWrapper<T>, U> implements CollectionWrapper<T> {
+public abstract class DBCollectionWrapper<T extends BaseWrapper<T>, U> implements CollectionWrapper<T> {
     private static final Integer NO_STATE = 0;
     private static final Integer ADD_STATE = 1;
     private static final Integer REMOVE_STATE = 2;

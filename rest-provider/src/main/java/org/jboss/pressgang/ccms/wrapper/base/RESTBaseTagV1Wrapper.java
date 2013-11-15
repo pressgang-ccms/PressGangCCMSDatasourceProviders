@@ -15,7 +15,7 @@ import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extends RESTBaseTagV1<U, ?, ?>> extends RESTBaseWrapper<T,
+public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extends RESTBaseTagV1<U, ?, ?>> extends RESTBaseEntityWrapper<T,
         U> implements BaseTagWrapper<T> {
     private final RESTTagProvider dataProvider;
 

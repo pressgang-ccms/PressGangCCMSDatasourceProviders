@@ -7,15 +7,17 @@ import java.util.Map;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionItemV1;
-import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionItemV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionItemV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 
-public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, V, ?>,
-        V extends RESTBaseCollectionV1<U, V, ?>> implements CollectionWrapper<T> {
+public abstract class RESTCollectionWrapper<T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>,
+        V extends RESTCollectionV1<U, ?>> implements CollectionWrapper<T> {
     private final RESTProviderFactory providerFactory;
     private final RESTWrapperFactory wrapperFactory;
     private final Map<T, Integer> entities = new HashMap<T, Integer>();
@@ -26,7 +28,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
         wrapperFactory = providerFactory.getWrapperFactory();
         this.collection = collection;
         if (collection.getItems() != null) {
-            for (final RESTBaseCollectionItemV1<U, V, ?> item : collection.getItems()) {
+            for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
                 entities.put((T) getWrapperFactory().create(item.getItem(), isRevisionCollection), item.getState());
             }
         }
@@ -39,7 +41,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
         this.collection = collection;
 
         if (collection.getItems() != null) {
-            for (final RESTBaseCollectionItemV1<U, V, ?> item : collection.getItems()) {
+            for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
                 entities.put(getWrapperFactory().create(item.getItem(), isRevisionCollection, wrapperClass), item.getState());
             }
         }
@@ -50,7 +52,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
         this.providerFactory = providerFactory;
         wrapperFactory = providerFactory.getWrapperFactory();
         this.collection = collection;
-        for (final RESTBaseCollectionItemV1<U, V, ?> item : collection.getItems()) {
+        for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
             entities.put((T) getWrapperFactory().create(item.getItem(), isRevisionCollection, parent), item.getState());
         }
     }
@@ -60,7 +62,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
         this.providerFactory = providerFactory;
         wrapperFactory = providerFactory.getWrapperFactory();
         this.collection = collection;
-        for (final RESTBaseCollectionItemV1<U, V, ?> item : collection.getItems()) {
+        for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
             entities.put(getWrapperFactory().create(item.getItem(), isRevisionCollection, parent, wrapperClass), item.getState());
         }
     }
@@ -89,7 +91,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
     public List<T> getUnchangedItems() {
         final List<T> unchangedItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : entities.entrySet()) {
-            if (RESTBaseCollectionItemV1.UNCHANGED_STATE.equals(entity.getValue())) {
+            if (RESTBaseEntityCollectionItemV1.UNCHANGED_STATE.equals(entity.getValue())) {
                 unchangedItems.add(entity.getKey());
             }
         }
@@ -101,7 +103,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
     public List<T> getAddItems() {
         final List<T> newItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : entities.entrySet()) {
-            if (RESTBaseCollectionItemV1.ADD_STATE.equals(entity.getValue())) {
+            if (RESTBaseEntityCollectionItemV1.ADD_STATE.equals(entity.getValue())) {
                 newItems.add(entity.getKey());
             }
         }
@@ -113,7 +115,7 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
     public List<T> getRemoveItems() {
         final List<T> removeItems = new ArrayList<T>();
         for (final Map.Entry<T, Integer> entity : entities.entrySet()) {
-            if (RESTBaseCollectionItemV1.REMOVE_STATE.equals(entity.getValue())) {
+            if (RESTBaseEntityCollectionItemV1.REMOVE_STATE.equals(entity.getValue())) {
                 removeItems.add(entity.getKey());
             }
         }
@@ -125,28 +127,28 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
     @Override
     public void addItem(T entity) {
         getCollection().addItem(getEntity(entity));
-        getEntities().put(entity, RESTBaseCollectionItemV1.UNCHANGED_STATE);
+        getEntities().put(entity, RESTBaseEntityCollectionItemV1.UNCHANGED_STATE);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void addNewItem(T entity) {
         getCollection().addNewItem(getEntity(entity));
-        getEntities().put(entity, RESTBaseCollectionItemV1.ADD_STATE);
+        getEntities().put(entity, RESTBaseEntityCollectionItemV1.ADD_STATE);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void addRemoveItem(T entity) {
         getCollection().addRemoveItem(getEntity(entity));
-        getEntities().put(entity, RESTBaseCollectionItemV1.REMOVE_STATE);
+        getEntities().put(entity, RESTBaseEntityCollectionItemV1.REMOVE_STATE);
     }
 
     @Override
     public V unwrap() {
         // Get the original non proxied collection
         final V baseCollection = getCollection();
-        final V collection = (baseCollection instanceof ProxyObject) ? ((RESTCollectionV1ProxyHandler<U, V,
+        final V collection = (baseCollection instanceof ProxyObject) ? (V)((RESTCollectionV1ProxyHandler<?, ?,
                 ?>) ((ProxyObject) baseCollection).getHandler()).getCollection() : baseCollection;
         return collection;
     }
@@ -171,12 +173,12 @@ public abstract class RESTCollectionWrapper<T extends EntityWrapper<T>, U extend
         if (entity == null) return;
         final Object unwrappedEntity = entity.unwrap();
         // Get the original non proxied collection
-        final RESTBaseCollectionV1<U, V, ?> baseCollection = getCollection();
-        final RESTBaseCollectionV1<U, V, ?> collection = (baseCollection instanceof ProxyObject) ? ((RESTCollectionV1ProxyHandler<U, V,
+        final RESTCollectionV1<U, ?> baseCollection = getCollection();
+        final RESTCollectionV1<?, ?> collection = (baseCollection instanceof ProxyObject) ? ((RESTCollectionV1ProxyHandler<?, ?,
                 ?>) ((ProxyObject) baseCollection).getHandler()).getCollection() : baseCollection;
         // Remove the item if it's found
-        final List<? extends RESTBaseCollectionItemV1<U, V, ?>> originalItems = CollectionUtilities.toArrayList(collection.getItems());
-        for (final RESTBaseCollectionItemV1<U, V, ?> item : originalItems) {
+        final List<? extends RESTCollectionItemV1> originalItems = CollectionUtilities.toArrayList(collection.getItems());
+        for (final RESTCollectionItemV1<?, ?> item : originalItems) {
             if (unwrappedEntity.equals(item.getItem())) {
                 collection.getItems().remove(item);
             }
