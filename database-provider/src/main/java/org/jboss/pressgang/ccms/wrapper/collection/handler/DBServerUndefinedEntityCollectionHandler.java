@@ -7,17 +7,17 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.jboss.pressgang.ccms.model.config.EntitiesConfig;
 import org.jboss.pressgang.ccms.model.config.UndefinedEntity;
 
-public class DBApplicationUndefinedEntityCollectionHandler implements DBUpdateableCollectionHandler<UndefinedEntity> {
+public class DBServerUndefinedEntityCollectionHandler implements DBUpdateableCollectionHandler<UndefinedEntity> {
     final EntitiesConfig entitiesConfig;
 
-    public DBApplicationUndefinedEntityCollectionHandler(final EntitiesConfig entitiesConfig) {
+    public DBServerUndefinedEntityCollectionHandler(final EntitiesConfig entitiesConfig) {
         this.entitiesConfig = entitiesConfig;
     }
 
     @Override
     public void updateItem(Collection<UndefinedEntity> items, final UndefinedEntity entity) {
         try {
-            entitiesConfig.addUndefinedProperty(entity.getKey(), entity.getValue());
+            entitiesConfig.addUndefinedEntity(entity.getKey(), entity.getValue());
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -26,7 +26,7 @@ public class DBApplicationUndefinedEntityCollectionHandler implements DBUpdateab
     @Override
     public void addItem(Collection<UndefinedEntity> items, final UndefinedEntity entity) {
         try {
-            entitiesConfig.addUndefinedProperty(entity.getKey(), entity.getValue());
+            entitiesConfig.addUndefinedEntity(entity.getKey(), entity.getValue());
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         }

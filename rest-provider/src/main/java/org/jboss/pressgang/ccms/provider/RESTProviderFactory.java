@@ -178,6 +178,11 @@ public class RESTProviderFactory extends DataProviderFactory {
         final RESTLogMessageProvider logMessageProvider = new RESTLogMessageProvider(getRESTManager(), getWrapperFactory());
         providerMap.put(RESTLogMessageProvider.class, logMessageProvider);
         providerMap.put(LogMessageProvider.class, logMessageProvider);
+
+        // Server Settings Provider
+        final RESTServerSettingsProvider serverSettingsProvider = new RESTServerSettingsProvider(getRESTManager(), getWrapperFactory());
+        providerMap.put(RESTServerSettingsProvider.class, serverSettingsProvider);
+        providerMap.put(ServerSettingsProvider.class, serverSettingsProvider);
     }
 
     /**

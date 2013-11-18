@@ -12,6 +12,8 @@ public interface ServerSettingsWrapper extends BaseWrapper<ServerSettingsWrapper
     void setDocbuilderUrl(String docbuilderUrl);
     List<Integer> getDocBookTemplateIds();
     void setDocBookTemplateIds(List<Integer> docBookTemplateIds);
+    List<Integer> getSEOCategoryIds();
+    void setSEOCategoryIds(List<Integer> seoCategoryIds);
     List<String> getLocales();
     void setLocales(List<String> locales);
     String getDefaultLocale();

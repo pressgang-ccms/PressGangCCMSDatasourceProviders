@@ -147,17 +147,17 @@ public class RESTWrapperFactory extends WrapperFactory {
         final RESTBaseWrapper wrapper;
 
         if (entity instanceof RESTServerSettingsV1) {
-            // APPLICATION SETTINGS
+            // SERVER SETTINGS
             wrapper = new RESTServerSettingsV1Wrapper(getProviderFactory(), (RESTServerSettingsV1) unwrappedEntity);
         } else if (entity instanceof RESTServerEntitiesV1) {
-            // ENTITY SETTINGS
+            // SERVER ENTITIES
             wrapper = new RESTServerEntitiesV1Wrapper(getProviderFactory(), (RESTServerEntitiesV1) unwrappedEntity);
         } else if (entity instanceof RESTServerUndefinedSettingV1) {
-            // UNDEFINED APPLICATION SETTINGS
+            // UNDEFINED SERVER SETTINGS
             wrapper = new RESTServerUndefinedSettingV1Wrapper(getProviderFactory(),
                     (RESTServerUndefinedSettingV1) unwrappedEntity);
         } else if (entity instanceof RESTServerUndefinedEntityV1) {
-            // UNDEFINED ENTITY SETTINGS
+            // UNDEFINED SERVER SETTINGS
             wrapper = new RESTServerUndefinedEntityV1Wrapper(getProviderFactory(), (RESTServerUndefinedEntityV1) unwrappedEntity);
         } else if (entity instanceof RESTTopicV1) {
             // TOPIC
@@ -264,11 +264,11 @@ public class RESTWrapperFactory extends WrapperFactory {
         final RESTCollectionWrapper wrapper;
 
         if (collection instanceof RESTServerUndefinedSettingCollectionV1) {
-            // UNDEFINED APPLICATION SETTING
+            // UNDEFINED SERVER SETTING
             wrapper = new RESTServerUndefinedSettingCollectionV1Wrapper(getProviderFactory(),
                     (RESTServerUndefinedSettingCollectionV1) collection, isRevisionCollection);
         } else if (collection instanceof RESTServerUndefinedEntityCollectionV1) {
-            // UNDEFINED APPLICATION ENTITY
+            // UNDEFINED SERVER ENTITY
             wrapper = new RESTServerUndefinedEntityCollectionV1Wrapper(getProviderFactory(),
                     (RESTServerUndefinedEntityCollectionV1) collection, isRevisionCollection);
         } else if (collection instanceof RESTTopicCollectionV1) {

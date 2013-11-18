@@ -14,18 +14,18 @@ import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedSettingCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.handler.DBApplicationUndefinedSettingCollectionHandler;
+import org.jboss.pressgang.ccms.wrapper.collection.handler.DBServerUndefinedSettingCollectionHandler;
 
 public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper,
         ApplicationConfig> implements ServerSettingsWrapper {
-    private final DBApplicationUndefinedSettingCollectionHandler undefinedSettingCollectionHandler;
+    private final DBServerUndefinedSettingCollectionHandler undefinedSettingCollectionHandler;
     private final ApplicationConfig applicationConfig;
     private final EntitiesConfig entitiesConfig;
 
     public DBServerSettingsWrapper(final DBProviderFactory providerFactory, final ApplicationConfig applicationConfig) {
         super(providerFactory);
         this.applicationConfig = applicationConfig;
-        undefinedSettingCollectionHandler = new DBApplicationUndefinedSettingCollectionHandler(applicationConfig);
+        undefinedSettingCollectionHandler = new DBServerUndefinedSettingCollectionHandler(applicationConfig);
         entitiesConfig = EntitiesConfig.getInstance();
     }
 
@@ -65,6 +65,16 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
     }
 
     @Override
+    public List<Integer> getSEOCategoryIds() {
+        return getEntity().getSEOCategoryIds();
+    }
+
+    @Override
+    public void setSEOCategoryIds(List<Integer> seoCategoryIds) {
+        getEntity().setSEOCategoryIds(seoCategoryIds);
+    }
+
+    @Override
     public List<String> getLocales() {
         return getEntity().getLocales();
     }
@@ -92,7 +102,7 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
     @Override
     public UpdateableCollectionWrapper<ServerUndefinedSettingWrapper> getUndefinedSettings() {
         final CollectionWrapper<ServerUndefinedSettingWrapper> collection = getWrapperFactory().createCollection(getEntity()
-                .getUndefinedProperties(), UndefinedSetting.class, false, ServerUndefinedSettingWrapper.class, undefinedSettingCollectionHandler);
+                .getUndefinedSettings(), UndefinedSetting.class, false, ServerUndefinedSettingWrapper.class, undefinedSettingCollectionHandler);
         return (UpdateableCollectionWrapper<ServerUndefinedSettingWrapper>) collection;
     }
 
@@ -103,7 +113,7 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
         dbEntities.setHandler(undefinedSettingCollectionHandler);
 
         // Add new undefined settings and skip any existing settings
-        final Set<UndefinedSetting> currentUndefinedEntities = new HashSet<UndefinedSetting>(getEntity().getUndefinedProperties());
+        final Set<UndefinedSetting> currentUndefinedEntities = new HashSet<UndefinedSetting>(getEntity().getUndefinedSettings());
         final Collection<UndefinedSetting> newTags = dbEntities.unwrap();
         for (final UndefinedSetting Setting : newTags) {
             if (currentUndefinedEntities.contains(Setting)) {
@@ -111,7 +121,7 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
                 continue;
             } else {
                 try {
-                    getEntity().addUndefinedProperty(Setting.getKey(), Setting.getValue());
+                    getEntity().addUndefinedSetting(Setting.getKey(), Setting.getValue());
                 } catch (ConfigurationException e) {
                     throw new RuntimeException(e);
                 }

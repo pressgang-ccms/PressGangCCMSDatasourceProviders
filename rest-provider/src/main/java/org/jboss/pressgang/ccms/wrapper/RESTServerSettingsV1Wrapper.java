@@ -46,6 +46,16 @@ public class RESTServerSettingsV1Wrapper extends RESTBaseWrapper<ServerSettingsW
     }
 
     @Override
+    public List<Integer> getSEOCategoryIds() {
+        return getEntity().getSeoCategoryIds();
+    }
+
+    @Override
+    public void setSEOCategoryIds(List<Integer> seoCategoryIds) {
+        getEntity().explicitSetSeoCategoryIds(seoCategoryIds);
+    }
+
+    @Override
     public List<String> getLocales() {
         return getEntity().getLocales();
     }

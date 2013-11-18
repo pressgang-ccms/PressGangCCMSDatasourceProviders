@@ -103,10 +103,10 @@ public class DBWrapperFactory extends WrapperFactory {
         final DBBaseWrapper wrapper;
 
         if (entity instanceof ApplicationConfig) {
-            // APPLICATION CONFIG
+            // SERVER SETTINGS
             wrapper = new DBServerSettingsWrapper(getProviderFactory(), (ApplicationConfig) entity);
-        } else if (entity instanceof ApplicationConfig) {
-            // ENTITIES CONFIG
+        } else if (entity instanceof EntitiesConfig) {
+            // SERVER ENTITIES
             wrapper = new DBServerEntitiesWrapper(getProviderFactory(), (EntitiesConfig) entity);
         } else if (entity instanceof UndefinedEntity) {
             // UNDEFINED ENTITY
