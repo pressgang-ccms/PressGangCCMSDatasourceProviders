@@ -28,6 +28,10 @@ public interface TranslatedTopicWrapper extends BaseTopicWrapper<TranslatedTopic
 
     void setTranslatedAdditionalXML(String translatedAdditionalXML);
 
+    String getCustomEntities();
+
+    void setCustomEntities(String customEntities);
+
     UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings();
 
     void setTranslatedTopicStrings(UpdateableCollectionWrapper<TranslatedTopicStringWrapper> translatedStrings);
