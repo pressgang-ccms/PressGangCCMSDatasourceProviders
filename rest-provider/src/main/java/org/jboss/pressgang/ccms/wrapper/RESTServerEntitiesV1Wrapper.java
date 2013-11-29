@@ -29,6 +29,11 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
     }
 
     @Override
+    public Integer getFrozenTagId() {
+        return getEntity().getFrozenTagId();
+    }
+
+    @Override
     public Integer getInternalOnlyTagId() {
         return getEntity().getInternalOnlyTagId();
     }
@@ -36,6 +41,11 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
     @Override
     public Integer getLegalNoticeTagId() {
         return getEntity().getLegalNoticeTagId();
+    }
+
+    @Override
+    public Integer getObsoleteTagId() {
+        return getEntity().getObsoleteTagId();
     }
 
     @Override

@@ -7,8 +7,10 @@ public interface ServerEntitiesWrapper extends BaseWrapper<ServerEntitiesWrapper
     Integer getAbstractTagId();
     Integer getAuthorGroupTagId();
     Integer getContentSpecTagId();
+    Integer getFrozenTagId();
     Integer getInternalOnlyTagId();
     Integer getLegalNoticeTagId();
+    Integer getObsoleteTagId();
     Integer getReviewTagId();
     Integer getRevisionHistoryTagId();
     Integer getTaskTagId();

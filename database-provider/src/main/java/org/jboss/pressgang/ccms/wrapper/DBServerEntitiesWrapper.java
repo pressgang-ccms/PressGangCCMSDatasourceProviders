@@ -46,6 +46,11 @@ public class DBServerEntitiesWrapper extends DBBaseWrapper<ServerEntitiesWrapper
     }
 
     @Override
+    public Integer getFrozenTagId() {
+        return getEntity().getFrozenTagId();
+    }
+
+    @Override
     public Integer getInternalOnlyTagId() {
         return getEntity().getInternalOnlyTagId();
     }
@@ -53,6 +58,11 @@ public class DBServerEntitiesWrapper extends DBBaseWrapper<ServerEntitiesWrapper
     @Override
     public Integer getLegalNoticeTagId() {
         return getEntity().getLegalNoticeTagId();
+    }
+
+    @Override
+    public Integer getObsoleteTagId() {
+        return getEntity().getObsoleteTagId();
     }
 
     @Override
