@@ -14,8 +14,8 @@
 
     <scm>
         <url>https://github.com/pressgang-ccms/PressGangCCMSDatasourceProviders</url>
-        <connection>scm:git@github.com:pressgang-ccms/PressGangCCMSDatasourceProviders.git</connection>
-        <developerConnection>scm:git@github.com:pressgang-ccms/PressGangCCMSDatasourceProviders.git</developerConnection>
+        <connection>scm:git:git@github.com:pressgang-ccms/PressGangCCMSDatasourceProviders.git</connection>
+        <developerConnection>scm:git:git@github.com:pressgang-ccms/PressGangCCMSDatasourceProviders.git</developerConnection>
     </scm>
 
     <properties>
