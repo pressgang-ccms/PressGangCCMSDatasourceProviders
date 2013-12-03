@@ -9,7 +9,7 @@
 
     <groupId>org.jboss.pressgang.ccms</groupId>
     <artifactId>provider-commons</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.4-SNAPSHOT</version>
     <name>PressGang CCMS Provider Commons</name>
 
     <scm>
@@ -19,7 +19,7 @@
     </scm>
 
     <properties>
-        <pressgang.ccms.version>1.3-SNAPSHOT</pressgang.ccms.version>
+        <pressgang.ccms.version>1.4-SNAPSHOT</pressgang.ccms.version>
         <slf4j.version>1.6.4</slf4j.version>
     </properties>
 
