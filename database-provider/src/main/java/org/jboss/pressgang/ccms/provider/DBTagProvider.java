@@ -15,8 +15,8 @@ import org.jboss.pressgang.ccms.model.TagToCategory;
 import org.jboss.pressgang.ccms.model.TagToPropertyTag;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
+import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
@@ -26,8 +26,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 public class DBTagProvider extends DBDataProvider implements TagProvider {
     private TagCache tagCache = new TagCache();
 
-    protected DBTagProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBTagProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
     }
 
     @Override
@@ -71,7 +71,6 @@ public class DBTagProvider extends DBDataProvider implements TagProvider {
         }
     }
 
-    @Override
     public UpdateableCollectionWrapper<CategoryInTagWrapper> getTagCategories(int id, Integer revision) {
         final DBTagWrapper tag = (DBTagWrapper) getTag(id, revision);
         if (tag == null) {
@@ -127,7 +126,7 @@ public class DBTagProvider extends DBDataProvider implements TagProvider {
     }
 
     @Override
-    public TagInCategoryWrapper newTagInCategory() {
+    public TagInCategoryWrapper newTagInCategory(CategoryWrapper parent) {
         return getWrapperFactory().create(new TagToCategory(), false);
     }
 
@@ -137,7 +136,7 @@ public class DBTagProvider extends DBDataProvider implements TagProvider {
     }
 
     @Override
-    public CollectionWrapper<TagInCategoryWrapper> newTagInCategoryCollection() {
+    public CollectionWrapper<TagInCategoryWrapper> newTagInCategoryCollection(CategoryWrapper parent) {
         return getWrapperFactory().createCollection(new ArrayList<TagToCategory>(), TagToCategory.class, false, TagInCategoryWrapper.class);
     }
 }

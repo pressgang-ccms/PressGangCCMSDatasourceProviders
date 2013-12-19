@@ -1,19 +1,20 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTTranslatedCSNodeV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.items.RESTTranslatedCSNodeStringCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +22,8 @@ import org.slf4j.LoggerFactory;
 public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider implements TranslatedCSNodeStringProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedCSNodeProvider.class);
 
-    protected RESTTranslatedCSNodeStringProvider(final RESTManager restManager, RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTTranslatedCSNodeStringProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     public RESTTranslatedCSNodeStringV1 getRESTTranslatedCSNodeString(int id, final Integer revision, final RESTTranslatedCSNodeV1 parent) {
@@ -49,7 +50,12 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
     }
 
     public TranslatedCSNodeStringWrapper getTranslatedCSNodeString(int id, final Integer revision, final RESTTranslatedCSNodeV1 parent) {
-        return getWrapperFactory().create(getRESTTranslatedCSNodeString(id, revision, parent), revision != null, parent);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTranslatedCSNodeString(id, revision, parent))
+                .isRevision(revision != null)
+                .parent(parent)
+                .build();
     }
 
     @Override
@@ -142,22 +148,33 @@ public class RESTTranslatedCSNodeStringProvider extends RESTDataProvider impleme
 
     public CollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedCSNodeStringRevisions(int id, final Integer revision,
             final RESTTranslatedCSNodeV1 parent) {
-        return getWrapperFactory().createCollection(getRESTTranslatedCSNodeStringRevisions(id, revision, parent),
-                RESTTranslatedCSNodeStringV1.class, revision != null, parent);
+        return RESTCollectionWrapperBuilder.<TranslatedCSNodeStringWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedCSNodeStringRevisions(id, revision, parent))
+                .isRevisionCollection()
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 
     @Override
     public TranslatedCSNodeStringWrapper newTranslatedCSNodeString(final TranslatedCSNodeWrapper translatedNode) {
-        return getWrapperFactory().create(new RESTTranslatedCSNodeStringV1(), false,
-                translatedNode == null ? null : (RESTTranslatedCSNodeV1) translatedNode.unwrap(), true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTranslatedCSNodeStringV1())
+                .newEntity()
+                .parent(translatedNode == null ? null : (RESTTranslatedCSNodeV1) translatedNode.unwrap())
+                .build();
     }
 
     @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection(
+    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newTranslatedCSNodeStringCollection(
             final TranslatedCSNodeWrapper translatedNode) {
-        final CollectionWrapper<TranslatedCSNodeStringWrapper> collection = getWrapperFactory().createCollection(
-                new RESTTranslatedCSNodeStringCollectionV1(), RESTTranslatedCSNodeStringV1.class, false,
-                translatedNode == null ? null : (RESTTranslatedCSNodeV1) translatedNode.unwrap());
-        return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) collection;
+        return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) RESTCollectionWrapperBuilder
+                .<TranslatedCSNodeStringWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTranslatedCSNodeStringCollectionV1())
+                .parent(translatedNode == null ? null : (RESTTranslatedCSNodeV1) translatedNode.unwrap())
+                .build();
     }
 }

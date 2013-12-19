@@ -9,22 +9,21 @@ import java.util.Map;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.items.join.RESTCSRelatedNodeCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider {
     private static Logger log = LoggerFactory.getLogger(RESTCSRelatedNodeProvider.class);
 
-    protected RESTCSRelatedNodeProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTCSRelatedNodeProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     public RESTCSRelatedNodeCollectionV1 getRESTCSRelatedNodeRevisions(int id, Integer revision, final RESTCSNodeV1 parent) {
@@ -127,7 +126,11 @@ public class RESTCSRelatedNodeProvider extends RESTCSNodeProvider {
     }
 
     public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedNodeRevisions(int id, Integer revision, final RESTCSNodeV1 parent) {
-        return getWrapperFactory().createCollection(getRESTCSRelatedNodeRevisions(id, revision, parent), RESTCSRelatedNodeV1.class, true,
-                parent);
+        return RESTCollectionWrapperBuilder.<CSRelatedNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTCSRelatedNodeRevisions(id, revision, parent))
+                .isRevisionCollection()
+                .parent(parent)
+                .build();
     }
 }

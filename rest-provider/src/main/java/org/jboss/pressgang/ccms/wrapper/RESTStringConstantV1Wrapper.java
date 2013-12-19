@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTStringConstantV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
@@ -11,6 +13,11 @@ public class RESTStringConstantV1Wrapper extends RESTBaseEntityWrapper<StringCon
     protected RESTStringConstantV1Wrapper(final RESTProviderFactory providerFactory, final RESTStringConstantV1 stringConstant,
             boolean isRevision, boolean isNewEntity) {
         super(providerFactory, stringConstant, isRevision, isNewEntity);
+    }
+
+    protected RESTStringConstantV1Wrapper(final RESTProviderFactory providerFactory, final RESTStringConstantV1 stringConstant,
+            boolean isRevision, boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, stringConstant, isRevision, isNewEntity, expandedMethods);
     }
 
     @Override
@@ -36,10 +43,5 @@ public class RESTStringConstantV1Wrapper extends RESTBaseEntityWrapper<StringCon
     @Override
     public void setValue(String value) {
         getProxyEntity().explicitSetValue(value);
-    }
-
-    @Override
-    public CollectionWrapper<StringConstantWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTStringConstantV1.class, true);
     }
 }

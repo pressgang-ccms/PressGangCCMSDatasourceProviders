@@ -10,5 +10,5 @@ public interface TranslatedCSNodeStringProvider {
 
     TranslatedCSNodeStringWrapper newTranslatedCSNodeString(final TranslatedCSNodeWrapper parent);
 
-    UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection(final TranslatedCSNodeWrapper parent);
+    UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newTranslatedCSNodeStringCollection(final TranslatedCSNodeWrapper parent);
 }

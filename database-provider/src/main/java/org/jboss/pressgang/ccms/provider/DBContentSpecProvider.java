@@ -26,7 +26,6 @@ import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBContentSpecWrapper;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
@@ -37,9 +36,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 public class DBContentSpecProvider extends DBDataProvider implements ContentSpecProvider {
     private final DBProviderFactory providerFactory;
 
-    protected DBContentSpecProvider(DBProviderFactory providerFactory, EntityManager entityManager, DBWrapperFactory wrapperFactory,
-            List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBContentSpecProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
         this.providerFactory = providerFactory;
     }
 
@@ -213,7 +211,8 @@ public class DBContentSpecProvider extends DBDataProvider implements ContentSpec
     }
 
     @Override
-    public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getContentSpecProperties(int id, Integer revision) {
+    public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getContentSpecProperties(int id, Integer revision,
+            ContentSpecWrapper parent) {
         final DBContentSpecWrapper contentSpec = (DBContentSpecWrapper) getContentSpec(id, revision);
         if (contentSpec == null) {
             return null;

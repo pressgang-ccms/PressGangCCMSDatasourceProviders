@@ -21,13 +21,12 @@ import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBCSNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
-    protected DBCSNodeProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBCSNodeProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
     }
 
     @Override

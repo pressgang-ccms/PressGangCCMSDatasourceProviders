@@ -1,12 +1,13 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeRelationshipModeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeRelationshipTypeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeTypeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTCSRelatedNodeV1Wrapper extends RESTBaseEntityWrapper<CSRelatedNodeWrapper, RESTCSRelatedNodeV1> implements CSRelatedNodeWrapper {
 
@@ -15,9 +16,9 @@ public class RESTCSRelatedNodeV1Wrapper extends RESTBaseEntityWrapper<CSRelatedN
         super(providerFactory, entity, isRevision, isNewEntity);
     }
 
-    @Override
-    public CollectionWrapper<CSRelatedNodeWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTCSRelatedNodeV1.class, true);
+    protected RESTCSRelatedNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTCSRelatedNodeV1 entity, boolean isRevision,
+            boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, entity, isRevision, isNewEntity, expandedMethods);
     }
 
     @Override

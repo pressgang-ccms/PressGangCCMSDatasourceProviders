@@ -5,13 +5,12 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.StringConstants;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.StringConstantWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class DBStringConstantProvider extends DBDataProvider implements StringConstantProvider {
-    protected DBStringConstantProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBStringConstantProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
     }
 
     @Override

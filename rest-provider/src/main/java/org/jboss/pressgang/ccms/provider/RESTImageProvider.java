@@ -1,22 +1,23 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
+import java.util.Arrays;
+
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
 import org.jboss.pressgang.ccms.wrapper.ImageWrapper;
 import org.jboss.pressgang.ccms.wrapper.LanguageImageWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTImageProvider extends RESTDataProvider implements ImageProvider {
     private static Logger log = LoggerFactory.getLogger(RESTImageProvider.class);
 
-    protected RESTImageProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTImageProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTImageV1 loadImage(Integer id, Integer revision, String expandString) {
@@ -55,7 +56,11 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
 
     @Override
     public ImageWrapper getImage(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTImage(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTImage(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTLanguageImageCollectionV1 getRESTImageLanguageImages(int id, final Integer revision) {
@@ -92,8 +97,13 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
     }
 
     public CollectionWrapper<LanguageImageWrapper> getImageLanguageImages(int id, final Integer revision, final RESTImageV1 parent) {
-        return getWrapperFactory().createCollection(getRESTImageLanguageImages(id, revision), RESTLanguageImageV1.class,
-                revision != null, parent);
+        return RESTCollectionWrapperBuilder.<LanguageImageWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTImageLanguageImages(id, revision))
+                .isRevisionCollection(revision != null)
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getLanguageImages_OTM"))
+                .build();
     }
 
     public RESTImageCollectionV1 getRESTImageRevisions(int id, final Integer revision) {
@@ -130,6 +140,11 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
 
     @Override
     public CollectionWrapper<ImageWrapper> getImageRevisions(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTImageRevisions(id, revision), RESTImageV1.class, true);
+        return RESTCollectionWrapperBuilder.<ImageWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTImageRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 }

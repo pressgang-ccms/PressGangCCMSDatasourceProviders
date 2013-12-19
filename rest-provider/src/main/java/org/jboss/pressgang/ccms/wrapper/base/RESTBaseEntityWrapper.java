@@ -1,12 +1,17 @@
 package org.jboss.pressgang.ccms.wrapper.base;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 
-public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, ?,
-        ?>> extends RESTBaseWrapper<T, U> implements EntityWrapper<T> {
+public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, ?, ?>> extends RESTBaseWrapper<T,
+        U> implements EntityWrapper<T> {
 
+    private final RESTBaseEntityV1<?, ?, ?> parent;
     private final boolean isRevision;
     private final U proxyEntity;
     private final boolean isNewEntity;
@@ -15,15 +20,26 @@ public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extend
         this(providerFactory, entity, isRevision, null, isNewEntity);
     }
 
+    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity,
+            final Collection<String> expandedMethods) {
+        this(providerFactory, entity, isRevision, null, isNewEntity, expandedMethods);
+    }
+
     protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision,
             final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity) {
+        this(providerFactory, entity, isRevision, parent, isNewEntity, null);
+    }
+
+    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision,
+            final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
         super(providerFactory, entity);
         this.isRevision = isRevision;
         this.isNewEntity = isNewEntity;
+        this.parent = parent;
         if (isNewEntity) {
             proxyEntity = entity;
         } else {
-            proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision, parent);
+            proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision, parent, expandedMethods);
         }
     }
 
@@ -71,5 +87,19 @@ public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extend
 
     protected boolean isNewEntity() {
         return isNewEntity;
+    }
+
+    protected RESTBaseEntityV1<?, ?, ?> getParentEntity() {
+        return parent;
+    }
+
+    @Override
+    public CollectionWrapper<T> getRevisions() {
+        return RESTCollectionWrapperBuilder.<T>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getRevisions())
+                .isRevisionCollection()
+                .parent(parent)
+                .build();
     }
 }

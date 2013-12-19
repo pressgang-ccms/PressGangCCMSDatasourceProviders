@@ -1,7 +1,6 @@
 package org.jboss.pressgang.ccms.provider;
 
 import javax.ws.rs.core.PathSegment;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
@@ -19,22 +17,20 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectio
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTTopicQueryBuilderV1;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.RESTTopicV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTopicCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
@@ -47,16 +43,26 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         put(RESTTopicV1.TAGS_NAME, Arrays.asList(RESTTagV1.CATEGORIES_NAME));
         put(RESTTopicV1.PROPERTIES_NAME, null);
     }};
+    protected static final Set<String> DEFAULT_METHOD_MAP = new HashSet<String>() {{
+        add("getTags");
+        add("getProperties");
+    }};
     protected static final Map<String, Collection<String>> DEFAULT_EXPAND_MAP_WITH_TRANSLATIONS = new HashMap<String,
             Collection<String>>() {{
         put(RESTTopicV1.TAGS_NAME, Arrays.asList(RESTTagV1.CATEGORIES_NAME));
         put(RESTTopicV1.PROPERTIES_NAME, null);
         put(RESTTopicV1.TRANSLATEDTOPICS_NAME, null);
     }};
+    protected static final Set<String> DEFAULT_METHOD_MAP_WITH_TRANSLATIONS = new HashSet<String>() {{
+        add("getTags");
+        add("getProperties");
+        add("getTranslatedTopics_OTM");
+    }};
+
     private boolean expandTranslations = false;
 
-    protected RESTTopicProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTTopicProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTTopicV1 loadTopic(int id, Integer revision, String expandString) {
@@ -71,11 +77,19 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         this.expandTranslations = expandTranslations;
     }
 
-    protected Map<String, Collection<String>> getDefaultTopicExpansionList() throws IOException {
+    protected Map<String, Collection<String>> getDefaultTopicExpansionList() {
         if (expandTranslations) {
             return DEFAULT_EXPAND_MAP_WITH_TRANSLATIONS;
         } else {
             return DEFAULT_EXPAND_MAP;
+        }
+    }
+
+    protected Set<String> getDefaultTopicMethodList() {
+        if (expandTranslations) {
+            return DEFAULT_METHOD_MAP_WITH_TRANSLATIONS;
+        } else {
+            return DEFAULT_METHOD_MAP;
         }
     }
 
@@ -107,7 +121,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     @Override
     public TopicWrapper getTopic(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTTopic(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTopic(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTTagCollectionV1 getRESTTopicTags(int id, final Integer revision) {
@@ -145,7 +163,12 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     @Override
     public CollectionWrapper<TagWrapper> getTopicTags(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTopicTags(id, revision), RESTTagV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopicTags(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getTags"))
+                .build();
     }
 
     public RESTTopicCollectionV1 getRESTTopics(final List<Integer> ids) {
@@ -196,7 +219,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     public CollectionWrapper<TopicWrapper> getTopics(final List<Integer> ids) {
         if (ids.isEmpty()) return null;
 
-        return getWrapperFactory().createCollection(getRESTTopics(ids), RESTTopicV1.class, false);
+        return RESTCollectionWrapperBuilder.<TopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopics(ids))
+                .expandedEntityMethods(getDefaultTopicMethodList())
+                .build();
     }
 
     public RESTTopicCollectionV1 getRESTTopicsWithQuery(final String query) {
@@ -220,7 +247,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
     public CollectionWrapper<TopicWrapper> getTopicsWithQuery(final String query) {
         if (query == null || query.isEmpty()) return null;
 
-        return getWrapperFactory().createCollection(getRESTTopicsWithQuery(query), RESTTopicV1.class, false);
+        return RESTCollectionWrapperBuilder.<TopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopicsWithQuery(query))
+                .expandedEntityMethods(getDefaultTopicMethodList())
+                .build();
     }
 
     public RESTTranslatedTopicCollectionV1 getRESTTopicTranslations(int id, final Integer revision) {
@@ -258,7 +289,12 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTopicTranslations(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTopicTranslations(id, revision), RESTTranslatedTopicV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopicTranslations(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(RESTTranslatedTopicProvider.DEFAULT_METHOD_MAP)
+                .build();
     }
 
     public RESTTopicCollectionV1 getRESTTopicRevisions(int id, final Integer revision) {
@@ -295,7 +331,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     @Override
     public CollectionWrapper<TopicWrapper> getTopicRevisions(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTopicRevisions(id, revision), RESTTopicV1.class, true);
+        return RESTCollectionWrapperBuilder.<TopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopicRevisions(id, revision))
+                .isRevisionCollection()
+                .build();
     }
 
     public RESTAssignedPropertyTagCollectionV1 getRESTTopicProperties(int id, final Integer revision) {
@@ -337,10 +377,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> getTopicProperties(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> parent) {
-        final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
-                getRESTTopicProperties(id, revision), RESTAssignedPropertyTagV1.class, revision != null, parent,
-                PropertyTagInTopicWrapper.class);
-        return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
+        return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) RESTCollectionWrapperBuilder.<PropertyTagInTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .isRevisionCollection(revision != null)
+                .entityWrapperInterface(PropertyTagInTopicWrapper.class)
+                .build();
     }
 
     public RESTTopicCollectionV1 getRESTTopicOutgoingRelationships(int id, final Integer revision) {
@@ -378,7 +419,12 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     @Override
     public CollectionWrapper<TopicWrapper> getTopicOutgoingRelationships(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTopicOutgoingRelationships(id, revision), RESTTopicV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<TopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopicOutgoingRelationships(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getOutgoingRelationships"))
+                .build();
     }
 
     public RESTTopicCollectionV1 getRESTTopicIncomingRelationships(int id, final Integer revision) {
@@ -416,7 +462,12 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     @Override
     public CollectionWrapper<TopicWrapper> getTopicIncomingRelationships(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTopicIncomingRelationships(id, revision), RESTTopicV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<TopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopicIncomingRelationships(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getIncomingRelationships"))
+                .build();
     }
 
     @Override
@@ -458,8 +509,13 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceUrls(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> parent) {
-        return getWrapperFactory().createCollection(getRESTTopicSourceUrls(id, revision), RESTTopicSourceUrlV1.class, revision != null,
-                parent);
+        return RESTCollectionWrapperBuilder.<TopicSourceURLWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopicSourceUrls(id, revision))
+                .isRevisionCollection(revision != null)
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getSourceUrls_OTM"))
+                .build();
     }
 
     @Override
@@ -486,7 +542,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             }
             if (createdTopic != null) {
                 getRESTEntityCache().add(createdTopic);
-                return getWrapperFactory().create(createdTopic, false);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(createdTopic)
+                        .expandedMethods(getDefaultTopicMethodList())
+                        .build();
             } else {
                 return null;
             }
@@ -521,7 +581,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             if (updatedTopic != null) {
                 getRESTEntityCache().expire(RESTTopicV1.class, updatedTopic.getId());
                 getRESTEntityCache().add(updatedTopic);
-                return getWrapperFactory().create(updatedTopic, false);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(updatedTopic)
+                        .expandedMethods(getDefaultTopicMethodList())
+                        .build();
             } else {
                 return null;
             }
@@ -574,7 +638,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             }
             if (createdTopics != null) {
                 getRESTEntityCache().add(createdTopics, false);
-                return getWrapperFactory().createCollection(createdTopics, RESTTopicV1.class, false);
+                return RESTCollectionWrapperBuilder.<TopicWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .collection(createdTopics)
+                        .expandedEntityMethods(getDefaultTopicMethodList())
+                        .build();
             } else {
                 return null;
             }
@@ -612,7 +680,11 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
                 }
                 // Add the new data to the cache
                 getRESTEntityCache().add(updatedTopics, false);
-                return getWrapperFactory().createCollection(updatedTopics, RESTTopicV1.class, false);
+                return RESTCollectionWrapperBuilder.<TopicWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .collection(updatedTopics)
+                        .expandedEntityMethods(getDefaultTopicMethodList())
+                        .build();
             } else {
                 return null;
             }
@@ -646,11 +718,18 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
 
     @Override
     public TopicWrapper newTopic() {
-        return getWrapperFactory().create(new RESTTopicV1(), false, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTopicV1())
+                .newEntity()
+                .build();
     }
 
     @Override
     public CollectionWrapper<TopicWrapper> newTopicCollection() {
-        return getWrapperFactory().createCollection(new RESTTopicCollectionV1(), RESTTopicV1.class, false);
+        return RESTCollectionWrapperBuilder.<TopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTopicCollectionV1())
+                .build();
     }
 }

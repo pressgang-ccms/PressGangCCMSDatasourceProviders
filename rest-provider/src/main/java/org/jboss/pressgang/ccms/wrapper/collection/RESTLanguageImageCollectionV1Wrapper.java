@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper.collection;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
@@ -12,5 +14,10 @@ public class RESTLanguageImageCollectionV1Wrapper extends RESTUpdateableCollecti
     public RESTLanguageImageCollectionV1Wrapper(final RESTProviderFactory providerFactory, final RESTLanguageImageCollectionV1 collection,
             boolean isRevisionCollection, final RESTImageV1 parent) {
         super(providerFactory, collection, isRevisionCollection, parent);
+    }
+
+    public RESTLanguageImageCollectionV1Wrapper(final RESTProviderFactory providerFactory, final RESTLanguageImageCollectionV1 collection,
+            boolean isRevisionCollection, final RESTImageV1 parent, final Collection<String> expandedEntityMethods) {
+        super(providerFactory, collection, isRevisionCollection, parent, expandedEntityMethods);
     }
 }

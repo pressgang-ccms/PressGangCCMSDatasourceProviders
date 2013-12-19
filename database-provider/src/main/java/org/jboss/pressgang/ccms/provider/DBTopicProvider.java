@@ -24,7 +24,6 @@ import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.DBTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
@@ -35,8 +34,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBTopicProvider extends DBDataProvider implements TopicProvider {
-    protected DBTopicProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBTopicProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
     }
 
     @Override

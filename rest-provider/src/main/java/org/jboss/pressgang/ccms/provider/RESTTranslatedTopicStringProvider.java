@@ -1,27 +1,28 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTTranslatedTopicV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTTranslatedTopicStringCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTTranslatedTopicStringProvider extends RESTDataProvider implements TranslatedTopicStringProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedTopicProvider.class);
 
-    protected RESTTranslatedTopicStringProvider(final RESTManager restManager, RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTTranslatedTopicStringProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTTranslatedTopicV1 loadTranslatedTopic(Integer id, Integer revision, String expandString) {
@@ -56,7 +57,12 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
     }
 
     public TranslatedTopicStringWrapper getTranslatedTopicString(int id, final Integer revision, final RESTTranslatedTopicV1 parent) {
-        return getWrapperFactory().create(getRESTTranslatedTopicString(id, revision, parent), revision != null, parent);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTranslatedTopicString(id, revision, parent))
+                .isRevision(revision != null)
+                .parent(parent)
+                .build();
     }
 
     @Override
@@ -144,20 +150,32 @@ public class RESTTranslatedTopicStringProvider extends RESTDataProvider implemen
 
     public CollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStringRevisions(int id, final Integer revision,
             final RESTTranslatedTopicV1 parent) {
-        return getWrapperFactory().createCollection(getRESTTranslatedTopicStringRevisions(id, revision, parent),
-                RESTTranslatedTopicStringV1.class, revision != null, parent);
+        return RESTCollectionWrapperBuilder.<TranslatedTopicStringWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicStringRevisions(id, revision, parent))
+                .isRevisionCollection()
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 
     @Override
     public TranslatedTopicStringWrapper newTranslatedTopicString(final TranslatedTopicWrapper translatedTopic) {
-        return getWrapperFactory().create(new RESTTranslatedTopicStringV1(), false,
-                translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap(), true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTranslatedTopicStringV1())
+                .newEntity()
+                .parent(translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap())
+                .build();
     }
 
     @Override
     public CollectionWrapper<TranslatedTopicStringWrapper> newTranslatedTopicStringCollection(
             final TranslatedTopicWrapper translatedTopic) {
-        return getWrapperFactory().createCollection(new RESTTranslatedTopicStringCollectionV1(), RESTTranslatedTopicStringV1.class, false,
-                translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap());
+        return RESTCollectionWrapperBuilder.<TranslatedTopicStringWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTranslatedTopicStringCollectionV1())
+                .parent(translatedTopic == null ? null : (RESTTranslatedTopicV1) translatedTopic.unwrap())
+                .build();
     }
 }

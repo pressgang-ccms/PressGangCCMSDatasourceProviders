@@ -5,7 +5,6 @@ import java.util.List;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTCategoryInTagCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTCategoryInTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
@@ -13,16 +12,16 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
 import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTCategoryInTagProvider extends RESTCategoryProvider {
     private static Logger log = LoggerFactory.getLogger(RESTCategoryInTagProvider.class);
 
-    protected RESTCategoryInTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTCategoryInTagProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTTagV1 loadTag(Integer id, Integer revision, String expandString) {
@@ -94,6 +93,11 @@ public class RESTCategoryInTagProvider extends RESTCategoryProvider {
 
     public CollectionWrapper<CategoryInTagWrapper> getCategoryInTagRevisions(int id, Integer revision,
             final RESTBaseTagV1<?, ?, ?> parent) {
-        return getWrapperFactory().createCollection(getRESTCategoryInTagRevisions(id, revision, parent), RESTCategoryInTagV1.class, true, parent);
+        return RESTCollectionWrapperBuilder.<CategoryInTagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTCategoryInTagRevisions(id, revision, parent))
+                .isRevisionCollection()
+                .parent(parent)
+                .build();
     }
 }

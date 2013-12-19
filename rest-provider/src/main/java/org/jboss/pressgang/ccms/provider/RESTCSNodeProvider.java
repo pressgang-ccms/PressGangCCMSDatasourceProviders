@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
@@ -15,8 +14,9 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
@@ -24,11 +24,12 @@ import org.slf4j.LoggerFactory;
 
 public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvider {
     private static final Logger log = LoggerFactory.getLogger(RESTCSNodeProvider.class);
-    private static final List<String> DEFAULT_EXPANSION = Arrays.asList(RESTCSNodeV1.NEXT_NODE_NAME,
+    protected static final List<String> DEFAULT_EXPANSION = Arrays.asList(RESTCSNodeV1.NEXT_NODE_NAME,
             RESTCSNodeV1.RELATED_TO_NAME);
+    protected static final List<String> DEFAULT_METHODS = Arrays.asList("getNextNode", "getRelatedToNodes");
 
-    protected RESTCSNodeProvider(RESTManager restManager, RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTCSNodeProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTCSNodeV1 loadCSNode(Integer id, Integer revision, String expandString) {
@@ -68,7 +69,11 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public CSNodeWrapper getCSNode(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTCSNode(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTCSNextNode(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTCSNodeCollectionV1 getRESTCSNodesWithQuery(final String query) {
@@ -76,7 +81,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
         try {
             // We need to expand the all the content specs in the collection
-            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME, DEFAULT_EXPANSION);
 
             final RESTCSNodeCollectionV1 csNodes = getRESTClient().getJSONContentSpecNodesWithQuery(new PathSegmentImpl(query,
                     false), expandString);
@@ -93,7 +98,11 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     public CollectionWrapper<CSNodeWrapper> getCSNodesWithQuery(final String query) {
         if (query == null || query.isEmpty()) return null;
 
-        return getWrapperFactory().createCollection(getRESTCSNodesWithQuery(query), RESTContentSpecV1.class, false);
+        return RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTCSNodesWithQuery(query))
+                .expandedEntityMethods(DEFAULT_METHODS)
+                .build();
     }
 
     public RESTCSRelatedNodeCollectionV1 getRESTCSRelatedToNodes(int id, Integer revision) {
@@ -131,7 +140,11 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedToNodes(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTCSRelatedToNodes(id, revision), RESTCSRelatedNodeV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<CSRelatedNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTCSRelatedToNodes(id, revision))
+                .isRevisionCollection(revision != null)
+                .build();
     }
 
     public RESTCSRelatedNodeCollectionV1 getRESTCSRelatedFromNodes(int id, Integer revision) {
@@ -169,7 +182,11 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public CollectionWrapper<CSRelatedNodeWrapper> getCSRelatedFromNodes(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTCSRelatedFromNodes(id, revision), RESTCSRelatedNodeV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<CSRelatedNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTCSRelatedFromNodes(id, revision))
+                .isRevisionCollection(revision != null)
+                .build();
     }
 
     public RESTCSNodeCollectionV1 getRESTCSNodeChildren(int id, Integer revision) {
@@ -208,9 +225,12 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getCSNodeChildren(int id, Integer revision) {
-        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getRESTCSNodeChildren(id, revision),
-                RESTCSNodeV1.class, revision != null);
-        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTCSNodeChildren(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(DEFAULT_METHODS)
+                .build();
     }
 
     public RESTCSNodeCollectionV1 getRESTCSNodeRevisions(int id, Integer revision) {
@@ -248,7 +268,12 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public CollectionWrapper<CSNodeWrapper> getCSNodeRevisions(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTCSNodeRevisions(id, revision), RESTCSNodeV1.class, true);
+        return RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTCSNodeRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(DEFAULT_METHODS)
+                .build();
     }
 
     public String getRESTCSNodeInheritedCondition(int id, Integer revision) {
@@ -507,19 +532,28 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
     @Override
     public CSNodeWrapper newCSNode() {
-        return getWrapperFactory().create(new RESTCSNodeV1(), false, CSNodeWrapper.class, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTCSNodeV1())
+                .newEntity()
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> newCSNodeCollection() {
-        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(new RESTCSNodeCollectionV1(),
-                RESTCSNodeV1.class, false);
-        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTCSNodeCollectionV1())
+                .build();
     }
 
     @Override
     public CSRelatedNodeWrapper newCSRelatedNode() {
-        return getWrapperFactory().create(new RESTCSRelatedNodeV1(), false, CSRelatedNodeWrapper.class, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTCSRelatedNodeV1())
+                .newEntity()
+                .build();
     }
 
     @Override
@@ -535,14 +569,19 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             relatedNode.setEntityRevision(csNode.getEntityRevision());
             relatedNode.setTargetId(csNode.getTargetId());
         }
-        return getWrapperFactory().create(relatedNode, false, CSRelatedNodeWrapper.class, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(relatedNode)
+                .newEntity()
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> newCSRelatedNodeCollection() {
-        final CollectionWrapper<CSRelatedNodeWrapper> collection = getWrapperFactory().createCollection(new RESTCSRelatedNodeCollectionV1(),
-                RESTCSRelatedNodeV1.class, false);
-        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) RESTCollectionWrapperBuilder.<CSRelatedNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTCSRelatedNodeCollectionV1())
+                .build();
     }
 
     @Override

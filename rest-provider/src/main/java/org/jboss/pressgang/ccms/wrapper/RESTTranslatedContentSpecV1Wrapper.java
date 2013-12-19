@@ -1,13 +1,14 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
@@ -19,14 +20,14 @@ public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseEntityWrapper<Tr
         super(providerFactory, translatedContentSpec, isRevision, isNewEntity);
     }
 
-    @Override
-    public TranslatedContentSpecWrapper clone(boolean deepCopy) {
-        return new RESTTranslatedContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+    protected RESTTranslatedContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedContentSpecV1 translatedContentSpec,
+            boolean isRevision, boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, translatedContentSpec, isRevision, isNewEntity, expandedMethods);
     }
 
     @Override
-    public CollectionWrapper<TranslatedContentSpecWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTTranslatedContentSpecV1.class, true);
+    public TranslatedContentSpecWrapper clone(boolean deepCopy) {
+        return new RESTTranslatedContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
     }
 
     @Override
@@ -56,9 +57,11 @@ public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseEntityWrapper<Tr
 
     @Override
     public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes() {
-        final CollectionWrapper<TranslatedCSNodeWrapper> collection = getWrapperFactory().createCollection(getProxyEntity()
-                .getTranslatedNodes_OTM(), RESTTranslatedCSNodeV1.class, isRevisionEntity(), TranslatedCSNodeWrapper.class);
-        return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) RESTCollectionWrapperBuilder.<TranslatedCSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getTranslatedNodes_OTM())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @Override
@@ -69,7 +72,11 @@ public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseEntityWrapper<Tr
 
     @Override
     public ContentSpecWrapper getContentSpec() {
-        return getWrapperFactory().create(getProxyEntity().getContentSpec(), true, ContentSpecWrapper.class);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getContentSpec())
+                .isRevision()
+                .build();
     }
 
     @Override

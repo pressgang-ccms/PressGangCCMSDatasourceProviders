@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper.collection;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -19,8 +20,18 @@ public abstract class RESTUpdateableCollectionWrapper<T extends BaseWrapper<T>, 
     }
 
     public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
+            final Collection<String> entityIgnoreMethods) {
+        super(providerFactory, collection, isRevisionCollection, entityIgnoreMethods);
+    }
+
+    public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
             final Class<T> wrapperClass) {
         super(providerFactory, collection, isRevisionCollection, wrapperClass);
+    }
+
+    public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
+            final Class<T> wrapperClass, final Collection<String> entityIgnoreMethods) {
+        super(providerFactory, collection, isRevisionCollection, wrapperClass, entityIgnoreMethods);
     }
 
     public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
@@ -29,8 +40,18 @@ public abstract class RESTUpdateableCollectionWrapper<T extends BaseWrapper<T>, 
     }
 
     public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
+            final RESTBaseEntityV1<?, ?, ?> parent, final Collection<String> entityIgnoreMethods) {
+        super(providerFactory, collection, isRevisionCollection, parent, entityIgnoreMethods);
+    }
+
+    public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
             final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
         super(providerFactory, collection, isRevisionCollection, parent, wrapperClass);
+    }
+
+    public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
+            final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass, final Collection<String> entityIgnoreMethods) {
+        super(providerFactory, collection, isRevisionCollection, parent, wrapperClass, entityIgnoreMethods);
     }
 
     @SuppressWarnings("unchecked")

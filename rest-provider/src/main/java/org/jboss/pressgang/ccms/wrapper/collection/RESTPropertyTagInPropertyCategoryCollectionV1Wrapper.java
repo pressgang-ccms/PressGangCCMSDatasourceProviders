@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper.collection;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTPropertyTagInPropertyCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
@@ -15,5 +17,11 @@ public class RESTPropertyTagInPropertyCategoryCollectionV1Wrapper extends
             final RESTPropertyTagInPropertyCategoryCollectionV1 collection, boolean isRevisionCollection,
             final RESTPropertyCategoryV1 parent) {
         super(providerFactory, collection, isRevisionCollection, parent);
+    }
+
+    public RESTPropertyTagInPropertyCategoryCollectionV1Wrapper(final RESTProviderFactory providerFactory,
+            final RESTPropertyTagInPropertyCategoryCollectionV1 collection, boolean isRevisionCollection,
+            final RESTPropertyCategoryV1 parent, final Collection<String> expandedEntityMethods) {
+        super(providerFactory, collection, isRevisionCollection, parent, expandedEntityMethods);
     }
 }

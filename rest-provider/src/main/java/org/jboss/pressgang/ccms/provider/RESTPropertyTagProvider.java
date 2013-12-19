@@ -1,9 +1,11 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
+import java.util.Arrays;
+
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTPropertyTagInPropertyCategoryCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
@@ -11,15 +13,17 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyCategoryV1;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
+import org.jboss.pressgang.ccms.wrapper.PropertyCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInPropertyCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.base.BaseTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +31,8 @@ import org.slf4j.LoggerFactory;
 public class RESTPropertyTagProvider extends RESTDataProvider implements PropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagProvider.class);
 
-    public RESTPropertyTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    public RESTPropertyTagProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTPropertyTagV1 loadPropertyTag(Integer id, Integer revision, String expandString) {
@@ -66,7 +70,11 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
 
     @Override
     public PropertyTagWrapper getPropertyTag(int id, final Integer revision) {
-        return getWrapperFactory().create(getRESTPropertyTag(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTPropertyTag(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     /*@Override
@@ -138,97 +146,157 @@ public class RESTPropertyTagProvider extends RESTDataProvider implements Propert
 
     @Override
     public CollectionWrapper<PropertyTagWrapper> getPropertyTagRevisions(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTPropertyTagRevisions(id, revision), RESTPropertyTagV1.class, true);
+        return RESTCollectionWrapperBuilder.<PropertyTagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTPropertyTagRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 
     @Override
     public PropertyTagWrapper newPropertyTag() {
-        return getWrapperFactory().create(new RESTPropertyTagV1(), false, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTPropertyTagV1())
+                .newEntity()
+                .build();
     }
 
     @Override
-    public PropertyTagInPropertyCategoryWrapper newPropertyTagInPropertyCategory() {
-        return getWrapperFactory().create(new RESTPropertyTagInPropertyCategoryV1(), false, true);
+    public PropertyTagInPropertyCategoryWrapper newPropertyTagInPropertyCategory(final PropertyCategoryWrapper propertyCategory) {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTPropertyTagInPropertyCategoryV1())
+                .newEntity()
+                .parent(propertyCategory == null ? null : (RESTPropertyCategoryV1) propertyCategory.unwrap())
+                .build();
     }
 
     @Override
     public PropertyTagInTopicWrapper newPropertyTagInTopic(final BaseTopicWrapper<?> topic) {
-        final RESTBaseTopicV1<?, ?, ?> unwrapperedTopic = topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap();
-        return getWrapperFactory().create(new RESTAssignedPropertyTagV1(), false, unwrapperedTopic, PropertyTagInTopicWrapper.class, true);
+        final RESTBaseTopicV1<?, ?, ?> unwrappedTopic = topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap();
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTAssignedPropertyTagV1())
+                .newEntity()
+                .parent(unwrappedTopic)
+                .wrapperInterface(PropertyTagInTopicWrapper.class)
+                .build();
     }
 
     @Override
     public PropertyTagInTopicWrapper newPropertyTagInTopic(final PropertyTagWrapper propertyTag, final BaseTopicWrapper<?> topic) {
-        final RESTBaseTopicV1<?, ?, ?> unwrapperedTopic = topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap();
-        return getWrapperFactory().create(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()),
-                propertyTag.isRevisionEntity(), unwrapperedTopic, PropertyTagInTopicWrapper.class, true);
+        final RESTBaseTopicV1<?, ?, ?> unwrappedTopic = topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap();
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()))
+                .newEntity()
+                .parent(unwrappedTopic)
+                .wrapperInterface(PropertyTagInTopicWrapper.class)
+                .build();
     }
 
     @Override
     public PropertyTagInTagWrapper newPropertyTagInTag(final TagWrapper tag) {
-        final RESTTagV1 unwrapperTag = tag == null ? null : (RESTTagV1) tag.unwrap();
-        return getWrapperFactory().create(new RESTAssignedPropertyTagV1(), false, unwrapperTag, PropertyTagInTagWrapper.class, true);
+        final RESTTagV1 unwrappedTag = tag == null ? null : (RESTTagV1) tag.unwrap();
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTAssignedPropertyTagV1())
+                .newEntity()
+                .parent(unwrappedTag)
+                .wrapperInterface(PropertyTagInTagWrapper.class)
+                .build();
     }
 
     @Override
     public PropertyTagInTagWrapper newPropertyTagInTag(final PropertyTagWrapper propertyTag, final TagWrapper tag) {
-        final RESTTagV1 unwrapperTag = tag == null ? null : (RESTTagV1) tag.unwrap();
-        return getWrapperFactory().create(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()),
-                propertyTag.isRevisionEntity(), unwrapperTag, PropertyTagInTagWrapper.class, true);
+        final RESTTagV1 unwrappedTag = tag == null ? null : (RESTTagV1) tag.unwrap();
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()))
+                .newEntity()
+                .parent(unwrappedTag)
+                .wrapperInterface(PropertyTagInTagWrapper.class)
+                .build();
     }
 
     @Override
     public PropertyTagInContentSpecWrapper newPropertyTagInContentSpec(final ContentSpecWrapper contentSpec) {
         final RESTContentSpecV1 unwrappedContentSpec = contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap();
-        return getWrapperFactory().create(new RESTAssignedPropertyTagV1(), false, unwrappedContentSpec,
-                PropertyTagInContentSpecWrapper.class, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTAssignedPropertyTagV1())
+                .newEntity()
+                .parent(unwrappedContentSpec)
+                .wrapperInterface(PropertyTagInContentSpecWrapper.class)
+                .build();
     }
 
     @Override
     public PropertyTagInContentSpecWrapper newPropertyTagInContentSpec(final PropertyTagWrapper propertyTag,
             final ContentSpecWrapper contentSpec) {
         final RESTContentSpecV1 unwrappedContentSpec = contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap();
-        return getWrapperFactory().create(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()),
-                propertyTag.isRevisionEntity(), unwrappedContentSpec, PropertyTagInContentSpecWrapper.class, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTAssignedPropertyTagV1((RESTPropertyTagV1) propertyTag.unwrap()))
+                .newEntity()
+                .parent(unwrappedContentSpec)
+                .wrapperInterface(PropertyTagInContentSpecWrapper.class)
+                .build();
     }
 
     @Override
     public CollectionWrapper<PropertyTagWrapper> newPropertyTagCollection() {
-        return getWrapperFactory().createCollection(new RESTPropertyTagCollectionV1(), RESTPropertyTagV1.class, false);
+        return RESTCollectionWrapperBuilder.<PropertyTagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTPropertyTagCollectionV1())
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<PropertyTagInTopicWrapper> newPropertyTagInTopicCollection(final BaseTopicWrapper<?> topic) {
-        final RESTBaseTopicV1<?, ?, ?> unwrapperedTopic = topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap();
-        final CollectionWrapper<PropertyTagInTopicWrapper> collection = getWrapperFactory().createCollection(
-                new RESTAssignedPropertyTagCollectionV1(), RESTAssignedPropertyTagV1.class, false, unwrapperedTopic,
-                PropertyTagInTopicWrapper.class);
-        return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) collection;
+        final RESTBaseTopicV1<?, ?, ?> unwrappedTopic = topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap();
+        return (UpdateableCollectionWrapper<PropertyTagInTopicWrapper>) RESTCollectionWrapperBuilder.<PropertyTagInTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTAssignedPropertyTagCollectionV1())
+                .parent(unwrappedTopic)
+                .entityWrapperInterface(PropertyTagInTopicWrapper.class)
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<PropertyTagInTagWrapper> newPropertyTagInTagCollection(final TagWrapper tag) {
-        final RESTTagV1 unwrapperTag = tag == null ? null : (RESTTagV1) tag.unwrap();
-        final CollectionWrapper<PropertyTagInTagWrapper> collection = getWrapperFactory().createCollection(
-                new RESTAssignedPropertyTagCollectionV1(), RESTAssignedPropertyTagV1.class, false, unwrapperTag,
-                PropertyTagInTagWrapper.class);
-        return (UpdateableCollectionWrapper<PropertyTagInTagWrapper>) collection;
+        final RESTTagV1 unwrappedTag = tag == null ? null : (RESTTagV1) tag.unwrap();
+        return (UpdateableCollectionWrapper<PropertyTagInTagWrapper>) RESTCollectionWrapperBuilder.<PropertyTagInTagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTAssignedPropertyTagCollectionV1())
+                .parent(unwrappedTag)
+                .entityWrapperInterface(PropertyTagInTagWrapper.class)
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> newPropertyTagInContentSpecCollection(
             final ContentSpecWrapper contentSpec) {
         final RESTContentSpecV1 unwrappedContentSpec = contentSpec == null ? null : (RESTContentSpecV1) contentSpec.unwrap();
-        final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
-                new RESTAssignedPropertyTagCollectionV1(), RESTAssignedPropertyTagV1.class, false, unwrappedContentSpec,
-                PropertyTagInContentSpecWrapper.class);
-        return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
+        return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) RESTCollectionWrapperBuilder.<PropertyTagInContentSpecWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTAssignedPropertyTagCollectionV1())
+                .parent(unwrappedContentSpec)
+                .entityWrapperInterface(PropertyTagInContentSpecWrapper.class)
+                .build();
     }
 
     @Override
-    public UpdateableCollectionWrapper<PropertyTagInPropertyCategoryWrapper> newPropertyTagInPropertyCategoryCollection() {
-        final CollectionWrapper<PropertyTagInPropertyCategoryWrapper> collection = getWrapperFactory().createCollection(
-                new RESTPropertyTagInPropertyCategoryCollectionV1(), RESTPropertyTagInPropertyCategoryV1.class, false);
-        return (UpdateableCollectionWrapper<PropertyTagInPropertyCategoryWrapper>) collection;
+    public UpdateableCollectionWrapper<PropertyTagInPropertyCategoryWrapper> newPropertyTagInPropertyCategoryCollection(
+            PropertyCategoryWrapper propertyCategory) {
+        final RESTPropertyCategoryV1 unwrappedCategory = propertyCategory == null ? null : (RESTPropertyCategoryV1) propertyCategory.unwrap();
+        return (UpdateableCollectionWrapper<PropertyTagInPropertyCategoryWrapper>) RESTCollectionWrapperBuilder.<PropertyTagInPropertyCategoryWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTPropertyTagInPropertyCategoryCollectionV1())
+                .parent(unwrappedCategory)
+                .entityWrapperInterface(PropertyTagInPropertyCategoryWrapper.class)
+                .build();
     }
 }

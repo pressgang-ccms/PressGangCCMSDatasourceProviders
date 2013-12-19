@@ -9,8 +9,6 @@ import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionProxyFactory;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionV1ProxyHandler;
 
 @SuppressWarnings("unchecked")
 public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U, ?, ?>> implements MethodHandler {
@@ -20,6 +18,7 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
     private final RESTBaseEntityV1<?, ?, ?> parent;
     private final U entity;
     private final boolean isRevision;
+
     private final Set<String> processedMethodNames = new HashSet<String>();
 
     protected RESTBaseEntityV1ProxyHandler(final RESTProviderFactory providerFactory, final U entity, boolean isRevisionEntity) {
@@ -99,6 +98,10 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
 
     protected RESTBaseEntityV1<?, ?, ?> getParent() {
         return parent;
+    }
+
+    public Set<String> getProcessedMethodNames() {
+        return processedMethodNames;
     }
 
     protected Object[] unproxyArgs(Object[] args) {

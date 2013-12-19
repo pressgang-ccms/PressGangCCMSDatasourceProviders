@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.pressgang.ccms.provider.exception.BadRequestException;
+import org.jboss.pressgang.ccms.provider.exception.ForbiddenException;
 import org.jboss.pressgang.ccms.provider.exception.InternalServerErrorException;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.provider.exception.ProviderException;
@@ -28,27 +29,23 @@ import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
 import org.jboss.pressgang.ccms.utils.RESTCollectionCache;
 import org.jboss.pressgang.ccms.utils.RESTEntityCache;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ClientResponseFailure;
 
 public abstract class RESTDataProvider extends DataProvider {
     private static ObjectMapper mapper = new ObjectMapper();
 
-    private final RESTManager restManager;
-
-    protected RESTDataProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(wrapperFactory);
-        this.restManager = restManager;
+    protected RESTDataProvider(final RESTProviderFactory providerFactory) {
+       super(providerFactory);
     }
 
     @Override
-    protected RESTWrapperFactory getWrapperFactory() {
-        return (RESTWrapperFactory) super.getWrapperFactory();
+    protected RESTProviderFactory getProviderFactory() {
+        return (RESTProviderFactory) super.getProviderFactory();
     }
 
     protected RESTManager getRESTManager() {
-        return restManager;
+        return getProviderFactory().getRESTManager();
     }
 
     protected RESTInterfaceV1 getRESTClient() {
@@ -246,6 +243,7 @@ public abstract class RESTDataProvider extends DataProvider {
                 case HttpURLConnection.HTTP_UNAUTHORIZED: return new UnauthorisedException(e);
                 case 426: return new UpgradeException(e);
                 case HttpURLConnection.HTTP_NOT_FOUND: return new NotFoundException(e);
+                case HttpURLConnection.HTTP_FORBIDDEN: return new ForbiddenException(e);
                 default: return crf;
             }
         } else if (e instanceof ProviderException) {

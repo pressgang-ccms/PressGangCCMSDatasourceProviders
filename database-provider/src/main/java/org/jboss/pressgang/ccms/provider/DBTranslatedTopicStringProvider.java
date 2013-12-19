@@ -6,14 +6,13 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class DBTranslatedTopicStringProvider extends DBDataProvider implements TranslatedTopicStringProvider {
-    protected DBTranslatedTopicStringProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBTranslatedTopicStringProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
     }
 
     @Override

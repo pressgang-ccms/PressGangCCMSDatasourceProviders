@@ -1,16 +1,18 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
+import java.util.Arrays;
+
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedCSNodeCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.slf4j.Logger;
@@ -19,8 +21,8 @@ import org.slf4j.LoggerFactory;
 public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements TranslatedCSNodeProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedCSNodeProvider.class);
 
-    protected RESTTranslatedCSNodeProvider(RESTManager restManager, RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTTranslatedCSNodeProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTTranslatedCSNodeV1 loadTranslatedCSNode(int id, Integer revision, String expandString) {
@@ -58,7 +60,11 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
 
     @Override
     public TranslatedCSNodeWrapper getTranslatedCSNode(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTTranslatedCSNode(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTranslatedCSNode(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     @Override
@@ -135,7 +141,12 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
 
     @Override
     public CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedCSNodeRevisions(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTranslatedCSNodeRevisions(id, revision), RESTTranslatedCSNodeV1.class, true);
+        return RESTCollectionWrapperBuilder.<TranslatedCSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedCSNodeRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 
     public RESTTranslatedTopicCollectionV1 getRESTTranslatedCSNodeTranslatedTopics(int id, Integer revision) {
@@ -214,7 +225,10 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
                     unwrappedNodes);
             if (createdNodes != null) {
                 getRESTEntityCache().add(createdNodes, false);
-                return getWrapperFactory().createCollection(createdNodes, RESTTranslatedCSNodeV1.class, false);
+                return RESTCollectionWrapperBuilder.<TranslatedCSNodeWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .collection(createdNodes)
+                        .build();
             } else {
                 return null;
             }
@@ -225,13 +239,18 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
 
     @Override
     public TranslatedCSNodeWrapper newTranslatedCSNode() {
-        return getWrapperFactory().create(new RESTTranslatedCSNodeV1(), false, TranslatedCSNodeWrapper.class, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTranslatedCSNodeV1())
+                .newEntity()
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> newTranslatedCSNodeCollection() {
-        final CollectionWrapper<TranslatedCSNodeWrapper> collection = getWrapperFactory().createCollection(
-                new RESTTranslatedCSNodeCollectionV1(), RESTTranslatedCSNodeV1.class, false);
-        return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) RESTCollectionWrapperBuilder.<TranslatedCSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTranslatedCSNodeCollectionV1())
+                .build();
     }
 }

@@ -1,21 +1,22 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTTopicSourceUrlCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,8 @@ import org.slf4j.LoggerFactory;
 public class RESTTopicSourceURLProvider extends RESTDataProvider implements TopicSourceURLProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTopicSourceURLProvider.class);
 
-    protected RESTTopicSourceURLProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTTopicSourceURLProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     public RESTTopicSourceUrlV1 getRESTTopicSourceUrl(int id, final Integer revision, final RESTBaseTopicV1<?, ?, ?> parent) {
@@ -50,7 +51,12 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
     }
 
     public TopicSourceURLWrapper getTopicSourceUrl(int id, final Integer revision, final RESTBaseTopicV1<?, ?, ?> parent) {
-        return getWrapperFactory().create(getRESTTopicSourceUrl(id, revision, parent), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTopicSourceUrl(id, revision, parent))
+                .isRevision(revision != null)
+                .parent(parent)
+                .build();
     }
 
     public RESTTopicSourceUrlCollectionV1 getRESTTopicSourceURLRevisions(int id, final Integer revision,
@@ -74,8 +80,13 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
 
     public CollectionWrapper<TopicSourceURLWrapper> getTopicSourceURLRevisions(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> topic) {
-        return getWrapperFactory().createCollection(getRESTTopicSourceURLRevisions(id, revision, topic), RESTTopicSourceUrlV1.class, true,
-                topic);
+        return RESTCollectionWrapperBuilder.<TopicSourceURLWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTopicSourceUrlRevisions(id, revision, topic))
+                .isRevisionCollection()
+                .parent(topic)
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 
     @Override
@@ -220,13 +231,20 @@ public class RESTTopicSourceURLProvider extends RESTDataProvider implements Topi
 
     @Override
     public TopicSourceURLWrapper newTopicSourceURL(final TopicWrapper topic) {
-        return getWrapperFactory().create(new RESTTopicSourceUrlV1(), false, (RESTBaseTopicV1<?, ?, ?>) topic.unwrap(), true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTopicSourceUrlV1())
+                .newEntity()
+                .parent(topic == null ? null : (RESTBaseTopicV1<?, ?, ?>) topic.unwrap())
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<TopicSourceURLWrapper> newTopicSourceURLCollection(final TopicWrapper topic) {
-        final CollectionWrapper<TopicSourceURLWrapper> collection = getWrapperFactory().createCollection(
-                new RESTTopicSourceUrlCollectionV1(), RESTTopicSourceUrlV1.class, false, (RESTBaseTopicV1<?, ?, ?>) topic.unwrap());
-        return (UpdateableCollectionWrapper<TopicSourceURLWrapper>) collection;
+        return (UpdateableCollectionWrapper<TopicSourceURLWrapper>) RESTCollectionWrapperBuilder.<TopicSourceURLWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTopicSourceUrlCollectionV1())
+                .parent(topic == null ? null : (RESTBaseTopicV1 <?, ?, ?>) topic.unwrap())
+                .build();
     }
 }

@@ -1,6 +1,5 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTextContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
@@ -8,12 +7,13 @@ import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextCSProcessingOptionsV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.RESTTextCSProcessingOptionsV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTTextContentSpecV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TextCSProcessingOptionsWrapper;
 import org.jboss.pressgang.ccms.wrapper.TextContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 public class RESTTextContentSpecProvider extends RESTDataProvider implements TextContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTextContentSpecProvider.class);
 
-    protected RESTTextContentSpecProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTTextContentSpecProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTTextContentSpecV1 loadContentSpec(Integer id, Integer revision, String expandString) {
@@ -61,7 +61,11 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
 
     @Override
     public TextContentSpecWrapper getTextContentSpec(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTTextContentSpec(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTextContentSpec(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTTextContentSpecCollectionV1 getRESTTextContentSpecsWithQuery(final String query) {
@@ -86,7 +90,10 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
     public CollectionWrapper<TextContentSpecWrapper> getTextContentSpecsWithQuery(final String query) {
         if (query == null || query.isEmpty()) return null;
 
-        return getWrapperFactory().createCollection(getRESTTextContentSpecsWithQuery(query), RESTTextContentSpecV1.class, false);
+        return RESTCollectionWrapperBuilder.<TextContentSpecWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTextContentSpecsWithQuery(query))
+                .build();
     }
 
     public RESTTagCollectionV1 getRESTTextContentSpecTags(int id, Integer revision) {
@@ -156,7 +163,11 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
 
     @Override
     public CollectionWrapper<TextContentSpecWrapper> getTextContentSpecRevisions(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTextContentSpecRevisions(id, revision), RESTTextContentSpecV1.class, true);
+        return RESTCollectionWrapperBuilder.<TextContentSpecWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTextContentSpecRevisions(id, revision))
+                .isRevisionCollection()
+                .build();
     }
 
     public RESTAssignedPropertyTagCollectionV1 getRESTContentSpecProperties(int id, final Integer revision) {
@@ -227,7 +238,10 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
             }
             if (createdContentSpec != null) {
                 getRESTEntityCache().add(createdContentSpec);
-                return getWrapperFactory().create(createdContentSpec, false);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(createdContentSpec)
+                        .build();
             } else {
                 return null;
             }
@@ -272,7 +286,10 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
             if (updatedContentSpec != null) {
                 getRESTEntityCache().expire(RESTTextContentSpecV1.class, contentSpecEntity.getId());
                 getRESTEntityCache().add(updatedContentSpec);
-                return getWrapperFactory().create(updatedContentSpec, false);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(updatedContentSpec)
+                        .build();
             } else {
                 return null;
             }
@@ -283,7 +300,11 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
 
     @Override
     public TextContentSpecWrapper newTextContentSpec() {
-        return getWrapperFactory().create(new RESTTextContentSpecV1(), false, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTextContentSpecV1())
+                .newEntity()
+                .build();
     }
 
     @Override

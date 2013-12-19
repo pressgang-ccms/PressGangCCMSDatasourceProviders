@@ -1,22 +1,23 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
+import java.util.Arrays;
+
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTFileCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageFileCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.wrapper.FileWrapper;
 import org.jboss.pressgang.ccms.wrapper.LanguageFileWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTFileProvider extends RESTDataProvider implements FileProvider {
     private static Logger log = LoggerFactory.getLogger(RESTFileProvider.class);
 
-    protected RESTFileProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTFileProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTFileV1 loadFile(Integer id, Integer revision, String expandString) {
@@ -55,7 +56,11 @@ public class RESTFileProvider extends RESTDataProvider implements FileProvider {
 
     @Override
     public FileWrapper getFile(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTFile(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTFile(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTLanguageFileCollectionV1 getRESTFileLanguageFiles(int id, final Integer revision) {
@@ -92,8 +97,13 @@ public class RESTFileProvider extends RESTDataProvider implements FileProvider {
     }
 
     public CollectionWrapper<LanguageFileWrapper> getFileLanguageFiles(int id, final Integer revision, final RESTFileV1 parent) {
-        return getWrapperFactory().createCollection(getRESTFileLanguageFiles(id, revision), RESTLanguageFileV1.class,
-                revision != null, parent);
+        return RESTCollectionWrapperBuilder.<LanguageFileWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTFileLanguageFiles(id, revision))
+                .isRevisionCollection(revision != null)
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getLanguageFiles_OTM"))
+                .build();
     }
 
     public RESTFileCollectionV1 getRESTFileRevisions(int id, final Integer revision) {
@@ -130,6 +140,11 @@ public class RESTFileProvider extends RESTDataProvider implements FileProvider {
 
     @Override
     public CollectionWrapper<FileWrapper> getFileRevisions(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTFileRevisions(id, revision), RESTFileV1.class, true);
+        return RESTCollectionWrapperBuilder.<FileWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTFileRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 }

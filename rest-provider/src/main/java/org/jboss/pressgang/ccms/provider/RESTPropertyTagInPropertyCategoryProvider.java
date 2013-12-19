@@ -1,26 +1,26 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTPropertyTagInPropertyCategoryCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTPropertyTagInPropertyCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyCategoryV1;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInPropertyCategoryWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTPropertyTagInPropertyCategoryProvider extends RESTPropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInPropertyCategoryProvider.class);
 
-    protected RESTPropertyTagInPropertyCategoryProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTPropertyTagInPropertyCategoryProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTPropertyCategoryV1 loadPropertyCategory(Integer id, Integer revision, String expandString) {
@@ -96,7 +96,12 @@ public class RESTPropertyTagInPropertyCategoryProvider extends RESTPropertyTagPr
 
     public CollectionWrapper<PropertyTagInPropertyCategoryWrapper> getPropertyTagInPropertyCategoryRevisions(int id, Integer revision,
             final RESTPropertyCategoryV1 parent) {
-        return getWrapperFactory().createCollection(getRESTPropertyTagInPropertyCategoryRevisions(id, revision, parent),
-                RESTPropertyTagInPropertyCategoryV1.class, true, parent);
+        return RESTCollectionWrapperBuilder.<PropertyTagInPropertyCategoryWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTPropertyTagInPropertyCategoryRevisions(id, revision, parent))
+                .isRevisionCollection()
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 }

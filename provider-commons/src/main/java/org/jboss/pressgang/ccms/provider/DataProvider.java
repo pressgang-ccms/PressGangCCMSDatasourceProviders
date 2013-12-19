@@ -1,6 +1,6 @@
 package org.jboss.pressgang.ccms.provider;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.provider.listener.CreateListener;
@@ -9,26 +9,25 @@ import org.jboss.pressgang.ccms.provider.listener.LogMessageListener;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.provider.listener.UpdateListener;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
-import org.jboss.pressgang.ccms.wrapper.WrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public abstract class DataProvider {
 
-    private final WrapperFactory wrapperFactory;
+    private final DataProviderFactory providerFactory;
     private final List<ProviderListener> listeners;
 
-    protected DataProvider(final WrapperFactory wrapperFactory) {
-        this(wrapperFactory, new LinkedList<ProviderListener>());
+    protected DataProvider(final DataProviderFactory providerFactory) {
+        this(providerFactory, new ArrayList<ProviderListener>());
     }
 
-    protected DataProvider(final WrapperFactory wrapperFactory, final List<ProviderListener> listeners) {
-        this.wrapperFactory = wrapperFactory;
+    protected DataProvider(final DataProviderFactory providerFactory, final List<ProviderListener> listeners) {
+        this.providerFactory = providerFactory;
         this.listeners = listeners;
     }
 
-    protected WrapperFactory getWrapperFactory() {
-        return wrapperFactory;
+    protected DataProviderFactory getProviderFactory() {
+        return providerFactory;
     }
 
     protected List<ProviderListener> getListeners() {

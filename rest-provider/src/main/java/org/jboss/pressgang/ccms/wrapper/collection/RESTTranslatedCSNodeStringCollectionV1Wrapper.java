@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper.collection;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
@@ -12,5 +14,11 @@ public class RESTTranslatedCSNodeStringCollectionV1Wrapper extends RESTUpdateabl
     public RESTTranslatedCSNodeStringCollectionV1Wrapper(final RESTProviderFactory providerFactory,
             final RESTTranslatedCSNodeStringCollectionV1 collection, boolean isRevisionCollection, final RESTTranslatedCSNodeV1 parent) {
         super(providerFactory, collection, isRevisionCollection, parent);
+    }
+
+    public RESTTranslatedCSNodeStringCollectionV1Wrapper(final RESTProviderFactory providerFactory,
+            final RESTTranslatedCSNodeStringCollectionV1 collection, boolean isRevisionCollection, final RESTTranslatedCSNodeV1 parent,
+            final Collection<String> expandedEntityMethods) {
+        super(providerFactory, collection, isRevisionCollection, parent, expandedEntityMethods);
     }
 }

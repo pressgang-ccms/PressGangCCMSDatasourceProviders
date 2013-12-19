@@ -1,25 +1,25 @@
 package org.jboss.pressgang.ccms.provider;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTCategoryInTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTTagQueryBuilderV1;
-import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
+import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 public class RESTTagProvider extends RESTDataProvider implements TagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTagProvider.class);
 
-    protected RESTTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTTagProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTTagV1 loadTag(int id, Integer revision, String expandString) {
@@ -66,7 +66,11 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
     @Override
     public TagWrapper getTag(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTTag(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTag(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTTagCollectionV1 getRESTTagsByName(final String name) {
@@ -103,7 +107,10 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
         if (tags != null && tags.getItems() != null && !tags.getItems().isEmpty()) {
             for (final RESTTagV1 tag : tags.returnItems()) {
                 if (tag.getName().equals(name)) {
-                    return getWrapperFactory().create(tag, false, TagWrapper.class);
+                    return RESTEntityWrapperBuilder.newBuilder()
+                            .providerFactory(getProviderFactory())
+                            .entity(tag)
+                            .build();
                 }
             }
         }
@@ -144,13 +151,6 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
         }
     }
 
-    @Override
-    public UpdateableCollectionWrapper<CategoryInTagWrapper> getTagCategories(int id, final Integer revision) {
-        final CollectionWrapper<CategoryInTagWrapper> collection = getWrapperFactory().createCollection(getRESTTagCategories(id, revision),
-                RESTCategoryInTagV1.class, revision != null, CategoryInTagWrapper.class);
-        return (UpdateableCollectionWrapper<CategoryInTagWrapper>) collection;
-    }
-
     public RESTTagCollectionV1 getRESTTagChildTags(int id, final Integer revision) {
         try {
             RESTTagV1 tag = null;
@@ -186,7 +186,12 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
     @Override
     public CollectionWrapper<TagWrapper> getTagChildTags(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTagChildTags(id, revision), RESTTagV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTagChildTags(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getChildTags"))
+                .build();
     }
 
     public RESTTagCollectionV1 getRESTTagParentTags(int id, Integer revision) {
@@ -224,7 +229,12 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
     @Override
     public CollectionWrapper<TagWrapper> getTagParentTags(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTagParentTags(id, revision), RESTTagV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTagParentTags(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getParentTags"))
+                .build();
     }
 
     public RESTAssignedPropertyTagCollectionV1 getRESTTagProperties(int id, Integer revision) {
@@ -262,9 +272,13 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
     @Override
     public UpdateableCollectionWrapper<PropertyTagInTagWrapper> getTagProperties(int id, Integer revision) {
-        final CollectionWrapper<PropertyTagInTagWrapper> collection = getWrapperFactory().createCollection(
-                getRESTTagProperties(id, revision), RESTAssignedPropertyTagV1.class, revision != null, PropertyTagInTagWrapper.class);
-        return (UpdateableCollectionWrapper<PropertyTagInTagWrapper>) collection;
+        return (UpdateableCollectionWrapper<PropertyTagInTagWrapper>) RESTCollectionWrapperBuilder.<PropertyTagInTagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTagProperties(id, revision))
+                .isRevisionCollection(revision != null)
+                .entityWrapperInterface(PropertyTagInTagWrapper.class)
+                .expandedEntityMethods(Arrays.asList("getProperties"))
+                .build();
     }
 
     public RESTTagCollectionV1 getRESTTagRevisions(int id, final Integer revision) {
@@ -301,27 +315,47 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
 
     @Override
     public CollectionWrapper<TagWrapper> getTagRevisions(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTagRevisions(id, revision), RESTTagV1.class, true);
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTagRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 
     @Override
     public TagWrapper newTag() {
-        return getWrapperFactory().create(new RESTTagV1(), false, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTagV1())
+                .newEntity()
+                .build();
     }
 
     @Override
-    public TagInCategoryWrapper newTagInCategory() {
-        return getWrapperFactory().create(new RESTTagInCategoryV1(), false, TagInCategoryWrapper.class, true);
+    public TagInCategoryWrapper newTagInCategory(final CategoryWrapper parent) {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTagInCategoryV1())
+                .newEntity()
+                .parent(parent == null ? null : (RESTCategoryV1) parent.unwrap())
+                .build();
     }
 
     @Override
     public CollectionWrapper<TagWrapper> newTagCollection() {
-        return getWrapperFactory().createCollection(new RESTTagCollectionV1(), RESTTagV1.class, false);
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTagCollectionV1())
+                .build();
     }
 
     @Override
-    public CollectionWrapper<TagInCategoryWrapper> newTagInCategoryCollection() {
-        return getWrapperFactory().createCollection(new RESTTagInCategoryCollectionV1(), RESTTagInCategoryV1.class, false,
-                TagInCategoryWrapper.class);
+    public CollectionWrapper<TagInCategoryWrapper> newTagInCategoryCollection(final CategoryWrapper parent) {
+        return RESTCollectionWrapperBuilder.<TagInCategoryWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTagInCategoryCollectionV1())
+                .parent(parent == null ? null : (RESTCategoryV1) parent.unwrap())
+                .build();
     }
 }

@@ -23,8 +23,9 @@ import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 public class DBDataProvider extends DataProvider {
     private final EntityManager entityManager;
 
-    protected DBDataProvider(final EntityManager entityManager, final DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(wrapperFactory, listeners);
+    protected DBDataProvider(final EntityManager entityManager, final DBProviderFactory providerFactory,
+            final List<ProviderListener> listeners) {
+        super(providerFactory, listeners);
         this.entityManager = entityManager;
     }
 
@@ -33,8 +34,12 @@ public class DBDataProvider extends DataProvider {
     }
 
     @Override
+    protected DBProviderFactory getProviderFactory() {
+        return (DBProviderFactory) super.getProviderFactory();
+    }
+
     protected DBWrapperFactory getWrapperFactory() {
-        return (DBWrapperFactory) super.getWrapperFactory();
+        return getProviderFactory().getWrapperFactory();
     }
 
     protected <T> T getEntity(Class<T> clazz, Integer id) {

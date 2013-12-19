@@ -1,11 +1,12 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseCategoryV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTCategoryInTagV1Wrapper extends RESTBaseCategoryV1Wrapper<CategoryInTagWrapper,
@@ -15,6 +16,12 @@ public class RESTCategoryInTagV1Wrapper extends RESTBaseCategoryV1Wrapper<Catego
     protected RESTCategoryInTagV1Wrapper(final RESTProviderFactory providerFactory, final RESTCategoryInTagV1 category, boolean isRevision,
             final RESTBaseTagV1<?, ?, ?> parent, boolean isNewEntity) {
         super(providerFactory, category, isRevision, parent, isNewEntity);
+        this.parent = parent;
+    }
+
+    protected RESTCategoryInTagV1Wrapper(final RESTProviderFactory providerFactory, final RESTCategoryInTagV1 category, boolean isRevision,
+            final RESTBaseTagV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, category, isRevision, parent, isNewEntity, expandedMethods);
         this.parent = parent;
     }
 
@@ -41,10 +48,5 @@ public class RESTCategoryInTagV1Wrapper extends RESTBaseCategoryV1Wrapper<Catego
     @Override
     public void setTags(UpdateableCollectionWrapper<TagInCategoryWrapper> tags) {
         getProxyEntity().setTags(tags == null ? null : (RESTTagInCategoryCollectionV1) tags.unwrap());
-    }
-
-    @Override
-    public CollectionWrapper<CategoryInTagWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTCategoryInTagV1.class, true, parent);
     }
 }

@@ -1,19 +1,30 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBasePropertyTagV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 
 public class RESTPropertyTagInTopicV1Wrapper extends RESTBasePropertyTagV1Wrapper<PropertyTagInTopicWrapper,
         RESTAssignedPropertyTagV1> implements PropertyTagInTopicWrapper {
-    private final RESTBaseTopicV1<?, ?, ?> parent;
 
     protected RESTPropertyTagInTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTAssignedPropertyTagV1 propertyTag,
             boolean isRevision, final RESTBaseTopicV1<?, ?, ?> parent, boolean isNewEntity) {
         super(providerFactory, propertyTag, isRevision, parent, isNewEntity);
-        this.parent = parent;
+    }
+
+    protected RESTPropertyTagInTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTAssignedPropertyTagV1 propertyTag,
+            boolean isRevision, final RESTBaseTopicV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, propertyTag, isRevision, parent, isNewEntity, expandedMethods);
+    }
+
+    @Override
+    protected RESTBaseTopicV1<?, ?, ?> getParentEntity() {
+        return (RESTBaseTopicV1<?, ?, ?>) super.getParentEntity();
     }
 
     @Override
@@ -43,13 +54,18 @@ public class RESTPropertyTagInTopicV1Wrapper extends RESTBasePropertyTagV1Wrappe
 
     @Override
     public RESTPropertyTagInTopicV1Wrapper clone(boolean deepCopy) {
-        return new RESTPropertyTagInTopicV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent,
+        return new RESTPropertyTagInTopicV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), getParentEntity(),
                 isNewEntity());
     }
 
     @Override
     public CollectionWrapper<PropertyTagInTopicWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTAssignedPropertyTagV1.class, true, parent,
-                PropertyTagInTopicWrapper.class);
+        return RESTCollectionWrapperBuilder.<PropertyTagInTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getRevisions())
+                .isRevisionCollection()
+                .parent(getParentEntity())
+                .entityWrapperInterface(PropertyTagInTopicWrapper.class)
+                .build();
     }
 }

@@ -8,14 +8,13 @@ import org.jboss.pressgang.ccms.model.TagToCategory;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.DBCategoryWrapper;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBCategoryProvider extends DBDataProvider implements CategoryProvider {
-    protected DBCategoryProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBCategoryProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
     }
 
     @Override
@@ -32,7 +31,6 @@ public class DBCategoryProvider extends DBDataProvider implements CategoryProvid
         }
     }
 
-    @Override
     public UpdateableCollectionWrapper<TagInCategoryWrapper> getCategoryTags(int id, Integer revision) {
         final DBCategoryWrapper category = (DBCategoryWrapper) getCategory(id, revision);
         if (category == null) {

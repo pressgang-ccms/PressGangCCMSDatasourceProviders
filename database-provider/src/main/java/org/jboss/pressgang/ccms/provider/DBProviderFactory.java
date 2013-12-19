@@ -11,6 +11,7 @@ import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 
 public class DBProviderFactory extends DataProviderFactory {
     private Map<Class<?>, DBDataProvider> providerMap = new HashMap<Class<?>, DBDataProvider>();
+    private final DBWrapperFactory wrapperFactory;
     private final EntityManager entityManager;
     private final TransactionManager transactionManager;
     private boolean providersInitialised = false;
@@ -28,18 +29,17 @@ public class DBProviderFactory extends DataProviderFactory {
     }
 
     public DBProviderFactory(final EntityManager entityManager, final TransactionManager transactionManager) {
-        super(new DBWrapperFactory());
         this.entityManager = entityManager;
         this.transactionManager = transactionManager;
+        wrapperFactory = new DBWrapperFactory(this);
     }
 
     public EntityManager getEntityManager() {
         return entityManager;
     }
 
-    @Override
     public DBWrapperFactory getWrapperFactory() {
-        return (DBWrapperFactory) super.getWrapperFactory();
+        return wrapperFactory;
     }
 
     @Override
@@ -90,125 +90,123 @@ public class DBProviderFactory extends DataProviderFactory {
      */
     private void initialiseProviders() {
         // Topic Provider
-        final DBTopicProvider topicProvider = new DBTopicProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBTopicProvider topicProvider = new DBTopicProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBTopicProvider.class, topicProvider);
         providerMap.put(TopicProvider.class, topicProvider);
 
         // Tag Provider
-        final DBTagProvider tagProvider = new DBTagProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBTagProvider tagProvider = new DBTagProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBTagProvider.class, tagProvider);
         providerMap.put(TagProvider.class, tagProvider);
 
         // Translated Topic Provider
-        final DBTranslatedTopicProvider translatedTopicProvider = new DBTranslatedTopicProvider(getEntityManager(), getWrapperFactory(),
+        final DBTranslatedTopicProvider translatedTopicProvider = new DBTranslatedTopicProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBTranslatedTopicProvider.class, translatedTopicProvider);
         providerMap.put(TranslatedTopicProvider.class, translatedTopicProvider);
 
         // Translated Topic String Provider
         final DBTranslatedTopicStringProvider translatedTopicStringProvider = new DBTranslatedTopicStringProvider(getEntityManager(),
-                getWrapperFactory(), getListeners());
+                this, getListeners());
         providerMap.put(DBTranslatedTopicStringProvider.class, translatedTopicStringProvider);
         providerMap.put(TranslatedTopicStringProvider.class, translatedTopicStringProvider);
 
         // User Provider
-        final DBUserProvider userProvider = new DBUserProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBUserProvider userProvider = new DBUserProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBUserProvider.class, userProvider);
         providerMap.put(UserProvider.class, userProvider);
 
         // String Constant Provider
-        final DBStringConstantProvider stringConstantProvider = new DBStringConstantProvider(getEntityManager(), getWrapperFactory(),
+        final DBStringConstantProvider stringConstantProvider = new DBStringConstantProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBStringConstantProvider.class, stringConstantProvider);
         providerMap.put(StringConstantProvider.class, stringConstantProvider);
 
         // Blob Constant Provider
-        final DBBlobConstantProvider blobConstantProvider = new DBBlobConstantProvider(getEntityManager(), getWrapperFactory(),
+        final DBBlobConstantProvider blobConstantProvider = new DBBlobConstantProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBBlobConstantProvider.class, blobConstantProvider);
         providerMap.put(BlobConstantProvider.class, blobConstantProvider);
 
         // File Provider
-        final DBFileProvider fileProvider = new DBFileProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBFileProvider fileProvider = new DBFileProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBFileProvider.class, fileProvider);
         providerMap.put(FileProvider.class, fileProvider);
 
         // Language File Provider
-        final DBLanguageFileProvider languageFileProvider = new DBLanguageFileProvider(getEntityManager(), getWrapperFactory(),
+        final DBLanguageFileProvider languageFileProvider = new DBLanguageFileProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBLanguageFileProvider.class, languageFileProvider);
         providerMap.put(LanguageFileProvider.class, languageFileProvider);
 
         // Image Provider
-        final DBImageProvider imageProvider = new DBImageProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBImageProvider imageProvider = new DBImageProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBImageProvider.class, imageProvider);
         providerMap.put(ImageProvider.class, imageProvider);
 
         // Language Image Provider
-        final DBLanguageImageProvider languageImageProvider = new DBLanguageImageProvider(getEntityManager(), getWrapperFactory(),
+        final DBLanguageImageProvider languageImageProvider = new DBLanguageImageProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBLanguageImageProvider.class, languageImageProvider);
         providerMap.put(LanguageImageProvider.class, languageImageProvider);
 
         // Category Provider
-        final DBCategoryProvider categoryProvider = new DBCategoryProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBCategoryProvider categoryProvider = new DBCategoryProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBCategoryProvider.class, categoryProvider);
         providerMap.put(CategoryProvider.class, categoryProvider);
 
         // Topic Source URL Provider
-        final DBTopicSourceURLProvider topicSourceURLProvider = new DBTopicSourceURLProvider(getEntityManager(), getWrapperFactory(),
+        final DBTopicSourceURLProvider topicSourceURLProvider = new DBTopicSourceURLProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBTopicSourceURLProvider.class, topicSourceURLProvider);
         providerMap.put(TopicSourceURLProvider.class, topicSourceURLProvider);
 
         // PropertyTag Provider
-        final DBPropertyTagProvider propertyTagProvider = new DBPropertyTagProvider(getEntityManager(), getWrapperFactory(),
+        final DBPropertyTagProvider propertyTagProvider = new DBPropertyTagProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBPropertyTagProvider.class, propertyTagProvider);
         providerMap.put(PropertyTagProvider.class, propertyTagProvider);
 
         // Content Spec Provider
-        final DBContentSpecProvider contentSpecProvider = new DBContentSpecProvider(this, getEntityManager(), getWrapperFactory(),
-                getListeners());
+        final DBContentSpecProvider contentSpecProvider = new DBContentSpecProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBContentSpecProvider.class, contentSpecProvider);
         providerMap.put(ContentSpecProvider.class, contentSpecProvider);
 
         // Text Content Spec Provider
-        final DBTextContentSpecProvider textContentSpecProvider = new DBTextContentSpecProvider(this, getEntityManager(),
-                getWrapperFactory(), getListeners());
+        final DBTextContentSpecProvider textContentSpecProvider = new DBTextContentSpecProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBTextContentSpecProvider.class, textContentSpecProvider);
         providerMap.put(TextContentSpecProvider.class, textContentSpecProvider);
 
         // Content Spec Node Provider
-        final DBCSNodeProvider csNodeProvider = new DBCSNodeProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBCSNodeProvider csNodeProvider = new DBCSNodeProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBCSNodeProvider.class, csNodeProvider);
         providerMap.put(CSNodeProvider.class, csNodeProvider);
 
         // Translated Content Spec Provider
         final DBTranslatedContentSpecProvider translatedContentSpecProvider = new DBTranslatedContentSpecProvider(getEntityManager(),
-                getWrapperFactory(), getListeners());
+                this, getListeners());
         providerMap.put(DBTranslatedContentSpecProvider.class, translatedContentSpecProvider);
         providerMap.put(TranslatedContentSpecProvider.class, translatedContentSpecProvider);
 
         // Translated Content Spec Node Provider
-        final DBTranslatedCSNodeProvider translatedCSNodeProvider = new DBTranslatedCSNodeProvider(getEntityManager(), getWrapperFactory(),
+        final DBTranslatedCSNodeProvider translatedCSNodeProvider = new DBTranslatedCSNodeProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBTranslatedCSNodeProvider.class, translatedCSNodeProvider);
         providerMap.put(TranslatedCSNodeProvider.class, translatedCSNodeProvider);
 
         // Translated Content Spec Node String Provider
         final DBTranslatedCSNodeStringProvider translatedCSNodeStringProvider = new DBTranslatedCSNodeStringProvider(getEntityManager(),
-                getWrapperFactory(), getListeners());
+                this, getListeners());
         providerMap.put(DBTranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
         providerMap.put(TranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
 
         // Log Message Provider
-        final DBLogMessageProvider logMessageProvider = new DBLogMessageProvider(getEntityManager(), getWrapperFactory(), getListeners());
+        final DBLogMessageProvider logMessageProvider = new DBLogMessageProvider(getEntityManager(), this, getListeners());
         providerMap.put(DBLogMessageProvider.class, logMessageProvider);
         providerMap.put(LogMessageProvider.class, logMessageProvider);
 
         // Server Settings Provider
-        final DBServerSettingsProvider serverSettingsProvider = new DBServerSettingsProvider(getEntityManager(), getWrapperFactory(),
+        final DBServerSettingsProvider serverSettingsProvider = new DBServerSettingsProvider(getEntityManager(), this,
                 getListeners());
         providerMap.put(DBServerSettingsProvider.class, serverSettingsProvider);
         providerMap.put(ServerSettingsProvider.class, serverSettingsProvider);

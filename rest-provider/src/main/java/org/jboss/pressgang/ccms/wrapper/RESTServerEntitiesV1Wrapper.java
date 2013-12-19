@@ -3,9 +3,8 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerEntitiesV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerUndefinedEntityV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesWrapper, RESTServerEntitiesV1> implements ServerEntitiesWrapper {
@@ -235,9 +234,10 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
 
     @Override
     public UpdateableCollectionWrapper<ServerUndefinedEntityWrapper> getUndefinedEntities() {
-        final CollectionWrapper<ServerUndefinedEntityWrapper> collection = getWrapperFactory().createCollection(
-                getEntity().getUndefinedEntities(), RESTServerUndefinedEntityV1.class, false);
-        return (UpdateableCollectionWrapper<ServerUndefinedEntityWrapper>) collection;
+        return (UpdateableCollectionWrapper<ServerUndefinedEntityWrapper>) RESTCollectionWrapperBuilder.<ServerUndefinedEntityWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getEntity().getUndefinedEntities())
+                .build();
     }
 
     @Override
