@@ -484,6 +484,24 @@ public class DBWrapperFactory {
      *
      * @param entities       The collection of entities to wrap.
      * @param isRevisionList Whether or not the collection is a collection of revision entities.
+     * @param <T>            The wrapper class that is returned.
+     * @return An ArrayList of wrapped entities.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends BaseWrapper<T>> List<T> createList(final Collection<?> entities, boolean isRevisionList) {
+        final List<T> retValue = new ArrayList<T>();
+        for (final Object object : entities) {
+            retValue.add((T) create(object, isRevisionList));
+        }
+
+        return retValue;
+    }
+
+    /**
+     * Create a list of wrapped entities.
+     *
+     * @param entities       The collection of entities to wrap.
+     * @param isRevisionList Whether or not the collection is a collection of revision entities.
      * @param wrapperClass   The return wrapper class, incase the entities wrapper can't be determined by it's class.
      * @param <T>            The wrapper class that is returned.
      * @return An ArrayList of wrapped entities.
