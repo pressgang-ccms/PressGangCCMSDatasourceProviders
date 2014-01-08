@@ -1,74 +1,79 @@
 package org.jboss.pressgang.ccms.wrapper.collection;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.proxy.RESTCollectionV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 
-public abstract class RESTCollectionWrapper<T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>,
-        V extends RESTCollectionV1<U, ?>> implements CollectionWrapper<T> {
+public abstract class RESTCollectionWrapper<T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>, V extends RESTCollectionV1<U,
+        ?>> implements CollectionWrapper<T> {
     private final RESTProviderFactory providerFactory;
-    private final RESTWrapperFactory wrapperFactory;
     private final Map<T, Integer> entities = new HashMap<T, Integer>();
     private final V collection;
 
     public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection) {
-        this.providerFactory = providerFactory;
-        wrapperFactory = providerFactory.getWrapperFactory();
-        this.collection = collection;
-        if (collection.getItems() != null) {
-            for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
-                entities.put((T) getWrapperFactory().create(item.getItem(), isRevisionCollection), item.getState());
-            }
-        }
+        this(providerFactory, collection, isRevisionCollection, (Collection<String>) null);
+    }
+
+    public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
+            final Collection<String> expandedEntityMethods) {
+        this(providerFactory, collection, isRevisionCollection, null, null, expandedEntityMethods);
     }
 
     public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
             final Class<T> wrapperClass) {
-        this.providerFactory = providerFactory;
-        wrapperFactory = providerFactory.getWrapperFactory();
-        this.collection = collection;
+        this(providerFactory, collection, isRevisionCollection, wrapperClass, (Collection<String>) null);
+    }
 
-        if (collection.getItems() != null) {
-            for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
-                entities.put(getWrapperFactory().create(item.getItem(), isRevisionCollection, wrapperClass), item.getState());
-            }
-        }
+    public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
+            final Class<T> wrapperClass, final Collection<String> expandedEntityMethods) {
+        this(providerFactory, collection, isRevisionCollection, null, wrapperClass, expandedEntityMethods);
     }
 
     public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
             final RESTBaseEntityV1<?, ?, ?> parent) {
-        this.providerFactory = providerFactory;
-        wrapperFactory = providerFactory.getWrapperFactory();
-        this.collection = collection;
-        for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
-            entities.put((T) getWrapperFactory().create(item.getItem(), isRevisionCollection, parent), item.getState());
-        }
+        this(providerFactory, collection, isRevisionCollection, parent, (Collection<String>) null);
+    }
+
+    public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
+            final RESTBaseEntityV1<?, ?, ?> parent, final Collection<String> expandedEntityMethods) {
+        this(providerFactory, collection, isRevisionCollection, parent, null, expandedEntityMethods);
     }
 
     public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
             final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
-        this.providerFactory = providerFactory;
-        wrapperFactory = providerFactory.getWrapperFactory();
-        this.collection = collection;
-        for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
-            entities.put(getWrapperFactory().create(item.getItem(), isRevisionCollection, parent, wrapperClass), item.getState());
-        }
+        this(providerFactory, collection, isRevisionCollection, parent, wrapperClass, null);
     }
 
-    protected RESTWrapperFactory getWrapperFactory() {
-        return wrapperFactory;
+    @SuppressWarnings("unchecked")
+    public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
+            final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass, final Collection<String> expandedEntityMethods) {
+        this.providerFactory = providerFactory;
+        this.collection = collection;
+        for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {
+            final T wrappedEntity = RESTEntityWrapperBuilder.newBuilder()
+                    .providerFactory(providerFactory)
+                    .entity(item.getItem())
+                    .isRevision(isRevisionCollection)
+                    .parent(parent)
+                    .wrapperInterface(wrapperClass)
+                    .expandedMethods(expandedEntityMethods)
+                    .build();
+            entities.put(wrappedEntity, item.getState());
+        }
     }
 
     protected RESTProviderFactory getProviderFactory() {
@@ -148,8 +153,8 @@ public abstract class RESTCollectionWrapper<T extends BaseWrapper<T>, U extends 
     public V unwrap() {
         // Get the original non proxied collection
         final V baseCollection = getCollection();
-        final V collection = (baseCollection instanceof ProxyObject) ? (V)((RESTCollectionV1ProxyHandler<?, ?,
-                ?>) ((ProxyObject) baseCollection).getHandler()).getCollection() : baseCollection;
+        final V collection = (baseCollection instanceof ProxyObject) ? (V) ((RESTCollectionV1ProxyHandler<?, ?,
+                        ?>) ((ProxyObject) baseCollection).getHandler()).getCollection() : baseCollection;
         return collection;
     }
 

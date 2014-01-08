@@ -1,6 +1,6 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
+import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
@@ -14,8 +14,6 @@ public interface TagProvider {
 
     TagWrapper getTagByName(final String name);
 
-    UpdateableCollectionWrapper<CategoryInTagWrapper> getTagCategories(int id, Integer revision);
-
     CollectionWrapper<TagWrapper> getTagChildTags(int id, Integer revision);
 
     CollectionWrapper<TagWrapper> getTagParentTags(int id, Integer revision);
@@ -26,9 +24,9 @@ public interface TagProvider {
 
     TagWrapper newTag();
 
-    TagInCategoryWrapper newTagInCategory();
+    TagInCategoryWrapper newTagInCategory(CategoryWrapper parent);
 
     CollectionWrapper<TagWrapper> newTagCollection();
 
-    CollectionWrapper<TagInCategoryWrapper> newTagInCategoryCollection();
+    CollectionWrapper<TagInCategoryWrapper> newTagInCategoryCollection(CategoryWrapper parent);
 }

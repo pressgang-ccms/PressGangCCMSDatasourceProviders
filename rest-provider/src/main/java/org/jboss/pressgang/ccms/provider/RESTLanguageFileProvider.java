@@ -1,26 +1,27 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTFileV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageFileCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTLanguageFileCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.wrapper.LanguageFileWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTLanguageFileProvider extends RESTDataProvider implements LanguageFileProvider {
     private static Logger log = LoggerFactory.getLogger(RESTLanguageFileProvider.class);
 
-    protected RESTLanguageFileProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTLanguageFileProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTFileV1 loadFile(Integer id, Integer revision, String expandString) {
@@ -59,7 +60,12 @@ public class RESTLanguageFileProvider extends RESTDataProvider implements Langua
     }
 
     public LanguageFileWrapper getLanguageFile(int id, final Integer revision, final RESTFileV1 parent) {
-        return getWrapperFactory().create(getRESTLanguageFile(id, revision, parent), revision != null, parent);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTLanguageFile(id, revision, parent))
+                .isRevision(revision != null)
+                .parent(parent)
+                .build();
     }
 
     @Override
@@ -215,7 +221,12 @@ public class RESTLanguageFileProvider extends RESTDataProvider implements Langua
     }
 
     public CollectionWrapper<LanguageFileWrapper> getLanguageFileRevisions(int id, final Integer revision, final RESTFileV1 parent) {
-        return getWrapperFactory().createCollection(getRESTLanguageFileRevisions(id, revision, parent), RESTLanguageFileV1.class,
-                revision != null, parent);
+        return RESTCollectionWrapperBuilder.<LanguageFileWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTLanguageFileRevisions(id, revision, parent))
+                .isRevisionCollection()
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 }

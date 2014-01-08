@@ -5,9 +5,8 @@ import java.util.List;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedSettingCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerSettingsV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerUndefinedSettingV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTServerSettingsV1Wrapper extends RESTBaseWrapper<ServerSettingsWrapper, RESTServerSettingsV1> implements ServerSettingsWrapper {
@@ -77,14 +76,18 @@ public class RESTServerSettingsV1Wrapper extends RESTBaseWrapper<ServerSettingsW
 
     @Override
     public ServerEntitiesWrapper getEntities() {
-        return getWrapperFactory().create(getEntity().getEntities(), false);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getEntity().getEntities())
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<ServerUndefinedSettingWrapper> getUndefinedSettings() {
-        final CollectionWrapper<ServerUndefinedSettingWrapper> collection = getWrapperFactory().createCollection(
-                getEntity().getUndefinedSettings(), RESTServerUndefinedSettingV1.class, false);
-        return (UpdateableCollectionWrapper<ServerUndefinedSettingWrapper>) collection;
+        return (UpdateableCollectionWrapper<ServerUndefinedSettingWrapper>) RESTCollectionWrapperBuilder.<ServerUndefinedSettingWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getEntity().getUndefinedSettings())
+                .build();
     }
 
     @Override

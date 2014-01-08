@@ -2,18 +2,17 @@ package org.jboss.pressgang.ccms.provider;
 
 import java.util.Arrays;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.RESTTranslatedContentSpecV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedContentSpecCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
@@ -23,8 +22,8 @@ import org.slf4j.LoggerFactory;
 public class RESTTranslatedContentSpecProvider extends RESTDataProvider implements TranslatedContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedContentSpecProvider.class);
 
-    protected RESTTranslatedContentSpecProvider(RESTManager restManager, RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTTranslatedContentSpecProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     public RESTTranslatedContentSpecV1 getRESTTranslatedContentSpec(int id) {
@@ -64,7 +63,12 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
     @Override
     public TranslatedContentSpecWrapper getTranslatedContentSpec(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTTranslatedContentSpec(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTranslatedContentSpec(id, revision))
+                .expandedMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTTranslatedCSNodeCollectionV1 getRESTTranslatedNodes(int id, Integer revision) {
@@ -103,9 +107,12 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
     @Override
     public UpdateableCollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes(int id, Integer revision) {
-        final CollectionWrapper<TranslatedCSNodeWrapper> collection = getWrapperFactory().createCollection(
-                getRESTTranslatedNodes(id, revision), RESTTranslatedCSNodeV1.class, revision != null);
-        return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<TranslatedCSNodeWrapper>) RESTCollectionWrapperBuilder.<TranslatedCSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedNodes(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getTranslatedNodes_OTM"))
+                .build();
     }
 
     public RESTTranslatedContentSpecCollectionV1 getRESTTranslatedContentSpecRevisions(int id, Integer revision) {
@@ -143,8 +150,12 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
     @Override
     public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecRevisions(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTranslatedContentSpecRevisions(id, revision), RESTTranslatedContentSpecV1.class,
-                true);
+        return RESTCollectionWrapperBuilder.<TranslatedContentSpecWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedContentSpecRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 
     public RESTTranslatedContentSpecCollectionV1 getRESTTranslatedContentSpecsWithQuery(String query) {
@@ -170,8 +181,11 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
     public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecsWithQuery(String query) {
         if (query == null || query.isEmpty()) return null;
 
-        return getWrapperFactory().createCollection(getRESTTranslatedContentSpecsWithQuery(query), RESTTranslatedContentSpecV1.class,
-                false);
+        return RESTCollectionWrapperBuilder.<TranslatedContentSpecWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedContentSpecsWithQuery(query))
+                .expandedEntityMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                .build();
     }
 
     @Override
@@ -186,15 +200,19 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME,
                     RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME);
 
-            final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec(expandString,
+            final RESTTranslatedContentSpecV1 createdTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec(expandString,
                     translatedContentSpec);
-            if (updatedTranslatedContentSpec != null) {
+            if (createdTranslatedContentSpec != null) {
                 // Expire any content specs as it's translated content spec collection will now be invalid
-                getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId());
-                getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId(),
-                        updatedTranslatedContentSpec.getContentSpecRevision());
-                getRESTEntityCache().add(updatedTranslatedContentSpec);
-                return getWrapperFactory().create(updatedTranslatedContentSpec, false);
+                getRESTEntityCache().expire(RESTContentSpecV1.class, createdTranslatedContentSpec.getContentSpecId());
+                getRESTEntityCache().expire(RESTContentSpecV1.class, createdTranslatedContentSpec.getContentSpecId(),
+                        createdTranslatedContentSpec.getContentSpecRevision());
+                getRESTEntityCache().add(createdTranslatedContentSpec);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(createdTranslatedContentSpec)
+                        .expandedMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                        .build();
             } else {
                 return null;
             }
@@ -223,7 +241,11 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId());
                 getRESTEntityCache().expire(RESTContentSpecV1.class, updatedTranslatedContentSpec.getContentSpecId(),
                         updatedTranslatedContentSpec.getContentSpecRevision());
-                return getWrapperFactory().create(updatedTranslatedContentSpec, false);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(updatedTranslatedContentSpec)
+                        .expandedMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                        .build();
             } else {
                 return null;
             }
@@ -241,17 +263,21 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
             final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME,
                     RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
-            final RESTTranslatedContentSpecCollectionV1 createdNodes = getRESTClient().createJSONTranslatedContentSpecs(expandString,
+            final RESTTranslatedContentSpecCollectionV1 createdTranslations = getRESTClient().createJSONTranslatedContentSpecs(expandString,
                     unwrappedNodes);
-            if (createdNodes != null) {
+            if (createdTranslations != null) {
                 // Expire any content specs as it's translated content spec collection will now be invalid
-                for (final RESTTranslatedContentSpecV1 translatedContentSpec : createdNodes.returnItems()) {
+                for (final RESTTranslatedContentSpecV1 translatedContentSpec : createdTranslations.returnItems()) {
                     getRESTEntityCache().expire(RESTContentSpecV1.class, translatedContentSpec.getContentSpecId());
                     getRESTEntityCache().expire(RESTContentSpecV1.class, translatedContentSpec.getContentSpecId(),
                             translatedContentSpec.getContentSpecRevision());
                 }
-                getRESTEntityCache().add(createdNodes, false);
-                return getWrapperFactory().createCollection(createdNodes, RESTTranslatedContentSpecV1.class, false);
+                getRESTEntityCache().add(createdTranslations, false);
+                return RESTCollectionWrapperBuilder.<TranslatedContentSpecWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .collection(createdTranslations)
+                        .expandedEntityMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                        .build();
             } else {
                 return null;
             }
@@ -262,13 +288,18 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
 
     @Override
     public TranslatedContentSpecWrapper newTranslatedContentSpec() {
-        return getWrapperFactory().create(new RESTTranslatedContentSpecV1(), false, TranslatedContentSpecWrapper.class, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTranslatedContentSpecV1())
+                .newEntity()
+                .build();
     }
 
     @Override
     public UpdateableCollectionWrapper<TranslatedContentSpecWrapper> newTranslatedContentSpecCollection() {
-        final CollectionWrapper<TranslatedContentSpecWrapper> collection = getWrapperFactory().createCollection(
-                new RESTTranslatedContentSpecCollectionV1(), RESTTranslatedContentSpecV1.class, false);
-        return (UpdateableCollectionWrapper<TranslatedContentSpecWrapper>) collection;
+        return (UpdateableCollectionWrapper<TranslatedContentSpecWrapper>) RESTCollectionWrapperBuilder.<TranslatedContentSpecWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTranslatedContentSpecCollectionV1())
+                .build();
     }
 }

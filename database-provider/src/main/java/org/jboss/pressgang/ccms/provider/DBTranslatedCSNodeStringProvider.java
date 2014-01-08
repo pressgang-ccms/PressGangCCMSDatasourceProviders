@@ -6,15 +6,14 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedCSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBTranslatedCSNodeStringProvider extends DBDataProvider implements TranslatedCSNodeStringProvider {
-    protected DBTranslatedCSNodeStringProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBTranslatedCSNodeStringProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
     }
 
     @Override
@@ -29,7 +28,7 @@ public class DBTranslatedCSNodeStringProvider extends DBDataProvider implements 
     }
 
     @Override
-    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newCSTranslatedNodeStringCollection(TranslatedCSNodeWrapper parent) {
+    public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> newTranslatedCSNodeStringCollection(TranslatedCSNodeWrapper parent) {
         final CollectionWrapper<TranslatedCSNodeStringWrapper> collection = getWrapperFactory().createCollection(
                 new ArrayList<TranslatedCSNodeString>(), TranslatedCSNodeString.class, false);
 

@@ -18,7 +18,8 @@ public interface ContentSpecProvider {
 
     CollectionWrapper<TagWrapper> getContentSpecTags(int id, Integer revision);
 
-    UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getContentSpecProperties(int id, Integer revision);
+    UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getContentSpecProperties(int id, Integer revision,
+            ContentSpecWrapper parent);
 
     UpdateableCollectionWrapper<CSNodeWrapper> getContentSpecNodes(int id, Integer revision);
 

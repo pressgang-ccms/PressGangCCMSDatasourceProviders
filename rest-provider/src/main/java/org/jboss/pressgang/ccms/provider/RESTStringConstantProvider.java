@@ -1,19 +1,21 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
+import java.util.Arrays;
+
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTStringConstantCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTStringConstantV1;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.StringConstantWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTStringConstantProvider extends RESTDataProvider implements StringConstantProvider {
     private static Logger log = LoggerFactory.getLogger(RESTStringConstantProvider.class);
 
-    public RESTStringConstantProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    public RESTStringConstantProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTStringConstantV1 loadStringConstant(Integer id, Integer revision, String expandString) {
@@ -51,7 +53,11 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
 
     @Override
     public StringConstantWrapper getStringConstant(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTStringConstant(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTStringConstant(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTStringConstantCollectionV1 getRESTStringConstantRevisions(int id, Integer revision) {
@@ -88,6 +94,11 @@ public class RESTStringConstantProvider extends RESTDataProvider implements Stri
 
     @Override
     public CollectionWrapper<StringConstantWrapper> getStringConstantRevisions(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTStringConstantRevisions(id, revision), RESTStringConstantV1.class, true);
+        return RESTCollectionWrapperBuilder.<StringConstantWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTStringConstantRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 }

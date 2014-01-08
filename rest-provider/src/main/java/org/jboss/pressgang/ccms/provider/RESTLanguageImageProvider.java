@@ -1,26 +1,27 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTImageV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTLanguageImageCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
 import org.jboss.pressgang.ccms.wrapper.LanguageImageWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTLanguageImageProvider extends RESTDataProvider implements LanguageImageProvider {
     private static Logger log = LoggerFactory.getLogger(RESTLanguageImageProvider.class);
 
-    protected RESTLanguageImageProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTLanguageImageProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTImageV1 loadImage(Integer id, Integer revision, String expandString) {
@@ -59,7 +60,12 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
     }
 
     public LanguageImageWrapper getLanguageImage(int id, final Integer revision, final RESTImageV1 parent) {
-        return getWrapperFactory().create(getRESTLanguageImage(id, revision, parent), revision != null, parent);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTLanguageImage(id, revision, parent))
+                .isRevision(revision != null)
+                .parent(parent)
+                .build();
     }
 
     @Override
@@ -367,7 +373,12 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
     }
 
     public CollectionWrapper<LanguageImageWrapper> getLanguageImageRevisions(int id, final Integer revision, final RESTImageV1 parent) {
-        return getWrapperFactory().createCollection(getRESTLanguageImageRevisions(id, revision, parent), RESTLanguageImageV1.class,
-                revision != null, parent);
+        return RESTCollectionWrapperBuilder.<LanguageImageWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTLanguageImageRevisions(id, revision, parent))
+                .isRevisionCollection()
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 }

@@ -1,4 +1,4 @@
-package org.jboss.pressgang.ccms.wrapper.collection;
+package org.jboss.pressgang.ccms.proxy;
 
 import java.lang.reflect.Method;
 

@@ -1,5 +1,6 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
 import java.util.Date;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
@@ -9,10 +10,10 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollection
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.enums.RESTXMLDoctype;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseTopicV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
@@ -21,6 +22,11 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
     protected RESTTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicV1 topic, boolean isRevision,
             boolean isNewEntity) {
         super(providerFactory, topic, isRevision, isNewEntity);
+    }
+
+    protected RESTTopicV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicV1 topic, boolean isRevision,
+            boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, topic, isRevision, isNewEntity, expandedMethods);
     }
 
     @Override
@@ -74,11 +80,6 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
     }
 
     @Override
-    public CollectionWrapper<TopicWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTTopicV1.class, true);
-    }
-
-    @Override
     public String getBugzillaBuildId() {
         return ComponentTopicV1.returnBugzillaBuildId(getProxyEntity());
     }
@@ -99,18 +100,8 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
     }
 
     @Override
-    public CollectionWrapper<TopicWrapper> getOutgoingRelationships() {
-        return getWrapperFactory().createCollection(getProxyEntity().getOutgoingRelationships(), RESTTopicV1.class, isRevisionEntity());
-    }
-
-    @Override
     public void setOutgoingRelationships(CollectionWrapper<TopicWrapper> outgoingTopics) {
         getProxyEntity().explicitSetOutgoingRelationships(outgoingTopics == null ? null : (RESTTopicCollectionV1) outgoingTopics.unwrap());
-    }
-
-    @Override
-    public CollectionWrapper<TopicWrapper> getIncomingRelationships() {
-        return getWrapperFactory().createCollection(getProxyEntity().getIncomingRelationships(), RESTTopicV1.class, isRevisionEntity());
     }
 
     @Override
@@ -130,8 +121,11 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopics() {
-        return getWrapperFactory().createCollection(getProxyEntity().getTranslatedTopics_OTM(), RESTTranslatedTopicV1.class,
-                isRevisionEntity());
+        return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getTranslatedTopics_OTM())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @Override

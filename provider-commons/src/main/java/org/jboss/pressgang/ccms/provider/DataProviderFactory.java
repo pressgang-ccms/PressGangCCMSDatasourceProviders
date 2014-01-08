@@ -11,13 +11,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
-import org.jboss.pressgang.ccms.wrapper.WrapperFactory;
 
 /**
  *
  */
 public abstract class DataProviderFactory {
-    private final WrapperFactory wrapperFactory;
     private List<ProviderListener> listeners = new LinkedList<ProviderListener>();
 
     private static ClassLoader getContextClassLoader() {
@@ -149,9 +147,7 @@ public abstract class DataProviderFactory {
         }
     }
 
-    protected DataProviderFactory(final WrapperFactory wrapperFactory) {
-        this.wrapperFactory = wrapperFactory;
-        wrapperFactory.setProviderFactory(this);
+    protected DataProviderFactory() {
     }
 
     /**
@@ -163,15 +159,6 @@ public abstract class DataProviderFactory {
      */
     public <T> T getProvider(final Class<T> clazz) {
         return loadProvider(clazz);
-    }
-
-    /**
-     * Gets the WrapperFactory associated with the factory.
-     *
-     * @return The wrapper factory associated with the ProviderFactory.
-     */
-    protected WrapperFactory getWrapperFactory() {
-        return wrapperFactory;
     }
 
     /**

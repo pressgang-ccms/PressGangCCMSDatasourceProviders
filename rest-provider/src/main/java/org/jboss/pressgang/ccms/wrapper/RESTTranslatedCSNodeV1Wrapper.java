@@ -1,13 +1,14 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseEntityWrapper<TranslatedCSNodeWrapper,
@@ -18,9 +19,9 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseEntityWrapper<Transla
         super(providerFactory, entity, isRevision, isNewEntity);
     }
 
-    @Override
-    public CollectionWrapper<TranslatedCSNodeWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTTranslatedCSNodeV1.class, true);
+    protected RESTTranslatedCSNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeV1 entity,
+            boolean isRevision, boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, entity, isRevision, isNewEntity, expandedMethods);
     }
 
     @Override
@@ -65,9 +66,13 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseEntityWrapper<Transla
 
     @Override
     public UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper> getTranslatedStrings() {
-        final CollectionWrapper<TranslatedCSNodeStringWrapper> collection = getWrapperFactory().createCollection(
-                getProxyEntity().getTranslatedNodeStrings_OTM(), RESTTranslatedCSNodeStringV1.class, isRevisionEntity(), getProxyEntity());
-        return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) collection;
+        return (UpdateableCollectionWrapper<TranslatedCSNodeStringWrapper>) RESTCollectionWrapperBuilder
+                .<TranslatedCSNodeStringWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getTranslatedNodeStrings_OTM())
+                .isRevisionCollection(isRevisionEntity())
+                .parent(getProxyEntity())
+                .build();
     }
 
     @Override
@@ -78,7 +83,11 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseEntityWrapper<Transla
 
     @Override
     public CSNodeWrapper getCSNode() {
-        return getWrapperFactory().create(getProxyEntity().getNode(), true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getNode())
+                .isRevision()
+                .build();
     }
 
     @Override
@@ -88,13 +97,19 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseEntityWrapper<Transla
 
     @Override
     public TranslatedContentSpecWrapper getTranslatedContentSpec() {
-        return getWrapperFactory().create(getProxyEntity().getTranslatedContentSpec(), isRevisionEntity(),
-                TranslatedContentSpecWrapper.class);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getTranslatedContentSpec())
+                .isRevision(isRevisionEntity())
+                .build();
     }
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopics() {
-        return getWrapperFactory().createCollection(getProxyEntity().getTranslatedTopics_OTM(), RESTTranslatedTopicV1.class,
-                isRevisionEntity(), TranslatedTopicWrapper.class);
+        return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getTranslatedTopics_OTM())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 }

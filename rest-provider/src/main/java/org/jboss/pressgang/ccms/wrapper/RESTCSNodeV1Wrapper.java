@@ -1,14 +1,16 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeTypeV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RESTCSNodeV1> implements CSNodeWrapper {
@@ -18,9 +20,9 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
         super(providerFactory, entity, isRevision, isNewEntity);
     }
 
-    @Override
-    public CollectionWrapper<CSNodeWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTCSNodeV1.class, true);
+    protected RESTCSNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTCSNodeV1 entity, boolean isRevision,
+            boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, entity, isRevision, isNewEntity, expandedMethods);
     }
 
     @Override
@@ -30,9 +32,10 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
-        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getProxyEntity().getChildren_OTM(),
-                RESTCSNodeV1.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                .collection(getProxyEntity().getChildren_OTM())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @Override
@@ -42,9 +45,11 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
 
     @Override
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedToNodes() {
-        final CollectionWrapper<CSRelatedNodeWrapper> collection = getWrapperFactory().createCollection(
-                getProxyEntity().getRelatedToNodes(), RESTCSRelatedNodeV1.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) RESTCollectionWrapperBuilder.<CSRelatedNodeWrapper>newBuilder()
+                .collection(getProxyEntity().getRelatedToNodes())
+                .isRevisionCollection(isRevisionEntity())
+                .parent(getProxyEntity())
+                .build();
     }
 
     @Override
@@ -54,9 +59,11 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
 
     @Override
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedFromNodes() {
-        final CollectionWrapper<CSRelatedNodeWrapper> collection = getWrapperFactory().createCollection(
-                getProxyEntity().getRelatedFromNodes(), RESTCSRelatedNodeV1.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) RESTCollectionWrapperBuilder.<CSRelatedNodeWrapper>newBuilder()
+                .collection(getProxyEntity().getRelatedFromNodes())
+                .isRevisionCollection(isRevisionEntity())
+                .parent(getProxyEntity())
+                .build();
     }
 
     @Override
@@ -67,7 +74,11 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
 
     @Override
     public CSNodeWrapper getParent() {
-        return getWrapperFactory().create(getProxyEntity().getParent(), isRevisionEntity());
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getParent())
+                .isRevision(isRevisionEntity())
+                .build();
     }
 
     @Override
@@ -77,7 +88,11 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
 
     @Override
     public ContentSpecWrapper getContentSpec() {
-        return getWrapperFactory().create(getProxyEntity().getContentSpec(), isRevisionEntity());
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getContentSpec())
+                .isRevision(isRevisionEntity())
+                .build();
     }
 
     @Override
@@ -92,8 +107,11 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
 
     @Override
     public CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes() {
-        return getWrapperFactory().createCollection(getProxyEntity().getTranslatedNodes_OTM(), RESTTranslatedCSNodeV1Wrapper.class,
-                isRevisionEntity());
+        return RESTCollectionWrapperBuilder.<TranslatedCSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getTranslatedNodes_OTM())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @Override
@@ -158,7 +176,11 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
 
     @Override
     public CSNodeWrapper getNextNode() {
-        return getWrapperFactory().create(getProxyEntity().getNextNode(), isRevisionEntity());
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getNextNode())
+                .isRevision(isRevisionEntity())
+                .build();
     }
 
     @Override

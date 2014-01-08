@@ -1,25 +1,25 @@
 package org.jboss.pressgang.ccms.provider;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTUserCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTUserQueryBuilderV1;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.UserWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTUserProvider extends RESTDataProvider implements UserProvider {
     private static Logger log = LoggerFactory.getLogger(RESTUserProvider.class);
 
-
-    protected RESTUserProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTUserProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTUserV1 loadUser(int id, Integer revision, String expandString) {
@@ -57,7 +57,11 @@ public class RESTUserProvider extends RESTDataProvider implements UserProvider {
 
     @Override
     public UserWrapper getUser(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTUser(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTUser(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTUserCollectionV1 getRESTUsersByName(final String name) {
@@ -89,7 +93,10 @@ public class RESTUserProvider extends RESTDataProvider implements UserProvider {
 
     @Override
     public CollectionWrapper<UserWrapper> getUsersByName(final String name) {
-        return getWrapperFactory().createCollection(getRESTUsersByName(name), RESTUserV1.class, false);
+        return RESTCollectionWrapperBuilder.<UserWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTUsersByName(name))
+                .build();
     }
 
     @Override
@@ -98,7 +105,10 @@ public class RESTUserProvider extends RESTDataProvider implements UserProvider {
         if (users != null && users.getItems() != null && !users.getItems().isEmpty()) {
             for (final RESTUserV1 user : users.returnItems()) {
                 if (user.getName().equals(name)) {
-                    return getWrapperFactory().create(user, false, UserWrapper.class);
+                    return RESTEntityWrapperBuilder.newBuilder()
+                            .providerFactory(getProviderFactory())
+                            .entity(user)
+                            .build();
                 }
             }
         }
@@ -140,6 +150,11 @@ public class RESTUserProvider extends RESTDataProvider implements UserProvider {
 
     @Override
     public CollectionWrapper<UserWrapper> getUserRevisions(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTUserRevisions(id, revision), RESTUserV1.class, true);
+        return RESTCollectionWrapperBuilder.<UserWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTUserRevisions(id, revision))
+                .isRevisionCollection()
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .build();
     }
 }

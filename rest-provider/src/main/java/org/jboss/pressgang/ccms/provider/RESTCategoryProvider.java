@@ -1,23 +1,20 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTTagInCategoryCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
 import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
-import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTCategoryProvider extends RESTDataProvider implements CategoryProvider {
     private static Logger log = LoggerFactory.getLogger(RESTCategoryProvider.class);
 
-    protected RESTCategoryProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTCategoryProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTCategoryV1 loadCategory(Integer id, Integer revision, String expandString) {
@@ -55,7 +52,11 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
 
     @Override
     public CategoryWrapper getCategory(int id, final Integer revision) {
-        return getWrapperFactory().create(getRESTCategory(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTCategory(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public RESTTagInCategoryCollectionV1 getRESTCategoryTags(int id, final Integer revision) {
@@ -89,13 +90,6 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
             log.debug("Failed to retrieve the Tags for Category " + id + (revision == null ? "" : (", Revision " + revision)), e);
             throw handleException(e);
         }
-    }
-
-    @Override
-    public UpdateableCollectionWrapper<TagInCategoryWrapper> getCategoryTags(int id, final Integer revision) {
-        final CollectionWrapper<TagInCategoryWrapper> collection = getWrapperFactory().createCollection(getRESTCategoryTags(id, revision),
-                RESTTagInCategoryV1.class, revision != null, TagInCategoryWrapper.class);
-        return (UpdateableCollectionWrapper<TagInCategoryWrapper>) collection;
     }
 
     public RESTCategoryCollectionV1 getRESTCategoryRevisions(int id, final Integer revision) {
@@ -132,6 +126,10 @@ public class RESTCategoryProvider extends RESTDataProvider implements CategoryPr
 
     @Override
     public CollectionWrapper<CategoryWrapper> getCategoryRevisions(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTCategoryRevisions(id, revision), RESTCategoryV1.class, true);
+        return RESTCollectionWrapperBuilder.<CategoryWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTCategoryRevisions(id, revision))
+                .isRevisionCollection()
+                .build();
     }
 }

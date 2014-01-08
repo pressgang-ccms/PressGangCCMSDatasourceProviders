@@ -1,11 +1,12 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class RESTImageV1Wrapper extends RESTBaseEntityWrapper<ImageWrapper, RESTImageV1> implements ImageWrapper {
@@ -13,6 +14,11 @@ public class RESTImageV1Wrapper extends RESTBaseEntityWrapper<ImageWrapper, REST
     protected RESTImageV1Wrapper(final RESTProviderFactory providerFactory, final RESTImageV1 image, boolean isRevision,
             boolean isNewEntity) {
         super(providerFactory, image, isRevision, isNewEntity);
+    }
+
+    protected RESTImageV1Wrapper(final RESTProviderFactory providerFactory, final RESTImageV1 image, boolean isRevision,
+            boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, image, isRevision, isNewEntity, expandedMethods);
     }
 
     @Override
@@ -27,18 +33,16 @@ public class RESTImageV1Wrapper extends RESTBaseEntityWrapper<ImageWrapper, REST
 
     @Override
     public UpdateableCollectionWrapper<LanguageImageWrapper> getLanguageImages() {
-        final CollectionWrapper<LanguageImageWrapper> collection = getWrapperFactory().createCollection(
-                getProxyEntity().getLanguageImages_OTM(), RESTLanguageImageV1.class, isRevisionEntity(), getProxyEntity());
-        return (UpdateableCollectionWrapper<LanguageImageWrapper>) collection;
+        return (UpdateableCollectionWrapper<LanguageImageWrapper>) RESTCollectionWrapperBuilder.<LanguageImageWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getLanguageImages_OTM())
+                .isRevisionCollection(isRevisionEntity())
+                .parent(getProxyEntity())
+                .build();
     }
 
     @Override
     public void setLanguageImages(UpdateableCollectionWrapper<LanguageImageWrapper> languageImages) {
         getEntity().explicitSetLanguageImages_OTM(languageImages == null ? null : (RESTLanguageImageCollectionV1) languageImages.unwrap());
-    }
-
-    @Override
-    public CollectionWrapper<ImageWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTImageV1.class, true);
     }
 }

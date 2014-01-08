@@ -1,24 +1,33 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTTopicSourceURLV1Wrapper extends RESTBaseEntityWrapper<TopicSourceURLWrapper,
         RESTTopicSourceUrlV1> implements TopicSourceURLWrapper {
-    private final RESTBaseTopicV1<?, ?, ?> parent;
 
     protected RESTTopicSourceURLV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicSourceUrlV1 topicSourceUrl,
             boolean isRevision, final RESTBaseTopicV1<?, ?, ?> parent, boolean isNewEntity) {
         super(providerFactory, topicSourceUrl, isRevision, parent, isNewEntity);
-        this.parent = parent;
+    }
+
+    protected RESTTopicSourceURLV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicSourceUrlV1 topicSourceUrl,
+            boolean isRevision, final RESTBaseTopicV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, topicSourceUrl, isRevision, parent, isNewEntity, expandedMethods);
+    }
+
+    @Override
+    protected RESTBaseTopicV1<?, ?, ?> getParentEntity() {
+        return (RESTBaseTopicV1<?, ?, ?>) super.getParentEntity();
     }
 
     @Override
     public TopicSourceURLWrapper clone(boolean deepCopy) {
-        return new RESTTopicSourceURLV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent,
+        return new RESTTopicSourceURLV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), getParentEntity(),
                 isNewEntity());
     }
 
@@ -50,10 +59,5 @@ public class RESTTopicSourceURLV1Wrapper extends RESTBaseEntityWrapper<TopicSour
     @Override
     public void setDescription(String description) {
         getProxyEntity().explicitSetDescription(description);
-    }
-
-    @Override
-    public CollectionWrapper<TopicSourceURLWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTTopicSourceUrlV1.class, true, parent);
     }
 }

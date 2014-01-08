@@ -1,32 +1,32 @@
 package org.jboss.pressgang.ccms.wrapper;
 
-import java.util.Date;
+import java.util.Collection;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.components.ComponentBaseRESTEntityWithPropertiesV1;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentContentSpecV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTContentSpecTypeV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
+import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseContentSpecV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public class RESTContentSpecV1Wrapper extends RESTBaseEntityWrapper<ContentSpecWrapper, RESTContentSpecV1> implements ContentSpecWrapper {
+public class RESTContentSpecV1Wrapper extends RESTBaseContentSpecV1Wrapper<ContentSpecWrapper, RESTContentSpecV1>
+        implements ContentSpecWrapper {
 
     protected RESTContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTContentSpecV1 entity, boolean isRevision,
             boolean isNewEntity) {
         super(providerFactory, entity, isRevision, isNewEntity);
     }
 
-    @Override
-    public CollectionWrapper<TagWrapper> getTags() {
-        return getWrapperFactory().createCollection(getProxyEntity().getTags(), RESTTagV1.class, isRevisionEntity());
+    protected RESTContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTContentSpecV1 entity, boolean isRevision,
+            boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, entity, isRevision, isNewEntity, expandedMethods);
     }
 
     @Override
@@ -36,7 +36,10 @@ public class RESTContentSpecV1Wrapper extends RESTBaseEntityWrapper<ContentSpecW
 
     @Override
     public CollectionWrapper<TagWrapper> getBookTags() {
-        return getWrapperFactory().createCollection(getProxyEntity().getBookTags(), RESTTagV1.class, isRevisionEntity());
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .collection(getProxyEntity().getBookTags())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @Override
@@ -46,22 +49,15 @@ public class RESTContentSpecV1Wrapper extends RESTBaseEntityWrapper<ContentSpecW
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
-        final CollectionWrapper<CSNodeWrapper> collection = getWrapperFactory().createCollection(getProxyEntity().getChildren_OTM(),
-                RESTCSNodeV1.class, isRevisionEntity());
-        return (UpdateableCollectionWrapper<CSNodeWrapper>) collection;
+        return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                .collection(getProxyEntity().getChildren_OTM())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @Override
     public void setChildren(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
         getEntity().explicitSetChildren_OTM(nodes == null ? null : (RESTCSNodeCollectionV1) nodes.unwrap());
-    }
-
-    @Override
-    public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getProperties() {
-        final CollectionWrapper<PropertyTagInContentSpecWrapper> collection = getWrapperFactory().createCollection(
-                getProxyEntity().getProperties(), RESTAssignedPropertyTagCollectionV1.class, isRevisionEntity(), getProxyEntity(),
-                PropertyTagInContentSpecWrapper.class);
-        return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>) collection;
     }
 
     @Override
@@ -71,44 +67,34 @@ public class RESTContentSpecV1Wrapper extends RESTBaseEntityWrapper<ContentSpecW
 
     @Override
     public CollectionWrapper<TranslatedContentSpecWrapper> getTranslatedContentSpecs() {
-        return getWrapperFactory().createCollection(getProxyEntity().getTranslatedContentSpecs(), RESTTranslatedContentSpecV1.class,
-                isRevisionEntity());
+        return RESTCollectionWrapperBuilder.<TranslatedContentSpecWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getTranslatedContentSpecs())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @Override
     public String getTitle() {
-        final CSNodeWrapper node = getWrapperFactory().create(ComponentContentSpecV1.returnMetaData(getProxyEntity(), "Title"),
-                isRevisionEntity(), CSNodeWrapper.class);
+        final RESTCSNodeV1 node = ComponentContentSpecV1.returnMetaData(getProxyEntity(), CommonConstants.CS_TITLE_TITLE);
         return node == null ? null : node.getAdditionalText();
     }
 
     @Override
     public String getProduct() {
-        final CSNodeWrapper node = getWrapperFactory().create(ComponentContentSpecV1.returnMetaData(getProxyEntity(), "Product"),
-                isRevisionEntity(), CSNodeWrapper.class);
+        final RESTCSNodeV1 node = ComponentContentSpecV1.returnMetaData(getProxyEntity(), CommonConstants.CS_PRODUCT_TITLE);
         return node == null ? null : node.getAdditionalText();
     }
 
     @Override
     public String getVersion() {
-        final CSNodeWrapper node = getWrapperFactory().create(ComponentContentSpecV1.returnMetaData(getProxyEntity(), "Version"),
-                isRevisionEntity(), CSNodeWrapper.class);
+        final RESTCSNodeV1 node = ComponentContentSpecV1.returnMetaData(getProxyEntity(), CommonConstants.CS_VERSION_TITLE);
         return node == null ? null : node.getAdditionalText();
-    }
-
-    @Override
-    public String getLocale() {
-        return getProxyEntity().getLocale();
     }
 
     @Override
     public void setLocale(String locale) {
         getEntity().explicitSetLocale(locale);
-    }
-
-    @Override
-    public Integer getType() {
-        return RESTContentSpecTypeV1.getContentSpecTypeId(getProxyEntity().getType());
     }
 
     @Override
@@ -127,45 +113,12 @@ public class RESTContentSpecV1Wrapper extends RESTBaseEntityWrapper<ContentSpecW
     }
 
     @Override
-    public Date getLastModified() {
-        return getProxyEntity().getLastModified();
-    }
-
-    @Override
-    public String getErrors() {
-        return getProxyEntity().getErrors();
-    }
-
-    @Override
-    public void setErrors(String errors) {
-        getEntity().setErrors(errors);
-    }
-
-    @Override
-    public String getFailed() {
-        return getProxyEntity().getFailedContentSpec();
-    }
-
-    @Override
-    public void setFailed(String failed) {
-        getEntity().setFailedContentSpec(failed);
-    }
-
-    @Override
-    public PropertyTagInContentSpecWrapper getProperty(int propertyId) {
-        return getWrapperFactory().create(ComponentBaseRESTEntityWithPropertiesV1.returnProperty(getProxyEntity(), propertyId),
-                isRevisionEntity(), getProxyEntity(), PropertyTagInContentSpecWrapper.class);
-    }
-
-    @Override
     public CSNodeWrapper getMetaData(String metaDataTitle) {
-        return getWrapperFactory().create(ComponentContentSpecV1.returnMetaData(getProxyEntity(), metaDataTitle), isRevisionEntity(),
-                CSNodeWrapper.class);
-    }
-
-    @Override
-    public CollectionWrapper<ContentSpecWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTContentSpecV1.class, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(ComponentContentSpecV1.returnMetaData(getProxyEntity(), metaDataTitle))
+                .isRevision(isRevisionEntity())
+                .build();
     }
 
     @Override

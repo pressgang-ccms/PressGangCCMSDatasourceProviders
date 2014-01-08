@@ -9,7 +9,7 @@ public class RESTServerUndefinedSettingCollectionV1Wrapper extends
         RESTUpdateableCollectionWrapper<ServerUndefinedSettingWrapper, RESTServerUndefinedSettingV1, RESTServerUndefinedSettingCollectionV1> {
 
     public RESTServerUndefinedSettingCollectionV1Wrapper(final RESTProviderFactory providerFactory,
-            final RESTServerUndefinedSettingCollectionV1 collection, final boolean isRevisionCollection) {
-        super(providerFactory, collection, isRevisionCollection);
+            final RESTServerUndefinedSettingCollectionV1 collection) {
+        super(providerFactory, collection, false);
     }
 }

@@ -1,4 +1,4 @@
-package org.jboss.pressgang.ccms.wrapper.collection;
+package org.jboss.pressgang.ccms.proxy;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -7,8 +7,6 @@ import java.util.List;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
-import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;

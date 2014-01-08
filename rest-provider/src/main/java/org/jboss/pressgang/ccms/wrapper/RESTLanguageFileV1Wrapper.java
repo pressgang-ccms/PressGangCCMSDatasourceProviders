@@ -1,24 +1,33 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTLanguageFileV1Wrapper extends RESTBaseEntityWrapper<LanguageFileWrapper, RESTLanguageFileV1> implements LanguageFileWrapper {
-    private final RESTFileV1 parent;
 
     protected RESTLanguageFileV1Wrapper(final RESTProviderFactory providerFactory, final RESTLanguageFileV1 file, boolean isRevision,
             final RESTFileV1 parent, boolean isNewEntity) {
         super(providerFactory, file, isRevision, parent, isNewEntity);
-        this.parent = parent;
+    }
+
+    protected RESTLanguageFileV1Wrapper(final RESTProviderFactory providerFactory, final RESTLanguageFileV1 file, boolean isRevision,
+            final RESTFileV1 parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, file, isRevision, parent, isNewEntity, expandedMethods);
+    }
+
+    @Override
+    protected RESTFileV1 getParentEntity() {
+        return (RESTFileV1) super.getParentEntity();
     }
 
     @Override
     public LanguageFileWrapper clone(boolean deepCopy) {
         return new RESTLanguageFileV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(),
-                (deepCopy ? parent.clone(deepCopy) : parent), isNewEntity());
+                (deepCopy ? getParentEntity().clone(deepCopy) : getParentEntity()), isNewEntity());
     }
 
     @Override
@@ -50,10 +59,5 @@ public class RESTLanguageFileV1Wrapper extends RESTBaseEntityWrapper<LanguageFil
     @Override
     public void setFileData(byte[] fileData) {
         getEntity().explicitSetFileData(fileData);
-    }
-
-    @Override
-    public CollectionWrapper<LanguageFileWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTLanguageFileV1.class, true, parent);
     }
 }

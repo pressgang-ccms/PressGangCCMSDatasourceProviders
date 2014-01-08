@@ -1,20 +1,30 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTPropertyTagInPropertyCategoryV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBasePropertyTagV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public class RESTPropertyTagInPropertyCategoryV1Wrapper extends RESTBasePropertyTagV1Wrapper<PropertyTagInPropertyCategoryWrapper,
         RESTPropertyTagInPropertyCategoryV1> implements PropertyTagInPropertyCategoryWrapper {
-    private final RESTPropertyCategoryV1 parent;
 
     protected RESTPropertyTagInPropertyCategoryV1Wrapper(final RESTProviderFactory providerFactory,
             final RESTPropertyTagInPropertyCategoryV1 propertyTag, boolean isRevision, final RESTPropertyCategoryV1 parent,
             boolean isNewEntity) {
         super(providerFactory, propertyTag, isRevision, parent, isNewEntity);
-        this.parent = parent;
+    }
+
+    protected RESTPropertyTagInPropertyCategoryV1Wrapper(final RESTProviderFactory providerFactory,
+            final RESTPropertyTagInPropertyCategoryV1 propertyTag, boolean isRevision, final RESTPropertyCategoryV1 parent,
+            boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, propertyTag, isRevision, parent, isNewEntity, expandedMethods);
+    }
+
+    @Override
+    protected RESTPropertyCategoryV1 getParentEntity() {
+        return (RESTPropertyCategoryV1) super.getParentEntity();
     }
 
     @Override
@@ -40,12 +50,7 @@ public class RESTPropertyTagInPropertyCategoryV1Wrapper extends RESTBaseProperty
     @Override
     public RESTPropertyTagInPropertyCategoryV1Wrapper clone(boolean deepCopy) {
         return new RESTPropertyTagInPropertyCategoryV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(),
-                parent, isNewEntity());
+                getParentEntity(), isNewEntity());
     }
 
-    @Override
-    public CollectionWrapper<PropertyTagInPropertyCategoryWrapper> getRevisions() {
-        return getWrapperFactory().createCollection(getProxyEntity().getRevisions(), RESTPropertyTagInPropertyCategoryV1.class, true,
-                parent);
-    }
 }

@@ -1,26 +1,26 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTAssignedPropertyTagCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInTagProvider.class);
 
-    protected RESTPropertyTagInTagProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTPropertyTagInTagProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTTagV1 loadTag(Integer id, Integer revision, String expandString) {
@@ -94,7 +94,13 @@ public class RESTPropertyTagInTagProvider extends RESTPropertyTagProvider {
 
     public CollectionWrapper<PropertyTagInTagWrapper> getPropertyTagInTagRevisions(int id, Integer revision,
             final RESTBaseTagV1<?, ?, ?> parent) {
-        return getWrapperFactory().createCollection(getRESTPropertyTagInTagRevisions(id, revision, parent), RESTAssignedPropertyTagV1.class,
-                true, parent);
+        return RESTCollectionWrapperBuilder.<PropertyTagInTagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTPropertyTagInTagRevisions(id, revision, parent))
+                .isRevisionCollection()
+                .parent(parent)
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .entityWrapperInterface(PropertyTagInTagWrapper.class)
+                .build();
     }
 }

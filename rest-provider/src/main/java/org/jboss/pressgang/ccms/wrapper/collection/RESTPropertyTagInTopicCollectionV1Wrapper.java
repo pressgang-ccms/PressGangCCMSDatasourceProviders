@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper.collection;
 
+import java.util.Collection;
+
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
@@ -12,5 +14,11 @@ public class RESTPropertyTagInTopicCollectionV1Wrapper extends RESTUpdateableCol
     public RESTPropertyTagInTopicCollectionV1Wrapper(final RESTProviderFactory providerFactory,
             final RESTAssignedPropertyTagCollectionV1 collection, boolean isRevisionCollection, RESTBaseTopicV1<?, ?, ?> parent) {
         super(providerFactory, collection, isRevisionCollection, parent, PropertyTagInTopicWrapper.class);
+    }
+
+    public RESTPropertyTagInTopicCollectionV1Wrapper(final RESTProviderFactory providerFactory,
+            final RESTAssignedPropertyTagCollectionV1 collection, boolean isRevisionCollection, final RESTBaseTopicV1<?, ?, ?> parent,
+            final Collection<String> expandedEntityMethods) {
+        super(providerFactory, collection, isRevisionCollection, parent, PropertyTagInTopicWrapper.class, expandedEntityMethods);
     }
 }

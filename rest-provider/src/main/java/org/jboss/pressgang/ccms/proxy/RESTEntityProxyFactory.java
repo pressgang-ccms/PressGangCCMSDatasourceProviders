@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.proxy;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
@@ -54,6 +55,12 @@ public class RESTEntityProxyFactory {
     @SuppressWarnings("unchecked")
     public static <T extends RESTBaseEntityV1<T, ?, ?>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
             boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
+        return createProxy(providerFactory, entity, isRevision, parent, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends RESTBaseEntityV1<T, ?, ?>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
+            boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent, final Collection<String> expandedMethods) {
         final Class<?> clazz = entity.getClass();
 
         final ProxyFactory factory = new ProxyFactory();
@@ -73,6 +80,9 @@ public class RESTEntityProxyFactory {
         final RESTBaseEntityV1ProxyHandler<T> proxyHandler = findProxyHandler(providerFactory, entity, isRevision, parent);
         ((ProxyObject) proxy).setHandler(proxyHandler);
         proxyHandler.setProxyEntity(proxy);
+        if (expandedMethods != null) {
+            proxyHandler.getProcessedMethodNames().addAll(expandedMethods);
+        }
 
         return proxy;
     }

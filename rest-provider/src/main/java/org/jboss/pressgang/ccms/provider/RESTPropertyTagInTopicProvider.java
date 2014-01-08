@@ -1,11 +1,11 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.join.RESTAssignedPropertyTagCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
@@ -13,16 +13,16 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider {
     private static Logger log = LoggerFactory.getLogger(RESTPropertyTagInTopicProvider.class);
 
-    protected RESTPropertyTagInTopicProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    protected RESTPropertyTagInTopicProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     /**
@@ -55,8 +55,14 @@ public class RESTPropertyTagInTopicProvider extends RESTPropertyTagProvider {
      */
     public CollectionWrapper<PropertyTagInTopicWrapper> getPropertyTagInTopicRevisions(int id, final Integer revision,
             final RESTBaseTopicV1<?, ?, ?> topic) {
-        return getWrapperFactory().createCollection(getRESTPropertyTagInTopicRevisions(id, revision, topic),
-                RESTAssignedPropertyTagV1.class, true, topic);
+        return RESTCollectionWrapperBuilder.<PropertyTagInTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTPropertyTagInTopicRevisions(id, revision, topic))
+                .isRevisionCollection()
+                .parent(topic)
+                .expandedEntityMethods(Arrays.asList("getRevisions"))
+                .entityWrapperInterface(PropertyTagInTopicWrapper.class)
+                .build();
     }
 
     @SuppressWarnings("unchecked")

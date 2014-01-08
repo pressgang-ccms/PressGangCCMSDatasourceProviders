@@ -33,12 +33,9 @@ import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.provider.DataProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedEntityCollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedSettingCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBBlobConstantCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
@@ -53,6 +50,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBLanguageFileCollectionWrapp
 import org.jboss.pressgang.ccms.wrapper.collection.DBLanguageImageCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBPropertyTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBPropertyTagInPropertyCategoryCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedEntityCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedSettingCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBStringConstantCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagInCategoryCollectionWrapper;
@@ -69,22 +68,36 @@ import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCollectionHandler;
 import org.jboss.pressgang.ccms.wrapper.structures.DBWrapperCache;
 import org.jboss.pressgang.ccms.wrapper.structures.DBWrapperKey;
 
-public class DBWrapperFactory extends WrapperFactory {
+public class DBWrapperFactory {
     private final DBWrapperCache wrapperCache = new DBWrapperCache();
+    private DBProviderFactory providerFactory;
 
     public DBWrapperFactory() {
     }
 
-    public DBWrapperFactory(final DataProviderFactory providerFactory) {
-        super(providerFactory);
+    public DBWrapperFactory(final DBProviderFactory providerFactory) {
+        this.providerFactory = providerFactory;
     }
 
-    @Override
     protected DBProviderFactory getProviderFactory() {
-        return (DBProviderFactory) super.getProviderFactory();
+        if (providerFactory == null) {
+            throw new IllegalStateException("The Provider Factory has not been registered.");
+        }
+        return providerFactory;
     }
 
-    @Override
+    public void setProviderFactory(final DBProviderFactory providerFactory) {
+        this.providerFactory = providerFactory;
+    }
+
+    /**
+     * Create a wrapper around a specific entity.
+     *
+     * @param entity     The entity to be wrapped.
+     * @param isRevision Whether the entity is a revision or not.
+     * @param <T>        The wrapper class that is returned.
+     * @return The Wrapper around the entity.
+     */
     @SuppressWarnings("unchecked")
     public <T extends BaseWrapper<T>> T create(final Object entity, boolean isRevision) {
         if (entity == null) {
@@ -191,12 +204,29 @@ public class DBWrapperFactory extends WrapperFactory {
         return (T) wrapper;
     }
 
-    @Override
+    /**
+     * Create a wrapper around a collection of entities.
+     *
+     * @param collection           The collection to be wrapped.
+     * @param entityClass          The class of the entity that the collection contains.
+     * @param isRevisionCollection Whether or not the collection is a collection of revision entities.
+     * @param <T>                  The wrapper class that is returned.
+     * @return The Wrapper around the collection of entities.
+     */
     public <T extends BaseWrapper<T>> CollectionWrapper<T> createCollection(final Object collection, final Class<?> entityClass,
             boolean isRevisionCollection) {
         return createCollection((Collection) collection, entityClass, isRevisionCollection);
     }
 
+    /**
+     * Create a wrapper around a collection of entities.
+     *
+     * @param collection           The collection to be wrapped.
+     * @param entityClass          The class of the entity that the collection contains.
+     * @param isRevisionCollection Whether or not the collection is a collection of revision entities.
+     * @param <T>                  The wrapper class that is returned.
+     * @return The Wrapper around the collection of entities.
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends BaseWrapper<T>, U> CollectionWrapper<T> createCollection(final Collection<U> collection, final Class<U> entityClass,
             boolean isRevisionCollection) {

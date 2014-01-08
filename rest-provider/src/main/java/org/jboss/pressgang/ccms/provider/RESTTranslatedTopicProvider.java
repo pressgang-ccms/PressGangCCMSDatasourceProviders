@@ -4,10 +4,11 @@ import javax.ws.rs.core.PathSegment;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
@@ -15,22 +16,20 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCol
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.RESTTranslatedTopicV1Wrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicStringWrapper;
 import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTTranslatedTopicCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
@@ -39,20 +38,52 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTranslatedTopicProvider extends RESTDataProvider implements TranslatedTopicProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedTopicProvider.class);
+
+    // DEFAULT EXPANSION
     protected static final Map<String, Collection<String>> DEFAULT_EXPAND_MAP = new HashMap<String, Collection<String>>() {{
         put(RESTTranslatedTopicV1.TAGS_NAME, Arrays.asList(RESTTagV1.CATEGORIES_NAME));
         put(RESTTranslatedTopicV1.PROPERTIES_NAME, null);
         put(RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME, null);
     }};
+    protected static final Set<String> DEFAULT_METHOD_MAP = new HashSet<String>() {{
+        add("getTags");
+        add("getProperties");
+        add("getTranslatedCSNode");
+    }};
+
+    // DEFAULT EXPANSION WITH TOPIC
     protected static final Map<String, Collection<String>> DEFAULT_EXPAND_MAP_WITH_TOPIC = new HashMap<String, Collection<String>>() {{
         put(RESTTranslatedTopicV1.TOPIC_NAME, null);
         put(RESTTranslatedTopicV1.TAGS_NAME, Arrays.asList(RESTTagV1.CATEGORIES_NAME));
         put(RESTTranslatedTopicV1.PROPERTIES_NAME, null);
         put(RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME, null);
     }};
+    protected static final Set<String> DEFAULT_METHOD_MAP_WITH_TOPIC = new HashSet<String>() {{
+        add("getTopic");
+        add("getTags");
+        add("getProperties");
+        add("getTranslatedCSNode");
+    }};
 
-    protected RESTTranslatedTopicProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    // DEFAULT EXPANSION WITH TOPIC AND TRANSLATED STRINGS
+    protected static final Map<String, Collection<String>> DEFAULT_EXPAND_MAP_WITH_TOPIC_AND_STRINGS = new HashMap<String,
+            Collection<String>>() {{
+        put(RESTTranslatedTopicV1.TOPIC_NAME, null);
+        put(RESTTranslatedTopicV1.TAGS_NAME, Arrays.asList(RESTTagV1.CATEGORIES_NAME));
+        put(RESTTranslatedTopicV1.PROPERTIES_NAME, null);
+        put(RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME, null);
+        put(RESTTranslatedTopicV1.TRANSLATEDTOPICSTRING_NAME, null);
+    }};
+    protected static final Set<String> DEFAULT_METHOD_MAP_WITH_TOPIC_AND_STRINGS = new HashSet<String>() {{
+        add("getTopic");
+        add("getTags");
+        add("getProperties");
+        add("getTranslatedCSNode");
+        add("getTranslatedTopicStrings_OTM");
+    }};
+
+    protected RESTTranslatedTopicProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTTranslatedTopicV1 loadTranslatedTopic(int id, Integer revision, String expandString) {
@@ -91,7 +122,12 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public TranslatedTopicWrapper getTranslatedTopic(int id, final Integer revision) {
-        return getWrapperFactory().create(getRESTTranslatedTopic(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTTranslatedTopic(id, revision))
+                .isRevision(revision != null)
+                .expandedMethods(DEFAULT_METHOD_MAP_WITH_TOPIC)
+                .build();
     }
 
     public RESTTagCollectionV1 getRESTTranslatedTopicTags(int id, Integer revision) {
@@ -128,7 +164,12 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public CollectionWrapper<TagWrapper> getTranslatedTopicTags(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTranslatedTopicTags(id, revision), RESTTagV1.class, revision != null);
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicTags(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getTags"))
+                .build();
     }
 
     public RESTAssignedPropertyTagCollectionV1 getRESTTranslatedTopicProperties(int id, Integer revision) {
@@ -166,8 +207,13 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public CollectionWrapper<PropertyTagInTopicWrapper> getTranslatedTopicProperties(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTranslatedTopicProperties(id, revision), RESTAssignedPropertyTagV1.class,
-                revision != null, PropertyTagInTopicWrapper.class);
+        return RESTCollectionWrapperBuilder.<PropertyTagInTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicProperties(id, revision))
+                .isRevisionCollection(revision != null)
+                .entityWrapperInterface(PropertyTagInTopicWrapper.class)
+                .expandedEntityMethods(Arrays.asList("getProperties"))
+                .build();
     }
 
     public RESTTranslatedTopicCollectionV1 getRESTTranslatedTopicOutgoingRelationships(int id, Integer revision) {
@@ -205,8 +251,12 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicOutgoingRelationships(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTranslatedTopicOutgoingRelationships(id, revision), RESTTranslatedTopicV1.class,
-                revision != null);
+        return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicOutgoingRelationships(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getOutgoingRelationships"))
+                .build();
     }
 
     public RESTTranslatedTopicCollectionV1 getRESTTranslatedTopicIncomingRelationships(int id, Integer revision) {
@@ -244,8 +294,12 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicIncomingRelationships(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTranslatedTopicIncomingRelationships(id, revision), RESTTranslatedTopicV1.class,
-                revision != null);
+        return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicIncomingRelationships(id, revision))
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getIncomingRelationships"))
+                .build();
     }
 
     @Override
@@ -288,8 +342,13 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     public CollectionWrapper<TopicSourceURLWrapper> getTranslatedTopicSourceUrls(int id, Integer revision,
             RESTBaseTopicV1<?, ?, ?> parent) {
-        return getWrapperFactory().createCollection(getRESTTranslatedTopicSourceUrls(id, revision, parent), RESTTopicSourceUrlV1.class,
-                revision != null, parent);
+        return RESTCollectionWrapperBuilder.<TopicSourceURLWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicSourceUrls(id, revision, parent))
+                .parent(parent)
+                .isRevisionCollection(revision != null)
+                .expandedEntityMethods(Arrays.asList("getSourceUrls_OTM"))
+                .build();
     }
 
     @Override
@@ -332,9 +391,13 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     public UpdateableCollectionWrapper<TranslatedTopicStringWrapper> getTranslatedTopicStrings(int id, Integer revision,
             RESTTranslatedTopicV1 parent) {
-        final CollectionWrapper<TranslatedTopicStringWrapper> collection = getWrapperFactory().createCollection(
-                getRESTTranslatedTopicStrings(id, revision), RESTTranslatedTopicStringV1.class, revision != null, parent);
-        return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) collection;
+        return (UpdateableCollectionWrapper<TranslatedTopicStringWrapper>) RESTCollectionWrapperBuilder
+                .<TranslatedTopicStringWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicStrings(id, revision))
+                .isRevisionCollection(revision != null)
+                .parent(parent)
+                .build();
     }
 
     public RESTTranslatedTopicCollectionV1 getRESTTranslatedTopicRevisions(int id, final Integer revision) {
@@ -372,7 +435,11 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicRevisions(int id, final Integer revision) {
-        return getWrapperFactory().createCollection(getRESTTranslatedTopicRevisions(id, revision), RESTTranslatedTopicV1.class, true);
+        return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicRevisions(id, revision))
+                .isRevisionCollection()
+                .build();
     }
 
     public RESTTranslatedCSNodeV1 getRESTTranslatedTopicTranslatedCSNode(int id, Integer revision) {
@@ -429,7 +496,11 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
     public CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopicsWithQuery(String query) {
         if (query == null || query.isEmpty()) return null;
 
-        return getWrapperFactory().createCollection(getRESTTranslatedTopicsWithQuery(query), RESTTranslatedTopicV1.class, false);
+        return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTTranslatedTopicsWithQuery(query))
+                .expandedEntityMethods(DEFAULT_METHOD_MAP_WITH_TOPIC)
+                .build();
     }
 
     @Override
@@ -445,7 +516,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedTopic);
 
-            final String expansionString = super.getExpansionString(DEFAULT_EXPAND_MAP_WITH_TOPIC);
+            final String expansionString = getExpansionString(DEFAULT_EXPAND_MAP_WITH_TOPIC);
 
             final RESTTranslatedTopicV1 createdTopic;
             if (logMessage != null) {
@@ -456,7 +527,11 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             }
             if (createdTopic != null) {
                 getRESTEntityCache().add(createdTopic);
-                return getWrapperFactory().create(createdTopic, false);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(createdTopic)
+                        .expandedMethods(DEFAULT_METHOD_MAP_WITH_TOPIC)
+                        .build();
             } else {
                 return null;
             }
@@ -479,7 +554,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedTopic);
 
-            final String expansionString = super.getExpansionString(DEFAULT_EXPAND_MAP_WITH_TOPIC);
+            final String expansionString = getExpansionString(DEFAULT_EXPAND_MAP_WITH_TOPIC);
 
             final RESTTranslatedTopicV1 updatedTopic;
             if (logMessage != null) {
@@ -491,7 +566,11 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
             if (updatedTopic != null) {
                 getRESTEntityCache().expire(RESTTranslatedTopicV1.class, updatedTopic.getId());
                 getRESTEntityCache().add(updatedTopic);
-                return getWrapperFactory().create(updatedTopic, false);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(updatedTopic)
+                        .expandedMethods(DEFAULT_METHOD_MAP_WITH_TOPIC)
+                        .build();
             } else {
                 return null;
             }
@@ -517,13 +596,15 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
         try {
             final RESTTranslatedTopicCollectionV1 unwrappedTopics = ((RESTTranslatedTopicCollectionV1Wrapper) topics).unwrap();
 
-            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME,
-                    Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME, RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME,
-                            RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
-            final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().createJSONTranslatedTopics(expandString, unwrappedTopics);
-            if (updatedTopics != null) {
-                getRESTEntityCache().add(updatedTopics, false);
-                return getWrapperFactory().createCollection(updatedTopics, RESTTranslatedTopicV1.class, false);
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME, DEFAULT_EXPAND_MAP_WITH_TOPIC);
+            final RESTTranslatedTopicCollectionV1 createdTopics = getRESTClient().createJSONTranslatedTopics(expandString, unwrappedTopics);
+            if (createdTopics != null) {
+                getRESTEntityCache().add(createdTopics, false);
+                return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .collection(createdTopics)
+                        .expandedEntityMethods(DEFAULT_METHOD_MAP_WITH_TOPIC)
+                        .build();
             } else {
                 return null;
             }
@@ -538,9 +619,7 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
         try {
             final RESTTranslatedTopicCollectionV1 unwrappedTopics = ((RESTTranslatedTopicCollectionV1Wrapper) topics).unwrap();
 
-            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME,
-                    Arrays.asList(RESTTranslatedTopicV1.TOPIC_NAME, RESTTranslatedTopicV1.TAGS_NAME, RESTTranslatedTopicV1.PROPERTIES_NAME,
-                            RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
+            final String expandString = getExpansionString(RESTv1Constants.TRANSLATEDTOPICS_EXPANSION_NAME, DEFAULT_EXPAND_MAP_WITH_TOPIC);
             final RESTTranslatedTopicCollectionV1 updatedTopics = getRESTClient().updateJSONTranslatedTopics(expandString, unwrappedTopics);
             if (updatedTopics != null) {
                 // Expire the old cached data
@@ -549,7 +628,11 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
                 }
                 // Add the new data to the cache
                 getRESTEntityCache().add(updatedTopics, false);
-                return getWrapperFactory().createCollection(updatedTopics, RESTTranslatedTopicV1.class, false);
+                return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .collection(updatedTopics)
+                        .expandedEntityMethods(DEFAULT_METHOD_MAP_WITH_TOPIC)
+                        .build();
             } else {
                 return null;
             }
@@ -574,11 +657,18 @@ public class RESTTranslatedTopicProvider extends RESTDataProvider implements Tra
 
     @Override
     public TranslatedTopicWrapper newTranslatedTopic() {
-        return getWrapperFactory().create(new RESTTranslatedTopicV1(), false, true);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(new RESTTranslatedTopicV1())
+                .newEntity()
+                .build();
     }
 
     @Override
     public CollectionWrapper<TranslatedTopicWrapper> newTranslatedTopicCollection() {
-        return getWrapperFactory().createCollection(new RESTTranslatedTopicCollectionV1(), RESTTranslatedTopicV1.class, false);
+        return RESTCollectionWrapperBuilder.<TranslatedTopicWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(new RESTTranslatedTopicCollectionV1())
+                .build();
     }
 }

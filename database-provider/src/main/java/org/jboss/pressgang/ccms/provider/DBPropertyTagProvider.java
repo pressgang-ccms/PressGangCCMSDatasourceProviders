@@ -11,7 +11,7 @@ import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.wrapper.ContentSpecWrapper;
-import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.PropertyCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInPropertyCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
@@ -23,8 +23,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public class DBPropertyTagProvider extends DBDataProvider implements PropertyTagProvider {
-    protected DBPropertyTagProvider(EntityManager entityManager, DBWrapperFactory wrapperFactory, List<ProviderListener> listeners) {
-        super(entityManager, wrapperFactory, listeners);
+    protected DBPropertyTagProvider(EntityManager entityManager, DBProviderFactory providerFactory, List<ProviderListener> listeners) {
+        super(entityManager, providerFactory, listeners);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class DBPropertyTagProvider extends DBDataProvider implements PropertyTag
     }
 
     @Override
-    public PropertyTagInPropertyCategoryWrapper newPropertyTagInPropertyCategory() {
+    public PropertyTagInPropertyCategoryWrapper newPropertyTagInPropertyCategory(PropertyCategoryWrapper propertyCategory) {
         return getWrapperFactory().create(new PropertyTagToPropertyTagCategory(), false);
     }
 
@@ -122,7 +122,8 @@ public class DBPropertyTagProvider extends DBDataProvider implements PropertyTag
     }
 
     @Override
-    public UpdateableCollectionWrapper<PropertyTagInPropertyCategoryWrapper> newPropertyTagInPropertyCategoryCollection() {
+    public UpdateableCollectionWrapper<PropertyTagInPropertyCategoryWrapper> newPropertyTagInPropertyCategoryCollection(
+            PropertyCategoryWrapper propertyCategory) {
         final CollectionWrapper<PropertyTagInPropertyCategoryWrapper> collection = getWrapperFactory().createCollection(
                 new ArrayList<PropertyTagToPropertyTagCategory>(), PropertyTagToPropertyTagCategory.class, false);
         return (UpdateableCollectionWrapper<PropertyTagInPropertyCategoryWrapper>) collection;

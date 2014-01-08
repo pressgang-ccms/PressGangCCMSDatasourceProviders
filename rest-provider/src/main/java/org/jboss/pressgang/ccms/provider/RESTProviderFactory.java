@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.jboss.pressgang.ccms.rest.RESTErrorInterceptor;
 import org.jboss.pressgang.ccms.rest.RESTManager;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
 
 public class RESTProviderFactory extends DataProviderFactory {
     private final RESTManager restManager;
@@ -18,15 +17,9 @@ public class RESTProviderFactory extends DataProviderFactory {
     }
 
     public RESTProviderFactory(final String serverUrl) {
-        super(new RESTWrapperFactory());
         restManager = new RESTManager(serverUrl);
         restManager.getProxyFactory().getProviderFactory().addClientErrorInterceptor(new RESTErrorInterceptor());
         initialiseProviders();
-    }
-
-    @Override
-    public RESTWrapperFactory getWrapperFactory() {
-        return (RESTWrapperFactory) super.getWrapperFactory();
     }
 
     public RESTManager getRESTManager() {
@@ -38,149 +31,142 @@ public class RESTProviderFactory extends DataProviderFactory {
      */
     private void initialiseProviders() {
         // Topic Provider
-        final RESTTopicProvider topicProvider = new RESTTopicProvider(getRESTManager(), getWrapperFactory());
+        final RESTTopicProvider topicProvider = new RESTTopicProvider(this);
         providerMap.put(RESTTopicProvider.class, topicProvider);
         providerMap.put(TopicProvider.class, topicProvider);
 
         // Tag Provider
-        final RESTTagProvider tagProvider = new RESTTagProvider(getRESTManager(), getWrapperFactory());
+        final RESTTagProvider tagProvider = new RESTTagProvider(this);
         providerMap.put(RESTTagProvider.class, tagProvider);
         providerMap.put(TagProvider.class, tagProvider);
 
         // Tag In Category Provider
-        final RESTTagInCategoryProvider tagInCategoryProvider = new RESTTagInCategoryProvider(getRESTManager(), getWrapperFactory());
+        final RESTTagInCategoryProvider tagInCategoryProvider = new RESTTagInCategoryProvider(this);
         providerMap.put(RESTTagInCategoryProvider.class, tagInCategoryProvider);
 
         // Translated Topic Provider
-        final RESTTranslatedTopicProvider translatedTopicProvider = new RESTTranslatedTopicProvider(getRESTManager(), getWrapperFactory());
+        final RESTTranslatedTopicProvider translatedTopicProvider = new RESTTranslatedTopicProvider(this);
         providerMap.put(RESTTranslatedTopicProvider.class, translatedTopicProvider);
         providerMap.put(TranslatedTopicProvider.class, translatedTopicProvider);
 
         // Translated Topic String Provider
-        final RESTTranslatedTopicStringProvider translatedTopicStringProvider = new RESTTranslatedTopicStringProvider(getRESTManager(),
-                getWrapperFactory());
+        final RESTTranslatedTopicStringProvider translatedTopicStringProvider = new RESTTranslatedTopicStringProvider(this);
         providerMap.put(RESTTranslatedTopicStringProvider.class, translatedTopicStringProvider);
         providerMap.put(TranslatedTopicStringProvider.class, translatedTopicStringProvider);
 
         // User Provider
-        final RESTUserProvider userProvider = new RESTUserProvider(getRESTManager(), getWrapperFactory());
+        final RESTUserProvider userProvider = new RESTUserProvider(this);
         providerMap.put(RESTUserProvider.class, userProvider);
         providerMap.put(UserProvider.class, userProvider);
 
         // String Constant Provider
-        final RESTStringConstantProvider stringConstantProvider = new RESTStringConstantProvider(getRESTManager(), getWrapperFactory());
+        final RESTStringConstantProvider stringConstantProvider = new RESTStringConstantProvider(this);
         providerMap.put(RESTStringConstantProvider.class, stringConstantProvider);
         providerMap.put(StringConstantProvider.class, stringConstantProvider);
 
         // Blob Constant Provider
-        final RESTBlobConstantProvider blobConstantProvider = new RESTBlobConstantProvider(getRESTManager(), getWrapperFactory());
+        final RESTBlobConstantProvider blobConstantProvider = new RESTBlobConstantProvider(this);
         providerMap.put(RESTBlobConstantProvider.class, blobConstantProvider);
         providerMap.put(BlobConstantProvider.class, blobConstantProvider);
 
         // File Provider
-        final RESTFileProvider fileProvider = new RESTFileProvider(getRESTManager(), getWrapperFactory());
+        final RESTFileProvider fileProvider = new RESTFileProvider(this);
         providerMap.put(RESTFileProvider.class, fileProvider);
         providerMap.put(FileProvider.class, fileProvider);
 
         // Language File Provider
-        final RESTLanguageFileProvider languageFileProvider = new RESTLanguageFileProvider(getRESTManager(), getWrapperFactory());
+        final RESTLanguageFileProvider languageFileProvider = new RESTLanguageFileProvider(this);
         providerMap.put(RESTLanguageFileProvider.class, languageFileProvider);
         providerMap.put(LanguageFileProvider.class, languageFileProvider);
 
         // Image Provider
-        final RESTImageProvider imageProvider = new RESTImageProvider(getRESTManager(), getWrapperFactory());
+        final RESTImageProvider imageProvider = new RESTImageProvider(this);
         providerMap.put(RESTImageProvider.class, imageProvider);
         providerMap.put(ImageProvider.class, imageProvider);
 
         // Language Image Provider
-        final RESTLanguageImageProvider languageImageProvider = new RESTLanguageImageProvider(getRESTManager(), getWrapperFactory());
+        final RESTLanguageImageProvider languageImageProvider = new RESTLanguageImageProvider(this);
         providerMap.put(RESTLanguageImageProvider.class, languageImageProvider);
         providerMap.put(LanguageImageProvider.class, languageImageProvider);
 
         // Category Provider
-        final RESTCategoryProvider categoryProvider = new RESTCategoryProvider(getRESTManager(), getWrapperFactory());
+        final RESTCategoryProvider categoryProvider = new RESTCategoryProvider(this);
         providerMap.put(RESTCategoryProvider.class, categoryProvider);
         providerMap.put(CategoryProvider.class, categoryProvider);
 
         // Category In Tag Provider
-        final RESTCategoryInTagProvider categoryInTagProvider = new RESTCategoryInTagProvider(getRESTManager(), getWrapperFactory());
+        final RESTCategoryInTagProvider categoryInTagProvider = new RESTCategoryInTagProvider(this);
         providerMap.put(RESTCategoryInTagProvider.class, categoryInTagProvider);
 
         // Topic Source URL Provider
-        final RESTTopicSourceURLProvider topicSourceURLProvider = new RESTTopicSourceURLProvider(getRESTManager(), getWrapperFactory());
+        final RESTTopicSourceURLProvider topicSourceURLProvider = new RESTTopicSourceURLProvider(this);
         providerMap.put(RESTTopicSourceURLProvider.class, topicSourceURLProvider);
         providerMap.put(TopicSourceURLProvider.class, topicSourceURLProvider);
 
         // PropertyTag Provider
-        final RESTPropertyTagProvider propertyTagProvider = new RESTPropertyTagProvider(getRESTManager(), getWrapperFactory());
+        final RESTPropertyTagProvider propertyTagProvider = new RESTPropertyTagProvider(this);
         providerMap.put(RESTPropertyTagProvider.class, propertyTagProvider);
         providerMap.put(PropertyTagProvider.class, propertyTagProvider);
 
         // PropertyTag In Topic Provider
-        final RESTPropertyTagInTopicProvider propertyTagInTopicProvider = new RESTPropertyTagInTopicProvider(getRESTManager(),
-                getWrapperFactory());
+        final RESTPropertyTagInTopicProvider propertyTagInTopicProvider = new RESTPropertyTagInTopicProvider(this);
         providerMap.put(RESTPropertyTagInTopicProvider.class, propertyTagInTopicProvider);
 
         // PropertyTag In Tag Provider
-        final RESTPropertyTagInTagProvider propertyTagInTagProvider = new RESTPropertyTagInTagProvider(getRESTManager(),
-                getWrapperFactory());
+        final RESTPropertyTagInTagProvider propertyTagInTagProvider = new RESTPropertyTagInTagProvider(this);
         providerMap.put(RESTPropertyTagInTagProvider.class, propertyTagInTagProvider);
 
         // PropertyTag In ContentSpec Provider
-        final RESTPropertyTagInContentSpecProvider propertyTagInContentSpecProvider = new RESTPropertyTagInContentSpecProvider(
-                getRESTManager(), getWrapperFactory());
+        final RESTPropertyTagInContentSpecProvider propertyTagInContentSpecProvider = new RESTPropertyTagInContentSpecProvider(this);
         providerMap.put(RESTPropertyTagInContentSpecProvider.class, propertyTagInContentSpecProvider);
 
         // PropertyTag In PropertyCategory Provider
+
         final RESTPropertyTagInPropertyCategoryProvider propertyTagInPropertyCategoryProvider = new
-                RESTPropertyTagInPropertyCategoryProvider(
-                getRESTManager(), getWrapperFactory());
+                RESTPropertyTagInPropertyCategoryProvider(this);
         providerMap.put(RESTPropertyTagInPropertyCategoryProvider.class, propertyTagInPropertyCategoryProvider);
 
         // Content Spec Provider
-        final RESTContentSpecProvider contentSpecProvider = new RESTContentSpecProvider(getRESTManager(), getWrapperFactory());
+        final RESTContentSpecProvider contentSpecProvider = new RESTContentSpecProvider(this);
         providerMap.put(RESTContentSpecProvider.class, contentSpecProvider);
         providerMap.put(ContentSpecProvider.class, contentSpecProvider);
 
         // Text Content Spec Provider
-        final RESTTextContentSpecProvider textContentSpecProvider = new RESTTextContentSpecProvider(getRESTManager(), getWrapperFactory());
+        final RESTTextContentSpecProvider textContentSpecProvider = new RESTTextContentSpecProvider(this);
         providerMap.put(RESTTextContentSpecProvider.class, textContentSpecProvider);
         providerMap.put(TextContentSpecProvider.class, textContentSpecProvider);
 
         // Content Spec Node Provider
-        final RESTCSNodeProvider csNodeProvider = new RESTCSNodeProvider(getRESTManager(), getWrapperFactory());
+        final RESTCSNodeProvider csNodeProvider = new RESTCSNodeProvider(this);
         providerMap.put(RESTCSNodeProvider.class, csNodeProvider);
         providerMap.put(CSNodeProvider.class, csNodeProvider);
 
         // Content Spec Related Node Provider
-        final RESTCSRelatedNodeProvider csRelatedNodeProvider = new RESTCSRelatedNodeProvider(getRESTManager(), getWrapperFactory());
+        final RESTCSRelatedNodeProvider csRelatedNodeProvider = new RESTCSRelatedNodeProvider(this);
         providerMap.put(RESTCSRelatedNodeProvider.class, csRelatedNodeProvider);
 
         // Translated Content Spec Provider
-        final RESTTranslatedContentSpecProvider translatedContentSpecProvider = new RESTTranslatedContentSpecProvider(getRESTManager(),
-                getWrapperFactory());
+        final RESTTranslatedContentSpecProvider translatedContentSpecProvider = new RESTTranslatedContentSpecProvider(this);
         providerMap.put(RESTTranslatedContentSpecProvider.class, translatedContentSpecProvider);
         providerMap.put(TranslatedContentSpecProvider.class, translatedContentSpecProvider);
 
         // Translated Content Spec Node Provider
-        final RESTTranslatedCSNodeProvider translatedCSNodeProvider = new RESTTranslatedCSNodeProvider(getRESTManager(),
-                getWrapperFactory());
+        final RESTTranslatedCSNodeProvider translatedCSNodeProvider = new RESTTranslatedCSNodeProvider(this);
         providerMap.put(RESTTranslatedCSNodeProvider.class, translatedCSNodeProvider);
         providerMap.put(TranslatedCSNodeProvider.class, translatedCSNodeProvider);
 
         // Translated Content Spec Node String Provider
-        final RESTTranslatedCSNodeStringProvider translatedCSNodeStringProvider = new RESTTranslatedCSNodeStringProvider(getRESTManager(),
-                getWrapperFactory());
+        final RESTTranslatedCSNodeStringProvider translatedCSNodeStringProvider = new RESTTranslatedCSNodeStringProvider(this);
         providerMap.put(RESTTranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
         providerMap.put(TranslatedCSNodeStringProvider.class, translatedCSNodeStringProvider);
 
         // Log Message Provider
-        final RESTLogMessageProvider logMessageProvider = new RESTLogMessageProvider(getRESTManager(), getWrapperFactory());
+        final RESTLogMessageProvider logMessageProvider = new RESTLogMessageProvider(this);
         providerMap.put(RESTLogMessageProvider.class, logMessageProvider);
         providerMap.put(LogMessageProvider.class, logMessageProvider);
 
         // Server Settings Provider
-        final RESTServerSettingsProvider serverSettingsProvider = new RESTServerSettingsProvider(getRESTManager(), getWrapperFactory());
+        final RESTServerSettingsProvider serverSettingsProvider = new RESTServerSettingsProvider(this);
         providerMap.put(RESTServerSettingsProvider.class, serverSettingsProvider);
         providerMap.put(ServerSettingsProvider.class, serverSettingsProvider);
     }
@@ -204,8 +190,8 @@ public class RESTProviderFactory extends DataProviderFactory {
      */
     public <T extends RESTDataProvider> void registerProvider(Class<T> providerClass, Class<?> providerInterface) {
         try {
-            final Constructor<T> constructor = providerClass.getConstructor(RESTManager.class, RESTWrapperFactory.class);
-            final T instance = constructor.newInstance(getRESTManager(), getWrapperFactory());
+            final Constructor<T> constructor = providerClass.getConstructor(RESTProviderFactory.class);
+            final T instance = constructor.newInstance(this);
 
             providerMap.put(providerClass, instance);
             if (providerInterface != null) {

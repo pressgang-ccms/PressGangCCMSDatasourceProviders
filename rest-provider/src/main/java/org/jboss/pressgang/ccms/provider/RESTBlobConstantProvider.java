@@ -1,19 +1,19 @@
 package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTBlobConstantCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTBlobConstantV1;
 import org.jboss.pressgang.ccms.wrapper.BlobConstantWrapper;
-import org.jboss.pressgang.ccms.wrapper.RESTWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTBlobConstantProvider extends RESTDataProvider implements BlobConstantProvider {
     private static Logger log = LoggerFactory.getLogger(RESTBlobConstantProvider.class);
 
-    public RESTBlobConstantProvider(final RESTManager restManager, final RESTWrapperFactory wrapperFactory) {
-        super(restManager, wrapperFactory);
+    public RESTBlobConstantProvider(final RESTProviderFactory providerFactory) {
+        super(providerFactory);
     }
 
     protected RESTBlobConstantV1 loadBlobConstant(Integer id, Integer revision, final String expandString) {
@@ -51,7 +51,11 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
 
     @Override
     public BlobConstantWrapper getBlobConstant(int id, Integer revision) {
-        return getWrapperFactory().create(getRESTBlobConstant(id, revision), revision != null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTBlobConstant(id, revision))
+                .isRevision(revision != null)
+                .build();
     }
 
     public byte[] getBlobConstantValue(int id, Integer revision) {
@@ -119,6 +123,10 @@ public class RESTBlobConstantProvider extends RESTDataProvider implements BlobCo
 
     @Override
     public CollectionWrapper<BlobConstantWrapper> getBlobConstantRevisions(int id, Integer revision) {
-        return getWrapperFactory().createCollection(getRESTBlobConstantRevisions(id, revision), RESTBlobConstantV1.class, true);
+        return RESTCollectionWrapperBuilder.<BlobConstantWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getRESTBlobConstantRevisions(id, revision))
+                .isRevisionCollection()
+                .build();
     }
 }

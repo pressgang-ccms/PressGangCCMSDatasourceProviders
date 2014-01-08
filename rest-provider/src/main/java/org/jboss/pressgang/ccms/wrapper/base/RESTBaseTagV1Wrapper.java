@@ -1,18 +1,19 @@
 package org.jboss.pressgang.ccms.wrapper.base;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTagProvider;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
 import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extends RESTBaseTagV1<U, ?, ?>> extends RESTBaseEntityWrapper<T,
@@ -23,9 +24,20 @@ public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extend
         this(providerFactory, entity, isRevision, null, isNewEntity);
     }
 
+    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity,
+            final Collection<String> expandedMethods) {
+        this(providerFactory, entity, isRevision, null, isNewEntity, expandedMethods);
+    }
+
     protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision,
             final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity) {
         super(providerFactory, entity, isRevision, parent, isNewEntity);
+        dataProvider = providerFactory.getProvider(RESTTagProvider.class);
+    }
+
+    protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision,
+            final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+        super(providerFactory, entity, isRevision, parent, isNewEntity, expandedMethods);
         dataProvider = providerFactory.getProvider(RESTTagProvider.class);
     }
 
@@ -40,26 +52,42 @@ public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extend
 
     @Override
     public CollectionWrapper<TagWrapper> getParentTags() {
-        return getWrapperFactory().createCollection(getProxyEntity().getParentTags(), RESTTagV1.class, isRevisionEntity());
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getParentTags())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @Override
     public CollectionWrapper<TagWrapper> getChildTags() {
-        return getWrapperFactory().createCollection(getProxyEntity().getChildTags(), RESTTagV1.class, isRevisionEntity());
+        return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getChildTags())
+                .isRevisionCollection(isRevisionEntity())
+                .build();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public UpdateableCollectionWrapper<CategoryInTagWrapper> getCategories() {
-        final CollectionWrapper<CategoryInTagWrapper> collection = getWrapperFactory().createCollection(getProxyEntity().getCategories(),
-                RESTCategoryInTagV1.class, isRevisionEntity(), getEntity());
-        return (UpdateableCollectionWrapper<CategoryInTagWrapper>) collection;
+        return (UpdateableCollectionWrapper<CategoryInTagWrapper>) RESTCollectionWrapperBuilder.<CategoryInTagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getProxyEntity().getCategories())
+                .isRevisionCollection(isRevisionEntity())
+                .parent(getProxyEntity())
+                .build();
     }
 
     @Override
     public PropertyTagInTagWrapper getProperty(int propertyId) {
-        return getWrapperFactory().create(ComponentTagV1.returnProperty(getProxyEntity(), propertyId), isRevisionEntity(), getProxyEntity(),
-                PropertyTagInTagWrapper.class);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(ComponentTagV1.returnProperty(getProxyEntity(), propertyId))
+                .isRevision(isRevisionEntity())
+                .parent(getProxyEntity())
+                .wrapperInterface(PropertyTagInTagWrapper.class)
+                .build();
     }
 
     @Override
