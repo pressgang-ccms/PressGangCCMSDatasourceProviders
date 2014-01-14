@@ -29,6 +29,7 @@ public abstract class RESTBaseContentSpecV1Wrapper<T extends BaseContentSpecWrap
     @Override
     public CollectionWrapper<TagWrapper> getTags() {
         return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
                 .collection(getProxyEntity().getTags())
                 .isRevisionCollection(isRevisionEntity())
                 .build();
@@ -38,6 +39,7 @@ public abstract class RESTBaseContentSpecV1Wrapper<T extends BaseContentSpecWrap
     public UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper> getProperties() {
         return (UpdateableCollectionWrapper<PropertyTagInContentSpecWrapper>)
                 RESTCollectionWrapperBuilder.<PropertyTagInContentSpecWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
                         .collection(getProxyEntity().getProperties())
                         .isRevisionCollection(isRevisionEntity())
                         .parent(getProxyEntity())

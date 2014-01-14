@@ -37,6 +37,7 @@ public class RESTContentSpecV1Wrapper extends RESTBaseContentSpecV1Wrapper<Conte
     @Override
     public CollectionWrapper<TagWrapper> getBookTags() {
         return RESTCollectionWrapperBuilder.<TagWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
                 .collection(getProxyEntity().getBookTags())
                 .isRevisionCollection(isRevisionEntity())
                 .build();
@@ -50,6 +51,7 @@ public class RESTContentSpecV1Wrapper extends RESTBaseContentSpecV1Wrapper<Conte
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
         return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
                 .collection(getProxyEntity().getChildren_OTM())
                 .isRevisionCollection(isRevisionEntity())
                 .build();
