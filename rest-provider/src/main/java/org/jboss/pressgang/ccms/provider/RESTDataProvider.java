@@ -21,9 +21,9 @@ import org.jboss.pressgang.ccms.provider.exception.UpgradeException;
 import org.jboss.pressgang.ccms.rest.RESTManager;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityUpdateCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementWithConfiguredParametersV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectWithConfiguredParametersV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
 import org.jboss.pressgang.ccms.rest.v1.jaxrsinterfaces.RESTInterfaceV1;
@@ -67,7 +67,7 @@ public abstract class RESTDataProvider extends DataProvider {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    protected void cleanEntityForSave(final RESTBaseObjectV1<?> entity) throws InvocationTargetException, IllegalAccessException {
+    protected void cleanEntityForSave(final RESTBaseElementV1<?> entity) throws InvocationTargetException, IllegalAccessException {
         if (entity == null) return;
 
         for (final Method method : entity.getClass().getMethods()) {
@@ -78,7 +78,7 @@ public abstract class RESTDataProvider extends DataProvider {
             if (isCollectionClass(method.getReturnType())) {
                 cleanCollectionForSave((RESTBaseEntityCollectionV1<?, ?, ?>) method.invoke(entity), true);
             } else if (isEntityClass(method.getReturnType())) {
-                cleanEntityForSave((RESTBaseObjectWithConfiguredParametersV1) method.invoke(entity));
+                cleanEntityForSave((RESTBaseElementWithConfiguredParametersV1) method.invoke(entity));
             }
         }
     }

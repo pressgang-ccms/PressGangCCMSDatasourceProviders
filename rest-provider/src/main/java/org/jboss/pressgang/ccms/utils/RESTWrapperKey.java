@@ -3,27 +3,27 @@ package org.jboss.pressgang.ccms.utils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
 
 public class RESTWrapperKey {
     private final Object o;
     private RESTBaseEntityV1<?, ?, ?> parent;
     private final Class<?> wrapperClass;
 
-    public RESTWrapperKey(final RESTBaseObjectV1<?> o) {
+    public RESTWrapperKey(final RESTBaseElementV1<?> o) {
         this(o, null, null);
     }
 
-    public RESTWrapperKey(final RESTBaseObjectV1<?> o, final RESTBaseEntityV1<?, ?, ?> parent) {
+    public RESTWrapperKey(final RESTBaseElementV1<?> o, final RESTBaseEntityV1<?, ?, ?> parent) {
         this(o, parent, null);
     }
 
-    public RESTWrapperKey(final RESTBaseObjectV1<?> o, final Class<?> wrapperClass) {
+    public RESTWrapperKey(final RESTBaseElementV1<?> o, final Class<?> wrapperClass) {
         this(o, null, wrapperClass);
     }
 
-    public RESTWrapperKey(final RESTBaseObjectV1<?> o, final RESTBaseEntityV1<?, ?, ?> parent, final Class<?> wrapperClass) {
+    public RESTWrapperKey(final RESTBaseElementV1<?> o, final RESTBaseEntityV1<?, ?, ?> parent, final Class<?> wrapperClass) {
         this.o = o;
         this.parent = parent;
         this.wrapperClass = wrapperClass;

@@ -5,14 +5,14 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 
 public class RESTListWrapperBuilder<T extends BaseWrapper<T>> {
     private RESTProviderFactory providerFactory;
-    private Collection<? extends RESTBaseObjectV1<?>> entities;
+    private Collection<? extends RESTBaseElementV1<?>> entities;
     private boolean isRevisionList = false;
     private Class<T> wrapperClass;
     private RESTBaseEntityV1<?, ?, ?> parent;
@@ -39,7 +39,7 @@ public class RESTListWrapperBuilder<T extends BaseWrapper<T>> {
         return this;
     }
 
-    public RESTListWrapperBuilder<T> entities(final Collection<? extends RESTBaseObjectV1<?>> entities) {
+    public RESTListWrapperBuilder<T> entities(final Collection<? extends RESTBaseElementV1<?>> entities) {
         this.entities = entities;
         return this;
     }
@@ -63,10 +63,10 @@ public class RESTListWrapperBuilder<T extends BaseWrapper<T>> {
     @SuppressWarnings("unchecked")
     public List<T> build() {
         final List<T> retValue = new ArrayList<T>();
-        for (final RESTBaseObjectV1<?> object : entities) {
+        for (final RESTBaseElementV1<?> element : entities) {
             final T wrapper = RESTEntityWrapperBuilder.newBuilder()
                     .providerFactory(providerFactory)
-                    .entity(object)
+                    .entity(element)
                     .isRevision(isRevisionList)
                     .wrapperInterface(wrapperClass)
                     .parent(parent)

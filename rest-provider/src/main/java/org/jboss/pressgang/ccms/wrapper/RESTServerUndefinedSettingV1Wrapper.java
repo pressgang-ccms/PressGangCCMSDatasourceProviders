@@ -1,7 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerUndefinedSettingV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerUndefinedSettingV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
 
 public class RESTServerUndefinedSettingV1Wrapper extends RESTBaseWrapper<ServerUndefinedSettingWrapper, RESTServerUndefinedSettingV1> implements ServerUndefinedSettingWrapper {

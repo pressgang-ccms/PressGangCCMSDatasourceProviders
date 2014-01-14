@@ -2,7 +2,7 @@ package org.jboss.pressgang.ccms.wrapper.collection;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedEntityCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerUndefinedEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerUndefinedEntityV1;
 import org.jboss.pressgang.ccms.wrapper.ServerUndefinedEntityWrapper;
 
 public class RESTServerUndefinedEntityCollectionV1Wrapper extends

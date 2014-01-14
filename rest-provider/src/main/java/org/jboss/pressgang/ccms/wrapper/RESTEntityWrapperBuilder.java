@@ -6,6 +6,8 @@ import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerSettingsV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTBlobConstantV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
@@ -14,10 +16,9 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerEntitiesV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerSettingsV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerUndefinedEntityV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.RESTServerUndefinedSettingV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerEntitiesV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerUndefinedEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerUndefinedSettingV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTStringConstantV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
@@ -27,7 +28,6 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
@@ -52,7 +52,7 @@ public class RESTEntityWrapperBuilder {
     private static final String GENERIC_ERROR = "Failed to create a Wrapper instance as there is no wrapper available for the Entity.";
 
     private RESTProviderFactory providerFactory;
-    private RESTBaseObjectV1<?> entity;
+    private RESTBaseElementV1<?> entity;
     private boolean isRevision = false;
     private boolean isNewEntity = false;
     private Class<? extends BaseWrapper<?>> wrapperInterface;
@@ -71,7 +71,7 @@ public class RESTEntityWrapperBuilder {
         return this;
     }
 
-    public RESTEntityWrapperBuilder entity(final RESTBaseObjectV1<?> entity) {
+    public RESTEntityWrapperBuilder entity(final RESTBaseElementV1<?> entity) {
         this.entity = entity;
         return this;
     }
@@ -116,7 +116,7 @@ public class RESTEntityWrapperBuilder {
             throw new IllegalStateException("The Provider Factory has not been registered.");
         }
 
-        final RESTBaseObjectV1<?> unwrappedEntity = getEntity(entity);
+        final RESTBaseElementV1<?> unwrappedEntity = getEntity(entity);
 
         // Create the key
         final RESTWrapperKey key = new RESTWrapperKey(unwrappedEntity);
@@ -239,7 +239,7 @@ public class RESTEntityWrapperBuilder {
      * @return The unwrapped/non-proxy entity, or the original entity if it wasn't a proxy.
      */
     @SuppressWarnings("rawtypes")
-    protected RESTBaseObjectV1<?> getEntity(final Object entity) {
+    protected RESTBaseElementV1<?> getEntity(final Object entity) {
         if (entity instanceof ProxyObject) {
             final MethodHandler handler = ((ProxyObject) entity).getHandler();
             if (handler instanceof RESTBaseEntityV1ProxyHandler) {
@@ -247,7 +247,7 @@ public class RESTEntityWrapperBuilder {
             }
         }
 
-        return (RESTBaseObjectV1<?>) entity;
+        return (RESTBaseElementV1<?>) entity;
     }
 
     protected RESTTopicSourceURLV1Wrapper getTopicSourceUrlWrapper(final RESTTopicSourceUrlV1 unwrappedEntity) {

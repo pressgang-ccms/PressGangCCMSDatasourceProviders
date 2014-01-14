@@ -8,11 +8,11 @@ import java.util.Map;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityUpdateCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTUpdateCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
 import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 
-public abstract class RESTUpdateableCollectionWrapper<T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>,
+public abstract class RESTUpdateableCollectionWrapper<T extends BaseWrapper<T>, U extends RESTBaseElementV1<U>,
         V extends RESTUpdateCollectionV1<U, ?>> extends RESTCollectionWrapper<T, U, V> implements UpdateableCollectionWrapper<T> {
 
     public RESTUpdateableCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection) {

@@ -12,13 +12,13 @@ import org.jboss.pressgang.ccms.proxy.RESTCollectionV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 
-public abstract class RESTCollectionWrapper<T extends BaseWrapper<T>, U extends RESTBaseObjectV1<U>, V extends RESTCollectionV1<U,
+public abstract class RESTCollectionWrapper<T extends BaseWrapper<T>, U extends RESTBaseElementV1<U>, V extends RESTCollectionV1<U,
         ?>> implements CollectionWrapper<T> {
     private final RESTProviderFactory providerFactory;
     private final Map<T, Integer> entities = new HashMap<T, Integer>();

@@ -8,7 +8,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollec
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseObjectV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
@@ -585,7 +585,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     }
 
     @Override
-    public void cleanEntityForSave(final RESTBaseObjectV1<?> entity) throws InvocationTargetException, IllegalAccessException {
+    public void cleanEntityForSave(final RESTBaseElementV1<?> entity) throws InvocationTargetException, IllegalAccessException {
         if (entity instanceof RESTCSNodeV1) {
             /*
              * If the entity is a CSNode then replace entities, that could cause recursive serialization issues, with a dummy entity.
