@@ -33,6 +33,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> getChildren() {
         return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
                 .collection(getProxyEntity().getChildren_OTM())
                 .isRevisionCollection(isRevisionEntity())
                 .build();
@@ -46,6 +47,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
     @Override
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedToNodes() {
         return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) RESTCollectionWrapperBuilder.<CSRelatedNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
                 .collection(getProxyEntity().getRelatedToNodes())
                 .isRevisionCollection(isRevisionEntity())
                 .parent(getProxyEntity())
@@ -60,6 +62,7 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
     @Override
     public UpdateableCollectionWrapper<CSRelatedNodeWrapper> getRelatedFromNodes() {
         return (UpdateableCollectionWrapper<CSRelatedNodeWrapper>) RESTCollectionWrapperBuilder.<CSRelatedNodeWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
                 .collection(getProxyEntity().getRelatedFromNodes())
                 .isRevisionCollection(isRevisionEntity())
                 .parent(getProxyEntity())
