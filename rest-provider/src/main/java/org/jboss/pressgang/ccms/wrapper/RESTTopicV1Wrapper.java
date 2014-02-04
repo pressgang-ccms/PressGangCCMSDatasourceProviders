@@ -70,11 +70,6 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
     }
 
     @Override
-    public Integer getXmlDoctype() {
-        return RESTXMLDoctype.getXMLDoctypeId(getProxyEntity().getXmlDoctype());
-    }
-
-    @Override
     public void setXmlDoctype(Integer doctypeId) {
         getEntity().explicitSetXmlDoctype(RESTXMLDoctype.getXMLDoctype(doctypeId));
     }

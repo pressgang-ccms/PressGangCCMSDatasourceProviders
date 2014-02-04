@@ -32,6 +32,8 @@ public interface BaseTopicWrapper<T extends BaseTopicWrapper<T>> extends EntityW
 
     void setXml(String xml);
 
+    Integer getXmlDoctype();
+
     String getLocale();
 
     void setLocale(String locale);

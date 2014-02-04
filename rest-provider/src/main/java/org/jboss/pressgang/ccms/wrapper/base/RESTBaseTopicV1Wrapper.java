@@ -6,11 +6,11 @@ import java.util.List;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.enums.RESTXMLDoctype;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
-import org.jboss.pressgang.ccms.wrapper.TranslatedTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTListWrapperBuilder;
@@ -36,6 +36,11 @@ public abstract class RESTBaseTopicV1Wrapper<T extends BaseTopicWrapper<T>, U ex
     @Override
     public String getXml() {
         return getProxyEntity().getXml();
+    }
+
+    @Override
+    public Integer getXmlDoctype() {
+        return RESTXMLDoctype.getXMLDoctypeId(getProxyEntity().getXmlDoctype());
     }
 
     @Override
