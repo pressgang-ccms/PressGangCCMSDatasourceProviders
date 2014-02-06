@@ -367,13 +367,13 @@ public class DBTopicWrapper extends DBBaseEntityWrapper<TopicWrapper, Topic> imp
     }
 
     @Override
-    public Integer getXmlDoctype() {
-        return getEntity().getXmlDoctype();
+    public Integer getXmlFormat() {
+        return getEntity().getXmlFormat();
     }
 
     @Override
-    public void setXmlDoctype(Integer doctypeId) {
-        getEntity().setXmlDoctype(doctypeId);
+    public void setXmlFormat(Integer formatId) {
+        getEntity().setXmlFormat(formatId);
     }
 
     @Override

@@ -120,8 +120,8 @@ public class DBTranslatedTopicDataWrapper extends DBBaseEntityWrapper<Translated
     }
 
     @Override
-    public Integer getXmlDoctype() {
-        return getTopic().getXmlDoctype();
+    public Integer getXmlFormat() {
+        return getTopic().getXmlFormat();
     }
 
     @Override

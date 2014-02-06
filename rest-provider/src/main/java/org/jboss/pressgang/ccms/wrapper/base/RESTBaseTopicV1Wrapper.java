@@ -39,8 +39,8 @@ public abstract class RESTBaseTopicV1Wrapper<T extends BaseTopicWrapper<T>, U ex
     }
 
     @Override
-    public Integer getXmlDoctype() {
-        return RESTXMLDoctype.getXMLDoctypeId(getProxyEntity().getXmlDoctype());
+    public Integer getXmlFormat() {
+        return RESTXMLDoctype.getXMLDoctypeId(getProxyEntity().getXmlFormat());
     }
 
     @Override

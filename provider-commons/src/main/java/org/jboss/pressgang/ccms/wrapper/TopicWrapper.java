@@ -19,7 +19,7 @@ public interface TopicWrapper extends BaseTopicWrapper<TopicWrapper> {
 
     void setLastModified(Date lastModified);
 
-    void setXmlDoctype(Integer doctypeId);
+    void setXmlFormat(Integer formatId);
 
     CollectionWrapper<TranslatedTopicWrapper> getTranslatedTopics();
 
