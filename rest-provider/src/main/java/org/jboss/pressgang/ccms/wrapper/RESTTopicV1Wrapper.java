@@ -10,7 +10,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollection
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.enums.RESTXMLDoctype;
+import org.jboss.pressgang.ccms.rest.v1.entities.enums.RESTXMLFormat;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseTopicV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
@@ -71,7 +71,7 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
 
     @Override
     public void setXmlFormat(Integer formatId) {
-        getEntity().explicitSetXmlDoctype(RESTXMLDoctype.getXMLDoctype(formatId));
+        getEntity().explicitSetXmlDoctype(RESTXMLFormat.getXMLFormat(formatId));
     }
 
     @Override

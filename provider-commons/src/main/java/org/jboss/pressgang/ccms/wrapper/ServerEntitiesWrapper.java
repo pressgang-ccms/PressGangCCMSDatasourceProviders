@@ -33,7 +33,8 @@ public interface ServerEntitiesWrapper extends BaseWrapper<ServerEntitiesWrapper
     Integer getWriterCategoryId();
 
     Integer getFailPenguinBlobConstantId();
-    Integer getRocBookDTDBlobConstantId();
+    Integer getRocBook45DTDBlobConstantId();
+    Integer getDocBook50RNGBlobConstantId();
 
     Integer getXmlFormattingStringConstantId();
     Integer getDocBookElementsStringConstantId();

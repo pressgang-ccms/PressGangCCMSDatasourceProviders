@@ -161,8 +161,13 @@ public class DBServerEntitiesWrapper extends DBBaseWrapper<ServerEntitiesWrapper
     }
 
     @Override
-    public Integer getRocBookDTDBlobConstantId() {
-        return getEntity().getRocBookDTDBlobConstantId();
+    public Integer getRocBook45DTDBlobConstantId() {
+        return getEntity().getRocBook45DTDBlobConstantId();
+    }
+
+    @Override
+    public Integer getDocBook50RNGBlobConstantId() {
+        return getEntity().getDocBook50RNGBlobConstantId();
     }
 
     @Override

@@ -143,9 +143,15 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
     }
 
     @Override
-    public Integer getRocBookDTDBlobConstantId() {
-        return getEntity().getRocBookDTDBlobConstantId();
+    public Integer getRocBook45DTDBlobConstantId() {
+        return getEntity().getRocBook45DTDBlobConstantId();
     }
+
+    @Override
+    public Integer getDocBook50RNGBlobConstantId() {
+        return getEntity().getDocBook50RNGBlobConstantId();
+    }
+
 
     @Override
     public Integer getXmlFormattingStringConstantId() {
