@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
@@ -21,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTranslatedContentSpecProvider extends RESTDataProvider implements TranslatedContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedContentSpecProvider.class);
+    private static final List<String> DEFAULT_EXPANSION_WITH_CHILDREN = Arrays.asList(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME,
+            RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME);
+    private static final List<String> DEFAULT_METHOD_WITH_CHILDREN = Arrays.asList("getContentSpec", "getTranslatedNodes_OTM");
 
     protected RESTTranslatedContentSpecProvider(final RESTProviderFactory providerFactory) {
         super(providerFactory);
@@ -49,8 +53,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             if (getRESTEntityCache().containsKeyValue(RESTTranslatedContentSpecV1.class, id, revision)) {
                 node = getRESTEntityCache().get(RESTTranslatedContentSpecV1.class, id, revision);
             } else {
-                final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME,
-                        RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME);
+                final String expandString = getExpansionString(DEFAULT_EXPANSION_WITH_CHILDREN);
                 node = loadTranslatedContentSpec(id, revision, expandString);
                 getRESTEntityCache().add(node, revision);
             }
@@ -66,7 +69,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
                 .entity(getRESTTranslatedContentSpec(id, revision))
-                .expandedMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                .expandedMethods(DEFAULT_METHOD_WITH_CHILDREN)
                 .isRevision(revision != null)
                 .build();
     }
@@ -164,7 +167,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
         try {
             // We need to expand the all the Translated Content Specs in the collection
             final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME,
-                    Arrays.asList(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME, RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME));
+                    DEFAULT_EXPANSION_WITH_CHILDREN);
 
             final RESTTranslatedContentSpecCollectionV1 contentSpecs = getRESTClient().getJSONTranslatedContentSpecsWithQuery(
                     new PathSegmentImpl(query, false), expandString);
@@ -184,7 +187,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
         return RESTCollectionWrapperBuilder.<TranslatedContentSpecWrapper>newBuilder()
                 .providerFactory(getProviderFactory())
                 .collection(getRESTTranslatedContentSpecsWithQuery(query))
-                .expandedEntityMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                .expandedEntityMethods(DEFAULT_METHOD_WITH_CHILDREN)
                 .build();
     }
 
@@ -197,8 +200,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedContentSpec);
 
-            final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME,
-                    RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME);
+            final String expandString = getExpansionString(DEFAULT_EXPANSION_WITH_CHILDREN);
 
             final RESTTranslatedContentSpecV1 createdTranslatedContentSpec = getRESTClient().createJSONTranslatedContentSpec(expandString,
                     translatedContentSpec);
@@ -211,7 +213,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 return RESTEntityWrapperBuilder.newBuilder()
                         .providerFactory(getProviderFactory())
                         .entity(createdTranslatedContentSpec)
-                        .expandedMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                        .expandedMethods(DEFAULT_METHOD_WITH_CHILDREN)
                         .build();
             } else {
                 return null;
@@ -230,8 +232,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(translatedContentSpec);
 
-            final String expandString = getExpansionString(RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME,
-                    RESTTranslatedContentSpecV1.TRANSLATED_NODES_NAME);
+            final String expandString = getExpansionString(DEFAULT_EXPANSION_WITH_CHILDREN);
             final RESTTranslatedContentSpecV1 updatedTranslatedContentSpec = getRESTClient().updateJSONTranslatedContentSpec(expandString,
                     translatedContentSpec);
             if (updatedTranslatedContentSpec != null) {
@@ -244,7 +245,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 return RESTEntityWrapperBuilder.newBuilder()
                         .providerFactory(getProviderFactory())
                         .entity(updatedTranslatedContentSpec)
-                        .expandedMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                        .expandedMethods(DEFAULT_METHOD_WITH_CHILDREN)
                         .build();
             } else {
                 return null;
@@ -262,7 +263,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                     .unwrap();
 
             final String expandString = getExpansionString(RESTv1Constants.TRANSLATED_CONTENT_SPEC_EXPANSION_NAME,
-                    RESTTranslatedContentSpecV1.CONTENT_SPEC_NAME);
+                    DEFAULT_EXPANSION_WITH_CHILDREN);
             final RESTTranslatedContentSpecCollectionV1 createdTranslations = getRESTClient().createJSONTranslatedContentSpecs(expandString,
                     unwrappedNodes);
             if (createdTranslations != null) {
@@ -276,7 +277,7 @@ public class RESTTranslatedContentSpecProvider extends RESTDataProvider implemen
                 return RESTCollectionWrapperBuilder.<TranslatedContentSpecWrapper>newBuilder()
                         .providerFactory(getProviderFactory())
                         .collection(createdTranslations)
-                        .expandedEntityMethods(Arrays.asList("getContentSpec", "getTranslatedNodes_OTM"))
+                        .expandedEntityMethods(DEFAULT_METHOD_WITH_CHILDREN)
                         .build();
             } else {
                 return null;
