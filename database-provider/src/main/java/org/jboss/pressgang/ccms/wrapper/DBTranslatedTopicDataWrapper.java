@@ -353,18 +353,17 @@ public class DBTranslatedTopicDataWrapper extends DBBaseEntityWrapper<Translated
          * locale then it means that the topic has been pushed to zanata so link to the original pushed translation. If neither of these
          * rules apply then return null.
          */
+        final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
         if (EntityUtilities.isDummyTopic(this) ) {
-            final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
             return (serverUrl.endsWith(
                     "/") ? serverUrl : (serverUrl + "/")) + "#TranslatedTopicResultsAndTranslatedTopicView;query;zanataIds=" +
                     getZanataId() + ";locale1=" + getLocale() + "1;";
         } else if (EntityUtilities.hasBeenPushedForTranslation(this)) {
-            final String serverUrl = System.getProperty(CommonConstants.PRESS_GANG_UI_SYSTEM_PROPERTY);
             return (serverUrl.endsWith(
                     "/") ? serverUrl : (serverUrl + "/")) + "#TranslatedTopicResultsAndTranslatedTopicView;query;zanataIds=" +
                     getZanataId();
         } else {
-            return null;
+            return (serverUrl.endsWith("/") ? serverUrl : (serverUrl + "/")) + "#SearchResultsAndTopicView;query;topicIds=" + getTopicId();
         }
     }
 
