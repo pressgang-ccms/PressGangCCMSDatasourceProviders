@@ -3,7 +3,7 @@ package org.jboss.pressgang.ccms.provider;
 import javax.persistence.EntityManager;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,14 +13,14 @@ public class DBProviderFactory extends DataProviderFactory {
     private Map<Class<?>, DBDataProvider> providerMap = new HashMap<Class<?>, DBDataProvider>();
     private final DBWrapperFactory wrapperFactory;
     private final EntityManager entityManager;
-    private final TransactionManager transactionManager;
+    private final UserTransaction transactionManager;
     private boolean providersInitialised = false;
 
     public static DBProviderFactory create(final EntityManager entityManager) {
         return new DBProviderFactory(entityManager);
     }
 
-    public static DBProviderFactory create(final EntityManager entityManager, final TransactionManager transactionManager) {
+    public static DBProviderFactory create(final EntityManager entityManager, final UserTransaction transactionManager) {
         return new DBProviderFactory(entityManager, transactionManager);
     }
 
@@ -28,7 +28,7 @@ public class DBProviderFactory extends DataProviderFactory {
         this(entityManager, null);
     }
 
-    public DBProviderFactory(final EntityManager entityManager, final TransactionManager transactionManager) {
+    public DBProviderFactory(final EntityManager entityManager, final UserTransaction transactionManager) {
         this.entityManager = entityManager;
         this.transactionManager = transactionManager;
         wrapperFactory = new DBWrapperFactory(this);
