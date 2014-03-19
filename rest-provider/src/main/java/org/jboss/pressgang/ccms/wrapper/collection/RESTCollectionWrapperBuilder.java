@@ -22,6 +22,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTUserCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTextContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
@@ -196,6 +197,10 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
         } else if (collection instanceof RESTContentSpecCollectionV1) {
             // CONTENT SPEC
             wrapper = new RESTContentSpecCollectionV1Wrapper(providerFactory, (RESTContentSpecCollectionV1) collection,
+                    isRevisionCollection, expandedEntityMethods);
+        } else if (collection instanceof RESTTextContentSpecCollectionV1) {
+            // CONTENT SPEC
+            wrapper = new RESTTextContentSpecCollectionV1Wrapper(providerFactory, (RESTTextContentSpecCollectionV1) collection,
                     isRevisionCollection, expandedEntityMethods);
         } else if (collection instanceof RESTCSNodeCollectionV1) {
             // CONTENT SPEC NODE
