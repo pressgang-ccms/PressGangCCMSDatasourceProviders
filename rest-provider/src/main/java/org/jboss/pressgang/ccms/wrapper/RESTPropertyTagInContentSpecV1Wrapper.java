@@ -3,7 +3,7 @@ package org.jboss.pressgang.ccms.wrapper;
 import java.util.Collection;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBasePropertyTagV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -13,18 +13,19 @@ public class RESTPropertyTagInContentSpecV1Wrapper extends RESTBasePropertyTagV1
         RESTAssignedPropertyTagV1> implements PropertyTagInContentSpecWrapper {
 
     protected RESTPropertyTagInContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTAssignedPropertyTagV1 propertyTag,
-            boolean isRevision, final RESTContentSpecV1 parent, boolean isNewEntity) {
+            boolean isRevision, final RESTBaseContentSpecV1<?, ?, ?> parent, boolean isNewEntity) {
         super(providerFactory, propertyTag, isRevision, parent, isNewEntity);
     }
 
     protected RESTPropertyTagInContentSpecV1Wrapper(final RESTProviderFactory providerFactory, final RESTAssignedPropertyTagV1 propertyTag,
-            boolean isRevision, final RESTContentSpecV1 parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+            boolean isRevision, final RESTBaseContentSpecV1<?, ?, ?> parent, boolean isNewEntity,
+            final Collection<String> expandedMethods) {
         super(providerFactory, propertyTag, isRevision, parent, isNewEntity, expandedMethods);
     }
 
     @Override
-    protected RESTContentSpecV1 getParentEntity() {
-        return (RESTContentSpecV1) super.getParentEntity();
+    protected RESTBaseContentSpecV1<?, ?, ?> getParentEntity() {
+        return (RESTBaseContentSpecV1<?, ?, ?>) super.getParentEntity();
     }
 
     @Override

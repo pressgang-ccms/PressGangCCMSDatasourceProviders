@@ -36,6 +36,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpec
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
@@ -351,7 +352,7 @@ public class RESTEntityWrapperBuilder {
                     (RESTBaseTagV1<?, ?, ?>) parent, isNewEntity, expandedMethods);
         } else if (wrapperInterface == PropertyTagInContentSpecWrapper.class) {
             return new RESTPropertyTagInContentSpecV1Wrapper(providerFactory, (RESTAssignedPropertyTagV1) unwrappedEntity,
-                    isRevision, (RESTContentSpecV1) parent, isNewEntity, expandedMethods);
+                    isRevision, (RESTBaseContentSpecV1<?, ?, ?>) parent, isNewEntity, expandedMethods);
         } else {
             throw new IllegalArgumentException(GENERIC_ERROR);
         }

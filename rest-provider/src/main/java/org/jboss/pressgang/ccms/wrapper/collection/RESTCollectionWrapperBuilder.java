@@ -40,8 +40,8 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseContentSpecV1;
 import org.jboss.pressgang.ccms.utils.RESTWrapperCache;
 import org.jboss.pressgang.ccms.utils.RESTWrapperKey;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
@@ -329,7 +329,7 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
                     isRevisionCollection, (RESTBaseTagV1<?, ?, ?>) parent, expandedEntityMethods);
         } else if (entityWrapperInterface == PropertyTagInContentSpecWrapper.class) {
             return new RESTPropertyTagInContentSpecCollectionV1Wrapper(providerFactory,
-                    (RESTAssignedPropertyTagCollectionV1) collection, isRevisionCollection, (RESTContentSpecV1) parent,
+                    (RESTAssignedPropertyTagCollectionV1) collection, isRevisionCollection, (RESTBaseContentSpecV1<?, ?, ?>) parent,
                     expandedEntityMethods);
         } else {
             throw new IllegalArgumentException(GENERIC_ERROR);
