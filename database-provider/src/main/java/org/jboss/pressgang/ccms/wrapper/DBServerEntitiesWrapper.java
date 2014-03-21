@@ -186,6 +186,26 @@ public class DBServerEntitiesWrapper extends DBBaseWrapper<ServerEntitiesWrapper
     }
 
     @Override
+    public Integer getAbstractTopicTemplateStringConstantId() {
+        return getEntity().getAbstractTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getAuthorGroupTopicTemplateStringConstantId() {
+        return getEntity().getAuthorGroupTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getLegalNoticeTopicTemplateStringConstantId() {
+        return getEntity().getLegalNoticeTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getRevisionHistoryTopicTemplateStringConstantId() {
+        return getEntity().getRevisionHistoryTemplateStringConstantId();
+    }
+
+    @Override
     public Integer getContentSpecTemplateStringConstantId() {
         return getEntity().getContentSpecTemplateStringConstantId();
     }

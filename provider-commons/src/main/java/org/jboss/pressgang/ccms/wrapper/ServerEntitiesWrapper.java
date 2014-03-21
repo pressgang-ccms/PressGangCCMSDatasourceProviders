@@ -38,8 +38,14 @@ public interface ServerEntitiesWrapper extends BaseWrapper<ServerEntitiesWrapper
 
     Integer getXmlFormattingStringConstantId();
     Integer getDocBookElementsStringConstantId();
+
     Integer getTopicTemplateStringConstantId();
+    Integer getAbstractTopicTemplateStringConstantId();
+    Integer getAuthorGroupTopicTemplateStringConstantId();
+    Integer getLegalNoticeTopicTemplateStringConstantId();
+    Integer getRevisionHistoryTopicTemplateStringConstantId();
     Integer getContentSpecTemplateStringConstantId();
+
     Integer getArticleStringConstantId();
     Integer getArticleInfoStringConstantId();
     Integer getAuthorGroupStringConstantId();

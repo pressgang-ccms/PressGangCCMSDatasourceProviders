@@ -152,7 +152,6 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
         return getEntity().getDocBook50RNGBlobConstantId();
     }
 
-
     @Override
     public Integer getXmlFormattingStringConstantId() {
         return getEntity().getXmlFormattingStringConstantId();
@@ -166,6 +165,26 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
     @Override
     public Integer getTopicTemplateStringConstantId() {
         return getEntity().getTopicTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getAbstractTopicTemplateStringConstantId() {
+        return getEntity().getAbstractTopicTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getAuthorGroupTopicTemplateStringConstantId() {
+        return getEntity().getAuthorGroupTopicTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getLegalNoticeTopicTemplateStringConstantId() {
+        return getEntity().getLegalNoticeTopicTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getRevisionHistoryTopicTemplateStringConstantId() {
+        return getEntity().getRevisionHistoryTopicTemplateStringConstantId();
     }
 
     @Override
