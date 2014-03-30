@@ -51,6 +51,11 @@ public class DBServerEntitiesWrapper extends DBBaseWrapper<ServerEntitiesWrapper
     }
 
     @Override
+    public Integer getInfoTagId() {
+        return getEntity().getInfoTagId();
+    }
+
+    @Override
     public Integer getInternalOnlyTagId() {
         return getEntity().getInternalOnlyTagId();
     }
@@ -196,6 +201,11 @@ public class DBServerEntitiesWrapper extends DBBaseWrapper<ServerEntitiesWrapper
     }
 
     @Override
+    public Integer getInfoTopicTemplateStringConstantId() {
+        return getEntity().getInfoTemplateStringConstantId();
+    }
+
+    @Override
     public Integer getLegalNoticeTopicTemplateStringConstantId() {
         return getEntity().getLegalNoticeTemplateStringConstantId();
     }
@@ -203,6 +213,11 @@ public class DBServerEntitiesWrapper extends DBBaseWrapper<ServerEntitiesWrapper
     @Override
     public Integer getRevisionHistoryTopicTemplateStringConstantId() {
         return getEntity().getRevisionHistoryTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getSectionInfoTopicTemplateStringConstantId() {
+        return getEntity().getSectionInfoTemplateStringConstantId();
     }
 
     @Override

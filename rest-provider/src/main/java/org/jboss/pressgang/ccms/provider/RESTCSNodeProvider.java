@@ -9,6 +9,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCS
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
@@ -24,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvider {
     private static final Logger log = LoggerFactory.getLogger(RESTCSNodeProvider.class);
-    protected static final List<String> DEFAULT_EXPANSION = Arrays.asList(RESTCSNodeV1.NEXT_NODE_NAME,
+    protected static final List<String> DEFAULT_EXPANSION = Arrays.asList(RESTCSNodeV1.NEXT_NODE_NAME, RESTCSNodeV1.INFO_TOPIC_NODE_NAME,
             RESTCSNodeV1.RELATED_TO_NAME);
-    protected static final List<String> DEFAULT_METHODS = Arrays.asList("getNextNode", "getRelatedToNodes");
+    public static final List<String> DEFAULT_METHODS = Arrays.asList("getNextNode", "getRelatedToNodes", "getInfoTopicNode");
 
     protected RESTCSNodeProvider(final RESTProviderFactory providerFactory) {
         super(providerFactory);
@@ -71,7 +72,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
     public CSNodeWrapper getCSNode(int id, Integer revision) {
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
-                .entity(getRESTCSNextNode(id, revision))
+                .entity(getRESTCSNode(id, revision))
                 .isRevision(revision != null)
                 .build();
     }
@@ -303,7 +304,7 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
 
             return csNode.getInheritedCondition();
         } catch (Exception e) {
-            log.debug("Failed to retrieve the Next Node for Content Spec Node " + id + (revision == null ? "" : (", " +
+            log.debug("Failed to retrieve the Inherited Condition for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
             throw handleException(e);
         }
@@ -439,6 +440,39 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             return csNode.getTranslatedNodes_OTM();
         } catch (Exception e) {
             log.debug("Failed to retrieve the Translated Nodes for Content Spec Node " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
+    }
+
+    public RESTCSInfoNodeV1 getRESTCSNodeInfo(int id, Integer revision) {
+        try {
+            RESTCSNodeV1 csNode = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTCSNodeV1.class, id, revision)) {
+                csNode = (RESTCSNodeV1) getRESTEntityCache().get(RESTCSNodeV1.class, id, revision);
+
+                if (csNode.getInfoTopicNode() != null) {
+                    return csNode.getInfoTopicNode();
+                }
+            }
+
+            // We need to expand the related to nodes in the content spec node
+            final String expandString = getExpansionString(RESTCSNodeV1.INFO_TOPIC_NODE_NAME);
+
+            // Load the content spec node from the REST Interface
+            final RESTCSNodeV1 tempNode = loadCSNode(id, revision, expandString);
+
+            if (csNode == null) {
+                csNode = tempNode;
+                getRESTEntityCache().add(csNode, revision);
+            } else {
+                csNode.setInfoTopicNode(tempNode.getInfoTopicNode());
+            }
+
+            return csNode.getInfoTopicNode();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Info Node for Content Spec Node " + id + (revision == null ? "" : (", " +
                     "Revision " + revision)), e);
             throw handleException(e);
         }

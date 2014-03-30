@@ -26,6 +26,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
@@ -154,6 +155,9 @@ public class RESTEntityProxyFactory {
         } else if (entity instanceof RESTCSNodeV1) {
             // CONTENT SPEC NODE
             return new RESTCSNodeV1ProxyHandler(providerFactory, (RESTCSNodeV1) entity, isRevision);
+        } else if (entity instanceof RESTCSInfoNodeV1) {
+            // CONTENT SPEC NODE
+            return new RESTCSNodeInfoV1ProxyHandler(providerFactory, (RESTCSInfoNodeV1) entity, isRevision, (RESTCSNodeV1) parent);
         } else if (entity instanceof RESTCSRelatedNodeV1) {
             return new RESTCSRelatedNodeV1ProxyHandler(providerFactory, (RESTCSRelatedNodeV1) entity, isRevision, (RESTCSNodeV1) parent);
         } else if (entity instanceof RESTTranslatedContentSpecV1) {

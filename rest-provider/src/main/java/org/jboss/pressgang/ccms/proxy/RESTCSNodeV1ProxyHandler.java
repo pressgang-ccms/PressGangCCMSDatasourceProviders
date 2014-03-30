@@ -7,6 +7,7 @@ import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 
@@ -54,6 +55,9 @@ public class RESTCSNodeV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTC
                 } else if (methodName.equals("getTranslatedNodes_OTM")) {
                     retValue = getProvider().getRESTTranslatedCSNodes(entity.getId(), getEntityRevision());
                     entity.setTranslatedNodes_OTM((RESTTranslatedCSNodeCollectionV1) retValue);
+                } else if (methodName.equals("getInfoTopicNode")) {
+                    retValue = getProvider().getRESTCSNodeInfo(entity.getId(), getEntityRevision());
+                    entity.setInfoTopicNode((RESTCSInfoNodeV1) retValue);
                 }
             }
 

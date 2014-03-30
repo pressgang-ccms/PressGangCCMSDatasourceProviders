@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.join.RESTCSRelatedNodeCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeTypeV1;
@@ -115,6 +116,20 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
                 .collection(getProxyEntity().getTranslatedNodes_OTM())
                 .isRevisionCollection(isRevisionEntity())
                 .build();
+    }
+
+    @Override
+    public CSInfoNodeWrapper getInfoTopicNode() {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getInfoTopicNode())
+                .isRevision(isRevisionEntity())
+                .build();
+    }
+
+    @Override
+    public void setInfoTopicNode(CSInfoNodeWrapper csNodeInfo) {
+        getEntity().explicitSetInfoTopicNode(csNodeInfo == null ? null : (RESTCSInfoNodeV1) csNodeInfo.unwrap());
     }
 
     @Override

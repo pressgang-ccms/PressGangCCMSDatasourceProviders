@@ -20,6 +20,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectio
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTUserCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSInfoNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTextContentSpecCollectionV1;
@@ -40,6 +41,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseContentSpecV1;
 import org.jboss.pressgang.ccms.utils.RESTWrapperCache;
@@ -208,6 +210,8 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
         } else if (collection instanceof RESTCSRelatedNodeCollectionV1) {
             wrapper = new RESTCSRelatedNodeCollectionV1Wrapper(providerFactory, (RESTCSRelatedNodeCollectionV1) collection,
                     isRevisionCollection, expandedEntityMethods);
+        } else if (collection instanceof RESTCSInfoNodeCollectionV1) {
+            wrapper = getCSNodeInfoCollectionWrapper();
         } else if (collection instanceof RESTTranslatedContentSpecCollectionV1) {
             // TRANSLATED CONTENT SPEC
             wrapper = new RESTTranslatedContentSpecCollectionV1Wrapper(providerFactory, (RESTTranslatedContentSpecCollectionV1) collection,
@@ -234,6 +238,17 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
         } else if (parent instanceof RESTBaseTopicV1) {
             return new RESTTopicSourceURLCollectionV1Wrapper(providerFactory, (RESTTopicSourceUrlCollectionV1) collection,
                     isRevisionCollection, (RESTBaseTopicV1<?, ?, ?>) parent, expandedEntityMethods);
+        } else {
+            throw new IllegalArgumentException(GENERIC_ERROR);
+        }
+    }
+
+    protected RESTCSInfoNodeCollectionV1Wrapper getCSNodeInfoCollectionWrapper() {
+        if (parent == null) {
+            throw new UnsupportedOperationException("A parent is needed to get Content Spec Node Infos using V1 of the REST Interface.");
+        } else if (parent instanceof RESTCSNodeV1) {
+            return new RESTCSInfoNodeCollectionV1Wrapper(providerFactory, (RESTCSInfoNodeCollectionV1) collection,
+                    isRevisionCollection, (RESTCSNodeV1) parent, expandedEntityMethods);
         } else {
             throw new IllegalArgumentException(GENERIC_ERROR);
         }

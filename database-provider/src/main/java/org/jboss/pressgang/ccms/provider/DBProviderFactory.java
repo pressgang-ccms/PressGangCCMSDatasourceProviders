@@ -182,6 +182,11 @@ public class DBProviderFactory extends DataProviderFactory {
         providerMap.put(DBCSNodeProvider.class, csNodeProvider);
         providerMap.put(CSNodeProvider.class, csNodeProvider);
 
+        // Content Spec Node Provider
+        final DBCSInfoNodeProvider csNodeInfoProvider = new DBCSInfoNodeProvider(getEntityManager(), this, getListeners());
+        providerMap.put(DBCSInfoNodeProvider.class, csNodeInfoProvider);
+        providerMap.put(CSInfoNodeProvider.class, csNodeInfoProvider);
+
         // Translated Content Spec Provider
         final DBTranslatedContentSpecProvider translatedContentSpecProvider = new DBTranslatedContentSpecProvider(getEntityManager(),
                 this, getListeners());

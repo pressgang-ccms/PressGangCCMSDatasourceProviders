@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jboss.pressgang.ccms.model.contentspec.CSInfoNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
@@ -135,6 +136,23 @@ public class DBCSNodeWrapper extends DBBaseEntityWrapper<CSNodeWrapper, CSNode> 
     public CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes() {
         return getWrapperFactory().createCollection(getEntity().getTranslatedNodes(getEntityManager(), getEntityRevision()),
                 TranslatedCSNode.class, isRevisionEntity(), TranslatedCSNodeWrapper.class);
+    }
+
+    @Override
+    public CSInfoNodeWrapper getInfoTopicNode() {
+        return getWrapperFactory().create(getEntity().getCSInfoNode(), isRevisionEntity(), CSInfoNodeWrapper.class);
+    }
+
+    @Override
+    public void setInfoTopicNode(CSInfoNodeWrapper csNodeInfo) {
+        final CSInfoNode csInfoNodeEntity = csNodeInfo == null ? null : (CSInfoNode) csNodeInfo.unwrap();
+        if (getEntity().getCSInfoNode() != null) {
+            getEntity().getCSInfoNode().setCSNode(null);
+        }
+        getEntity().setCSInfoNode(csInfoNodeEntity);
+        if (csInfoNodeEntity != null) {
+            csInfoNodeEntity.setCSNode(getEntity());
+        }
     }
 
     @Override

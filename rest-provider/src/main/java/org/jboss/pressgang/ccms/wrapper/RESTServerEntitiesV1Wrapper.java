@@ -33,6 +33,11 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
     }
 
     @Override
+    public Integer getInfoTagId() {
+        return getEntity().getInfoTagId();
+    }
+
+    @Override
     public Integer getInternalOnlyTagId() {
         return getEntity().getInternalOnlyTagId();
     }
@@ -178,6 +183,11 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
     }
 
     @Override
+    public Integer getInfoTopicTemplateStringConstantId() {
+        return getEntity().getInfoTopicTemplateStringConstantId();
+    }
+
+    @Override
     public Integer getLegalNoticeTopicTemplateStringConstantId() {
         return getEntity().getLegalNoticeTopicTemplateStringConstantId();
     }
@@ -185,6 +195,11 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
     @Override
     public Integer getRevisionHistoryTopicTemplateStringConstantId() {
         return getEntity().getRevisionHistoryTopicTemplateStringConstantId();
+    }
+
+    @Override
+    public Integer getSectionInfoTopicTemplateStringConstantId() {
+        return getEntity().getSectionInfoTopicTemplateStringConstantId();
     }
 
     @Override

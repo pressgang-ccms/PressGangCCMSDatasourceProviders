@@ -2,6 +2,7 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import java.util.Collection;
 
+import org.jboss.pressgang.ccms.provider.RESTCSNodeProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeStringCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
@@ -86,6 +87,7 @@ public class RESTTranslatedCSNodeV1Wrapper extends RESTBaseEntityWrapper<Transla
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
                 .entity(getProxyEntity().getNode())
+                .expandedMethods(RESTCSNodeProvider.DEFAULT_METHODS)
                 .isRevision()
                 .build();
     }

@@ -6,7 +6,10 @@ import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerEntitiesV1;
 import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerSettingsV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerUndefinedEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerUndefinedSettingV1;
 import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTBlobConstantV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
@@ -16,9 +19,6 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyTagV1;
-import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerEntitiesV1;
-import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerUndefinedEntityV1;
-import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerUndefinedSettingV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTStringConstantV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
@@ -30,6 +30,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
@@ -213,6 +214,10 @@ public class RESTEntityWrapperBuilder {
         } else if (entity instanceof RESTCSRelatedNodeV1) {
             wrapper = new RESTCSRelatedNodeV1Wrapper(providerFactory, (RESTCSRelatedNodeV1) unwrappedEntity, isRevision, isNewEntity,
                     expandedMethods);
+        } else if (entity instanceof RESTCSInfoNodeV1) {
+            // CONTENT SPEC INFO NODE
+            wrapper = new RESTCSInfoV1NodeWrapper(providerFactory, (RESTCSInfoNodeV1) unwrappedEntity, isRevision, (RESTCSNodeV1) parent,
+                    isNewEntity, expandedMethods);
         } else if (entity instanceof RESTTranslatedContentSpecV1) {
             // TRANSLATED CONTENT SPEC
             wrapper = new RESTTranslatedContentSpecV1Wrapper(providerFactory, (RESTTranslatedContentSpecV1) unwrappedEntity, isRevision,

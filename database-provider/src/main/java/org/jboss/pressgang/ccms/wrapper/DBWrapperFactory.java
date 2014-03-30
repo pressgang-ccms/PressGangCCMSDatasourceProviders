@@ -26,6 +26,7 @@ import org.jboss.pressgang.ccms.model.config.ApplicationConfig;
 import org.jboss.pressgang.ccms.model.config.EntitiesConfig;
 import org.jboss.pressgang.ccms.model.config.UndefinedEntity;
 import org.jboss.pressgang.ccms.model.config.UndefinedSetting;
+import org.jboss.pressgang.ccms.model.contentspec.CSInfoNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
@@ -37,6 +38,7 @@ import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBBlobConstantCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBCSInfoNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryCollectionWrapper;
@@ -188,6 +190,9 @@ public class DBWrapperFactory {
             wrapper = new DBCSNodeWrapper(getProviderFactory(), (CSNode) entity, isRevision);
         } else if (entity instanceof CSNodeToCSNode) {
             wrapper = new DBCSRelatedNodeWrapper(getProviderFactory(), (CSNodeToCSNode) entity, isRevision);
+        } else if (entity instanceof CSInfoNode) {
+            // CONTENT SPEC INFO NODE
+            wrapper = new DBCSInfoNodeWrapper(getProviderFactory(), (CSInfoNode) entity, isRevision);
         } else if (entity instanceof TranslatedCSNode) {
             // CONTENT SPEC TRANSLATED NODE
             wrapper = new DBTranslatedCSNodeWrapper(getProviderFactory(), (TranslatedCSNode) entity, isRevision);
@@ -308,6 +313,9 @@ public class DBWrapperFactory {
             wrapper = new DBCSNodeCollectionWrapper(this, (Collection<CSNode>) collection, isRevisionCollection);
         } else if (entityClass == CSNodeToCSNode.class) {
             wrapper = new DBCSRelatedNodeCollectionWrapper(this, (Collection<CSNodeToCSNode>) collection, isRevisionCollection);
+        } else if (entityClass == CSNode.class) {
+            // CONTENT SPEC INFO NODE
+            wrapper = new DBCSInfoNodeCollectionWrapper(this, (Collection<CSInfoNode>) collection, isRevisionCollection);
         } else if (entityClass == TranslatedCSNode.class) {
             // CONTENT SPEC TRANSLATED NODE
             wrapper = new DBTranslatedCSNodeCollectionWrapper(this, (Collection<TranslatedCSNode>) collection, isRevisionCollection);

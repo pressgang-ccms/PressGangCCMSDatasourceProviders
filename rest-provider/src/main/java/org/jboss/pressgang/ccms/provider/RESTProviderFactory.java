@@ -145,6 +145,11 @@ public class RESTProviderFactory extends DataProviderFactory {
         final RESTCSRelatedNodeProvider csRelatedNodeProvider = new RESTCSRelatedNodeProvider(this);
         providerMap.put(RESTCSRelatedNodeProvider.class, csRelatedNodeProvider);
 
+        // Content Spec Node Info Provider
+        final RESTCSInfoNodeProvider csNodeInfoProvider = new RESTCSInfoNodeProvider(this);
+        providerMap.put(RESTCSInfoNodeProvider.class, csNodeInfoProvider);
+        providerMap.put(CSInfoNodeProvider.class, csNodeInfoProvider);
+
         // Translated Content Spec Provider
         final RESTTranslatedContentSpecProvider translatedContentSpecProvider = new RESTTranslatedContentSpecProvider(this);
         providerMap.put(RESTTranslatedContentSpecProvider.class, translatedContentSpecProvider);

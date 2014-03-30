@@ -32,4 +32,8 @@ public interface CSNodeWrapper extends BaseCSNodeWrapper<CSNodeWrapper> {
     String getInheritedCondition();
 
     CollectionWrapper<TranslatedCSNodeWrapper> getTranslatedNodes();
+
+    CSInfoNodeWrapper getInfoTopicNode();
+
+    void setInfoTopicNode(CSInfoNodeWrapper csNodeInfo);
 }

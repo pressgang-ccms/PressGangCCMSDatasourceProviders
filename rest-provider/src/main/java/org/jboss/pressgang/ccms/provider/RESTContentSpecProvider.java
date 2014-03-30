@@ -35,8 +35,9 @@ import org.slf4j.LoggerFactory;
 public class RESTContentSpecProvider extends RESTDataProvider implements ContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTContentSpecProvider.class);
     private static final List<String> SUB_EXPANSION_WITH_CHILDREN = Arrays.asList(RESTCSNodeV1.NEXT_NODE_NAME, RESTCSNodeV1.RELATED_TO_NAME,
-            RESTCSNodeV1.CHILDREN_NAME);
-    private static final List<String> SUB_METHOD_WITH_CHILDREN = Arrays.asList("getNextNode", "getRelatedToNodes", "getChildren_OTM");
+            RESTCSNodeV1.CHILDREN_NAME, RESTCSNodeV1.INFO_TOPIC_NODE_NAME);
+    private static final List<String> SUB_METHOD_WITH_CHILDREN = Arrays.asList("getNextNode", "getRelatedToNodes", "getChildren_OTM",
+            "getInfoTopicNode");
 
     private int count = -1000;
 

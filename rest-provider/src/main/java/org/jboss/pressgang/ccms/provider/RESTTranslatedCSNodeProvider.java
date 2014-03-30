@@ -195,7 +195,7 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
             }
 
             // We need to expand the translated topic in the translated cs node
-            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.NODE_NAME);
+            final String expandString = getExpansionString(RESTTranslatedCSNodeV1.NODE_NAME, RESTCSNodeProvider.DEFAULT_EXPANSION);
 
             // Load the translated content spec node from the REST Interface
             final RESTTranslatedCSNodeV1 tempTranslatedCSNode = loadTranslatedCSNode(id, revision, expandString);

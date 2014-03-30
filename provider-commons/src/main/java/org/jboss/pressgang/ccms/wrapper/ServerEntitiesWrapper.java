@@ -8,6 +8,7 @@ public interface ServerEntitiesWrapper extends BaseWrapper<ServerEntitiesWrapper
     Integer getAuthorGroupTagId();
     Integer getContentSpecTagId();
     Integer getFrozenTagId();
+    Integer getInfoTagId();
     Integer getInternalOnlyTagId();
     Integer getLegalNoticeTagId();
     Integer getObsoleteTagId();
@@ -42,8 +43,10 @@ public interface ServerEntitiesWrapper extends BaseWrapper<ServerEntitiesWrapper
     Integer getTopicTemplateStringConstantId();
     Integer getAbstractTopicTemplateStringConstantId();
     Integer getAuthorGroupTopicTemplateStringConstantId();
+    Integer getInfoTopicTemplateStringConstantId();
     Integer getLegalNoticeTopicTemplateStringConstantId();
     Integer getRevisionHistoryTopicTemplateStringConstantId();
+    Integer getSectionInfoTopicTemplateStringConstantId();
     Integer getContentSpecTemplateStringConstantId();
 
     Integer getArticleStringConstantId();
