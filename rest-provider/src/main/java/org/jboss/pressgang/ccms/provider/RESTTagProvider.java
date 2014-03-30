@@ -12,7 +12,7 @@ import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTTagInCategoryV1;
-import org.jboss.pressgang.ccms.rest.v1.query.RESTTagQueryBuilderV1;
+import org.jboss.pressgang.ccms.utils.constants.CommonFilterConstants;
 import org.jboss.pressgang.ccms.wrapper.CategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
@@ -21,6 +21,7 @@ import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
+import org.jboss.resteasy.specimpl.PathSegmentImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,14 +84,12 @@ public class RESTTagProvider extends RESTDataProvider implements TagProvider {
             if (getRESTCollectionCache().containsKey(RESTTagV1.class, keys)) {
                 tags = getRESTCollectionCache().get(RESTTagV1.class, RESTTagCollectionV1.class, keys);
             } else {
-                final RESTTagQueryBuilderV1 queryBuilder = new RESTTagQueryBuilderV1();
-                queryBuilder.setTagName(name);
-
+                final String query = "query;" + CommonFilterConstants.TAG_NAME_MATCHES_FILTER_VAR + "=" + name + ";";
                 // We need to expand the Tags collection
                 final String expandString = getExpansionString(RESTv1Constants.TAGS_EXPANSION_NAME);
 
                 // Load the tags from the REST Interface
-                tags = getRESTClient().getJSONTagsWithQuery(queryBuilder.buildQueryPath(), expandString);
+                tags = getRESTClient().getJSONTagsWithQuery(new PathSegmentImpl(query, false), expandString);
                 getRESTCollectionCache().add(RESTTagV1.class, tags, keys);
             }
 
