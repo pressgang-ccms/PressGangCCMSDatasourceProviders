@@ -168,43 +168,63 @@ public class RESTServerEntitiesV1Wrapper extends RESTBaseWrapper<ServerEntitiesW
     }
 
     @Override
-    public Integer getTopicTemplateStringConstantId() {
-        return getEntity().getTopicTemplateStringConstantId();
+    public Integer getTopicTemplateId() {
+        return getEntity().getTopicTemplateId();
     }
 
     @Override
-    public Integer getAbstractTopicTemplateStringConstantId() {
-        return getEntity().getAbstractTopicTemplateStringConstantId();
+    public Integer getDocBook45AbstractTopicTemplateId() {
+        return getEntity().getDocBook45AbstractTopicTemplateId();
     }
 
     @Override
-    public Integer getAuthorGroupTopicTemplateStringConstantId() {
-        return getEntity().getAuthorGroupTopicTemplateStringConstantId();
+    public Integer getDocBook45AuthorGroupTopicTemplateId() {
+        return getEntity().getDocBook45AuthorGroupTopicTemplateId();
     }
 
     @Override
-    public Integer getInfoTopicTemplateStringConstantId() {
-        return getEntity().getInfoTopicTemplateStringConstantId();
+    public Integer getDocBook45InfoTopicTemplateId() {
+        return getEntity().getDocBook45InfoTopicTemplateId();
     }
 
     @Override
-    public Integer getLegalNoticeTopicTemplateStringConstantId() {
-        return getEntity().getLegalNoticeTopicTemplateStringConstantId();
+    public Integer getDocBook45LegalNoticeTopicTemplateId() {
+        return getEntity().getDocBook45LegalNoticeTopicTemplateId();
     }
 
     @Override
-    public Integer getRevisionHistoryTopicTemplateStringConstantId() {
-        return getEntity().getRevisionHistoryTopicTemplateStringConstantId();
+    public Integer getDocBook45RevisionHistoryTopicTemplateId() {
+        return getEntity().getDocBook45RevisionHistoryTopicTemplateId();
     }
 
     @Override
-    public Integer getSectionInfoTopicTemplateStringConstantId() {
-        return getEntity().getSectionInfoTopicTemplateStringConstantId();
+    public Integer getDocBook50AbstractTopicTemplateId() {
+        return getEntity().getDocBook50AbstractTopicTemplateId();
     }
 
     @Override
-    public Integer getContentSpecTemplateStringConstantId() {
-        return getEntity().getContentSpecTemplateStringConstantId();
+    public Integer getDocBook50AuthorGroupTopicTemplateId() {
+        return getEntity().getDocBook50AuthorGroupTopicTemplateId();
+    }
+
+    @Override
+    public Integer getDocBook50InfoTopicTemplateId() {
+        return getEntity().getDocBook50InfoTopicTemplateId();
+    }
+
+    @Override
+    public Integer getDocBook50LegalNoticeTopicTemplateId() {
+        return getEntity().getDocBook50LegalNoticeTopicTemplateId();
+    }
+
+    @Override
+    public Integer getDocBook50RevisionHistoryTopicTemplateId() {
+        return getEntity().getDocBook50RevisionHistoryTopicTemplateId();
+    }
+
+    @Override
+    public Integer getContentSpecTemplateId() {
+        return getEntity().getContentSpecTemplateId();
     }
 
     @Override

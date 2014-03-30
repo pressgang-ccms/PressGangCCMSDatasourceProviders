@@ -40,14 +40,18 @@ public interface ServerEntitiesWrapper extends BaseWrapper<ServerEntitiesWrapper
     Integer getXmlFormattingStringConstantId();
     Integer getDocBookElementsStringConstantId();
 
-    Integer getTopicTemplateStringConstantId();
-    Integer getAbstractTopicTemplateStringConstantId();
-    Integer getAuthorGroupTopicTemplateStringConstantId();
-    Integer getInfoTopicTemplateStringConstantId();
-    Integer getLegalNoticeTopicTemplateStringConstantId();
-    Integer getRevisionHistoryTopicTemplateStringConstantId();
-    Integer getSectionInfoTopicTemplateStringConstantId();
-    Integer getContentSpecTemplateStringConstantId();
+    Integer getTopicTemplateId();
+    Integer getDocBook45AbstractTopicTemplateId();
+    Integer getDocBook45AuthorGroupTopicTemplateId();
+    Integer getDocBook45InfoTopicTemplateId();
+    Integer getDocBook45LegalNoticeTopicTemplateId();
+    Integer getDocBook45RevisionHistoryTopicTemplateId();
+    Integer getDocBook50AbstractTopicTemplateId();
+    Integer getDocBook50AuthorGroupTopicTemplateId();
+    Integer getDocBook50InfoTopicTemplateId();
+    Integer getDocBook50LegalNoticeTopicTemplateId();
+    Integer getDocBook50RevisionHistoryTopicTemplateId();
+    Integer getContentSpecTemplateId();
 
     Integer getArticleStringConstantId();
     Integer getArticleInfoStringConstantId();
