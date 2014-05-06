@@ -1,6 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
@@ -20,6 +21,9 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements TranslatedCSNodeProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTranslatedCSNodeProvider.class);
+
+    protected static final List<String> DEFAULT_EXPANSION = Arrays.asList(RESTTranslatedCSNodeV1.TRANSLATED_TOPICS_NAME);
+    protected static final List<String> DEFAULT_METHODS = Arrays.asList("getTranslatedTopics_OTM");
 
     protected RESTTranslatedCSNodeProvider(final RESTProviderFactory providerFactory) {
         super(providerFactory);
@@ -48,7 +52,7 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
             if (getRESTEntityCache().containsKeyValue(RESTTranslatedCSNodeV1.class, id, revision)) {
                 node = getRESTEntityCache().get(RESTTranslatedCSNodeV1.class, id, revision);
             } else {
-                node = loadTranslatedCSNode(id, revision, "");
+                node = loadTranslatedCSNode(id, revision, getExpansionString(DEFAULT_EXPANSION));
                 getRESTEntityCache().add(node, revision);
             }
             return node;
@@ -63,6 +67,7 @@ public class RESTTranslatedCSNodeProvider extends RESTDataProvider implements Tr
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
                 .entity(getRESTTranslatedCSNode(id, revision))
+                .expandedMethods(DEFAULT_METHODS)
                 .isRevision(revision != null)
                 .build();
     }
