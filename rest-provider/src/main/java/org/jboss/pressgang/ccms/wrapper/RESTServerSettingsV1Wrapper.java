@@ -15,6 +15,26 @@ public class RESTServerSettingsV1Wrapper extends RESTBaseWrapper<ServerSettingsW
     }
 
     @Override
+    public boolean isReadOnly() {
+        return getEntity().isReadOnly();
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        getEntity().explicitSetReadOnly(readOnly);
+    }
+
+    @Override
+    public int getJMSUpdateFrequency() {
+        return getEntity().getJmsUpdateFrequency();
+    }
+
+    @Override
+    public void setJMSUpdateFrequency(int jmsUpdateFrequency) {
+        getEntity().explicitSetJmsUpdateFrequency(jmsUpdateFrequency);
+    }
+
+    @Override
     public String getUIUrl() {
         return getEntity().getUiUrl();
     }

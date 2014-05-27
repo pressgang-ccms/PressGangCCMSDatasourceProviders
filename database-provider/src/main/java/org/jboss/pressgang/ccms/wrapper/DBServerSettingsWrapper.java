@@ -35,6 +35,26 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
     }
 
     @Override
+    public boolean isReadOnly() {
+        return getEntity().getReadOnly();
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        getEntity().setReadOnly(readOnly);
+    }
+
+    @Override
+    public int getJMSUpdateFrequency() {
+        return getEntity().getJmsUpdateFrequency();
+    }
+
+    @Override
+    public void setJMSUpdateFrequency(int jmsUpdateFrequency) {
+        getEntity().setJmsUpdateFrequency(jmsUpdateFrequency);
+    }
+
+    @Override
     public String getUIUrl() {
         return getEntity().getUIUrl();
     }

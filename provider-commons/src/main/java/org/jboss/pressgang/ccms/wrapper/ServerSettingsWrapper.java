@@ -6,6 +6,10 @@ import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public interface ServerSettingsWrapper extends BaseWrapper<ServerSettingsWrapper> {
+    boolean isReadOnly();
+    void setReadOnly(boolean readOnly);
+    int getJMSUpdateFrequency();
+    void setJMSUpdateFrequency(int jmsUpdateFrequency);
     String getUIUrl();
     void setUIUrl(String uiUrl);
     String getDocbuilderUrl();
