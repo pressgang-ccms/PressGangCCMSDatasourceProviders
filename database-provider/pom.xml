@@ -9,7 +9,7 @@
 
     <groupId>org.jboss.pressgang.ccms</groupId>
     <artifactId>database-provider</artifactId>
-    <version>1.6</version>
+    <version>1.7-SNAPSHOT</version>
     <name>PressGang CCMS Database Provider</name>
 
     <scm>
@@ -19,7 +19,7 @@
     </scm>
 
     <properties>
-        <pressgang.ccms.version>1.6</pressgang.ccms.version>
+        <pressgang.ccms.version>1.7-SNAPSHOT</pressgang.ccms.version>
         <eclipse.lifecyclemapping.version>1.0.0</eclipse.lifecyclemapping.version>
     </properties>
 
