@@ -67,7 +67,7 @@ public class DBProviderFactory extends DataProviderFactory {
         if (transactionManager != null) {
             try {
                 final int status = transactionManager.getStatus();
-                if (status != Status.STATUS_ROLLING_BACK && status != Status.STATUS_ROLLEDBACK && status != Status.STATUS_NO_TRANSACTION) {
+                if (status != Status.STATUS_NO_TRANSACTION) {
                     transactionManager.rollback();
                 }
             } catch (SystemException e) {
