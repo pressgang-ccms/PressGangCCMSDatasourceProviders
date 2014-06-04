@@ -39,4 +39,6 @@ public interface BaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> ext
     void setFailed(String failed);
 
     PropertyTagInContentSpecWrapper getProperty(final int propertyId);
+
+    boolean hasTag(final int tagId);
 }

@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentBaseRESTEntityWithPropertiesV1;
+import org.jboss.pressgang.ccms.rest.v1.components.ComponentContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTContentSpecTypeV1;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
@@ -91,5 +92,10 @@ public abstract class RESTBaseContentSpecV1Wrapper<T extends BaseContentSpecWrap
                 .parent(getProxyEntity())
                 .wrapperInterface(PropertyTagInContentSpecWrapper.class)
                 .build();
+    }
+
+    @Override
+    public boolean hasTag(final int tagId) {
+        return ComponentContentSpecV1.hasTag(getProxyEntity(), tagId);
     }
 }

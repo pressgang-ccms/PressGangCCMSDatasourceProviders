@@ -176,4 +176,9 @@ public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<
     public void setId(Integer id) {
         getEntity().setContentSpecId(id);
     }
+
+    @Override
+    public boolean hasTag(final int tagId) {
+        return getEntity().isTaggedWith(tagId);
+    }
 }
