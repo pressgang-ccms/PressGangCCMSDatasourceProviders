@@ -124,6 +124,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
                 .entity(getRESTTopic(id, revision))
+                .expandedMethods(getDefaultTopicMethodList())
                 .isRevision(revision != null)
                 .build();
     }

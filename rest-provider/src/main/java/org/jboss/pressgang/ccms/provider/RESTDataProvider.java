@@ -137,14 +137,14 @@ public abstract class RESTDataProvider extends DataProvider {
     }
 
     protected String getExpansionString(String expansionName) throws IOException {
-        return getExpansionString(expansionName, (List<String>) null);
+        return getExpansionString(expansionName, (Collection<String>) null);
     }
 
     protected String getExpansionString(String expansionName, String subExpansionName) throws IOException {
         return getExpansionString(expansionName, Arrays.asList(subExpansionName));
     }
 
-    protected String getExpansionString(String expansionName, List<String> subExpansionNames) throws IOException {
+    protected String getExpansionString(String expansionName, Collection<String> subExpansionNames) throws IOException {
         final ExpandDataTrunk expand = new ExpandDataTrunk();
         expand.setBranches(Arrays.asList(getExpansion(expansionName, subExpansionNames)));
         return getExpansionString(expand);

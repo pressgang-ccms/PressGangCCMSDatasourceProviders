@@ -1,5 +1,9 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTextContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
@@ -20,9 +24,30 @@ import org.slf4j.LoggerFactory;
 
 public class RESTTextContentSpecProvider extends RESTDataProvider implements TextContentSpecProvider {
     private static Logger log = LoggerFactory.getLogger(RESTTextContentSpecProvider.class);
+    private boolean expandProperties = false;
 
     protected RESTTextContentSpecProvider(final RESTProviderFactory providerFactory) {
         super(providerFactory);
+    }
+
+    public void setExpandProperties(final boolean expandProperties) {
+        this.expandProperties = expandProperties;
+    }
+
+    protected Set<String> getDefaultContentSpecMethodList() {
+        if (expandProperties) {
+            return Sets.newHashSet("getText", "getProperties");
+        } else {
+            return Sets.newHashSet("getText");
+        }
+    }
+
+    protected Set<String> getDefaultContentSpecExpansionList() {
+        if (expandProperties) {
+            return Sets.newHashSet(RESTTextContentSpecV1.TEXT_NAME, RESTTextContentSpecV1.PROPERTIES_NAME);
+        } else {
+            return Sets.newHashSet(RESTTextContentSpecV1.TEXT_NAME);
+        }
     }
 
     protected RESTTextContentSpecV1 loadContentSpec(Integer id, Integer revision, String expandString) {
@@ -48,7 +73,7 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
             if (getRESTEntityCache().containsKeyValue(RESTTextContentSpecV1.class, id, revision)) {
                 contentSpec = getRESTEntityCache().get(RESTTextContentSpecV1.class, id, revision);
             } else {
-                final String expandString = getExpansionString(RESTTextContentSpecV1.TEXT_NAME);
+                final String expandString = getExpansionString(getDefaultContentSpecExpansionList());
                 contentSpec = loadContentSpec(id, revision, expandString);
                 getRESTEntityCache().add(contentSpec, revision);
             }
@@ -64,6 +89,7 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
                 .entity(getRESTTextContentSpec(id, revision))
+                .expandedMethods(getDefaultContentSpecMethodList())
                 .isRevision(revision != null)
                 .build();
     }
@@ -73,7 +99,9 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
 
         try {
             // We need to expand the all the content specs in the collection
-            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_EXPANSION_NAME);
+            final Set<String> subCollection = getDefaultContentSpecExpansionList();
+            subCollection.remove(RESTTextContentSpecV1.TEXT_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_EXPANSION_NAME, subCollection);
 
             final RESTTextContentSpecCollectionV1 contentSpecs = getRESTClient().getJSONTextContentSpecsWithQuery(
                     new PathSegmentImpl(query, false), expandString);
@@ -93,6 +121,7 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
         return RESTCollectionWrapperBuilder.<TextContentSpecWrapper>newBuilder()
                 .providerFactory(getProviderFactory())
                 .collection(getRESTTextContentSpecsWithQuery(query))
+                .expandedEntityMethods(expandProperties ? Arrays.asList("getProperties") : null)
                 .build();
     }
 
