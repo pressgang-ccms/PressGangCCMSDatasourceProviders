@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.wrapper;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -152,6 +154,21 @@ public class DBCSNodeWrapper extends DBBaseEntityWrapper<CSNodeWrapper, CSNode> 
         getEntity().setCSInfoNode(csInfoNodeEntity);
         if (csInfoNodeEntity != null) {
             csInfoNodeEntity.setCSNode(getEntity());
+        }
+    }
+
+    @Override
+    public String getFixedURL() {
+        return getEntity().getCSNodeURL() == null ? null : getEntity().getCSNodeURL().getUrl();
+    }
+
+    @Override
+    public void setFixedURL(String fixedURL) {
+        if (isNullOrEmpty(fixedURL) && getEntity().getCSNodeURL() != null) {
+            getEntityManager().remove(getEntity().getCSNodeURL());
+            getEntity().setCSNodeURL(null);
+        } else {
+            getEntity().setFixedUrl(fixedURL);
         }
     }
 

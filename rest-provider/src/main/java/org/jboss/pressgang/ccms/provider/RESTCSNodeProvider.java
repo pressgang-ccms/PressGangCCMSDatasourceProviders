@@ -15,8 +15,10 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
+import org.jboss.pressgang.ccms.wrapper.RESTCSNodeV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.RESTCSNodeCollectionV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.resteasy.specimpl.PathSegmentImpl;
@@ -478,83 +480,121 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         }
     }
 
-//    @Override
-//    public CSNodeWrapper createCSNode(final CSNodeWrapper nodeEntity) throws Exception {
-//        final RESTCSNodeV1 node = ((RESTCSNodeV1Wrapper) nodeEntity).unwrap();
-//
-//        // Clean the entity to remove anything that doesn't need to be sent to the server
-//        cleanEntityForSave(node);
-//
-//        final RESTCSNodeV1 updatedCSNode = getRESTClient().createJSONContentSpecNode("", node);
-//        if (updatedCSNode != null) {
-//            getRESTEntityCache().add(updatedCSNode);
-//            return getWrapperFactory().create(updatedCSNode, false);
-//        } else {
-//            return null;
-//        }
-//    }
-//
-//    @Override
-//    public CSNodeWrapper updateCSNode(CSNodeWrapper nodeEntity) throws Exception {
-//        final RESTCSNodeV1 node = ((RESTCSNodeV1Wrapper) nodeEntity).unwrap();
-//
-//        // Clean the entity to remove anything that doesn't need to be sent to the server
-//        cleanEntityForSave(node);
-//
-//        final RESTCSNodeV1 updatedCSNode = getRESTClient().updateJSONContentSpecNode("", node);
-//        if (updatedCSNode != null) {
-//            getRESTEntityCache().expire(RESTCSNodeV1.class, nodeEntity.getId());
-//            getRESTEntityCache().add(updatedCSNode);
-//            return getWrapperFactory().create(updatedCSNode, false);
-//        } else {
-//            return null;
-//        }
-//    }
-//
+    @Override
+    public CSNodeWrapper createCSNode(final CSNodeWrapper nodeEntity) {
+        try {
+            final RESTCSNodeV1 node = ((RESTCSNodeV1Wrapper) nodeEntity).unwrap();
+
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(node);
+
+            final String expansionString = getExpansionString(DEFAULT_EXPANSION);
+            final RESTCSNodeV1 createdCSNode = getRESTClient().createJSONContentSpecNode(expansionString, node);
+            if (createdCSNode != null) {
+                getRESTEntityCache().add(createdCSNode);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(createdCSNode)
+                        .expandedMethods(DEFAULT_METHODS)
+                        .build();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("Failed to update CSNode " + nodeEntity.getId(), e);
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public CSNodeWrapper updateCSNode(CSNodeWrapper nodeEntity) {
+        try {
+            final RESTCSNodeV1 node = ((RESTCSNodeV1Wrapper) nodeEntity).unwrap();
+
+            // Clean the entity to remove anything that doesn't need to be sent to the server
+            cleanEntityForSave(node);
+
+            final String expansionString = getExpansionString(DEFAULT_EXPANSION);
+            final RESTCSNodeV1 updatedCSNode = getRESTClient().updateJSONContentSpecNode(expansionString, node);
+            if (updatedCSNode != null) {
+                getRESTEntityCache().expire(RESTCSNodeV1.class, nodeEntity.getId());
+                getRESTEntityCache().add(updatedCSNode);
+                return RESTEntityWrapperBuilder.newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .entity(updatedCSNode)
+                        .expandedMethods(DEFAULT_METHODS)
+                        .build();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("Failed to update CSNode " + nodeEntity.getId(), e);
+            throw handleException(e);
+        }
+    }
+
 //    @Override
 //    public boolean deleteCSNode(Integer id) throws Exception {
 //        final RESTCSNodeV1 topic = getRESTClient().deleteJSONContentSpecNode(id, "");
 //        return topic != null;
 //    }
-//
-//    @Override
-//    public CollectionWrapper<CSNodeWrapper> createCSNodes(CollectionWrapper<CSNodeWrapper> topics) throws Exception {
-//        final RESTCSNodeCollectionV1 unwrappedCSNodes = ((RESTCSNodeCollectionV1Wrapper) topics).unwrap();
-//
-//        // Clean the collection to remove anything that doesn't need to be sent to the server
-//        cleanCollectionForSave(unwrappedCSNodes);
-//
-//        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
-//        final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().createJSONContentSpecNodes(expandString, unwrappedCSNodes);
-//        if (updatedCSNodes != null) {
-//            getRESTEntityCache().add(updatedCSNodes, false);
-//            return getWrapperFactory().createCollection(updatedCSNodes, RESTCSNodeV1.class, false);
-//        } else {
-//            return null;
-//        }
-//    }
-//
-//    @Override
-//    public CollectionWrapper<CSNodeWrapper> updateCSNodes(CollectionWrapper<CSNodeWrapper> topics) throws Exception {
-//        final RESTCSNodeCollectionV1 unwrappedCSNodes = ((RESTCSNodeCollectionV1Wrapper) topics).unwrap();
-//
-//        // Clean the collection to remove anything that doesn't need to be sent to the server
-//        cleanCollectionForSave(unwrappedCSNodes);
-//
-//        final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME);
-//        final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().updateJSONContentSpecNodes(expandString, unwrappedCSNodes);
-//        if (updatedCSNodes != null) {
-//            // Expire the old cached data
-//            for (final RESTCSNodeV1 topic : unwrappedCSNodes.returnItems()) {
-//                getRESTEntityCache().expire(RESTCSNodeV1.class, topic.getId());
-//            }
-//            // Add the new data to the cache
-//            getRESTEntityCache().add(updatedCSNodes, false);
-//            return getWrapperFactory().createCollection(updatedCSNodes, RESTCSNodeV1.class, false);
-//        } else {
-//            return null;
-//        }
-//    }
+
+    @Override
+    public UpdateableCollectionWrapper<CSNodeWrapper> createCSNodes(UpdateableCollectionWrapper<CSNodeWrapper> csNodes) {
+        try {
+            final RESTCSNodeCollectionV1 unwrappedCSNodes = ((RESTCSNodeCollectionV1Wrapper) csNodes).unwrap();
+
+            // Clean the collection to remove anything that doesn't need to be sent to the server
+            cleanCollectionForSave(unwrappedCSNodes, false);
+
+            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME, DEFAULT_EXPANSION);
+            final RESTCSNodeCollectionV1 createdCSNodes = getRESTClient().createJSONContentSpecNodes(expandString, unwrappedCSNodes);
+            if (createdCSNodes != null) {
+                getRESTEntityCache().add(createdCSNodes, false);
+                return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .collection(createdCSNodes)
+                        .expandedEntityMethods(DEFAULT_METHODS)
+                        .build();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public UpdateableCollectionWrapper<CSNodeWrapper> updateCSNodes(UpdateableCollectionWrapper <CSNodeWrapper> csNodes) {
+        try {
+            final RESTCSNodeCollectionV1 unwrappedCSNodes = ((RESTCSNodeCollectionV1Wrapper) csNodes).unwrap();
+
+            // Clean the collection to remove anything that doesn't need to be sent to the server
+            cleanCollectionForSave(unwrappedCSNodes, false);
+
+            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_NODE_EXPANSION_NAME, DEFAULT_EXPANSION);
+            final RESTCSNodeCollectionV1 updatedCSNodes = getRESTClient().updateJSONContentSpecNodes(expandString, unwrappedCSNodes);
+            if (updatedCSNodes != null) {
+                // Expire the old cached data
+                for (final RESTCSNodeV1 csNode : unwrappedCSNodes.returnItems()) {
+                    getRESTEntityCache().expire(RESTCSNodeV1.class, csNode.getId());
+                }
+                // Add the new data to the cache
+                getRESTEntityCache().add(updatedCSNodes, false);
+                return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
+                        .providerFactory(getProviderFactory())
+                        .collection(updatedCSNodes)
+                        .expandedEntityMethods(DEFAULT_METHODS)
+                        .build();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.debug("", e);
+            throw handleException(e);
+        }
+    }
 //
 //    @Override
 //    public boolean deleteCSNodes(final List<Integer> topicIds) throws Exception {

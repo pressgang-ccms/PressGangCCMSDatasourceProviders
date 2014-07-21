@@ -133,6 +133,16 @@ public class RESTCSNodeV1Wrapper extends RESTBaseEntityWrapper<CSNodeWrapper, RE
     }
 
     @Override
+    public String getFixedURL() {
+        return getEntity().getFixedUrl();
+    }
+
+    @Override
+    public void setFixedURL(String fixedURL) {
+        getEntity().explicitSetFixedUrl(fixedURL);
+    }
+
+    @Override
     public String getTitle() {
         return getProxyEntity().getTitle();
     }

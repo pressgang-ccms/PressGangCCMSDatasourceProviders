@@ -36,4 +36,8 @@ public interface CSNodeWrapper extends BaseCSNodeWrapper<CSNodeWrapper> {
     CSInfoNodeWrapper getInfoTopicNode();
 
     void setInfoTopicNode(CSInfoNodeWrapper csNodeInfo);
+
+    String getFixedURL();
+
+    void setFixedURL(String fixedURL);
 }

@@ -106,25 +106,33 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
         return getWrapperFactory().createCollection(revisions, CSNode.class, revision != null);
     }
 
-//    @Override
-//    public CSNodeWrapper createCSNode(CSNodeWrapper node) throws Exception {
-//        getEntityManager().merge(node.unwrap());
-//
-//        // Flush the changes to the database
-//        getEntityManager().flush();
-//
-//        return node;
-//    }
-//
-//    @Override
-//    public CSNodeWrapper updateCSNode(CSNodeWrapper node) throws Exception {
-//        getEntityManager().merge(node.unwrap());
-//
-//        // Flush the changes to the database
-//        getEntityManager().flush();
-//
-//        return node;
-//    }
+    @Override
+    public CSNodeWrapper createCSNode(CSNodeWrapper node) {
+        // Send notification events
+        notifyCreateEntity(node);
+
+        // Persist the changes
+        getEntityManager().persist(node.unwrap());
+
+        // Flush the changes to the database
+        getEntityManager().flush();
+
+        return node;
+    }
+
+    @Override
+    public CSNodeWrapper updateCSNode(CSNodeWrapper node) {
+        // Send notification events
+        notifyUpdateEntity(node);
+
+        // Persist the changes
+        getEntityManager().persist(node.unwrap());
+
+        // Flush the changes to the database
+        getEntityManager().flush();
+
+        return node;
+    }
 //
 //    @Override
 //    public boolean deleteCSNode(Integer id) throws Exception {
@@ -136,31 +144,39 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
 //
 //        return true;
 //    }
-//
-//    @Override
-//    public CollectionWrapper<CSNodeWrapper> createCSNodes(CollectionWrapper<CSNodeWrapper> nodes) throws Exception {
-//        for (final CSNodeWrapper topic : nodes.getItems()) {
-//            getEntityManager().merge(topic.unwrap());
-//        }
-//
-//        // Flush the changes to the database
-//        getEntityManager().flush();
-//
-//        return nodes;
-//    }
-//
-//    @Override
-//    public CollectionWrapper<CSNodeWrapper> updateCSNodes(CollectionWrapper<CSNodeWrapper> nodes) throws Exception {
-//        for (final CSNodeWrapper topic : nodes.getItems()) {
-//            getEntityManager().merge(topic.unwrap());
-//        }
-//
-//        // Flush the changes to the database
-//        getEntityManager().flush();
-//
-//        return nodes;
-//    }
-//
+
+    @Override
+    public UpdateableCollectionWrapper<CSNodeWrapper> createCSNodes(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
+        // Send notification events
+        notifyCreateEntityCollection(nodes);
+
+        // Persist the new entities
+        for (final CSNodeWrapper node : nodes.getItems()) {
+            getEntityManager().persist(node.unwrap());
+        }
+
+        // Flush the changes to the database
+        getEntityManager().flush();
+
+        return nodes;
+    }
+
+    @Override
+    public UpdateableCollectionWrapper<CSNodeWrapper> updateCSNodes(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
+        // Send notification events
+        notifyUpdateEntityCollection(nodes);
+
+        // Persist the new entities
+        for (final CSNodeWrapper node : nodes.getItems()) {
+            getEntityManager().persist(node.unwrap());
+        }
+
+        // Flush the changes to the database
+        getEntityManager().flush();
+
+        return nodes;
+    }
+
 //    @Override
 //    public boolean deleteCSNodes(List<Integer> nodeIds) throws Exception {
 //        for (final Integer id : nodeIds) {
