@@ -1,5 +1,6 @@
 package org.jboss.pressgang.ccms.provider;
 
+import javax.ws.rs.core.PathSegment;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
+import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTCSNodeV1Wrapper;
@@ -533,11 +535,17 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
         }
     }
 
-//    @Override
-//    public boolean deleteCSNode(Integer id) throws Exception {
-//        final RESTCSNodeV1 topic = getRESTClient().deleteJSONContentSpecNode(id, "");
-//        return topic != null;
-//    }
+    @Override
+    public boolean deleteCSNode(int id) {
+        try {
+            getRESTClient().deleteJSONContentSpecNode(id, "");
+        } catch (Exception e) {
+            log.debug("Failed to delete CSNode " + id, e);
+            throw handleException(e);
+        }
+
+        return true;
+    }
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> createCSNodes(UpdateableCollectionWrapper<CSNodeWrapper> csNodes) {
@@ -595,14 +603,19 @@ public class RESTCSNodeProvider extends RESTDataProvider implements CSNodeProvid
             throw handleException(e);
         }
     }
-//
-//    @Override
-//    public boolean deleteCSNodes(final List<Integer> topicIds) throws Exception {
-//        final String pathString = "ids;" + CollectionUtilities.toSeperatedString(topicIds, ";");
-//        final PathSegment path = new PathSegmentImpl(pathString, false);
-//        final RESTCSNodeCollectionV1 topics = getRESTClient().deleteJSONContentSpecNodes(path, "");
-//        return topics != null;
-//    }
+
+    @Override
+    public boolean deleteCSNodes(final List<Integer> csNodeIds) {
+        try {
+            final String pathString = "ids;" + CollectionUtilities.toSeperatedString(csNodeIds, ";");
+            final PathSegment path = new PathSegmentImpl(pathString, false);
+            final RESTCSNodeCollectionV1 csNodes = getRESTClient().deleteJSONContentSpecNodes(path, "");
+            return csNodes != null;
+        } catch (Exception e) {
+            log.debug("Failed to delete the list of CSNodes", e);
+            throw handleException(e);
+        }
+    }
 
     @Override
     public CSNodeWrapper newCSNode() {

@@ -170,7 +170,7 @@ public abstract class DataProviderFactory {
      */
     protected abstract <T> T loadProvider(final Class<T> clazz);
 
-    public abstract boolean isRollbackSupported();
+    public abstract boolean isTransactionsSupported();
 
     public abstract void rollback();
 

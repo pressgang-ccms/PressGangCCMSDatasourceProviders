@@ -224,7 +224,7 @@ public class RESTProviderFactory extends DataProviderFactory {
     }
 
     @Override
-    public boolean isRollbackSupported() {
+    public boolean isTransactionsSupported() {
         return false;
     }
 

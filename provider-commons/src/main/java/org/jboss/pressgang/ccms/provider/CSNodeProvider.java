@@ -1,5 +1,7 @@
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.List;
+
 import org.jboss.pressgang.ccms.wrapper.CSNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.CSRelatedNodeWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -34,7 +36,11 @@ public interface CSNodeProvider {
 
     CSNodeWrapper updateCSNode(CSNodeWrapper nodeEntity);
 
+    boolean deleteCSNode(int id);
+
     UpdateableCollectionWrapper<CSNodeWrapper> createCSNodes(final UpdateableCollectionWrapper<CSNodeWrapper> csNodes);
 
     UpdateableCollectionWrapper<CSNodeWrapper> updateCSNodes(final UpdateableCollectionWrapper<CSNodeWrapper> csNodes);
+
+    boolean deleteCSNodes(final List<Integer> csNodeIds);
 }

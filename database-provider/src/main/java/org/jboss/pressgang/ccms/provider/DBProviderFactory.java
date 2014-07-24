@@ -58,7 +58,7 @@ public class DBProviderFactory extends DataProviderFactory {
     }
 
     @Override
-    public boolean isRollbackSupported() {
+    public boolean isTransactionsSupported() {
         return true;
     }
 

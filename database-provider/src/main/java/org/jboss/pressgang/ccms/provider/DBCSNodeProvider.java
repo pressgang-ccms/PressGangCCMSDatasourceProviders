@@ -133,17 +133,19 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
 
         return node;
     }
-//
-//    @Override
-//    public boolean deleteCSNode(Integer id) throws Exception {
-//        final CSNode node = getEntityManager().find(CSNode.class, id);
-//        getEntityManager().merge(node);
-//
-//        // Flush the changes to the database
-//        getEntityManager().flush();
-//
-//        return true;
-//    }
+
+    @Override
+    public boolean deleteCSNode(int id) {
+        notifyDeleteEntity(CSNode.class, id);
+
+        final CSNode node = getEntityManager().find(CSNode.class, id);
+        getEntityManager().remove(node);
+
+        // Flush the changes to the database
+        getEntityManager().flush();
+
+        return true;
+    }
 
     @Override
     public UpdateableCollectionWrapper<CSNodeWrapper> createCSNodes(UpdateableCollectionWrapper<CSNodeWrapper> nodes) {
@@ -177,18 +179,22 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
         return nodes;
     }
 
-//    @Override
-//    public boolean deleteCSNodes(List<Integer> nodeIds) throws Exception {
-//        for (final Integer id : nodeIds) {
-//            final CSNode node = getEntityManager().find(CSNode.class, id);
-//            getEntityManager().remove(node);
-//        }
-//
-//        // Flush the changes to the database
-//        getEntityManager().flush();
-//
-//        return true;
-//    }
+    @Override
+    public boolean deleteCSNodes(final List<Integer> nodeIds) {
+        // Send notification events
+        notifyDeleteEntityCollection(CSNode.class, nodeIds);
+
+        // Delete the entities
+        for (final Integer id : nodeIds) {
+            final CSNode node = getEntityManager().find(CSNode.class, id);
+            getEntityManager().remove(node);
+        }
+
+        // Flush the changes to the database
+        getEntityManager().flush();
+
+        return true;
+    }
 
     @Override
     public CSNodeWrapper newCSNode() {
