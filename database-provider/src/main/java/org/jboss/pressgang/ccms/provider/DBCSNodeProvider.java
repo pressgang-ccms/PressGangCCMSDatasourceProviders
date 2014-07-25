@@ -139,6 +139,11 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
         notifyDeleteEntity(CSNode.class, id);
 
         final CSNode node = getEntityManager().find(CSNode.class, id);
+
+        if (node.getContentSpec() != null) {
+            node.getContentSpec().removeChild(node);
+        }
+
         getEntityManager().remove(node);
 
         // Flush the changes to the database
@@ -187,6 +192,11 @@ public class DBCSNodeProvider extends DBDataProvider implements CSNodeProvider {
         // Delete the entities
         for (final Integer id : nodeIds) {
             final CSNode node = getEntityManager().find(CSNode.class, id);
+
+            if (node.getContentSpec() != null) {
+                node.getContentSpec().removeChild(node);
+            }
+
             getEntityManager().remove(node);
         }
 
