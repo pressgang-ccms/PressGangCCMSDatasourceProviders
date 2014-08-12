@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jboss.pressgang.ccms.contentspec.utils.EntityUtilities;
+import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.model.RelationshipTag;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.Topic;
@@ -144,13 +145,13 @@ public class DBTranslatedTopicDataWrapper extends DBBaseEntityWrapper<Translated
     }
 
     @Override
-    public String getLocale() {
-        return getEntity().getTranslationLocale();
+    public LocaleWrapper getLocale() {
+        return getWrapperFactory().create(getEntity().getLocale(), isRevisionEntity(), LocaleWrapper.class);
     }
 
     @Override
-    public void setLocale(String locale) {
-        getEntity().setTranslationLocale(locale);
+    public void setLocale(LocaleWrapper locale) {
+        getEntity().setLocale(locale == null ? null : (Locale) locale.unwrap());
     }
 
     @Override
@@ -344,7 +345,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseEntityWrapper<Translated
 
     @Override
     public String getBugzillaBuildId() {
-        return "Translation " + getZanataId() + " " + getLocale();
+        return "Translation " + getZanataId() + " " + getLocale().getValue();
     }
 
     @Override
@@ -358,7 +359,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseEntityWrapper<Translated
             final String zanataId = getZanataId();
 
             return zanataServerUrl + "webtrans/Application.html?project=" + zanataProject + "&amp;iteration=" + zanataVersion + "&amp;" +
-                    "doc=" + zanataId + "&amp;localeId=" + getLocale() + "#view:doc;doc:" + zanataId;
+                    "doc=" + zanataId + "&amp;localeId=" + getLocale().getTranslationValue() + "#view:doc;doc:" + zanataId;
         } else {
             return null;
         }
@@ -376,7 +377,7 @@ public class DBTranslatedTopicDataWrapper extends DBBaseEntityWrapper<Translated
         if (EntityUtilities.isDummyTopic(this) ) {
             return (serverUrl.endsWith(
                     "/") ? serverUrl : (serverUrl + "/")) + "#TranslatedTopicResultsAndTranslatedTopicView;query;zanataIds=" +
-                    getZanataId() + ";locale1=" + getLocale() + "1;";
+                    getZanataId() + ";locale1=" + getLocale().getValue() + "1;";
         } else if (EntityUtilities.hasBeenPushedForTranslation(this)) {
             return (serverUrl.endsWith(
                     "/") ? serverUrl : (serverUrl + "/")) + "#TranslatedTopicResultsAndTranslatedTopicView;query;zanataIds=" +

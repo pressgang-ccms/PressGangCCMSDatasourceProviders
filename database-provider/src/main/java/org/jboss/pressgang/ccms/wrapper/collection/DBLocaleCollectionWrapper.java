@@ -17,20 +17,17 @@
   along with PressGang CCMS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.jboss.pressgang.ccms.wrapper;
+package org.jboss.pressgang.ccms.wrapper.collection;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import java.util.Collection;
 
-public interface LanguageFileWrapper extends EntityWrapper<LanguageFileWrapper> {
-    String getOriginalFilename();
+import org.jboss.pressgang.ccms.model.Locale;
+import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
+import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 
-    void setOriginalFilename(String filename);
-
-    LocaleWrapper getLocale();
-
-    void setLocale(LocaleWrapper locale);
-
-    byte[] getFileData();
-
-    void setFileData(byte[] fileData);
+public class DBLocaleCollectionWrapper extends DBCollectionWrapper<LocaleWrapper, Locale> {
+    public DBLocaleCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<Locale> items,
+            boolean isRevisionList) {
+        super(wrapperFactory, items, isRevisionList, LocaleWrapper.class);
+    }
 }

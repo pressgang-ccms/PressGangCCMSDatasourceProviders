@@ -27,7 +27,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.utils.common.StringUtilities;
+import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 
 public class RESTCollectionCache {
     private static final String CACHE_MAX_SIZE_PROPERTY = "pressgang.rest.cache.collection.maxSize";
@@ -132,7 +132,7 @@ public class RESTCollectionCache {
     protected String buildKey(final Class<?> clazz, final List<String> additionalKeys) {
         String key = clazz.getSimpleName();
         if (additionalKeys != null && !additionalKeys.isEmpty()) {
-            key += "-" + StringUtilities.buildString(additionalKeys.toArray(new String[additionalKeys.size()]), "-");
+            key += "-" + CollectionUtilities.toSeperatedString(additionalKeys, "-");
         }
         return key;
     }

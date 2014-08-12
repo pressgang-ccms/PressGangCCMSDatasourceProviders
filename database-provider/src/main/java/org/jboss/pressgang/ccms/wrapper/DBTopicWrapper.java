@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.model.RelationshipTag;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.Topic;
@@ -114,13 +115,13 @@ public class DBTopicWrapper extends DBBaseEntityWrapper<TopicWrapper, Topic> imp
     }
 
     @Override
-    public String getLocale() {
-        return getEntity().getTopicLocale();
+    public LocaleWrapper getLocale() {
+        return getWrapperFactory().create(getEntity().getLocale(), isRevisionEntity(), LocaleWrapper.class);
     }
 
     @Override
-    public void setLocale(String locale) {
-        getEntity().setTopicLocale(locale);
+    public void setLocale(LocaleWrapper locale) {
+        getEntity().setLocale(locale == null ? null : (Locale) locale.unwrap());
     }
 
     @Override
@@ -316,7 +317,7 @@ public class DBTopicWrapper extends DBBaseEntityWrapper<TopicWrapper, Topic> imp
     public String getBugzillaBuildId() {
         final SimpleDateFormat formatter = new SimpleDateFormat(CommonConstants.FILTER_DISPLAY_DATE_FORMAT);
         return getId() + "-" + getRevision() + " " + formatter.format(
-                EnversUtilities.getFixedLastModifiedDate(getEntityManager(), getEntity())) + " " + getLocale();
+                EnversUtilities.getFixedLastModifiedDate(getEntityManager(), getEntity())) + " " + getLocale().getValue();
     }
 
     @Override

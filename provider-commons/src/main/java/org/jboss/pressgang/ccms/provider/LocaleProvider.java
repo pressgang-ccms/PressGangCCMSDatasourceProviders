@@ -17,20 +17,15 @@
   along with PressGang CCMS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.jboss.pressgang.ccms.wrapper;
+package org.jboss.pressgang.ccms.provider;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
-public interface LanguageFileWrapper extends EntityWrapper<LanguageFileWrapper> {
-    String getOriginalFilename();
+public interface LocaleProvider {
+    LocaleWrapper getLocale(int id);
 
-    void setOriginalFilename(String filename);
+    LocaleWrapper getLocale(int id, Integer revision);
 
-    LocaleWrapper getLocale();
-
-    void setLocale(LocaleWrapper locale);
-
-    byte[] getFileData();
-
-    void setFileData(byte[] fileData);
+    CollectionWrapper<LocaleWrapper> getLocales();
 }

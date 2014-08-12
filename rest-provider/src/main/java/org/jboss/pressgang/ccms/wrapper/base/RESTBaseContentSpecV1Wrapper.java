@@ -27,6 +27,7 @@ import org.jboss.pressgang.ccms.rest.v1.components.ComponentBaseRESTEntityWithPr
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTContentSpecTypeV1;
+import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
@@ -68,8 +69,12 @@ public abstract class RESTBaseContentSpecV1Wrapper<T extends BaseContentSpecWrap
     }
 
     @Override
-    public String getLocale() {
-        return getProxyEntity().getLocale();
+    public LocaleWrapper getLocale() {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getLocale())
+                .isRevision(isRevisionEntity())
+                .build();
     }
 
     @Override

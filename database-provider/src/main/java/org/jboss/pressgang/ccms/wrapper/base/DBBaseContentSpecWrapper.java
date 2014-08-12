@@ -25,12 +25,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
+import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -146,13 +148,13 @@ public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<
     }
 
     @Override
-    public String getLocale() {
-        return getEntity().getLocale();
+    public LocaleWrapper getLocale() {
+        return getWrapperFactory().create(getEntity().getLocale(), isRevisionEntity());
     }
 
     @Override
-    public void setLocale(String locale) {
-        getEntity().setLocale(locale);
+    public void setLocale(LocaleWrapper locale) {
+        getEntity().setLocale(locale == null ? null : (Locale) locale.unwrap());
     }
 
     @Override

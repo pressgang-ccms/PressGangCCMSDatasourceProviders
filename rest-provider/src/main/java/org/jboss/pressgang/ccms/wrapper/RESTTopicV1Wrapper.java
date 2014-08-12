@@ -28,6 +28,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.enums.RESTXMLFormat;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseTopicV1Wrapper;
@@ -168,8 +169,8 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
     }
 
     @Override
-    public void setLocale(String locale) {
-        getProxyEntity().explicitSetLocale(locale);
+    public void setLocale(LocaleWrapper locale) {
+        getProxyEntity().explicitSetLocale(locale == null ? null : (RESTLocaleV1) locale.unwrap());
     }
 
     @Override

@@ -32,6 +32,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTStringConstantV1;
@@ -110,7 +111,10 @@ public class RESTEntityProxyFactory {
     private static <T extends RESTBaseEntityV1<?, ?, ?>> RESTBaseEntityV1ProxyHandler findProxyHandler(
             final RESTProviderFactory providerFactory, final T entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
 
-        if (entity instanceof RESTTopicV1) {
+        if (entity instanceof RESTLocaleV1) {
+            // LOCALE
+            return new RESTLocaleV1ProxyHandler(providerFactory, (RESTLocaleV1) entity, isRevision);
+        } else if (entity instanceof RESTTopicV1) {
             // TOPIC
             return new RESTTopicV1ProxyHandler(providerFactory, (RESTTopicV1) entity, isRevision);
         } else if (entity instanceof RESTTopicSourceUrlV1) {

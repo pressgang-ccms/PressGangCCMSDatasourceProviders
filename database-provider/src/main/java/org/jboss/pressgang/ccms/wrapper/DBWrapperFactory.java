@@ -29,6 +29,7 @@ import org.jboss.pressgang.ccms.model.File;
 import org.jboss.pressgang.ccms.model.ImageFile;
 import org.jboss.pressgang.ccms.model.LanguageFile;
 import org.jboss.pressgang.ccms.model.LanguageImage;
+import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.model.PropertyTag;
 import org.jboss.pressgang.ccms.model.PropertyTagToPropertyTagCategory;
 import org.jboss.pressgang.ccms.model.StringConstants;
@@ -69,6 +70,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBFileCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBImageCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBLanguageFileCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBLanguageImageCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBLocaleCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBPropertyTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBPropertyTagInPropertyCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedEntityCollectionWrapper;
@@ -148,6 +150,9 @@ public class DBWrapperFactory {
         } else if (entity instanceof UndefinedSetting) {
             // UNDEFINED SETTING
             wrapper = new DBServerUndefinedSettingWrapper(getProviderFactory(), (UndefinedSetting) entity);
+        } else if (entity instanceof Locale) {
+            // Locale
+            wrapper = new DBLocaleWrapper(getProviderFactory(), (Locale) entity, isRevision);
         } else if (entity instanceof Topic) {
             // TOPIC
             wrapper = new DBTopicWrapper(getProviderFactory(), (Topic) entity, isRevision);
@@ -270,6 +275,9 @@ public class DBWrapperFactory {
         final DBCollectionWrapper wrapper;
 
         if (entityClass == Topic.class) {
+            // LOCALE
+            wrapper = new DBLocaleCollectionWrapper(this, (Collection<Locale>) collection, isRevisionCollection);
+        } else if (entityClass == Topic.class) {
             // TOPIC
             wrapper = new DBTopicCollectionWrapper(this, (Collection<Topic>) collection, isRevisionCollection);
         } else if (entityClass == TopicSourceUrl.class) {

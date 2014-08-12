@@ -21,6 +21,7 @@ package org.jboss.pressgang.ccms.wrapper.base;
 
 import java.util.Date;
 
+import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -41,9 +42,9 @@ public interface BaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> ext
 
     String getVersion();
 
-    String getLocale();
+    LocaleWrapper getLocale();
 
-    void setLocale(String locale);
+    void setLocale(LocaleWrapper locale);
 
     Integer getType();
 

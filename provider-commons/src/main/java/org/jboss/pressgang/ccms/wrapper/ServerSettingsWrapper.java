@@ -37,10 +37,8 @@ public interface ServerSettingsWrapper extends BaseWrapper<ServerSettingsWrapper
     void setDocBookTemplateIds(List<Integer> docBookTemplateIds);
     List<Integer> getSEOCategoryIds();
     void setSEOCategoryIds(List<Integer> seoCategoryIds);
-    List<String> getLocales();
-    void setLocales(List<String> locales);
-    String getDefaultLocale();
-    void setDefaultLocale(String defaultLocale);
+    LocaleWrapper getDefaultLocale();
+    void setDefaultLocale(LocaleWrapper defaultLocale);
     ServerEntitiesWrapper getEntities();
     UpdateableCollectionWrapper<ServerUndefinedSettingWrapper> getUndefinedSettings();
     void setUndefinedSettings(UpdateableCollectionWrapper<ServerUndefinedSettingWrapper> undefinedSettings);

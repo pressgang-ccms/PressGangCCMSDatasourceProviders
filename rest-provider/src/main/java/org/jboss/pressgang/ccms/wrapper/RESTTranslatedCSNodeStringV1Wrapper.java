@@ -22,6 +22,7 @@ package org.jboss.pressgang.ccms.wrapper;
 import java.util.Collection;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
@@ -68,12 +69,16 @@ public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseEntityWrapper<T
     }
 
     @Override
-    public String getLocale() {
-        return getProxyEntity().getLocale();
+    public LocaleWrapper getLocale() {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getLocale())
+                .isRevision(isRevisionEntity())
+                .build();
     }
 
     @Override
-    public void setLocale(String locale) {
-        getEntity().explicitSetLocale(locale);
+    public void setLocale(LocaleWrapper locale) {
+        getEntity().explicitSetLocale(locale == null ? null : (RESTLocaleV1) locale.unwrap());
     }
 }

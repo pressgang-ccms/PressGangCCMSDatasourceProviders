@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.hibernate.Session;
+import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.model.config.ApplicationConfig;
 import org.jboss.pressgang.ccms.model.config.EntitiesConfig;
 import org.jboss.pressgang.ccms.model.config.UndefinedSetting;
@@ -40,6 +42,7 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
     private final DBServerUndefinedSettingCollectionHandler undefinedSettingCollectionHandler;
     private final ApplicationConfig applicationConfig;
     private final EntitiesConfig entitiesConfig;
+    private Locale cachedDefaultLocale;
 
     public DBServerSettingsWrapper(final DBProviderFactory providerFactory, final ApplicationConfig applicationConfig) {
         super(providerFactory);
@@ -114,23 +117,19 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
     }
 
     @Override
-    public List<String> getLocales() {
-        return getEntity().getLocales();
+    public LocaleWrapper getDefaultLocale() {
+        if (cachedDefaultLocale == null) {
+            final Session session = getEntityManager().unwrap(Session.class);
+            cachedDefaultLocale = (Locale) session.bySimpleNaturalId(Locale.class).load(getEntity().getDefaultLocale());
+        }
+        return getWrapperFactory().create(cachedDefaultLocale, false, LocaleWrapper.class);
     }
 
     @Override
-    public void setLocales(List<String> locales) {
-        getEntity().setLocales(locales);
-    }
-
-    @Override
-    public String getDefaultLocale() {
-        return getEntity().getDefaultLocale();
-    }
-
-    @Override
-    public void setDefaultLocale(String defaultLocale) {
-        getEntity().setDefaultLocale(defaultLocale);
+    public void setDefaultLocale(LocaleWrapper defaultLocale) {
+        final Locale defaultLocaleEntity = defaultLocale == null ? null : ((Locale) defaultLocale.unwrap());
+        cachedDefaultLocale = defaultLocaleEntity;
+        getEntity().setDefaultLocale(defaultLocaleEntity == null ? null : defaultLocaleEntity.getValue());
     }
 
     @Override

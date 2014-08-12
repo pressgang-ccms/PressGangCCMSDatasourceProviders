@@ -36,6 +36,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTStringConstantV1;
@@ -162,6 +163,9 @@ public class RESTEntityWrapperBuilder {
         } else if (entity instanceof RESTServerUndefinedEntityV1) {
             // UNDEFINED SERVER SETTINGS
             wrapper = new RESTServerUndefinedEntityV1Wrapper(providerFactory, (RESTServerUndefinedEntityV1) unwrappedEntity);
+        } else if (entity instanceof RESTLocaleV1) {
+            // LOCALE
+            wrapper = new RESTLocaleV1Wrapper(providerFactory, (RESTLocaleV1) unwrappedEntity, isRevision, isNewEntity, expandedMethods);
         } else if (entity instanceof RESTTopicV1) {
             // TOPIC
             wrapper = new RESTTopicV1Wrapper(providerFactory, (RESTTopicV1) unwrappedEntity, isRevision, isNewEntity, expandedMethods);

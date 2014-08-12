@@ -21,6 +21,7 @@ package org.jboss.pressgang.ccms.wrapper.base;
 
 import java.util.List;
 
+import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTopicWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.TopicSourceURLWrapper;
@@ -53,9 +54,9 @@ public interface BaseTopicWrapper<T extends BaseTopicWrapper<T>> extends EntityW
 
     Integer getXmlFormat();
 
-    String getLocale();
+    LocaleWrapper getLocale();
 
-    void setLocale(String locale);
+    void setLocale(LocaleWrapper locale);
 
     CollectionWrapper<TagWrapper> getTags();
 

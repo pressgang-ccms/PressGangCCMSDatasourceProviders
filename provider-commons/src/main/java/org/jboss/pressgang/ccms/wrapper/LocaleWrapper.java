@@ -21,16 +21,16 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
 
-public interface LanguageFileWrapper extends EntityWrapper<LanguageFileWrapper> {
-    String getOriginalFilename();
+public interface LocaleWrapper extends EntityWrapper<LocaleWrapper> {
+    String getValue();
 
-    void setOriginalFilename(String filename);
+    void setValue(String value);
 
-    LocaleWrapper getLocale();
+    String getTranslationValue();
 
-    void setLocale(LocaleWrapper locale);
+    void setTranslationValue(String translationValue);
 
-    byte[] getFileData();
+    String getBuildValue();
 
-    void setFileData(byte[] fileData);
+    void setBuildValue(String buildValue);
 }

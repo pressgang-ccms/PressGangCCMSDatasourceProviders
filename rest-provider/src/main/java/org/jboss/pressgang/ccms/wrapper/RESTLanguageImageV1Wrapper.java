@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageImageV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 
 public class RESTLanguageImageV1Wrapper extends RESTBaseEntityWrapper<LanguageImageWrapper, RESTLanguageImageV1> implements LanguageImageWrapper {
@@ -55,8 +56,17 @@ public class RESTLanguageImageV1Wrapper extends RESTBaseEntityWrapper<LanguageIm
     }
 
     @Override
-    public String getLocale() {
-        return getProxyEntity().getLocale();
+    public LocaleWrapper getLocale() {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getLocale())
+                .isRevision(isRevisionEntity())
+                .build();
+    }
+
+    @Override
+    public void setLocale(LocaleWrapper locale) {
+        getEntity().setLocale(locale == null ? null : (RESTLocaleV1) locale.unwrap());
     }
 
     @Override

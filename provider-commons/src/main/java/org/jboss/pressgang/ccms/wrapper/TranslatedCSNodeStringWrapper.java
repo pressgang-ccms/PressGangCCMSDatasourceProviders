@@ -30,7 +30,7 @@ public interface TranslatedCSNodeStringWrapper extends EntityWrapper<TranslatedC
 
     void setFuzzy(Boolean fuzzy);
 
-    String getLocale();
+    LocaleWrapper getLocale();
 
-    void setLocale(String locale);
+    void setLocale(LocaleWrapper locale);
 }

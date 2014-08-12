@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseContentSpecV1Wrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
@@ -78,8 +79,8 @@ public class RESTTextContentSpecV1Wrapper extends RESTBaseContentSpecV1Wrapper<T
     }
 
     @Override
-    public void setLocale(String locale) {
-        getEntity().explicitSetLocale(locale);
+    public void setLocale(LocaleWrapper locale) {
+        getEntity().explicitSetLocale(locale == null ? null : (RESTLocaleV1) locale.unwrap());
     }
 
     @Override

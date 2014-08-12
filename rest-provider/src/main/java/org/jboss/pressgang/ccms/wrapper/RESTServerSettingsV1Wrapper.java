@@ -24,6 +24,7 @@ import java.util.List;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedSettingCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerSettingsV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
@@ -94,23 +95,16 @@ public class RESTServerSettingsV1Wrapper extends RESTBaseWrapper<ServerSettingsW
     }
 
     @Override
-    public List<String> getLocales() {
-        return getEntity().getLocales();
+    public LocaleWrapper getDefaultLocale() {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getEntity().getDefaultLocale())
+                .build();
     }
 
     @Override
-    public void setLocales(List<String> locales) {
-        getEntity().explicitSetLocales(locales);
-    }
-
-    @Override
-    public String getDefaultLocale() {
-        return getEntity().getDefaultLocale();
-    }
-
-    @Override
-    public void setDefaultLocale(String defaultLocale) {
-        getEntity().explicitSetDefaultLocale(defaultLocale);
+    public void setDefaultLocale(LocaleWrapper defaultLocale) {
+        getEntity().explicitSetDefaultLocale(defaultLocale == null ? null : (RESTLocaleV1) defaultLocale.unwrap());
     }
 
     @Override

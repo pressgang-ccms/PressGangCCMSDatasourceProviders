@@ -140,7 +140,6 @@ public class RESTProviderFactory extends DataProviderFactory {
         providerMap.put(RESTPropertyTagInContentSpecProvider.class, propertyTagInContentSpecProvider);
 
         // PropertyTag In PropertyCategory Provider
-
         final RESTPropertyTagInPropertyCategoryProvider propertyTagInPropertyCategoryProvider = new
                 RESTPropertyTagInPropertyCategoryProvider(this);
         providerMap.put(RESTPropertyTagInPropertyCategoryProvider.class, propertyTagInPropertyCategoryProvider);
@@ -193,6 +192,11 @@ public class RESTProviderFactory extends DataProviderFactory {
         final RESTServerSettingsProvider serverSettingsProvider = new RESTServerSettingsProvider(this);
         providerMap.put(RESTServerSettingsProvider.class, serverSettingsProvider);
         providerMap.put(ServerSettingsProvider.class, serverSettingsProvider);
+
+        // Locales Provider
+        final RESTLocaleProvider localeProvider = new RESTLocaleProvider(this);
+        providerMap.put(RESTLocaleProvider.class, localeProvider);
+        providerMap.put(LocaleProvider.class, localeProvider);
     }
 
     /**

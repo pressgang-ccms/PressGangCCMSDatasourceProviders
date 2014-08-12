@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 
 public class RESTLanguageFileV1Wrapper extends RESTBaseEntityWrapper<LanguageFileWrapper, RESTLanguageFileV1> implements LanguageFileWrapper {
@@ -61,13 +62,17 @@ public class RESTLanguageFileV1Wrapper extends RESTBaseEntityWrapper<LanguageFil
     }
 
     @Override
-    public String getLocale() {
-        return getProxyEntity().getLocale();
+    public LocaleWrapper getLocale() {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getLocale())
+                .isRevision(isRevisionEntity())
+                .build();
     }
 
     @Override
-    public void setLocale(final String locale) {
-        getEntity().explicitSetLocale(locale);
+    public void setLocale(final LocaleWrapper locale) {
+        getEntity().explicitSetLocale(locale == null ? null : (RESTLocaleV1) locale.unwrap());
     }
 
     @Override

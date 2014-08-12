@@ -28,6 +28,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTFileCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageFileCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTLocaleCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedSettingCollectionV1;
@@ -152,6 +153,10 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
         } else if (collection instanceof RESTServerUndefinedEntityCollectionV1) {
             // UNDEFINED SERVER ENTITY
             wrapper = new RESTServerUndefinedEntityCollectionV1Wrapper(providerFactory, (RESTServerUndefinedEntityCollectionV1) collection);
+        } else if (collection instanceof RESTLocaleCollectionV1) {
+            // LOCALE
+            wrapper = new RESTLocaleCollectionV1Wrapper(providerFactory, (RESTLocaleCollectionV1) collection, isRevisionCollection,
+                    expandedEntityMethods);
         } else if (collection instanceof RESTTopicCollectionV1) {
             // TOPIC
             wrapper = new RESTTopicCollectionV1Wrapper(providerFactory, (RESTTopicCollectionV1) collection, isRevisionCollection,

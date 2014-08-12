@@ -20,6 +20,7 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.LanguageImage;
+import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 
@@ -48,8 +49,13 @@ public class DBLanguageImageWrapper extends DBBaseEntityWrapper<LanguageImageWra
     }
 
     @Override
-    public String getLocale() {
-        return getEntity().getLocale();
+    public LocaleWrapper getLocale() {
+        return getWrapperFactory().create(getEntity().getLocale(), isRevisionEntity());
+    }
+
+    @Override
+    public void setLocale(final LocaleWrapper locale) {
+        getEntity().setLocale(locale == null ? null : (Locale) locale.unwrap());
     }
 
     @Override
