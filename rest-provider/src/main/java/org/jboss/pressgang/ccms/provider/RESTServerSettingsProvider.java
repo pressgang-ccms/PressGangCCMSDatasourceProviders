@@ -19,6 +19,9 @@
 
 package org.jboss.pressgang.ccms.provider;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerSettingsV1;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.RESTServerSettingsV1Wrapper;
@@ -28,6 +31,10 @@ import org.slf4j.LoggerFactory;
 
 public class RESTServerSettingsProvider extends RESTDataProvider implements ServerSettingsProvider {
     private static Logger LOG = LoggerFactory.getLogger(RESTServerSettingsProvider.class);
+    protected static final List<String> DEFAULT_EXPAND = Arrays.asList(
+        RESTServerSettingsV1.LOCALES_NAME,
+        RESTServerSettingsV1.TRANSLATION_SERVERS_NAME
+    );
 
     protected RESTServerSettingsProvider(final RESTProviderFactory providerFactory) {
         super(providerFactory);
@@ -35,7 +42,8 @@ public class RESTServerSettingsProvider extends RESTDataProvider implements Serv
 
     protected RESTServerSettingsV1 getRESTServerSettingsV1() {
         try {
-            return getRESTClient().getJSONServerSettings();
+            final String expand = getExpansionString(DEFAULT_EXPAND);
+            return getRESTClient().getJSONServerSettings(expand);
         } catch (Exception e) {
             LOG.debug("Failed to retrieve the Server Settings", e);
             throw handleException(e);
@@ -58,8 +66,8 @@ public class RESTServerSettingsProvider extends RESTDataProvider implements Serv
             // Clean the entity to remove anything that doesn't need to be sent to the server
             cleanEntityForSave(settings);
 
-            final RESTServerSettingsV1 updatedSettings;
-            updatedSettings = getRESTClient().updateJSONServerSettings(settings);
+            final String expand = getExpansionString(DEFAULT_EXPAND);
+            final RESTServerSettingsV1 updatedSettings = getRESTClient().updateJSONServerSettings(expand, settings);
             if (updatedSettings != null) {
                 return RESTEntityWrapperBuilder.newBuilder()
                         .providerFactory(getProviderFactory())

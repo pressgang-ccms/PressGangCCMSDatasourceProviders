@@ -26,8 +26,8 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTLocaleCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 
-public class RESTLocaleCollectionV1Wrapper extends RESTCollectionWrapper<LocaleWrapper, RESTLocaleV1,
-        RESTLocaleCollectionV1> implements CollectionWrapper<LocaleWrapper> {
+public class RESTLocaleCollectionV1Wrapper extends RESTUpdateableCollectionWrapper<LocaleWrapper, RESTLocaleV1,
+        RESTLocaleCollectionV1> implements UpdateableCollectionWrapper<LocaleWrapper> {
 
     public RESTLocaleCollectionV1Wrapper(final RESTProviderFactory providerFactory, final RESTLocaleCollectionV1 collection,
             boolean isRevisionCollection) {

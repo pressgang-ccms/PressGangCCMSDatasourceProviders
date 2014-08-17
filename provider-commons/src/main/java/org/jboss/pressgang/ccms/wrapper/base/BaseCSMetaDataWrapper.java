@@ -19,7 +19,7 @@
 
 package org.jboss.pressgang.ccms.wrapper.base;
 
-public interface BaseCSMetaDataWrapper<T extends BaseCSMetaDataWrapper<T>> extends EntityWrapper<T> {
+public interface BaseCSMetaDataWrapper<T extends BaseCSMetaDataWrapper<T>> extends AuditedEntityWrapper<T> {
     String getTitle();
 
     void setTitle(String title);

@@ -26,9 +26,9 @@ import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeRel
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeRelationshipTypeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTCSNodeTypeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseAuditedEntityWrapper;
 
-public class RESTCSRelatedNodeV1Wrapper extends RESTBaseEntityWrapper<CSRelatedNodeWrapper, RESTCSRelatedNodeV1> implements CSRelatedNodeWrapper {
+public class RESTCSRelatedNodeV1Wrapper extends RESTBaseAuditedEntityWrapper<CSRelatedNodeWrapper, RESTCSRelatedNodeV1> implements CSRelatedNodeWrapper {
 
     protected RESTCSRelatedNodeV1Wrapper(final RESTProviderFactory providerFactory, final RESTCSRelatedNodeV1 entity, boolean isRevision,
             boolean isNewEntity) {

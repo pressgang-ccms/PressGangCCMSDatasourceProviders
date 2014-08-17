@@ -27,14 +27,15 @@ import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 
 @SuppressWarnings("unchecked")
-public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U, ?, ?>> implements MethodHandler {
+public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U>> implements MethodHandler {
 
     private final RESTProviderFactory providerFactory;
     private U proxyEntity;
-    private final RESTBaseEntityV1<?, ?, ?> parent;
+    private final RESTBaseAuditedEntityV1<?, ?, ?> parent;
     private final U entity;
     private final boolean isRevision;
 
@@ -48,7 +49,7 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
     }
 
     protected RESTBaseEntityV1ProxyHandler(final RESTProviderFactory providerFactory, final U entity, boolean isRevisionEntity,
-            final RESTBaseEntityV1<?, ?, ?> parent) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> parent) {
         this.entity = entity;
         isRevision = isRevisionEntity;
         this.providerFactory = providerFactory;
@@ -96,7 +97,7 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
     private Object checkAndProxyReturnValue(Object retValue) {
         if (retValue != null && retValue instanceof RESTBaseEntityCollectionV1) {
             // The parent will either be a user defined parent, or the entity itself.
-            final RESTBaseEntityV1<?, ?, ?> parent = this.parent == null ? getProxyEntity() : this.parent;
+            final RESTBaseEntityV1<?> parent = this.parent == null ? getProxyEntity() : this.parent;
             return RESTCollectionProxyFactory.create(getProviderFactory(), (RESTBaseEntityCollectionV1) retValue, isRevision, parent);
         } else {
             return retValue;
@@ -104,7 +105,11 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
     }
 
     public Integer getEntityRevision() {
-        return isRevision ? getEntity().getRevision() : null;
+        if (getEntity() instanceof RESTBaseAuditedEntityV1) {
+            return isRevision ? ((RESTBaseAuditedEntityV1) getEntity()).getRevision() : null;
+        } else {
+            return null;
+        }
     }
 
     public U getProxyEntity() {
@@ -115,7 +120,7 @@ public abstract class RESTBaseEntityV1ProxyHandler<U extends RESTBaseEntityV1<U,
         this.proxyEntity = proxyEntity;
     }
 
-    protected RESTBaseEntityV1<?, ?, ?> getParent() {
+    protected RESTBaseAuditedEntityV1<?, ?, ?> getParent() {
         return parent;
     }
 

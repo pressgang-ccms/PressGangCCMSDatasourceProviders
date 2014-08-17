@@ -32,7 +32,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectio
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.base.BaseWrapper;
@@ -63,23 +63,23 @@ public abstract class RESTCollectionWrapper<T extends BaseWrapper<T>, U extends 
     }
 
     public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
-            final RESTBaseEntityV1<?, ?, ?> parent) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> parent) {
         this(providerFactory, collection, isRevisionCollection, parent, (Collection<String>) null);
     }
 
     public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
-            final RESTBaseEntityV1<?, ?, ?> parent, final Collection<String> expandedEntityMethods) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> parent, final Collection<String> expandedEntityMethods) {
         this(providerFactory, collection, isRevisionCollection, parent, null, expandedEntityMethods);
     }
 
     public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
-            final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> parent, final Class<T> wrapperClass) {
         this(providerFactory, collection, isRevisionCollection, parent, wrapperClass, null);
     }
 
     @SuppressWarnings("unchecked")
     public RESTCollectionWrapper(final RESTProviderFactory providerFactory, final V collection, boolean isRevisionCollection,
-            final RESTBaseEntityV1<?, ?, ?> parent, final Class<T> wrapperClass, final Collection<String> expandedEntityMethods) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> parent, final Class<T> wrapperClass, final Collection<String> expandedEntityMethods) {
         this.providerFactory = providerFactory;
         this.collection = collection;
         for (final RESTCollectionItemV1<U, ?> item : collection.getItems()) {

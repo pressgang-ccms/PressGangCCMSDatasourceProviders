@@ -22,9 +22,9 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBCSRelatedNodeWrapper extends DBBaseEntityWrapper<CSRelatedNodeWrapper, CSNodeToCSNode> implements CSRelatedNodeWrapper {
+public class DBCSRelatedNodeWrapper extends DBBaseAuditedEntityWrapper<CSRelatedNodeWrapper, CSNodeToCSNode> implements CSRelatedNodeWrapper {
     private final CSNodeToCSNode csNodeToCSNode;
 
     public DBCSRelatedNodeWrapper(final DBProviderFactory providerFactory, final CSNodeToCSNode csNodeToCSNode, boolean isRevision) {

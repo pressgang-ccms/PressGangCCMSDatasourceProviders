@@ -25,9 +25,9 @@ import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseAuditedEntityWrapper;
 
-public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseEntityWrapper<TranslatedCSNodeStringWrapper, RESTTranslatedCSNodeStringV1> implements TranslatedCSNodeStringWrapper {
+public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseAuditedEntityWrapper<TranslatedCSNodeStringWrapper, RESTTranslatedCSNodeStringV1> implements TranslatedCSNodeStringWrapper {
     private final RESTTranslatedCSNodeV1 parent;
 
     protected RESTTranslatedCSNodeStringV1Wrapper(final RESTProviderFactory providerFactory, final RESTTranslatedCSNodeStringV1 translatedString,

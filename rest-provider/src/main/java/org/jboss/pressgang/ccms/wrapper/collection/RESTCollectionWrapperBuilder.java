@@ -38,10 +38,13 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTopicSourceUrlCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslatedTopicStringCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslationServerCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslationServerExtendedCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTUserCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSInfoNodeCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSTranslationDetailCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTextContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedCSNodeCollectionV1;
@@ -80,7 +83,7 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
     private RESTBaseCollectionV1<?, ?> collection;
     private boolean isRevisionCollection = false;
     private Class<T> entityWrapperInterface;
-    private RESTBaseEntityV1<?, ?, ?> parent;
+    private RESTBaseEntityV1<?> parent;
     private Collection<String> expandedEntityMethods;
 
     public static <T extends BaseWrapper<T>> RESTCollectionWrapperBuilder<T> newBuilder() {
@@ -115,7 +118,7 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
         return this;
     }
 
-    public RESTCollectionWrapperBuilder<T> parent(final RESTBaseEntityV1<?, ?, ?> parent) {
+    public RESTCollectionWrapperBuilder<T> parent(final RESTBaseEntityV1<?> parent) {
         this.parent = parent;
         return this;
     }
@@ -157,6 +160,14 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
             // LOCALE
             wrapper = new RESTLocaleCollectionV1Wrapper(providerFactory, (RESTLocaleCollectionV1) collection, isRevisionCollection,
                     expandedEntityMethods);
+        } else if (collection instanceof RESTTranslationServerCollectionV1) {
+            // TRANSLATION SERVER
+            wrapper = new RESTTranslationServerCollectionV1Wrapper(providerFactory, (RESTTranslationServerCollectionV1) collection,
+                    isRevisionCollection, expandedEntityMethods);
+        } else if (collection instanceof RESTTranslationServerExtendedCollectionV1) {
+            // TRANSLATION SERVER
+            wrapper = new RESTTranslationServerExtendedCollectionV1Wrapper(providerFactory, (RESTTranslationServerExtendedCollectionV1)
+                    collection, isRevisionCollection, expandedEntityMethods);
         } else if (collection instanceof RESTTopicCollectionV1) {
             // TOPIC
             wrapper = new RESTTopicCollectionV1Wrapper(providerFactory, (RESTTopicCollectionV1) collection, isRevisionCollection,
@@ -247,6 +258,9 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
         } else if (collection instanceof RESTTranslatedCSNodeStringCollectionV1) {
             // CONTENT SPEC TRANSLATED NODE STRING
             wrapper = getTranslatedCSNodeStringCollectionWrapper();
+        } else if (collection instanceof RESTCSTranslationDetailCollectionV1) {
+            // CONTENT SPEC TRANSLATION DETAIL
+            wrapper = getCSTranslationDetailCollectionWrapper();
         } else {
             throw new IllegalArgumentException(GENERIC_ERROR);
         }
@@ -262,6 +276,17 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
         } else if (parent instanceof RESTBaseTopicV1) {
             return new RESTTopicSourceURLCollectionV1Wrapper(providerFactory, (RESTTopicSourceUrlCollectionV1) collection,
                     isRevisionCollection, (RESTBaseTopicV1<?, ?, ?>) parent, expandedEntityMethods);
+        } else {
+            throw new IllegalArgumentException(GENERIC_ERROR);
+        }
+    }
+
+    protected RESTCSTranslationDetailCollectionV1Wrapper getCSTranslationDetailCollectionWrapper() {
+        if (parent == null) {
+            throw new UnsupportedOperationException("A parent is needed to get CS Translation Details using V1 of the REST Interface.");
+        } else if (parent instanceof RESTBaseContentSpecV1) {
+            return new RESTCSTranslationDetailCollectionV1Wrapper(providerFactory, (RESTCSTranslationDetailCollectionV1) collection,
+                    isRevisionCollection, (RESTBaseContentSpecV1<?, ?, ?>) parent, expandedEntityMethods);
         } else {
             throw new IllegalArgumentException(GENERIC_ERROR);
         }

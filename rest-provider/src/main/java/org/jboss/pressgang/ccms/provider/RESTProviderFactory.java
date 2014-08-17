@@ -197,6 +197,10 @@ public class RESTProviderFactory extends DataProviderFactory {
         final RESTLocaleProvider localeProvider = new RESTLocaleProvider(this);
         providerMap.put(RESTLocaleProvider.class, localeProvider);
         providerMap.put(LocaleProvider.class, localeProvider);
+
+        // Translation server Provider
+        final RESTTranslationServerProvider translationServerProvider = new RESTTranslationServerProvider(this);
+        providerMap.put(RESTTranslationServerProvider.class, translationServerProvider);
     }
 
     /**

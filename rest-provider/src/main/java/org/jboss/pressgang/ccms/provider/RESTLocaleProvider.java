@@ -40,46 +40,32 @@ public class RESTLocaleProvider extends RESTDataProvider implements LocaleProvid
         super(providerFactory);
     }
 
-    protected RESTLocaleV1 loadLocale(Integer id, Integer revision, String expandString) {
-        if (revision == null) {
-            return getRESTClient().getJSONLocale(id, expandString);
-        } else {
-            return getRESTClient().getJSONLocaleRevision(id, revision, expandString);
-        }
-    }
-
-    public RESTLocaleV1 getRESTLocale(int id) {
-        return getRESTLocale(id, null);
+    protected RESTLocaleV1 loadLocale(Integer id, String expandString) {
+        return getRESTClient().getJSONLocale(id, expandString);
     }
 
     @Override
     public LocaleWrapper getLocale(int id) {
-        return getLocale(id, null);
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getRESTLocale(id))
+                .build();
     }
 
-    public RESTLocaleV1 getRESTLocale(int id, Integer revision) {
+    public RESTLocaleV1 getRESTLocale(int id) {
         try {
             final RESTLocaleV1 locale;
-            if (getRESTEntityCache().containsKeyValue(RESTLocaleV1.class, id, revision)) {
-                locale = getRESTEntityCache().get(RESTLocaleV1.class, id, revision);
+            if (getRESTEntityCache().containsKeyValue(RESTLocaleV1.class, id)) {
+                locale = getRESTEntityCache().get(RESTLocaleV1.class, id);
             } else {
-                locale = loadLocale(id, revision, null);
-                getRESTEntityCache().add(locale, revision);
+                locale = loadLocale(id, null);
+                getRESTEntityCache().add(locale);
             }
             return locale;
         } catch (Exception e) {
-            log.debug("Failed to retrieve Locale " + id + (revision == null ? "" : (", Revision " + revision)), e);
+            log.debug("Failed to retrieve Locale " + id, e);
             throw handleException(e);
         }
-    }
-
-    @Override
-    public LocaleWrapper getLocale(int id, Integer revision) {
-        return RESTEntityWrapperBuilder.newBuilder()
-                .providerFactory(getProviderFactory())
-                .entity(getRESTLocale(id, revision))
-                .isRevision(revision != null)
-                .build();
     }
 
     public RESTLocaleCollectionV1 getRESTLocales() {
@@ -108,36 +94,5 @@ public class RESTLocaleProvider extends RESTDataProvider implements LocaleProvid
                 .providerFactory(getProviderFactory())
                 .collection(getRESTLocales())
                 .build();
-    }
-
-    public RESTLocaleCollectionV1 getRESTLocaleRevisions(int id, Integer revision) {
-        try {
-            RESTLocaleV1 locale = null;
-            // Check the cache first
-            if (getRESTEntityCache().containsKeyValue(RESTLocaleV1.class, id, revision)) {
-                locale = getRESTEntityCache().get(RESTLocaleV1.class, id, revision);
-
-                if (locale.getRevisions() != null) {
-                    return locale.getRevisions();
-                }
-            }
-            // We need to expand the revisions in the string constant
-            final String expandString = getExpansionString(RESTLocaleV1.REVISIONS_NAME);
-
-            // Load the string constant from the REST Interface
-            final RESTLocaleV1 tempStringConstant = loadLocale(id, revision, expandString);
-
-            if (locale == null) {
-                locale = tempStringConstant;
-                getRESTEntityCache().add(locale, revision);
-            } else {
-                locale.setRevisions(tempStringConstant.getRevisions());
-            }
-
-            return locale.getRevisions();
-        } catch (Exception e) {
-            log.debug("Failed to retrieve the Revisions for Locale " + id + (revision == null ? "" : (", Revision " + revision)), e);
-            throw handleException(e);
-        }
     }
 }

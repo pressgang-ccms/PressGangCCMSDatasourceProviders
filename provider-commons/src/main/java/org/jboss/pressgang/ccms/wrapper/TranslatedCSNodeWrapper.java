@@ -19,11 +19,11 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public interface TranslatedCSNodeWrapper extends EntityWrapper<TranslatedCSNodeWrapper> {
+public interface TranslatedCSNodeWrapper extends AuditedEntityWrapper<TranslatedCSNodeWrapper> {
     Integer getNodeId();
 
     void setNodeId(Integer id);

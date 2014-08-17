@@ -28,7 +28,7 @@ import org.jboss.pressgang.ccms.provider.listener.LogMessageListener;
 import org.jboss.pressgang.ccms.provider.listener.ProviderListener;
 import org.jboss.pressgang.ccms.provider.listener.UpdateListener;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 
 public abstract class DataProvider {
@@ -63,7 +63,7 @@ public abstract class DataProvider {
         }
     }
 
-    protected <T extends EntityWrapper<T>> void notifyCreateEntity(T entity) {
+    protected <T extends AuditedEntityWrapper<T>> void notifyCreateEntity(T entity) {
         for (final ProviderListener listener : listeners) {
             if (listener instanceof CreateListener) {
                 ((CreateListener) listener).handleCreateEntity(entity);
@@ -71,7 +71,7 @@ public abstract class DataProvider {
         }
     }
 
-    protected <T extends EntityWrapper<T>> void notifyUpdateEntity(T entity) {
+    protected <T extends AuditedEntityWrapper<T>> void notifyUpdateEntity(T entity) {
         for (final ProviderListener listener : listeners) {
             if (listener instanceof UpdateListener) {
                 ((UpdateListener) listener).handleUpdateEntity(entity);
@@ -79,7 +79,7 @@ public abstract class DataProvider {
         }
     }
 
-    protected <T extends EntityWrapper<T>> void notifyDeleteEntity(Class<?> clazz, Integer id) {
+    protected <T extends AuditedEntityWrapper<T>> void notifyDeleteEntity(Class<?> clazz, Integer id) {
         for (final ProviderListener listener : listeners) {
             if (listener instanceof DeleteListener) {
                 ((DeleteListener) listener).handleDeleteEntity(clazz, id);
@@ -87,7 +87,7 @@ public abstract class DataProvider {
         }
     }
 
-    protected <T extends EntityWrapper<T>> void notifyCreateEntityCollection(CollectionWrapper<T> collection) {
+    protected <T extends AuditedEntityWrapper<T>> void notifyCreateEntityCollection(CollectionWrapper<T> collection) {
         for (final ProviderListener listener : listeners) {
             if (listener instanceof CreateListener) {
                 ((CreateListener) listener).handleCreateEntityCollection(collection);
@@ -95,7 +95,7 @@ public abstract class DataProvider {
         }
     }
 
-    protected <T extends EntityWrapper<T>> void notifyUpdateEntityCollection(CollectionWrapper<T> collection) {
+    protected <T extends AuditedEntityWrapper<T>> void notifyUpdateEntityCollection(CollectionWrapper<T> collection) {
         for (final ProviderListener listener : listeners) {
             if (listener instanceof UpdateListener) {
                 ((UpdateListener) listener).handleUpdateEntityCollection(collection);
@@ -103,7 +103,7 @@ public abstract class DataProvider {
         }
     }
 
-    protected <T extends EntityWrapper<T>> void notifyDeleteEntityCollection(Class<?> clazz, List<Integer> ids) {
+    protected <T extends AuditedEntityWrapper<T>> void notifyDeleteEntityCollection(Class<?> clazz, List<Integer> ids) {
         for (final ProviderListener listener : listeners) {
             if (listener instanceof DeleteListener) {
                 ((DeleteListener) listener).handleDeleteEntityCollection(clazz, ids);

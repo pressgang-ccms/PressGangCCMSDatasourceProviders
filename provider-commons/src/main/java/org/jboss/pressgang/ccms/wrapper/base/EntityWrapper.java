@@ -19,8 +19,6 @@
 
 package org.jboss.pressgang.ccms.wrapper.base;
 
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-
 public abstract interface EntityWrapper<T extends EntityWrapper<T>> extends BaseWrapper<T> {
     /**
      * Get the Unique ID for the entity.
@@ -37,31 +35,10 @@ public abstract interface EntityWrapper<T extends EntityWrapper<T>> extends Base
     void setId(Integer id);
 
     /**
-     * Get the revision of the entity.
-     *
-     * @return The revision number for the entity.
-     */
-    Integer getRevision();
-
-    /**
-     * Get the revisions for the entity.
-     *
-     * @return A collection of revision entities for the entity.
-     */
-    CollectionWrapper<T> getRevisions();
-
-    /**
      * Clone the entity and wrapper.
      *
      * @param deepCopy If the collections in the entity should be cloned as well.
      * @return The cloned entity/wrapper.
      */
     T clone(boolean deepCopy);
-
-    /**
-     * Check if the entity is a revision entity or the latest entity.
-     *
-     * @return True if the entity represents a revision otherwise false.
-     */
-    boolean isRevisionEntity();
 }

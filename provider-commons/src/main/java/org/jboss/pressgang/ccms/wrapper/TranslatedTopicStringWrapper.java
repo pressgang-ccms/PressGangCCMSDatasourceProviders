@@ -19,9 +19,9 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 
-public interface TranslatedTopicStringWrapper extends EntityWrapper<TranslatedTopicStringWrapper> {
+public interface TranslatedTopicStringWrapper extends AuditedEntityWrapper<TranslatedTopicStringWrapper> {
     String getOriginalString();
 
     void setOriginalString(String originalString);

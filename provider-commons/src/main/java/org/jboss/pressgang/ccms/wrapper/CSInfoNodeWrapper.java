@@ -19,9 +19,9 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 
-public interface CSInfoNodeWrapper extends EntityWrapper<CSInfoNodeWrapper> {
+public interface CSInfoNodeWrapper extends AuditedEntityWrapper<CSInfoNodeWrapper> {
     String getCondition();
 
     void setCondition(String condition);

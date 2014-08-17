@@ -19,11 +19,11 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
-public interface TranslatedContentSpecWrapper extends EntityWrapper<TranslatedContentSpecWrapper> {
+public interface TranslatedContentSpecWrapper extends AuditedEntityWrapper<TranslatedContentSpecWrapper> {
     Integer getContentSpecId();
 
     void setContentSpecId(Integer id);

@@ -21,9 +21,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBTopicSourceURLWrapper extends DBBaseEntityWrapper<TopicSourceURLWrapper, TopicSourceUrl> implements TopicSourceURLWrapper {
+public class DBTopicSourceURLWrapper extends DBBaseAuditedEntityWrapper<TopicSourceURLWrapper, TopicSourceUrl> implements TopicSourceURLWrapper {
     private final TopicSourceUrl topicSourceUrl;
 
     public DBTopicSourceURLWrapper(final DBProviderFactory providerFactory, final TopicSourceUrl topicSourceUrl, boolean isRevision) {

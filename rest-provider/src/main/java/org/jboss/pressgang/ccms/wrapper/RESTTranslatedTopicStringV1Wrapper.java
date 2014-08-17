@@ -24,9 +24,9 @@ import java.util.Collection;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseAuditedEntityWrapper;
 
-public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseEntityWrapper<TranslatedTopicStringWrapper,
+public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseAuditedEntityWrapper<TranslatedTopicStringWrapper,
         RESTTranslatedTopicStringV1> implements TranslatedTopicStringWrapper {
     private final RESTTranslatedTopicV1 parent;
 

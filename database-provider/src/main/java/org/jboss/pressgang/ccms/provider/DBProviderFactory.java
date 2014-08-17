@@ -240,6 +240,11 @@ public class DBProviderFactory extends DataProviderFactory {
         providerMap.put(DBLocaleProvider.class, localeProvider);
         providerMap.put(LocaleProvider.class, localeProvider);
 
+        // Translation Server Provider
+        final DBTranslationServerProvider translationServerProvider = new DBTranslationServerProvider(getEntityManager(), this,
+                getListeners());
+        providerMap.put(DBTranslationServerProvider.class, translationServerProvider);
+
         providersInitialised = true;
     }
 }

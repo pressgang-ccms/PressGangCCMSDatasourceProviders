@@ -21,9 +21,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.BlobConstants;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBBlobConstantWrapper extends DBBaseEntityWrapper<BlobConstantWrapper, BlobConstants> implements BlobConstantWrapper {
+public class DBBlobConstantWrapper extends DBBaseAuditedEntityWrapper<BlobConstantWrapper, BlobConstants> implements BlobConstantWrapper {
 
     private final BlobConstants blobConstant;
 

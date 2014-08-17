@@ -21,9 +21,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBTranslatedTopicStringWrapper extends DBBaseEntityWrapper<TranslatedTopicStringWrapper,
+public class DBTranslatedTopicStringWrapper extends DBBaseAuditedEntityWrapper<TranslatedTopicStringWrapper,
         TranslatedTopicString> implements TranslatedTopicStringWrapper {
 
     private final TranslatedTopicString translatedTopicString;

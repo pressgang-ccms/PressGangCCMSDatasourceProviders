@@ -22,7 +22,9 @@ package org.jboss.pressgang.ccms.wrapper;
 import java.util.List;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTLocaleCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTServerUndefinedSettingCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.collections.RESTTranslationServerExtendedCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.elements.RESTServerSettingsV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.wrapper.base.RESTBaseWrapper;
@@ -105,6 +107,33 @@ public class RESTServerSettingsV1Wrapper extends RESTBaseWrapper<ServerSettingsW
     @Override
     public void setDefaultLocale(LocaleWrapper defaultLocale) {
         getEntity().explicitSetDefaultLocale(defaultLocale == null ? null : (RESTLocaleV1) defaultLocale.unwrap());
+    }
+
+    @Override
+    public UpdateableCollectionWrapper<LocaleWrapper> getLocales() {
+        return (UpdateableCollectionWrapper<LocaleWrapper>) RESTCollectionWrapperBuilder.<LocaleWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getEntity().getLocales())
+                .build();
+    }
+
+    @Override
+    public void setLocales(UpdateableCollectionWrapper<LocaleWrapper> locales) {
+        getEntity().explicitSetLocales(locales == null ? null : (RESTLocaleCollectionV1) locales.unwrap());
+    }
+
+    @Override
+    public UpdateableCollectionWrapper<TranslationServerExtendedWrapper> getTranslationServers() {
+        return (UpdateableCollectionWrapper<TranslationServerExtendedWrapper>) RESTCollectionWrapperBuilder.<TranslationServerExtendedWrapper>newBuilder()
+                .providerFactory(getProviderFactory())
+                .collection(getEntity().getTranslationServers())
+                .build();
+    }
+
+    @Override
+    public void setTranslationServers(UpdateableCollectionWrapper<TranslationServerExtendedWrapper> translationServers) {
+        getEntity().explicitSetTranslationServers(
+                translationServers == null ? null : (RESTTranslationServerExtendedCollectionV1) translationServers.unwrap());
     }
 
     @Override

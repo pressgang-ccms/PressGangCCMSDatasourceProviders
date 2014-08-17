@@ -24,9 +24,9 @@ import java.util.Collection;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseAuditedEntityWrapper;
 
-public class RESTTopicSourceURLV1Wrapper extends RESTBaseEntityWrapper<TopicSourceURLWrapper,
+public class RESTTopicSourceURLV1Wrapper extends RESTBaseAuditedEntityWrapper<TopicSourceURLWrapper,
         RESTTopicSourceUrlV1> implements TopicSourceURLWrapper {
 
     protected RESTTopicSourceURLV1Wrapper(final RESTProviderFactory providerFactory, final RESTTopicSourceUrlV1 topicSourceUrl,

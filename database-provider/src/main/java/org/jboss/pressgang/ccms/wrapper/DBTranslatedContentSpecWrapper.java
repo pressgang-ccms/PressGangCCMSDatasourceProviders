@@ -27,14 +27,14 @@ import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedContentSpec;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTranslatedCSNodeCollectionHandler;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
-public class DBTranslatedContentSpecWrapper extends DBBaseEntityWrapper<TranslatedContentSpecWrapper,
+public class DBTranslatedContentSpecWrapper extends DBBaseAuditedEntityWrapper<TranslatedContentSpecWrapper,
         TranslatedContentSpec> implements TranslatedContentSpecWrapper {
     private final DBTranslatedCSNodeCollectionHandler translatedCSNodeCollectionHandler;
 

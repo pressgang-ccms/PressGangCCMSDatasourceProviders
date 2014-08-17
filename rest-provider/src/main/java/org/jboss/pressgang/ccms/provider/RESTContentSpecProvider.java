@@ -22,7 +22,10 @@ package org.jboss.pressgang.ccms.provider;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
@@ -32,6 +35,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTag
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslationDetailV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseCSNodeV1;
@@ -58,10 +62,45 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
     private static final List<String> SUB_METHOD_WITH_CHILDREN = Arrays.asList("getNextNode", "getRelatedToNodes", "getChildren_OTM",
             "getInfoTopicNode");
 
+    private static final Map<String, Collection<String>> DEFAULT_EXPAND = new HashMap<String, Collection<String>>();
+    private static final Map<String, Collection<String>> DEFAULT_EXPAND_WITH_TRANSLATION_DETAILS = new HashMap<String,
+            Collection<String>>() {{
+        put(RESTContentSpecV1.TRANSLATION_DETAILS_NAME, Arrays.asList(RESTCSTranslationDetailV1.LOCALES_NAME,
+                RESTCSTranslationDetailV1.TRANSLATION_SERVER_NAME));
+    }};
+
+    private static final List<String> DEFAULT_METHOD_MAP = Arrays.asList();
+    private static final List<String> DEFAULT_METHOD_MAP_WITH_TRANSLATION_DETAILS = Arrays.asList("getTranslationDetails");
+
     private int count = -1000;
+    private boolean expandTranslationDetails = false;
 
     protected RESTContentSpecProvider(final RESTProviderFactory providerFactory) {
         super(providerFactory);
+    }
+
+    public boolean isExpandTranslationDetails() {
+        return expandTranslationDetails;
+    }
+
+    public void setExpandTranslationDetails(boolean expandTranslationDetails) {
+        this.expandTranslationDetails = expandTranslationDetails;
+    }
+
+    protected Map<String, Collection<String>> getDefaultTopicExpansionList() {
+        if (expandTranslationDetails) {
+            return DEFAULT_EXPAND_WITH_TRANSLATION_DETAILS;
+        } else {
+            return DEFAULT_EXPAND;
+        }
+    }
+
+    protected List<String> getDefaultTopicMethodList() {
+        if (expandTranslationDetails) {
+            return DEFAULT_METHOD_MAP_WITH_TRANSLATION_DETAILS;
+        } else {
+            return DEFAULT_METHOD_MAP;
+        }
     }
 
     protected RESTContentSpecV1 loadContentSpec(Integer id, Integer revision, String expandString) {
@@ -87,7 +126,8 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
                 contentSpec = getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
             } else {
-                contentSpec = loadContentSpec(id, revision, "");
+                final String expand = getExpansionString(getDefaultTopicExpansionList());
+                contentSpec = loadContentSpec(id, revision, expand);
                 getRESTEntityCache().add(contentSpec, revision);
             }
             return contentSpec;
@@ -102,6 +142,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
                 .entity(getRESTContentSpec(id, revision))
+                .expandedMethods(getDefaultTopicMethodList())
                 .isRevision(revision != null)
                 .build();
     }
@@ -111,7 +152,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
         try {
             // We need to expand the all the content specs in the collection
-            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_EXPANSION_NAME);
+            final String expandString = getExpansionString(RESTv1Constants.CONTENT_SPEC_EXPANSION_NAME, getDefaultTopicExpansionList());
 
             final RESTContentSpecCollectionV1 contentSpecs = getRESTClient().getJSONContentSpecsWithQuery(new PathSegmentImpl(query, false),
                     expandString);
@@ -130,6 +171,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
 
         return RESTCollectionWrapperBuilder.<ContentSpecWrapper>newBuilder()
                 .providerFactory(getProviderFactory())
+                .expandedEntityMethods(getDefaultTopicMethodList())
                 .collection(getRESTContentSpecsWithQuery(query))
                 .build();
     }
@@ -333,7 +375,7 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
             }
 
             // We need to expand the revisions in the content spec
-            final String expandString = getExpansionString(RESTContentSpecV1.REVISIONS_NAME);
+            final String expandString = getExpansionString(RESTContentSpecV1.REVISIONS_NAME, getDefaultTopicExpansionList());
 
             // Load the content spec from the REST Interface
             final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
@@ -560,5 +602,40 @@ public class RESTContentSpecProvider extends RESTDataProvider implements Content
         }
 
         super.cleanEntityForSave(entity);
+    }
+
+    public RESTCSTranslationDetailV1 getRESTContentSpecTranslationDetail(Integer id, Integer revision) {
+        try {
+            RESTContentSpecV1 contentSpec = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTContentSpecV1.class, id, revision)) {
+                contentSpec = (RESTContentSpecV1) getRESTEntityCache().get(RESTContentSpecV1.class, id, revision);
+
+                if (contentSpec.getTranslationDetails() != null) {
+                    return contentSpec.getTranslationDetails();
+                }
+            }
+
+            // We need to expand the translation details
+            final String expandString = getExpansionString(RESTContentSpecV1.TRANSLATION_DETAILS_NAME,
+                    Arrays.asList(RESTCSTranslationDetailV1.LOCALES_NAME, RESTCSTranslationDetailV1.TRANSLATION_SERVER_NAME));
+
+            // Load the content spec from the REST Interface
+            final RESTContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
+
+            if (contentSpec == null) {
+                contentSpec = tempContentSpec;
+                getRESTEntityCache().add(contentSpec, revision);
+            } else {
+                contentSpec.setTranslationDetails(tempContentSpec.getTranslationDetails());
+            }
+            getRESTEntityCache().add(contentSpec.getTranslationDetails(), revision != null);
+
+            return contentSpec.getTranslationDetails();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Translation Details for Content Spec " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 }

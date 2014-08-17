@@ -25,9 +25,9 @@ import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLanguageFileV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseAuditedEntityWrapper;
 
-public class RESTLanguageFileV1Wrapper extends RESTBaseEntityWrapper<LanguageFileWrapper, RESTLanguageFileV1> implements LanguageFileWrapper {
+public class RESTLanguageFileV1Wrapper extends RESTBaseAuditedEntityWrapper<LanguageFileWrapper, RESTLanguageFileV1> implements LanguageFileWrapper {
 
     protected RESTLanguageFileV1Wrapper(final RESTProviderFactory providerFactory, final RESTLanguageFileV1 file, boolean isRevision,
             final RESTFileV1 parent, boolean isNewEntity) {

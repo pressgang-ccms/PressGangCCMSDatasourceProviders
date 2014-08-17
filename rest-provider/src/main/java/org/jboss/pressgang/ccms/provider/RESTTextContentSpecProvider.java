@@ -27,6 +27,8 @@ import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTextContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslationDetailV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextCSProcessingOptionsV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 import org.jboss.pressgang.ccms.wrapper.LogMessageWrapper;
@@ -358,5 +360,40 @@ public class RESTTextContentSpecProvider extends RESTDataProvider implements Tex
     @Override
     public TextCSProcessingOptionsWrapper newTextProcessingOptions() {
         return new RESTTextCSProcessingOptionsV1Wrapper(new RESTTextCSProcessingOptionsV1());
+    }
+
+    public RESTCSTranslationDetailV1 getRESTContentSpecTranslationDetail(Integer id, Integer revision) {
+        try {
+            RESTTextContentSpecV1 contentSpec = null;
+            // Check the cache first
+            if (getRESTEntityCache().containsKeyValue(RESTTextContentSpecV1.class, id, revision)) {
+                contentSpec = (RESTTextContentSpecV1) getRESTEntityCache().get(RESTTextContentSpecV1.class, id, revision);
+
+                if (contentSpec.getTranslationDetails() != null) {
+                    return contentSpec.getTranslationDetails();
+                }
+            }
+
+            // We need to expand the translation details
+            final String expandString = getExpansionString(RESTContentSpecV1.TRANSLATION_DETAILS_NAME,
+                    Arrays.asList(RESTCSTranslationDetailV1.LOCALES_NAME, RESTCSTranslationDetailV1.TRANSLATION_SERVER_NAME));
+
+            // Load the content spec from the REST Interface
+            final RESTTextContentSpecV1 tempContentSpec = loadContentSpec(id, revision, expandString);
+
+            if (contentSpec == null) {
+                contentSpec = tempContentSpec;
+                getRESTEntityCache().add(contentSpec, revision);
+            } else {
+                contentSpec.setTranslationDetails(tempContentSpec.getTranslationDetails());
+            }
+            getRESTEntityCache().add(contentSpec.getTranslationDetails(), revision != null);
+
+            return contentSpec.getTranslationDetails();
+        } catch (Exception e) {
+            log.debug("Failed to retrieve the Translation Details for Content Spec " + id + (revision == null ? "" : (", " +
+                    "Revision " + revision)), e);
+            throw handleException(e);
+        }
     }
 }

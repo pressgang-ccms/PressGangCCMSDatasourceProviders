@@ -37,7 +37,7 @@ import org.jboss.pressgang.ccms.model.TranslatedTopicString;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTopicSourceURLCollectionWrapper;
@@ -53,7 +53,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTopicSourceUrlColle
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTranslatedStringCollectionHandler;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
-public class DBTranslatedTopicDataWrapper extends DBBaseEntityWrapper<TranslatedTopicWrapper,
+public class DBTranslatedTopicDataWrapper extends DBBaseAuditedEntityWrapper<TranslatedTopicWrapper,
         TranslatedTopicData> implements TranslatedTopicWrapper {
     private final static RelationshipTag dummyRelationshipTag = new RelationshipTag();
 

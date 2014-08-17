@@ -21,13 +21,14 @@ package org.jboss.pressgang.ccms.wrapper.base;
 
 import java.util.Date;
 
+import org.jboss.pressgang.ccms.wrapper.CSTranslationDetailWrapper;
 import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public interface BaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> extends EntityWrapper<T> {
+public interface BaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> extends AuditedEntityWrapper<T> {
     CollectionWrapper<TagWrapper> getTags();
 
     void setTags(CollectionWrapper<TagWrapper> tags);
@@ -61,4 +62,8 @@ public interface BaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> ext
     PropertyTagInContentSpecWrapper getProperty(final int propertyId);
 
     boolean hasTag(final int tagId);
+
+    CSTranslationDetailWrapper getTranslationDetails();
+
+    void setTranslationDetails(CSTranslationDetailWrapper translationDetails);
 }

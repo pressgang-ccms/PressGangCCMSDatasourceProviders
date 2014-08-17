@@ -24,9 +24,9 @@ import java.util.Collection;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseAuditedEntityWrapper;
 
-public class RESTCSInfoV1NodeWrapper extends RESTBaseEntityWrapper<CSInfoNodeWrapper, RESTCSInfoNodeV1> implements CSInfoNodeWrapper {
+public class RESTCSInfoV1NodeWrapper extends RESTBaseAuditedEntityWrapper<CSInfoNodeWrapper, RESTCSInfoNodeV1> implements CSInfoNodeWrapper {
 
     protected RESTCSInfoV1NodeWrapper(final RESTProviderFactory providerFactory, final RESTCSInfoNodeV1 csNodeInfo, boolean isRevision,
             final RESTCSNodeV1 parent, boolean isNewEntity) {

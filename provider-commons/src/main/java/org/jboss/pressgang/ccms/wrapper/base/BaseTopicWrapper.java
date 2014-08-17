@@ -29,7 +29,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.zanata.ZanataDetails;
 
-public interface BaseTopicWrapper<T extends BaseTopicWrapper<T>> extends EntityWrapper<T> {
+public interface BaseTopicWrapper<T extends BaseTopicWrapper<T>> extends AuditedEntityWrapper<T> {
     Integer getTopicId();
 
     Integer getTopicRevision();

@@ -41,18 +41,23 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslationServerExtendedV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslationServerV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslationDetailV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedContentSpecV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.join.RESTCSRelatedNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTCategoryInTagV1;
@@ -68,20 +73,20 @@ public class RESTEntityProxyFactory {
     };
 
     @SuppressWarnings("unchecked")
-    public static <T extends RESTBaseEntityV1<T, ?, ?>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
+    public static <T extends RESTBaseEntityV1<T>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
             boolean isRevision) {
         return createProxy(providerFactory, entity, isRevision, null);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends RESTBaseEntityV1<T, ?, ?>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
-            boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
+    public static <T extends RESTBaseEntityV1<T>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
+            boolean isRevision, final RESTBaseEntityV1<?> parent) {
         return createProxy(providerFactory, entity, isRevision, parent, null);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends RESTBaseEntityV1<T, ?, ?>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
-            boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent, final Collection<String> expandedMethods) {
+    public static <T extends RESTBaseEntityV1<T>> T createProxy(final RESTProviderFactory providerFactory, final T entity,
+            boolean isRevision, final RESTBaseEntityV1<?> parent, final Collection<String> expandedMethods) {
         final Class<?> clazz = entity.getClass();
 
         final ProxyFactory factory = new ProxyFactory();
@@ -108,12 +113,18 @@ public class RESTEntityProxyFactory {
         return proxy;
     }
 
-    private static <T extends RESTBaseEntityV1<?, ?, ?>> RESTBaseEntityV1ProxyHandler findProxyHandler(
-            final RESTProviderFactory providerFactory, final T entity, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
+    private static <T extends RESTBaseEntityV1<?>> RESTBaseEntityV1ProxyHandler findProxyHandler(
+            final RESTProviderFactory providerFactory, final T entity, boolean isRevision, final RESTBaseEntityV1<?> parent) {
 
         if (entity instanceof RESTLocaleV1) {
             // LOCALE
             return new RESTLocaleV1ProxyHandler(providerFactory, (RESTLocaleV1) entity, isRevision);
+        } else if (entity instanceof RESTTranslationServerV1) {
+            // TRANSLATION SERVER
+            return new RESTTranslationServerV1ProxyHandler(providerFactory, (RESTTranslationServerV1) entity, isRevision);
+        } else if (entity instanceof RESTTranslationServerExtendedV1) {
+            // TRANSLATION SERVER EXTENDED
+            return new RESTTranslationServerExtendedV1ProxyHandler(providerFactory, (RESTTranslationServerExtendedV1) entity, isRevision);
         } else if (entity instanceof RESTTopicV1) {
             // TOPIC
             return new RESTTopicV1ProxyHandler(providerFactory, (RESTTopicV1) entity, isRevision);
@@ -130,7 +141,8 @@ public class RESTEntityProxyFactory {
                     (RESTTranslatedTopicV1) parent);
         } else if (entity instanceof RESTAssignedPropertyTagV1) {
             // PROPERTY TAGS
-            return new RESTAssignedPropertyTagV1ProxyHandler(providerFactory, (RESTAssignedPropertyTagV1) entity, isRevision, parent);
+            return new RESTAssignedPropertyTagV1ProxyHandler(providerFactory, (RESTAssignedPropertyTagV1) entity, isRevision,
+                    (RESTBaseAuditedEntityV1<?, ?, ?>) parent);
         } else if (entity instanceof RESTPropertyTagV1) {
             return new RESTPropertyTagV1ProxyHandler(providerFactory, (RESTPropertyTagV1) entity, isRevision);
         } else if (entity instanceof RESTPropertyTagInPropertyCategoryV1) {
@@ -193,6 +205,10 @@ public class RESTEntityProxyFactory {
             // TRANSLATED CONTENT SPEC NODE STRING
             return new RESTTranslatedCSNodeStringV1ProxyHandler(providerFactory, (RESTTranslatedCSNodeStringV1) entity, isRevision,
                     (RESTTranslatedCSNodeV1) parent);
+        } else if (entity instanceof RESTCSTranslationDetailV1) {
+            // CONTENT SPEC TRANSLATION DETAIL
+            return new RESTCSTranslationDetailV1ProxyHandler(providerFactory, (RESTCSTranslationDetailV1) entity, isRevision,
+                    (RESTBaseContentSpecV1<?, ?, ?>) parent);
         }
 
         throw new IllegalArgumentException("Unable to find a proxy handler for the specified entity.");

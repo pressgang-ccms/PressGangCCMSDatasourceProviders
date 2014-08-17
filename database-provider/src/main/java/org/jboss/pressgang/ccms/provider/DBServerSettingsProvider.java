@@ -39,6 +39,6 @@ public class DBServerSettingsProvider extends DBDataProvider implements ServerSe
     @Override
     public ServerSettingsWrapper updateServerSettings(ServerSettingsWrapper serverSettings) {
         // TODO
-        return null;
+        throw new UnsupportedOperationException("updateServerSettings has not been implemented for the database provider");
     }
 }

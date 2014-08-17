@@ -22,9 +22,9 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.model.LanguageFile;
 import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBLanguageFileWrapper extends DBBaseEntityWrapper<LanguageFileWrapper, LanguageFile> implements LanguageFileWrapper {
+public class DBLanguageFileWrapper extends DBBaseAuditedEntityWrapper<LanguageFileWrapper, LanguageFile> implements LanguageFileWrapper {
 
     private final LanguageFile languageFile;
 

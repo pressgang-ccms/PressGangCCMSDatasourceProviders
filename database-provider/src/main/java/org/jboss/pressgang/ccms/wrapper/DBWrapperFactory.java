@@ -41,6 +41,7 @@ import org.jboss.pressgang.ccms.model.TopicSourceUrl;
 import org.jboss.pressgang.ccms.model.TopicToPropertyTag;
 import org.jboss.pressgang.ccms.model.TranslatedTopicData;
 import org.jboss.pressgang.ccms.model.TranslatedTopicString;
+import org.jboss.pressgang.ccms.model.TranslationServer;
 import org.jboss.pressgang.ccms.model.User;
 import org.jboss.pressgang.ccms.model.config.ApplicationConfig;
 import org.jboss.pressgang.ccms.model.config.EntitiesConfig;
@@ -49,6 +50,7 @@ import org.jboss.pressgang.ccms.model.config.UndefinedSetting;
 import org.jboss.pressgang.ccms.model.contentspec.CSInfoNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
 import org.jboss.pressgang.ccms.model.contentspec.CSNodeToCSNode;
+import org.jboss.pressgang.ccms.model.contentspec.CSTranslationDetail;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNode;
@@ -61,6 +63,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBBlobConstantCollectionWrapp
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSInfoNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSNodeCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCSRelatedNodeCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBCSTranslationDetailCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCategoryInTagCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBCollectionWrapper;
@@ -86,6 +89,8 @@ import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeCollectionW
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedCSNodeStringCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicDataCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTranslatedTopicStringCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslationServerCollectionWrapper;
+import org.jboss.pressgang.ccms.wrapper.collection.DBTranslationServerExtendedCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBUserCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBCollectionHandler;
 import org.jboss.pressgang.ccms.wrapper.structures.DBWrapperCache;
@@ -152,7 +157,10 @@ public class DBWrapperFactory {
             wrapper = new DBServerUndefinedSettingWrapper(getProviderFactory(), (UndefinedSetting) entity);
         } else if (entity instanceof Locale) {
             // Locale
-            wrapper = new DBLocaleWrapper(getProviderFactory(), (Locale) entity, isRevision);
+            wrapper = new DBLocaleWrapper(getProviderFactory(), (Locale) entity);
+        } else if (entity instanceof TranslationServer) {
+            // Translation server
+            throw new UnsupportedOperationException("A return class needs to be specified for TranslationServer entities.");
         } else if (entity instanceof Topic) {
             // TOPIC
             wrapper = new DBTopicWrapper(getProviderFactory(), (Topic) entity, isRevision);
@@ -223,6 +231,9 @@ public class DBWrapperFactory {
         } else if (entity instanceof TranslatedCSNodeString) {
             // CONTENT SPEC TRANSLATED NODE STRING
             wrapper = new DBTranslatedCSNodeStringWrapper(getProviderFactory(), (TranslatedCSNodeString) entity, isRevision);
+        } else if (entity instanceof CSTranslationDetail) {
+            // CONTENT SPEC TRANSLATION DETAIL
+            wrapper = new DBCSTranslationDetailWrapper(getProviderFactory(), (CSTranslationDetail) entity);
         } else {
             throw new IllegalArgumentException("Failed to create a Wrapper instance as there is no wrapper available for the Entity.");
         }
@@ -274,9 +285,12 @@ public class DBWrapperFactory {
 
         final DBCollectionWrapper wrapper;
 
-        if (entityClass == Topic.class) {
+        if (entityClass == Locale.class) {
             // LOCALE
             wrapper = new DBLocaleCollectionWrapper(this, (Collection<Locale>) collection, isRevisionCollection);
+        } else if (entityClass == TranslationServer.class) {
+            // TRANSLATION SERVER
+            throw new UnsupportedOperationException("A return class needs to be specified for TranslationServer entities.");
         } else if (entityClass == Topic.class) {
             // TOPIC
             wrapper = new DBTopicCollectionWrapper(this, (Collection<Topic>) collection, isRevisionCollection);
@@ -350,6 +364,10 @@ public class DBWrapperFactory {
             // CONTENT SPEC TRANSLATED NODE STRING
             wrapper = new DBTranslatedCSNodeStringCollectionWrapper(this, (Collection<TranslatedCSNodeString>) collection,
                     isRevisionCollection);
+        } else if (entityClass == CSTranslationDetail.class) {
+            // CONTENT SPEC TRANSLATION DETAIL
+            wrapper = new DBCSTranslationDetailCollectionWrapper(this, (Collection<CSTranslationDetail>) collection,
+                    isRevisionCollection);
         } else if (entityClass == UndefinedEntity.class) {
             // UNDEFINED APPLICATION ENTITY
             wrapper = new DBServerUndefinedEntityCollectionWrapper(this, (Collection<UndefinedEntity>) collection,
@@ -406,6 +424,12 @@ public class DBWrapperFactory {
         } else if (entity instanceof ContentSpec && wrapperClass == TextContentSpecWrapper.class) {
             // TEXT CONTENT SPEC
             wrapper = new DBTextContentSpecWrapper(getProviderFactory(), (ContentSpec) entity, isRevision);
+        } else if (entity instanceof TranslationServer && wrapperClass == TranslationServerWrapper.class) {
+            // TRANSLATION SERVER
+            wrapper = new DBTranslationServerWrapper(getProviderFactory(), (TranslationServer) entity);
+        } else if (entity instanceof TranslationServer && wrapperClass == TranslationServerWrapper.class) {
+            // TRANSLATION SERVER EXTENDED
+            wrapper = new DBTranslationServerWrapper(getProviderFactory(), (TranslationServer) entity);
         } else {
             wrapper = create(entity, isRevision);
             local = false;
@@ -452,6 +476,13 @@ public class DBWrapperFactory {
             wrapper = new DBTagInCategoryCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
         } else if (entityClass == TagToCategory.class && wrapperClass == CategoryInTagWrapper.class) {
             wrapper = new DBCategoryInTagCollectionWrapper(this, (Collection<TagToCategory>) collection, isRevisionCollection);
+        } else if (entityClass == TranslationServer.class && wrapperClass == TranslationServerWrapper.class) {
+            // TRANSLATION SERVER
+            wrapper = new DBTranslationServerCollectionWrapper(this, (Collection<TranslationServer>) collection, isRevisionCollection);
+        } else if (entityClass == TranslationServer.class && wrapperClass == TranslationServerExtendedWrapper.class) {
+            // TRANSLATION SERVER EXTENDED
+            wrapper = new DBTranslationServerExtendedCollectionWrapper(this, (Collection<TranslationServer>) collection,
+                    isRevisionCollection);
         } else {
             wrapper = (DBCollectionWrapper) createCollection(collection, entityClass, isRevisionCollection);
             local = false;

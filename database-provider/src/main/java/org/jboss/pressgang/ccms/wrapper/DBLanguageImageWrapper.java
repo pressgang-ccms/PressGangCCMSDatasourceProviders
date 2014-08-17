@@ -22,9 +22,9 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.model.LanguageImage;
 import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBLanguageImageWrapper extends DBBaseEntityWrapper<LanguageImageWrapper, LanguageImage> implements LanguageImageWrapper {
+public class DBLanguageImageWrapper extends DBBaseAuditedEntityWrapper<LanguageImageWrapper, LanguageImage> implements LanguageImageWrapper {
 
     private final LanguageImage languageImage;
 

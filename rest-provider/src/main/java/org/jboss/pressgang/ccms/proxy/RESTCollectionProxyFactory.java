@@ -37,16 +37,16 @@ public class RESTCollectionProxyFactory {
         }
     };
 
-    public static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseEntityCollectionV1<T, U, V>, V extends RESTBaseEntityCollectionItemV1<T, U,
+    public static <T extends RESTBaseEntityV1<T>, U extends RESTBaseEntityCollectionV1<T, U, V>, V extends RESTBaseEntityCollectionItemV1<T, U,
                 V>> U create(
             final RESTProviderFactory providerFactory, final U collection, boolean isRevision) {
         return create(providerFactory, collection, isRevision, null);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseEntityCollectionV1<T, U, V>, V extends RESTBaseEntityCollectionItemV1<T, U,
+    public static <T extends RESTBaseEntityV1<T>, U extends RESTBaseEntityCollectionV1<T, U, V>, V extends RESTBaseEntityCollectionItemV1<T, U,
                 V>> U create(
-            final RESTProviderFactory providerFactory, final U collection, boolean isRevision, RESTBaseEntityV1<?, ?, ?> parent) {
+            final RESTProviderFactory providerFactory, final U collection, boolean isRevision, RESTBaseEntityV1<?> parent) {
         final Class<?> clazz = collection.getClass();
 
         final ProxyFactory factory = new ProxyFactory();
@@ -70,9 +70,10 @@ public class RESTCollectionProxyFactory {
         return proxy;
     }
 
-    private static <T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseEntityCollectionV1<T, U, V>, V extends RESTBaseEntityCollectionItemV1<T,
+    private static <T extends RESTBaseEntityV1<T>, U extends RESTBaseEntityCollectionV1<T, U, V>,
+            V extends RESTBaseEntityCollectionItemV1<T,
                 U, V>> RESTCollectionV1ProxyHandler<T, U, V> findProxyHandler(
-            final RESTProviderFactory providerFactory, final U collection, boolean isRevision, final RESTBaseEntityV1<?, ?, ?> parent) {
+            final RESTProviderFactory providerFactory, final U collection, boolean isRevision, final RESTBaseEntityV1<?> parent) {
 
         return new RESTCollectionV1ProxyHandler<T, U, V>(providerFactory, collection, isRevision, parent);
     }

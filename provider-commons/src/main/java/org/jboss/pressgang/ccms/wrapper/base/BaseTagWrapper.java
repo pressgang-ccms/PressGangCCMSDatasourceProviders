@@ -27,7 +27,7 @@ import org.jboss.pressgang.ccms.wrapper.TagWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public interface BaseTagWrapper<T extends BaseTagWrapper<T>> extends EntityWrapper<T> {
+public interface BaseTagWrapper<T extends BaseTagWrapper<T>> extends AuditedEntityWrapper<T> {
     String getName();
 
     CollectionWrapper<TagWrapper> getParentTags();

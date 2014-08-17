@@ -25,6 +25,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 
 public class RESTEntityCache {
@@ -33,7 +34,7 @@ public class RESTEntityCache {
     private static final Long DEFAULT_MAX_CACHE_SIZE = 2500L;
     private static final Long DEFAULT_CACHE_TIMEOUT = 5L;
 
-    protected final Cache<String, RESTBaseEntityV1<?, ?, ?>> entityCache;
+    protected final Cache<String, RESTBaseEntityV1<?>> entityCache;
 
     public RESTEntityCache() {
         // Get the max size from the system property
@@ -83,54 +84,56 @@ public class RESTEntityCache {
         }
     }
 
-    public boolean containsKeyValue(final Class<? extends RESTBaseEntityV1<?, ?, ?>> clazz, final Number id) {
+    public boolean containsKeyValue(final Class<? extends RESTBaseEntityV1<?>> clazz, final Number id) {
         return containsKeyValue(clazz, id.toString(), null);
     }
 
-    public boolean containsKeyValue(final Class<? extends RESTBaseEntityV1<?, ?, ?>> clazz, final String id) {
+    public boolean containsKeyValue(final Class<? extends RESTBaseEntityV1<?>> clazz, final String id) {
         return containsKeyValue(clazz, id, null);
     }
 
-    public boolean containsKeyValue(final Class<? extends RESTBaseEntityV1<?, ?, ?>> clazz, final Number id, final Number revision) {
+    public boolean containsKeyValue(final Class<? extends RESTBaseEntityV1<?>> clazz, final Number id, final Number revision) {
         return containsKeyValue(clazz, id.toString(), revision);
     }
 
-    public boolean containsKeyValue(final Class<? extends RESTBaseEntityV1<?, ?, ?>> clazz, final String id, final Number revision) {
+    public boolean containsKeyValue(final Class<? extends RESTBaseEntityV1<?>> clazz, final String id, final Number revision) {
         final String key = buildKey(clazz, id, revision);
         return entityCache.asMap().containsKey(key);
     }
 
-    public void add(final RESTBaseEntityV1<?, ?, ?> value) {
+    public void add(final RESTBaseEntityV1<?> value) {
         add(value, false);
     }
 
-    public void add(final RESTBaseEntityV1<?, ?, ?> value, final Number id, final Number revision) {
+    public void add(final RESTBaseEntityV1<?> value, final Number id, final Number revision) {
         add(value, id.toString(), revision);
     }
 
-    public void add(final RESTBaseEntityV1<?, ?, ?> value, final Number id, final boolean isRevision) {
+    public void add(final RESTBaseEntityV1<?> value, final Number id, final boolean isRevision) {
         add(value, id.toString(), isRevision);
     }
 
-    public void add(final RESTBaseEntityV1<?, ?, ?> value, final boolean isRevision) {
+    public void add(final RESTBaseEntityV1<?> value, final boolean isRevision) {
         if (value == null) return;
 
         // Add a null revision to specify it's the latest, if the entity isn't a revision
-        if (!isRevision) {
+        if (value instanceof RESTBaseAuditedEntityV1) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> auditedEntity = (RESTBaseAuditedEntityV1<?, ?, ?>) value;
+            add(value, isRevision ? auditedEntity.getRevision() : null);
+        } else if (!isRevision) {
             add(value, null);
-        } else {
-            add(value, value.getRevision());
         }
     }
 
-    public void add(final RESTBaseEntityV1<?, ?, ?> value, final String id, final boolean isRevision) {
+    public void add(final RESTBaseEntityV1<?> value, final String id, final boolean isRevision) {
         if (value == null) return;
 
         // Add a null revision to specify it's the latest, if the entity isn't a revision
-        if (!isRevision) {
+        if (value instanceof RESTBaseAuditedEntityV1) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> auditedEntity = (RESTBaseAuditedEntityV1<?, ?, ?>) value;
+            add(value, id, isRevision ? auditedEntity.getRevision() : null);
+        } else if (!isRevision) {
             add(value, id, null);
-        } else {
-            add(value, id, value.getRevision());
         }
     }
 
@@ -140,11 +143,11 @@ public class RESTEntityCache {
      * @param value    The entity to be added to the cache.
      * @param revision The revision of the entity to be cached.
      */
-    public void add(final RESTBaseEntityV1<?, ?, ?> value, final Number revision) {
+    public void add(final RESTBaseEntityV1<?> value, final Number revision) {
         add(value, value.getId(), revision);
     }
 
-    public void add(final RESTBaseEntityV1<?, ?, ?> value, final String id, final Number revision) {
+    public void add(final RESTBaseEntityV1<?> value, final String id, final Number revision) {
         if (value == null) return;
 
         // Add the entity
@@ -154,34 +157,37 @@ public class RESTEntityCache {
         }
 
         // Add any revisions to the cache
-        if (value.getRevisions() != null) {
-            add(value.getRevisions(), true);
+        if (value instanceof RESTBaseAuditedEntityV1) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> auditedEntity = (RESTBaseAuditedEntityV1<?, ?, ?>) value;
+            if (auditedEntity.getRevisions() != null) {
+                add(auditedEntity.getRevisions(), true);
+            }
         }
     }
 
-    public <T extends RESTBaseEntityV1<T, ?, ?>> T get(final Class<T> clazz, final Number id) {
+    public <T extends RESTBaseEntityV1<T>> T get(final Class<T> clazz, final Number id) {
         return get(clazz, id.toString(), null);
     }
 
-    public <T extends RESTBaseEntityV1<T, ?, ?>> T get(final Class<T> clazz, final String id) {
+    public <T extends RESTBaseEntityV1<T>> T get(final Class<T> clazz, final String id) {
         return get(clazz, id, null);
     }
 
-    public <T extends RESTBaseEntityV1<T, ?, ?>> T get(final Class<T> clazz, final Number id, final Number revision) {
+    public <T extends RESTBaseEntityV1<T>> T get(final Class<T> clazz, final Number id, final Number revision) {
         return get(clazz, id.toString(), revision);
     }
 
-    public <T extends RESTBaseEntityV1<T, ?, ?>> T get(final Class<T> clazz, final String id, final Number revision) {
+    public <T extends RESTBaseEntityV1<T>> T get(final Class<T> clazz, final String id, final Number revision) {
         String key = buildKey(clazz, id, revision);
-        RESTBaseEntityV1<?, ?, ?> value = entityCache.getIfPresent(key);
+        RESTBaseEntityV1<?> value = entityCache.getIfPresent(key);
         return value == null ? null : clazz.cast(value);
     }
 
-    protected String buildKey(final RESTBaseEntityV1<?, ?, ?> value, final Number id, final Number revision) {
+    protected String buildKey(final RESTBaseEntityV1<?> value, final Number id, final Number revision) {
         return buildKey(value.getClass(), id.toString(), revision);
     }
 
-    protected String buildKey(final RESTBaseEntityV1<?, ?, ?> value, final String id, final Number revision) {
+    protected String buildKey(final RESTBaseEntityV1<?> value, final String id, final Number revision) {
         return buildKey(value.getClass(), id, revision);
     }
 
@@ -205,17 +211,17 @@ public class RESTEntityCache {
         }
     }
 
-    public <T extends RESTBaseEntityV1<T, ?, ?>> void expire(final Class<T> clazz, final Number id) {
+    public <T extends RESTBaseEntityV1<T>> void expire(final Class<T> clazz, final Number id) {
         // Expire the revision entity that matches the latest entity as it points to the same object
         final T entity = get(clazz, id);
-        if (entity != null) {
-            expire(clazz, id, entity.getRevision());
+        if (entity != null && entity instanceof RESTBaseAuditedEntityV1) {
+            expire(clazz, id, ((RESTBaseAuditedEntityV1) entity).getRevision());
         }
         // Expire the latest entity
         expire(clazz, id, null);
     }
 
-    public void expire(final Class<? extends RESTBaseEntityV1<?, ?, ?>> clazz, final Number id, final Number revision) {
+    public void expire(final Class<? extends RESTBaseEntityV1<?>> clazz, final Number id, final Number revision) {
         final String key = buildKey(clazz, id, revision);
         entityCache.invalidate(key);
     }

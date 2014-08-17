@@ -25,7 +25,7 @@ import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.wrapper.DBWrapperFactory;
 import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 
-public class DBLocaleCollectionWrapper extends DBCollectionWrapper<LocaleWrapper, Locale> {
+public class DBLocaleCollectionWrapper extends DBUpdateableCollectionWrapper<LocaleWrapper, Locale> {
     public DBLocaleCollectionWrapper(final DBWrapperFactory wrapperFactory, final Collection<Locale> items,
             boolean isRevisionList) {
         super(wrapperFactory, items, isRevisionList, LocaleWrapper.class);

@@ -22,7 +22,7 @@ package org.jboss.pressgang.ccms.wrapper.base;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInPropertyCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public interface BasePropertyCategoryWrapper<T extends BasePropertyCategoryWrapper<T>> extends EntityWrapper<T> {
+public interface BasePropertyCategoryWrapper<T extends BasePropertyCategoryWrapper<T>> extends AuditedEntityWrapper<T> {
     String getName();
 
     void setName(String name);

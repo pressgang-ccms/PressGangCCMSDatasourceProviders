@@ -24,41 +24,37 @@ import java.util.Collection;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
-import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
-import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 
-public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U, ?, ?>> extends RESTBaseWrapper<T,
+public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extends RESTBaseEntityV1<U>> extends RESTBaseWrapper<T,
         U> implements EntityWrapper<T> {
 
-    private final RESTBaseEntityV1<?, ?, ?> parent;
-    private final boolean isRevision;
+    private final RESTBaseEntityV1<?> parent;
     private final U proxyEntity;
     private final boolean isNewEntity;
 
-    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity) {
-        this(providerFactory, entity, isRevision, null, isNewEntity);
+    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isNewEntity) {
+        this(providerFactory, entity, null, isNewEntity);
     }
 
-    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity,
+    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isNewEntity,
             final Collection<String> expandedMethods) {
-        this(providerFactory, entity, isRevision, null, isNewEntity, expandedMethods);
+        this(providerFactory, entity, null, isNewEntity, expandedMethods);
     }
 
-    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision,
-            final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity) {
-        this(providerFactory, entity, isRevision, parent, isNewEntity, null);
+    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity,
+            final RESTBaseEntityV1<?> parent, boolean isNewEntity) {
+        this(providerFactory, entity, parent, isNewEntity, null);
     }
 
-    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision,
-            final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity,
+            final RESTBaseEntityV1<?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
         super(providerFactory, entity);
-        this.isRevision = isRevision;
         this.isNewEntity = isNewEntity;
         this.parent = parent;
         if (isNewEntity) {
             proxyEntity = entity;
         } else {
-            proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision, parent, expandedMethods);
+            proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, false, parent, expandedMethods);
         }
     }
 
@@ -74,16 +70,6 @@ public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extend
     @Override
     public void setId(Integer id) {
         getEntity().setId(id);
-    }
-
-    @Override
-    public Integer getRevision() {
-        return getProxyEntity().getRevision();
-    }
-
-    @Override
-    public boolean isRevisionEntity() {
-        return isRevision;
     }
 
     @Override
@@ -108,17 +94,7 @@ public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extend
         return isNewEntity;
     }
 
-    protected RESTBaseEntityV1<?, ?, ?> getParentEntity() {
+    protected RESTBaseEntityV1<?> getParentEntity() {
         return parent;
-    }
-
-    @Override
-    public CollectionWrapper<T> getRevisions() {
-        return RESTCollectionWrapperBuilder.<T>newBuilder()
-                .providerFactory(getProviderFactory())
-                .collection(getProxyEntity().getRevisions())
-                .isRevisionCollection()
-                .parent(parent)
-                .build();
     }
 }

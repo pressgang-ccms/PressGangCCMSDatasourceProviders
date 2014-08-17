@@ -19,9 +19,9 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 
-public interface LanguageFileWrapper extends EntityWrapper<LanguageFileWrapper> {
+public interface LanguageFileWrapper extends AuditedEntityWrapper<LanguageFileWrapper> {
     String getOriginalFilename();
 
     void setOriginalFilename(String filename);

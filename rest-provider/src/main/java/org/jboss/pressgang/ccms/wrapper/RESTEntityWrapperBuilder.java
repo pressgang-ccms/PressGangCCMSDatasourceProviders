@@ -45,6 +45,8 @@ import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicSourceUrlV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicStringV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslationServerExtendedV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslationServerV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
@@ -52,6 +54,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSInfoNodeV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslationDetailV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTextContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTTranslatedCSNodeStringV1;
@@ -78,7 +81,7 @@ public class RESTEntityWrapperBuilder {
     private boolean isRevision = false;
     private boolean isNewEntity = false;
     private Class<? extends BaseWrapper<?>> wrapperInterface;
-    private RESTBaseEntityV1<?, ?, ?> parent;
+    private RESTBaseEntityV1<?> parent;
     private Collection<String> expandedMethods;
 
     public static RESTEntityWrapperBuilder newBuilder() {
@@ -118,7 +121,7 @@ public class RESTEntityWrapperBuilder {
         return this;
     }
 
-    public RESTEntityWrapperBuilder parent(final RESTBaseEntityV1<?, ?, ?> parent) {
+    public RESTEntityWrapperBuilder parent(final RESTBaseEntityV1<?> parent) {
         this.parent = parent;
         return this;
     }
@@ -165,7 +168,14 @@ public class RESTEntityWrapperBuilder {
             wrapper = new RESTServerUndefinedEntityV1Wrapper(providerFactory, (RESTServerUndefinedEntityV1) unwrappedEntity);
         } else if (entity instanceof RESTLocaleV1) {
             // LOCALE
-            wrapper = new RESTLocaleV1Wrapper(providerFactory, (RESTLocaleV1) unwrappedEntity, isRevision, isNewEntity, expandedMethods);
+            wrapper = new RESTLocaleV1Wrapper(providerFactory, (RESTLocaleV1) unwrappedEntity, isNewEntity, expandedMethods);
+        } else if (entity instanceof RESTTranslationServerV1) {
+            // TRANSLATION SERVER
+            wrapper = new RESTTranslationServerV1Wrapper(providerFactory, (RESTTranslationServerV1) unwrappedEntity, isNewEntity, expandedMethods);
+        } else if (entity instanceof RESTTranslationServerExtendedV1) {
+            // TRANSLATION SERVER EXTENDED
+            wrapper = new RESTTranslationServerExtendedV1Wrapper(providerFactory, (RESTTranslationServerExtendedV1) unwrappedEntity,
+                    isNewEntity, expandedMethods);
         } else if (entity instanceof RESTTopicV1) {
             // TOPIC
             wrapper = new RESTTopicV1Wrapper(providerFactory, (RESTTopicV1) unwrappedEntity, isRevision, isNewEntity, expandedMethods);
@@ -252,6 +262,9 @@ public class RESTEntityWrapperBuilder {
         } else if (entity instanceof RESTTranslatedCSNodeStringV1) {
             // CONTENT SPEC TRANSLATED NODE STRING
             wrapper = getTranslatedCSNodeStringWrapper((RESTTranslatedCSNodeStringV1) unwrappedEntity);
+        } else if (entity instanceof RESTCSTranslationDetailV1) {
+            // CONTENT SPEC TRANSLATION DETAIL
+            wrapper = getCSTranslationDetailWrapper((RESTCSTranslationDetailV1) unwrappedEntity);
         } else {
             throw new IllegalArgumentException(GENERIC_ERROR);
         }
@@ -284,6 +297,17 @@ public class RESTEntityWrapperBuilder {
             throw new UnsupportedOperationException("A parent is needed to get Topic Source URLs using V1 of the REST Interface.");
         } else if (parent instanceof RESTBaseTopicV1) {
             return new RESTTopicSourceURLV1Wrapper(providerFactory, unwrappedEntity, isRevision, (RESTBaseTopicV1<?, ?, ?>) parent,
+                    isNewEntity, expandedMethods);
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    protected RESTCSTranslationDetailV1Wrapper getCSTranslationDetailWrapper(final RESTCSTranslationDetailV1 unwrappedEntity) {
+        if (parent == null) {
+            throw new UnsupportedOperationException("A parent is needed to get CS Translation Details using V1 of the REST Interface.");
+        } else if (parent instanceof RESTBaseContentSpecV1) {
+            return new RESTCSTranslationDetailV1Wrapper(providerFactory, unwrappedEntity, (RESTBaseContentSpecV1<?, ?, ?>) parent,
                     isNewEntity, expandedMethods);
         } else {
             throw new IllegalArgumentException();

@@ -30,7 +30,9 @@ import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.model.config.ApplicationConfig;
 import org.jboss.pressgang.ccms.model.config.EntitiesConfig;
 import org.jboss.pressgang.ccms.model.config.UndefinedSetting;
+import org.jboss.pressgang.ccms.provider.DBLocaleProvider;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
+import org.jboss.pressgang.ccms.provider.DBTranslationServerProvider;
 import org.jboss.pressgang.ccms.wrapper.base.DBBaseWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBServerUndefinedSettingCollectionWrapper;
@@ -43,6 +45,8 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
     private final ApplicationConfig applicationConfig;
     private final EntitiesConfig entitiesConfig;
     private Locale cachedDefaultLocale;
+    private UpdateableCollectionWrapper<LocaleWrapper> cachedLocales;
+    private UpdateableCollectionWrapper<TranslationServerExtendedWrapper> cachedTranslationServers;
 
     public DBServerSettingsWrapper(final DBProviderFactory providerFactory, final ApplicationConfig applicationConfig) {
         super(providerFactory);
@@ -130,6 +134,35 @@ public class DBServerSettingsWrapper extends DBBaseWrapper<ServerSettingsWrapper
         final Locale defaultLocaleEntity = defaultLocale == null ? null : ((Locale) defaultLocale.unwrap());
         cachedDefaultLocale = defaultLocaleEntity;
         getEntity().setDefaultLocale(defaultLocaleEntity == null ? null : defaultLocaleEntity.getValue());
+    }
+
+    @Override
+    public UpdateableCollectionWrapper<LocaleWrapper> getLocales() {
+        if (cachedLocales == null) {
+            cachedLocales = (UpdateableCollectionWrapper<LocaleWrapper>) getDatabaseProvider().getProvider(DBLocaleProvider.class).getLocales();
+        }
+
+        return cachedLocales;
+    }
+
+    @Override
+    public void setLocales(UpdateableCollectionWrapper<LocaleWrapper> locales) {
+        cachedLocales = locales;
+    }
+
+    @Override
+    public UpdateableCollectionWrapper<TranslationServerExtendedWrapper> getTranslationServers() {
+        if (cachedTranslationServers == null) {
+            cachedTranslationServers = (UpdateableCollectionWrapper<TranslationServerExtendedWrapper>) getDatabaseProvider().getProvider
+                    (DBTranslationServerProvider.class).getTranslationServersExtended();
+        }
+
+        return cachedTranslationServers;
+    }
+
+    @Override
+    public void setTranslationServers(UpdateableCollectionWrapper<TranslationServerExtendedWrapper> translationServers) {
+        cachedTranslationServers = translationServers;
     }
 
     @Override

@@ -26,7 +26,7 @@ import org.jboss.pressgang.ccms.provider.RESTPropertyTagInTagProvider;
 import org.jboss.pressgang.ccms.provider.RESTPropertyTagInTopicProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
@@ -35,7 +35,7 @@ import org.jboss.pressgang.ccms.rest.v1.entities.join.RESTAssignedPropertyTagV1;
 public class RESTAssignedPropertyTagV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTAssignedPropertyTagV1> {
 
     public RESTAssignedPropertyTagV1ProxyHandler(RESTProviderFactory providerFactory, RESTAssignedPropertyTagV1 entity,
-            boolean isRevisionEntity, final RESTBaseEntityV1<?, ?, ?> parent) {
+            boolean isRevisionEntity, final RESTBaseAuditedEntityV1<?, ?, ?> parent) {
         super(providerFactory, entity, isRevisionEntity, parent);
     }
 
@@ -48,7 +48,7 @@ public class RESTAssignedPropertyTagV1ProxyHandler extends RESTBaseEntityV1Proxy
                 final String methodName = method.getName();
 
                 if (methodName.equals("getRevisions")) {
-                    final RESTBaseEntityV1<?, ?, ?> parent = getParent();
+                    final RESTBaseAuditedEntityV1<?, ?, ?> parent = getParent();
                     if (parent instanceof RESTContentSpecV1) {
                         final RESTPropertyTagInContentSpecProvider provider = getProviderFactory().getProvider(
                                 RESTPropertyTagInContentSpecProvider.class);

@@ -28,6 +28,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollec
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTTranslatedContentSpecCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTagCollectionV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslationDetailV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 
 public class RESTContentSpecV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<RESTContentSpecV1> {
@@ -66,6 +67,9 @@ public class RESTContentSpecV1ProxyHandler extends RESTBaseEntityV1ProxyHandler<
                 } else if (methodName.equals("getTranslatedContentSpecs")) {
                     retValue = getProvider().getRESTContentSpecTranslations(entity.getId(), getEntityRevision());
                     entity.setTranslatedContentSpecs((RESTTranslatedContentSpecCollectionV1) retValue);
+                } else if (methodName.equals("getTranslationDetails")) {
+                    retValue = getProvider().getRESTContentSpecTranslationDetail(entity.getId(), getEntityRevision());
+                    entity.setTranslationDetails((RESTCSTranslationDetailV1) retValue);
                 }
             }
 

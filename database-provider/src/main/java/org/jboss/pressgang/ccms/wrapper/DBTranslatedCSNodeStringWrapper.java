@@ -22,9 +22,9 @@ package org.jboss.pressgang.ccms.wrapper;
 import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.model.contentspec.TranslatedCSNodeString;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBTranslatedCSNodeStringWrapper extends DBBaseEntityWrapper<TranslatedCSNodeStringWrapper,
+public class DBTranslatedCSNodeStringWrapper extends DBBaseAuditedEntityWrapper<TranslatedCSNodeStringWrapper,
         TranslatedCSNodeString> implements TranslatedCSNodeStringWrapper {
     private final TranslatedCSNodeString translatedCSNodeString;
 

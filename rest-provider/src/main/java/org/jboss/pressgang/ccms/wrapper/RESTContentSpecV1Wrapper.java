@@ -19,8 +19,10 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
+import java.util.Arrays;
 import java.util.Collection;
 
+import org.jboss.pressgang.ccms.provider.RESTContentSpecProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
@@ -28,6 +30,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTag
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTLocaleV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSNodeV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTCSTranslationDetailV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.RESTContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTContentSpecTypeV1;
 import org.jboss.pressgang.ccms.utils.constants.CommonConstants;
@@ -117,6 +120,12 @@ public class RESTContentSpecV1Wrapper extends RESTBaseContentSpecV1Wrapper<Conte
     @Override
     public void setLocale(LocaleWrapper locale) {
         getEntity().explicitSetLocale(locale == null ? null : (RESTLocaleV1) locale.unwrap());
+    }
+
+    @Override
+    public void setTranslationDetails(CSTranslationDetailWrapper translationDetails) {
+        getEntity().explicitSetTranslationDetails(
+                translationDetails == null ? null : (RESTCSTranslationDetailV1) translationDetails.unwrap());
     }
 
     @Override

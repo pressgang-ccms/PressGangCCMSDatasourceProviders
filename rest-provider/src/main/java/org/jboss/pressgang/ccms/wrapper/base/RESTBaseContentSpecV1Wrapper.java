@@ -19,6 +19,7 @@
 
 package org.jboss.pressgang.ccms.wrapper.base;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -27,6 +28,7 @@ import org.jboss.pressgang.ccms.rest.v1.components.ComponentBaseRESTEntityWithPr
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.base.RESTBaseContentSpecV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.contentspec.enums.RESTContentSpecTypeV1;
+import org.jboss.pressgang.ccms.wrapper.CSTranslationDetailWrapper;
 import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.RESTEntityWrapperBuilder;
@@ -36,7 +38,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public abstract class RESTBaseContentSpecV1Wrapper<T extends BaseContentSpecWrapper<T>, U extends RESTBaseContentSpecV1<U, ?,
-        ?>> extends RESTBaseEntityWrapper<T, U> implements BaseContentSpecWrapper<T> {
+        ?>> extends RESTBaseAuditedEntityWrapper<T, U> implements BaseContentSpecWrapper<T> {
 
     protected RESTBaseContentSpecV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity) {
         super(providerFactory, entity, isRevision, isNewEntity);
@@ -121,5 +123,16 @@ public abstract class RESTBaseContentSpecV1Wrapper<T extends BaseContentSpecWrap
     @Override
     public boolean hasTag(final int tagId) {
         return ComponentContentSpecV1.hasTag(getProxyEntity(), tagId);
+    }
+
+    @Override
+    public CSTranslationDetailWrapper getTranslationDetails() {
+        return RESTEntityWrapperBuilder.newBuilder()
+                .providerFactory(getProviderFactory())
+                .entity(getProxyEntity().getTranslationDetails())
+                .expandedMethods(Arrays.asList("getLocales", "getTranslationServer"))
+                .isRevision(isRevisionEntity())
+                .parent(getProxyEntity())
+                .build();
     }
 }

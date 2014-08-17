@@ -19,9 +19,9 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 
-public interface LanguageImageWrapper extends EntityWrapper<LanguageImageWrapper> {
+public interface LanguageImageWrapper extends AuditedEntityWrapper<LanguageImageWrapper> {
     String getFilename();
 
     LocaleWrapper getLocale();

@@ -21,9 +21,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.StringConstants;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBStringConstantWrapper extends DBBaseEntityWrapper<StringConstantWrapper, StringConstants> implements StringConstantWrapper {
+public class DBStringConstantWrapper extends DBBaseAuditedEntityWrapper<StringConstantWrapper, StringConstants> implements StringConstantWrapper {
     private final StringConstants stringConstant;
 
     public DBStringConstantWrapper(final DBProviderFactory providerFactory, final StringConstants stringConstant, boolean isRevision) {

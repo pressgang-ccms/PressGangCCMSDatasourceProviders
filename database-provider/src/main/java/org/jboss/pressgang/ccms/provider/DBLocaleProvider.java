@@ -40,15 +40,6 @@ public class DBLocaleProvider extends DBDataProvider implements LocaleProvider {
     }
 
     @Override
-    public LocaleWrapper getLocale(int id, Integer revision) {
-        if (revision == null) {
-            return getLocale(id);
-        } else {
-            return getWrapperFactory().create(getRevisionEntity(Locale.class, id, revision), true);
-        }
-    }
-
-    @Override
     public CollectionWrapper<LocaleWrapper> getLocales() {
         // Create the select all query
         final CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();

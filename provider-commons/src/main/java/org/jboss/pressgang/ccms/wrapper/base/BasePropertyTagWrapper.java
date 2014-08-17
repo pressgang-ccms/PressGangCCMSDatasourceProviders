@@ -19,7 +19,7 @@
 
 package org.jboss.pressgang.ccms.wrapper.base;
 
-public interface BasePropertyTagWrapper<T extends BasePropertyTagWrapper<T>> extends EntityWrapper<T> {
+public interface BasePropertyTagWrapper<T extends BasePropertyTagWrapper<T>> extends AuditedEntityWrapper<T> {
     String getName();
 
     void setName(String name);

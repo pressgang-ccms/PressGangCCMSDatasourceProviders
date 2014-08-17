@@ -19,9 +19,9 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 
-public interface BlobConstantWrapper extends EntityWrapper<BlobConstantWrapper> {
+public interface BlobConstantWrapper extends AuditedEntityWrapper<BlobConstantWrapper> {
     String getName();
 
     void setName(String name);

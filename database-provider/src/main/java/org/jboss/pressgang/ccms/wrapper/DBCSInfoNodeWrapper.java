@@ -21,9 +21,9 @@ package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.model.contentspec.CSInfoNode;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 
-public class DBCSInfoNodeWrapper extends DBBaseEntityWrapper<CSInfoNodeWrapper, CSInfoNode> implements CSInfoNodeWrapper {
+public class DBCSInfoNodeWrapper extends DBBaseAuditedEntityWrapper<CSInfoNodeWrapper, CSInfoNode> implements CSInfoNodeWrapper {
     private final CSInfoNode csInfoNode;
 
     public DBCSInfoNodeWrapper(final DBProviderFactory providerFactory, final CSInfoNode csInfoNode, boolean isRevision) {

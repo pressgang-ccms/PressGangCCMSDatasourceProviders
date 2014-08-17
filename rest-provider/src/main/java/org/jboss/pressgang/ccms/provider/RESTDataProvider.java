@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.jboss.pressgang.ccms.provider.exception.BadRequestException;
 import org.jboss.pressgang.ccms.provider.exception.ForbiddenException;
 import org.jboss.pressgang.ccms.provider.exception.InternalServerErrorException;
@@ -42,6 +43,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectio
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityUpdateCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
 import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementWithConfiguredParametersV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataDetails;
 import org.jboss.pressgang.ccms.rest.v1.expansion.ExpandDataTrunk;
@@ -55,7 +57,9 @@ public abstract class RESTDataProvider extends DataProvider {
     private static ObjectMapper mapper = new ObjectMapper();
 
     protected RESTDataProvider(final RESTProviderFactory providerFactory) {
-       super(providerFactory);
+        super(providerFactory);
+        // Set the mapper to ignore non null values
+        mapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
     }
 
     @Override
@@ -125,7 +129,7 @@ public abstract class RESTDataProvider extends DataProvider {
      * @return True if the class is or extends
      */
     private boolean isEntityClass(Class<?> clazz) {
-        if (clazz == RESTBaseEntityV1.class) {
+        if (clazz == RESTBaseAuditedEntityV1.class) {
             return true;
         } else if (clazz.getSuperclass() != null) {
             return isEntityClass(clazz.getSuperclass());
@@ -150,7 +154,7 @@ public abstract class RESTDataProvider extends DataProvider {
             collection.removeInvalidChangeItemRequests();
         }
 
-        for (final RESTBaseEntityV1<?, ?, ?> item : collection.returnItems()) {
+        for (final RESTBaseEntityV1<?> item : collection.returnItems()) {
             cleanEntityForSave(item);
         }
     }

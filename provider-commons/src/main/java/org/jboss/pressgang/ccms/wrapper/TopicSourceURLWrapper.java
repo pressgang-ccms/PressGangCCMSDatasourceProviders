@@ -19,9 +19,9 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import org.jboss.pressgang.ccms.wrapper.base.EntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.AuditedEntityWrapper;
 
-public interface TopicSourceURLWrapper extends EntityWrapper<TopicSourceURLWrapper> {
+public interface TopicSourceURLWrapper extends AuditedEntityWrapper<TopicSourceURLWrapper> {
     String getTitle();
 
     void setTitle(String title);

@@ -23,18 +23,18 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.elements.base.RESTBaseElementV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 
 public class RESTWrapperKey {
     private final Object o;
-    private RESTBaseEntityV1<?, ?, ?> parent;
+    private RESTBaseAuditedEntityV1<?, ?, ?> parent;
     private final Class<?> wrapperClass;
 
     public RESTWrapperKey(final RESTBaseElementV1<?> o) {
         this(o, null, null);
     }
 
-    public RESTWrapperKey(final RESTBaseElementV1<?> o, final RESTBaseEntityV1<?, ?, ?> parent) {
+    public RESTWrapperKey(final RESTBaseElementV1<?> o, final RESTBaseAuditedEntityV1<?, ?, ?> parent) {
         this(o, parent, null);
     }
 
@@ -42,7 +42,7 @@ public class RESTWrapperKey {
         this(o, null, wrapperClass);
     }
 
-    public RESTWrapperKey(final RESTBaseElementV1<?> o, final RESTBaseEntityV1<?, ?, ?> parent, final Class<?> wrapperClass) {
+    public RESTWrapperKey(final RESTBaseElementV1<?> o, final RESTBaseAuditedEntityV1<?, ?, ?> parent, final Class<?> wrapperClass) {
         this.o = o;
         this.parent = parent;
         this.wrapperClass = wrapperClass;
@@ -52,7 +52,7 @@ public class RESTWrapperKey {
         this(o, null, null);
     }
 
-    public RESTWrapperKey(final RESTCollectionV1<?, ?> o, RESTBaseEntityV1<?, ? ,?> parent) {
+    public RESTWrapperKey(final RESTCollectionV1<?, ?> o, RESTBaseAuditedEntityV1<?, ? ,?> parent) {
         this(o, parent, null);
     }
 
@@ -60,7 +60,7 @@ public class RESTWrapperKey {
         this(o, null, wrapperClass);
     }
 
-    public RESTWrapperKey(final RESTCollectionV1<?, ?> o, RESTBaseEntityV1<?, ? ,?> parent, final Class<?> wrapperClass) {
+    public RESTWrapperKey(final RESTCollectionV1<?, ?> o, RESTBaseAuditedEntityV1<?, ? ,?> parent, final Class<?> wrapperClass) {
         this.o = o;
         this.parent = parent;
         this.wrapperClass = wrapperClass;

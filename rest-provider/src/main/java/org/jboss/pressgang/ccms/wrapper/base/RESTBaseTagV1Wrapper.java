@@ -25,7 +25,7 @@ import java.util.List;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.provider.RESTTagProvider;
 import org.jboss.pressgang.ccms.rest.v1.components.ComponentTagV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTagV1;
 import org.jboss.pressgang.ccms.wrapper.CategoryInTagWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInTagWrapper;
@@ -35,7 +35,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
-public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extends RESTBaseTagV1<U, ?, ?>> extends RESTBaseEntityWrapper<T,
+public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extends RESTBaseTagV1<U, ?, ?>> extends RESTBaseAuditedEntityWrapper<T,
         U> implements BaseTagWrapper<T> {
     private final RESTTagProvider dataProvider;
 
@@ -49,13 +49,13 @@ public abstract class RESTBaseTagV1Wrapper<T extends BaseTagWrapper<T>, U extend
     }
 
     protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision,
-            final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> parent, boolean isNewEntity) {
         super(providerFactory, entity, isRevision, parent, isNewEntity);
         dataProvider = providerFactory.getProvider(RESTTagProvider.class);
     }
 
     protected RESTBaseTagV1Wrapper(RESTProviderFactory providerFactory, U entity, boolean isRevision,
-            final RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+            final RESTBaseAuditedEntityV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
         super(providerFactory, entity, isRevision, parent, isNewEntity, expandedMethods);
         dataProvider = providerFactory.getProvider(RESTTagProvider.class);
     }

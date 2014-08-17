@@ -26,8 +26,8 @@ import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
 public class DBLocaleWrapper extends DBBaseEntityWrapper<LocaleWrapper, Locale> implements LocaleWrapper {
     private final Locale locale;
 
-    public DBLocaleWrapper(final DBProviderFactory providerFactory, final Locale locale, boolean isRevision) {
-        super(providerFactory, isRevision, Locale.class);
+    public DBLocaleWrapper(final DBProviderFactory providerFactory, final Locale locale) {
+        super(providerFactory, Locale.class);
         this.locale = locale;
     }
 

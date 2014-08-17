@@ -27,13 +27,13 @@ import org.jboss.pressgang.ccms.model.Category;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.TagToCategory;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
-import org.jboss.pressgang.ccms.wrapper.base.DBBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.DBBaseAuditedEntityWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.DBTagInCategoryCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTagInCategoryCollectionHandler;
 
-public class DBCategoryInTagWrapper extends DBBaseEntityWrapper<CategoryInTagWrapper, TagToCategory> implements CategoryInTagWrapper {
+public class DBCategoryInTagWrapper extends DBBaseAuditedEntityWrapper<CategoryInTagWrapper, TagToCategory> implements CategoryInTagWrapper {
     private final DBTagInCategoryCollectionHandler tagCollectionHandler;
     private final TagToCategory tagToCategory;
 

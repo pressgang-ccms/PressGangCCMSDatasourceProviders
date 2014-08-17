@@ -28,10 +28,12 @@ import java.util.Set;
 import org.jboss.pressgang.ccms.model.Locale;
 import org.jboss.pressgang.ccms.model.Tag;
 import org.jboss.pressgang.ccms.model.contentspec.CSNode;
+import org.jboss.pressgang.ccms.model.contentspec.CSTranslationDetail;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpecToPropertyTag;
 import org.jboss.pressgang.ccms.model.utils.EnversUtilities;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;
+import org.jboss.pressgang.ccms.wrapper.CSTranslationDetailWrapper;
 import org.jboss.pressgang.ccms.wrapper.LocaleWrapper;
 import org.jboss.pressgang.ccms.wrapper.PropertyTagInContentSpecWrapper;
 import org.jboss.pressgang.ccms.wrapper.TagWrapper;
@@ -42,7 +44,7 @@ import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBPropertyTagCollectionHandler;
 import org.jboss.pressgang.ccms.wrapper.collection.handler.DBTagCollectionHandler;
 
-public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> extends DBBaseEntityWrapper<T, ContentSpec> implements
+public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<T>> extends DBBaseAuditedEntityWrapper<T, ContentSpec> implements
         BaseContentSpecWrapper<T> {
 
     private final DBPropertyTagCollectionHandler<ContentSpecToPropertyTag> propertyCollectionHandler;
@@ -201,5 +203,15 @@ public abstract class DBBaseContentSpecWrapper<T extends BaseContentSpecWrapper<
     @Override
     public boolean hasTag(final int tagId) {
         return getEntity().isTaggedWith(tagId);
+    }
+
+    @Override
+    public CSTranslationDetailWrapper getTranslationDetails() {
+        return getWrapperFactory().create(getEntity().getTranslationDetails(getEntityManager()), false);
+    }
+
+    @Override
+    public void setTranslationDetails(CSTranslationDetailWrapper translationDetails) {
+        getEntity().setTranslationDetails(translationDetails == null ? null : (CSTranslationDetail) translationDetails.unwrap());
     }
 }

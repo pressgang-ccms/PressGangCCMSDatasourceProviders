@@ -25,7 +25,5 @@ import org.jboss.pressgang.ccms.wrapper.collection.CollectionWrapper;
 public interface LocaleProvider {
     LocaleWrapper getLocale(int id);
 
-    LocaleWrapper getLocale(int id, Integer revision);
-
     CollectionWrapper<LocaleWrapper> getLocales();
 }

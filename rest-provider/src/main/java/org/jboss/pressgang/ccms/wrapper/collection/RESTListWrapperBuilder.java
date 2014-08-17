@@ -34,7 +34,7 @@ public class RESTListWrapperBuilder<T extends BaseWrapper<T>> {
     private Collection<? extends RESTBaseElementV1<?>> entities;
     private boolean isRevisionList = false;
     private Class<T> wrapperClass;
-    private RESTBaseEntityV1<?, ?, ?> parent;
+    private RESTBaseEntityV1<?> parent;
 
     public static <T extends BaseWrapper<T>> RESTListWrapperBuilder<T> newBuilder() {
         return new RESTListWrapperBuilder<T>();
@@ -68,7 +68,7 @@ public class RESTListWrapperBuilder<T extends BaseWrapper<T>> {
         return this;
     }
 
-    public RESTListWrapperBuilder<T> parent(final RESTBaseEntityV1<?, ?, ?> parent) {
+    public RESTListWrapperBuilder<T> parent(final RESTBaseEntityV1<?> parent) {
         this.parent = parent;
         return this;
     }

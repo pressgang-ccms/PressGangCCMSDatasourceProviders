@@ -39,6 +39,10 @@ public interface ServerSettingsWrapper extends BaseWrapper<ServerSettingsWrapper
     void setSEOCategoryIds(List<Integer> seoCategoryIds);
     LocaleWrapper getDefaultLocale();
     void setDefaultLocale(LocaleWrapper defaultLocale);
+    UpdateableCollectionWrapper<LocaleWrapper> getLocales();
+    void setLocales(UpdateableCollectionWrapper<LocaleWrapper> locales);
+    UpdateableCollectionWrapper<TranslationServerExtendedWrapper> getTranslationServers();
+    void setTranslationServers(UpdateableCollectionWrapper<TranslationServerExtendedWrapper> translationServers);
     ServerEntitiesWrapper getEntities();
     UpdateableCollectionWrapper<ServerUndefinedSettingWrapper> getUndefinedSettings();
     void setUndefinedSettings(UpdateableCollectionWrapper<ServerUndefinedSettingWrapper> undefinedSettings);

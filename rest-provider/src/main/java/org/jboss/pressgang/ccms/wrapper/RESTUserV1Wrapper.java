@@ -23,9 +23,9 @@ import java.util.Collection;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTUserV1;
-import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
+import org.jboss.pressgang.ccms.wrapper.base.RESTBaseAuditedEntityWrapper;
 
-public class RESTUserV1Wrapper extends RESTBaseEntityWrapper<UserWrapper, RESTUserV1> implements UserWrapper {
+public class RESTUserV1Wrapper extends RESTBaseAuditedEntityWrapper<UserWrapper, RESTUserV1> implements UserWrapper {
 
     protected RESTUserV1Wrapper(final RESTProviderFactory providerFactory, final RESTUserV1 user, boolean isRevision, boolean isNewEntity) {
         super(providerFactory, user, isRevision, isNewEntity);

@@ -27,19 +27,18 @@ import org.jboss.pressgang.ccms.wrapper.base.RESTBaseEntityWrapper;
 
 public class RESTLocaleV1Wrapper extends RESTBaseEntityWrapper<LocaleWrapper, RESTLocaleV1> implements LocaleWrapper {
 
-    protected RESTLocaleV1Wrapper(final RESTProviderFactory providerFactory, final RESTLocaleV1 stringConstant, boolean isRevision,
-            boolean isNewEntity) {
-        super(providerFactory, stringConstant, isRevision, isNewEntity);
+    protected RESTLocaleV1Wrapper(final RESTProviderFactory providerFactory, final RESTLocaleV1 entity, boolean isNewEntity) {
+        super(providerFactory, entity, isNewEntity);
     }
 
-    protected RESTLocaleV1Wrapper(final RESTProviderFactory providerFactory, final RESTLocaleV1 stringConstant, boolean isRevision,
-            boolean isNewEntity, final Collection<String> expandedMethods) {
-        super(providerFactory, stringConstant, isRevision, isNewEntity, expandedMethods);
+    protected RESTLocaleV1Wrapper(final RESTProviderFactory providerFactory, final RESTLocaleV1 entity, boolean isNewEntity,
+            final Collection<String> expandedMethods) {
+        super(providerFactory, entity, isNewEntity, expandedMethods);
     }
 
     @Override
     public LocaleWrapper clone(boolean deepCopy) {
-        return new RESTLocaleV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTLocaleV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isNewEntity());
     }
 
     @Override

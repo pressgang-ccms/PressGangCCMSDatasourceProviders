@@ -20,6 +20,7 @@
 package org.jboss.pressgang.ccms.wrapper;
 
 import org.jboss.pressgang.ccms.contentspec.utils.CSTransformer;
+import org.jboss.pressgang.ccms.model.contentspec.CSTranslationDetail;
 import org.jboss.pressgang.ccms.model.contentspec.ContentSpec;
 import org.jboss.pressgang.ccms.provider.ContentSpecProvider;
 import org.jboss.pressgang.ccms.provider.DBProviderFactory;

@@ -23,13 +23,13 @@ import java.util.Collection;
 
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseCategoryV1;
-import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseAuditedEntityV1;
 import org.jboss.pressgang.ccms.wrapper.TagInCategoryWrapper;
 import org.jboss.pressgang.ccms.wrapper.collection.RESTCollectionWrapperBuilder;
 import org.jboss.pressgang.ccms.wrapper.collection.UpdateableCollectionWrapper;
 
 public abstract class RESTBaseCategoryV1Wrapper<T extends BaseCategoryWrapper<T>, U extends RESTBaseCategoryV1<U, ?,
-        ?>> extends RESTBaseEntityWrapper<T, U> implements BaseCategoryWrapper<T> {
+        ?>> extends RESTBaseAuditedEntityWrapper<T, U> implements BaseCategoryWrapper<T> {
 
     protected RESTBaseCategoryV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, boolean isNewEntity) {
         super(providerFactory, entity, isRevision, isNewEntity);
@@ -41,12 +41,12 @@ public abstract class RESTBaseCategoryV1Wrapper<T extends BaseCategoryWrapper<T>
     }
 
     protected RESTBaseCategoryV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision,
-            RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity) {
+            RESTBaseAuditedEntityV1<?, ?, ?> parent, boolean isNewEntity) {
         super(providerFactory, entity, isRevision, parent, isNewEntity);
     }
 
     protected RESTBaseCategoryV1Wrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision,
-            RESTBaseEntityV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+            RESTBaseAuditedEntityV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
         super(providerFactory, entity, isRevision, parent, isNewEntity, expandedMethods);
     }
 

@@ -30,21 +30,21 @@ import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectio
 import org.jboss.pressgang.ccms.rest.v1.collections.base.RESTBaseEntityCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 
-public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T, U, V>, U extends RESTBaseEntityCollectionV1<T, U, V>,
+public class RESTCollectionV1ProxyHandler<T extends RESTBaseEntityV1<T>, U extends RESTBaseEntityCollectionV1<T, U, V>,
         V extends RESTBaseEntityCollectionItemV1<T, U, V>> implements MethodHandler {
 
     private final RESTProviderFactory providerFactory;
     private U proxyCollection;
     private final U collection;
     private final boolean isRevision;
-    private final RESTBaseEntityV1<?, ?, ?> parent;
+    private final RESTBaseEntityV1<?> parent;
 
     public RESTCollectionV1ProxyHandler(final RESTProviderFactory providerFactory, final U collection, boolean isRevisionCollection) {
         this(providerFactory, collection, isRevisionCollection, null);
     }
 
     public RESTCollectionV1ProxyHandler(final RESTProviderFactory providerFactory, final U collection, boolean isRevisionCollection,
-            final RESTBaseEntityV1<?, ?, ?> parent) {
+            final RESTBaseEntityV1<?> parent) {
         this.collection = collection;
         isRevision = isRevisionCollection;
         this.providerFactory = providerFactory;

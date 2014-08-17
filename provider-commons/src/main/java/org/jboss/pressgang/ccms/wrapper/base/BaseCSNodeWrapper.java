@@ -19,7 +19,7 @@
 
 package org.jboss.pressgang.ccms.wrapper.base;
 
-public interface BaseCSNodeWrapper<T extends BaseCSNodeWrapper<T>> extends EntityWrapper<T> {
+public interface BaseCSNodeWrapper<T extends BaseCSNodeWrapper<T>> extends AuditedEntityWrapper<T> {
     String getTitle();
 
     void setTitle(String title);
