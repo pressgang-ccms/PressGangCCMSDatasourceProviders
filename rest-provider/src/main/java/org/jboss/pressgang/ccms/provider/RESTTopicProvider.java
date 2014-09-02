@@ -37,6 +37,7 @@ import org.jboss.pressgang.ccms.rest.v1.collections.join.RESTAssignedPropertyTag
 import org.jboss.pressgang.ccms.rest.v1.constants.RESTv1Constants;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTagV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTTopicV1;
+import org.jboss.pressgang.ccms.rest.v1.entities.RESTTranslatedTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseTopicV1;
 import org.jboss.pressgang.ccms.rest.v1.query.RESTTopicQueryBuilderV1;
 import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
@@ -70,7 +71,7 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
             Collection<String>>() {{
         put(RESTTopicV1.TAGS_NAME, Arrays.asList(RESTTagV1.CATEGORIES_NAME));
         put(RESTTopicV1.PROPERTIES_NAME, null);
-        put(RESTTopicV1.TRANSLATEDTOPICS_NAME, null);
+        put(RESTTopicV1.TRANSLATEDTOPICS_NAME, Arrays.asList(RESTTranslatedTopicV1.TRANSLATED_CSNODE_NAME));
     }};
     protected static final Set<String> DEFAULT_METHOD_MAP_WITH_TRANSLATIONS = new HashSet<String>() {{
         add("getTags");
@@ -90,6 +91,10 @@ public class RESTTopicProvider extends RESTDataProvider implements TopicProvider
         } else {
             return getRESTClient().getJSONTopicRevision(id, revision, expandString);
         }
+    }
+
+    public boolean isExpandTranslations() {
+        return expandTranslations;
     }
 
     public void setExpandTranslations(final boolean expandTranslations) {
