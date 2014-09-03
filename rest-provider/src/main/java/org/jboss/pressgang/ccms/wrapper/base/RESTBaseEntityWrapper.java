@@ -48,13 +48,18 @@ public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extend
 
     protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity,
             final RESTBaseEntityV1<?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
+        this(providerFactory, entity, false, parent, isNewEntity, expandedMethods);
+    }
+
+    protected RESTBaseEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision, final RESTBaseEntityV1<?> parent, boolean isNewEntity,
+            final Collection<String> expandedMethods) {
         super(providerFactory, entity);
         this.isNewEntity = isNewEntity;
         this.parent = parent;
         if (isNewEntity) {
             proxyEntity = entity;
         } else {
-            proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, false, parent, expandedMethods);
+            proxyEntity = RESTEntityProxyFactory.createProxy(providerFactory, entity, isRevision, parent, expandedMethods);
         }
     }
 

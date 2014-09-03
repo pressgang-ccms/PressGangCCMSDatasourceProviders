@@ -47,7 +47,7 @@ public abstract class RESTBaseAuditedEntityWrapper<T extends AuditedEntityWrappe
 
     protected RESTBaseAuditedEntityWrapper(final RESTProviderFactory providerFactory, U entity, boolean isRevision,
             final RESTBaseAuditedEntityV1<?, ?, ?> parent, boolean isNewEntity, final Collection<String> expandedMethods) {
-        super(providerFactory, entity, parent, isNewEntity, expandedMethods);
+        super(providerFactory, entity, isRevision, parent, isNewEntity, expandedMethods);
         this.isRevision = isRevision;
     }
 
