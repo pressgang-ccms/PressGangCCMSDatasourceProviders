@@ -19,10 +19,9 @@
 
 package org.jboss.pressgang.ccms.wrapper;
 
-import java.util.Arrays;
 import java.util.Collection;
 
-import org.jboss.pressgang.ccms.provider.RESTContentSpecProvider;
+import org.jboss.pressgang.ccms.provider.RESTCSNodeProvider;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTTagCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.contentspec.RESTCSNodeCollectionV1;
@@ -76,6 +75,7 @@ public class RESTContentSpecV1Wrapper extends RESTBaseContentSpecV1Wrapper<Conte
         return (UpdateableCollectionWrapper<CSNodeWrapper>) RESTCollectionWrapperBuilder.<CSNodeWrapper>newBuilder()
                 .providerFactory(getProviderFactory())
                 .collection(getProxyEntity().getChildren_OTM())
+                .expandedEntityMethods(RESTCSNodeProvider.DEFAULT_METHODS)
                 .isRevisionCollection(isRevisionEntity())
                 .build();
     }

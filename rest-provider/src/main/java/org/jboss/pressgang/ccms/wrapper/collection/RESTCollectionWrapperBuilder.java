@@ -241,7 +241,8 @@ public class RESTCollectionWrapperBuilder<T extends BaseWrapper<T>> {
                     isRevisionCollection, expandedEntityMethods);
         } else if (collection instanceof RESTCSNodeCollectionV1) {
             // CONTENT SPEC NODE
-            wrapper = new RESTCSNodeCollectionV1Wrapper(providerFactory, (RESTCSNodeCollectionV1) collection, isRevisionCollection);
+            wrapper = new RESTCSNodeCollectionV1Wrapper(providerFactory, (RESTCSNodeCollectionV1) collection, isRevisionCollection,
+                    expandedEntityMethods);
         } else if (collection instanceof RESTCSRelatedNodeCollectionV1) {
             wrapper = new RESTCSRelatedNodeCollectionV1Wrapper(providerFactory, (RESTCSRelatedNodeCollectionV1) collection,
                     isRevisionCollection, expandedEntityMethods);
