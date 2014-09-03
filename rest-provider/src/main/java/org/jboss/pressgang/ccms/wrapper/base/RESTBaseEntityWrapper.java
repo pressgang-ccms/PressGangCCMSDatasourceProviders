@@ -20,6 +20,7 @@
 package org.jboss.pressgang.ccms.wrapper.base;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import javassist.util.proxy.ProxyObject;
@@ -107,7 +108,11 @@ public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extend
     }
 
     protected Set<String> getProxyProcessedMethodNames() {
-        final RESTBaseEntityV1ProxyHandler<U> proxyHandler = ((RESTBaseEntityV1ProxyHandler<U>) ((ProxyObject) proxyEntity).getHandler());
-        return proxyHandler.getProcessedMethodNames();
+        if (proxyEntity instanceof ProxyObject) {
+            final RESTBaseEntityV1ProxyHandler<U> proxyHandler = ((RESTBaseEntityV1ProxyHandler<U>) ((ProxyObject) proxyEntity).getHandler());
+            return proxyHandler.getProcessedMethodNames();
+        } else {
+            return new HashSet<String>();
+        }
     }
 }
