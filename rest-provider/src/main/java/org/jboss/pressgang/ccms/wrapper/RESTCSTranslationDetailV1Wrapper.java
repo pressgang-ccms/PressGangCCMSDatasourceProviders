@@ -51,7 +51,8 @@ public class RESTCSTranslationDetailV1Wrapper extends RESTBaseEntityWrapper<CSTr
 
     @Override
     public CSTranslationDetailWrapper clone(boolean deepCopy) {
-        return new RESTCSTranslationDetailV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), getParentEntity(), isNewEntity());
+        return new RESTCSTranslationDetailV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), getParentEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

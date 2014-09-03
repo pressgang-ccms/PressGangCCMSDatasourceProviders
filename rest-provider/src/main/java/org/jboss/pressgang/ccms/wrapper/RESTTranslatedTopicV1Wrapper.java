@@ -158,7 +158,8 @@ public class RESTTranslatedTopicV1Wrapper extends RESTBaseTopicV1Wrapper<Transla
 
     @Override
     public TranslatedTopicWrapper clone(boolean deepCopy) {
-        return new RESTTranslatedTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTTranslatedTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

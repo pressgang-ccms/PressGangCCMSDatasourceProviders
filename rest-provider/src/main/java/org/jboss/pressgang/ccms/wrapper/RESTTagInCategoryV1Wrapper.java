@@ -59,7 +59,7 @@ public class RESTTagInCategoryV1Wrapper extends RESTBaseTagV1Wrapper<TagInCatego
     @Override
     public RESTTagInCategoryV1Wrapper clone(boolean deepCopy) {
         return new RESTTagInCategoryV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), getParentEntity(),
-                isNewEntity());
+                isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

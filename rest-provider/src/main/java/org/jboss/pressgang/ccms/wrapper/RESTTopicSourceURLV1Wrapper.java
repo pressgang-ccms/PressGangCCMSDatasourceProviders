@@ -47,7 +47,7 @@ public class RESTTopicSourceURLV1Wrapper extends RESTBaseAuditedEntityWrapper<To
     @Override
     public TopicSourceURLWrapper clone(boolean deepCopy) {
         return new RESTTopicSourceURLV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), getParentEntity(),
-                isNewEntity());
+                isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

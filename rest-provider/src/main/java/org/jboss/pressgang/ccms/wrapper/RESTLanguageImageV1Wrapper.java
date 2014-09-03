@@ -47,7 +47,7 @@ public class RESTLanguageImageV1Wrapper extends RESTBaseAuditedEntityWrapper<Lan
     @Override
     public LanguageImageWrapper clone(boolean deepCopy) {
         return new RESTLanguageImageV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(),
-                (deepCopy ? getParentEntity().clone(deepCopy) : getParentEntity()), isNewEntity());
+                (deepCopy ? getParentEntity().clone(deepCopy) : getParentEntity()), isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

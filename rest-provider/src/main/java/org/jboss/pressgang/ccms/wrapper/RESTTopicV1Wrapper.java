@@ -159,7 +159,8 @@ public class RESTTopicV1Wrapper extends RESTBaseTopicV1Wrapper<TopicWrapper, RES
 
     @Override
     public TopicWrapper clone(boolean deepCopy) {
-        return new RESTTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTTopicV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

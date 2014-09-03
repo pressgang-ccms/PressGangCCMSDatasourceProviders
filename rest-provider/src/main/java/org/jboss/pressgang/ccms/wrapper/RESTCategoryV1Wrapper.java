@@ -41,7 +41,8 @@ public class RESTCategoryV1Wrapper extends RESTBaseCategoryV1Wrapper<CategoryWra
 
     @Override
     public RESTCategoryV1Wrapper clone(boolean deepCopy) {
-        return new RESTCategoryV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTCategoryV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

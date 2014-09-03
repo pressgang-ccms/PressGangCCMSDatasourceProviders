@@ -47,7 +47,7 @@ public class RESTLanguageFileV1Wrapper extends RESTBaseAuditedEntityWrapper<Lang
     @Override
     public LanguageFileWrapper clone(boolean deepCopy) {
         return new RESTLanguageFileV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(),
-                (deepCopy ? getParentEntity().clone(deepCopy) : getParentEntity()), isNewEntity());
+                (deepCopy ? getParentEntity().clone(deepCopy) : getParentEntity()), isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

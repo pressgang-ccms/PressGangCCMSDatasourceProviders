@@ -74,7 +74,7 @@ public class RESTPropertyTagInTopicV1Wrapper extends RESTBasePropertyTagV1Wrappe
     @Override
     public RESTPropertyTagInTopicV1Wrapper clone(boolean deepCopy) {
         return new RESTPropertyTagInTopicV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), getParentEntity(),
-                isNewEntity());
+                isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

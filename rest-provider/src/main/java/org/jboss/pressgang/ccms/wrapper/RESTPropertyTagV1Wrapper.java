@@ -45,6 +45,7 @@ public class RESTPropertyTagV1Wrapper extends RESTBasePropertyTagV1Wrapper<Prope
 
     @Override
     public RESTPropertyTagV1Wrapper clone(boolean deepCopy) {
-        return new RESTPropertyTagV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTPropertyTagV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 }

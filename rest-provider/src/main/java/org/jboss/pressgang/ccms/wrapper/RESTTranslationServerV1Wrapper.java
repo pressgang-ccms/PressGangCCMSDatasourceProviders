@@ -40,7 +40,8 @@ public class RESTTranslationServerV1Wrapper extends RESTBaseTranslationServerV1W
 
     @Override
     public TranslationServerWrapper clone(boolean deepCopy) {
-        return new RESTTranslationServerV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isNewEntity());
+        return new RESTTranslationServerV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

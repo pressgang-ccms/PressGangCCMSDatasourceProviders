@@ -39,7 +39,8 @@ public class RESTBlobConstantV1Wrapper extends RESTBaseAuditedEntityWrapper<Blob
 
     @Override
     public BlobConstantWrapper clone(boolean deepCopy) {
-        return new RESTBlobConstantV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTBlobConstantV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

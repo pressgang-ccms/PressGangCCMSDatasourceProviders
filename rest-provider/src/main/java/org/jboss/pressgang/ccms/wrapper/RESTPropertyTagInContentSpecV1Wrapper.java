@@ -75,7 +75,7 @@ public class RESTPropertyTagInContentSpecV1Wrapper extends RESTBasePropertyTagV1
     @Override
     public RESTPropertyTagInContentSpecV1Wrapper clone(boolean deepCopy) {
         return new RESTPropertyTagInContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(),
-                getParentEntity(), isNewEntity());
+                getParentEntity(), isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

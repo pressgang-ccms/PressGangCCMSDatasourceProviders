@@ -38,7 +38,8 @@ public class RESTLocaleV1Wrapper extends RESTBaseEntityWrapper<LocaleWrapper, RE
 
     @Override
     public LocaleWrapper clone(boolean deepCopy) {
-        return new RESTLocaleV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isNewEntity());
+        return new RESTLocaleV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

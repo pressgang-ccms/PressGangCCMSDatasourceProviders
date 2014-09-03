@@ -25,6 +25,7 @@ import java.util.List;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTFileV1ProxyHandler;
+import org.jboss.pressgang.ccms.proxy.RESTLanguageFileV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageFileCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTLanguageFileCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTFileV1;
@@ -66,7 +67,12 @@ public class RESTLanguageFileProvider extends RESTDataProvider implements Langua
                 final List<RESTLanguageFileV1> languageFileItems = languageFiles.returnItems();
                 for (final RESTLanguageFileV1 file : languageFileItems) {
                     if (file.getId().equals(id) && (revision == null || file.getRevision().equals(revision))) {
-                        return file;
+                        if (file instanceof ProxyObject) {
+                            final RESTLanguageFileV1ProxyHandler proxy = (RESTLanguageFileV1ProxyHandler) ((ProxyObject) file).getHandler();
+                            return proxy.getEntity();
+                        } else {
+                            return file;
+                        }
                     }
                 }
 

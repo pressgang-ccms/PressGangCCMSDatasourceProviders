@@ -69,7 +69,7 @@ public class RESTPropertyTagInPropertyCategoryV1Wrapper extends RESTBaseProperty
     @Override
     public RESTPropertyTagInPropertyCategoryV1Wrapper clone(boolean deepCopy) {
         return new RESTPropertyTagInPropertyCategoryV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(),
-                getParentEntity(), isNewEntity());
+                getParentEntity(), isNewEntity(), getProxyProcessedMethodNames());
     }
 
 }

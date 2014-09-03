@@ -42,7 +42,8 @@ public class RESTImageV1Wrapper extends RESTBaseAuditedEntityWrapper<ImageWrappe
 
     @Override
     public RESTImageV1Wrapper clone(boolean deepCopy) {
-        return new RESTImageV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTImageV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

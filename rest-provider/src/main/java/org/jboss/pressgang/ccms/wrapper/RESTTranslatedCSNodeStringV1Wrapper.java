@@ -45,7 +45,7 @@ public class RESTTranslatedCSNodeStringV1Wrapper extends RESTBaseAuditedEntityWr
     @Override
     public TranslatedCSNodeStringWrapper clone(boolean deepCopy) {
         return new RESTTranslatedCSNodeStringV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent,
-                isNewEntity());
+                isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

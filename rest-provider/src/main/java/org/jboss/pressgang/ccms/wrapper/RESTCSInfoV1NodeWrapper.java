@@ -46,7 +46,7 @@ public class RESTCSInfoV1NodeWrapper extends RESTBaseAuditedEntityWrapper<CSInfo
     @Override
     public CSInfoNodeWrapper clone(boolean deepCopy) {
         return new RESTCSInfoV1NodeWrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), getParentEntity(),
-                isNewEntity());
+                isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

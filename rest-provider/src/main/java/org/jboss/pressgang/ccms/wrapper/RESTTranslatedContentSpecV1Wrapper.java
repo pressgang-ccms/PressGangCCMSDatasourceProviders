@@ -46,7 +46,8 @@ public class RESTTranslatedContentSpecV1Wrapper extends RESTBaseAuditedEntityWra
 
     @Override
     public TranslatedContentSpecWrapper clone(boolean deepCopy) {
-        return new RESTTranslatedContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTTranslatedContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

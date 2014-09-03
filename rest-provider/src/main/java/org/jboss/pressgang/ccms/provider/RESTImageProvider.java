@@ -62,7 +62,8 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
             if (getRESTEntityCache().containsKeyValue(RESTImageV1.class, id, revision)) {
                 image = getRESTEntityCache().get(RESTImageV1.class, id, revision);
             } else {
-                image = loadImage(id, revision, "");
+                final String expand = getExpansionString(RESTImageV1.LANGUAGEIMAGES_NAME);
+                image = loadImage(id, revision, expand);
                 getRESTEntityCache().add(image, revision);
             }
 
@@ -78,6 +79,7 @@ public class RESTImageProvider extends RESTDataProvider implements ImageProvider
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
                 .entity(getRESTImage(id, revision))
+                .expandedMethods(Arrays.asList("getLanguageImages_OTM"))
                 .isRevision(revision != null)
                 .build();
     }

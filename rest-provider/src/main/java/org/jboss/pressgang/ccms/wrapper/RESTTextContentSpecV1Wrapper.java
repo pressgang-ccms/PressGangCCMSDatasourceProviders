@@ -92,6 +92,7 @@ public class RESTTextContentSpecV1Wrapper extends RESTBaseContentSpecV1Wrapper<T
 
     @Override
     public TextContentSpecWrapper clone(boolean deepCopy) {
-        return new RESTTextContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTTextContentSpecV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 }

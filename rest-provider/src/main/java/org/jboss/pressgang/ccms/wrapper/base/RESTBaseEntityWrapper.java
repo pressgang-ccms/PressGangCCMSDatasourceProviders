@@ -20,8 +20,11 @@
 package org.jboss.pressgang.ccms.wrapper.base;
 
 import java.util.Collection;
+import java.util.Set;
 
+import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.RESTProviderFactory;
+import org.jboss.pressgang.ccms.proxy.RESTBaseEntityV1ProxyHandler;
 import org.jboss.pressgang.ccms.proxy.RESTEntityProxyFactory;
 import org.jboss.pressgang.ccms.rest.v1.entities.base.RESTBaseEntityV1;
 
@@ -101,5 +104,10 @@ public abstract class RESTBaseEntityWrapper<T extends EntityWrapper<T>, U extend
 
     protected RESTBaseEntityV1<?> getParentEntity() {
         return parent;
+    }
+
+    protected Set<String> getProxyProcessedMethodNames() {
+        final RESTBaseEntityV1ProxyHandler<U> proxyHandler = ((RESTBaseEntityV1ProxyHandler<U>) ((ProxyObject) proxyEntity).getHandler());
+        return proxyHandler.getProcessedMethodNames();
     }
 }

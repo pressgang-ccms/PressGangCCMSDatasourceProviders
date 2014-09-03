@@ -45,7 +45,7 @@ public class RESTTranslatedTopicStringV1Wrapper extends RESTBaseAuditedEntityWra
     @Override
     public TranslatedTopicStringWrapper clone(boolean deepCopy) {
         return new RESTTranslatedTopicStringV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), parent,
-                isNewEntity());
+                isNewEntity(), getProxyProcessedMethodNames());
     }
 
     @Override

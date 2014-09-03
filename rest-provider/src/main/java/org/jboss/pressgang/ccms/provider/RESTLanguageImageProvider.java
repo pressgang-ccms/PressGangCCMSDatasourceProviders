@@ -25,6 +25,7 @@ import java.util.List;
 import javassist.util.proxy.ProxyObject;
 import org.jboss.pressgang.ccms.provider.exception.NotFoundException;
 import org.jboss.pressgang.ccms.proxy.RESTImageV1ProxyHandler;
+import org.jboss.pressgang.ccms.proxy.RESTLanguageImageV1ProxyHandler;
 import org.jboss.pressgang.ccms.rest.v1.collections.RESTLanguageImageCollectionV1;
 import org.jboss.pressgang.ccms.rest.v1.collections.items.RESTLanguageImageCollectionItemV1;
 import org.jboss.pressgang.ccms.rest.v1.entities.RESTImageV1;
@@ -66,7 +67,12 @@ public class RESTLanguageImageProvider extends RESTDataProvider implements Langu
                 final List<RESTLanguageImageV1> languageImageItems = languageImages.returnItems();
                 for (final RESTLanguageImageV1 image : languageImageItems) {
                     if (image.getId().equals(id) && (revision == null || image.getRevision().equals(revision))) {
-                        return image;
+                        if (image instanceof ProxyObject) {
+                            final RESTLanguageImageV1ProxyHandler proxy = (RESTLanguageImageV1ProxyHandler) ((ProxyObject) image).getHandler();
+                            return proxy.getEntity();
+                        } else {
+                            return image;
+                        }
                     }
                 }
 

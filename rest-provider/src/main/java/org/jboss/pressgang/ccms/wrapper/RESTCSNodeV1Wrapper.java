@@ -48,7 +48,8 @@ public class RESTCSNodeV1Wrapper extends RESTBaseAuditedEntityWrapper<CSNodeWrap
 
     @Override
     public CSNodeWrapper clone(boolean deepCopy) {
-        return new RESTCSNodeV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTCSNodeV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

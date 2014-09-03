@@ -42,7 +42,8 @@ public class RESTCSRelatedNodeV1Wrapper extends RESTBaseAuditedEntityWrapper<CSR
 
     @Override
     public CSRelatedNodeWrapper clone(boolean deepCopy) {
-        return new RESTCSRelatedNodeV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTCSRelatedNodeV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

@@ -62,7 +62,8 @@ public class RESTFileProvider extends RESTDataProvider implements FileProvider {
             if (getRESTEntityCache().containsKeyValue(RESTFileV1.class, id, revision)) {
                 file = getRESTEntityCache().get(RESTFileV1.class, id, revision);
             } else {
-                file = loadFile(id, revision, "");
+                final String expand = getExpansionString(RESTFileV1.LANGUAGE_FILES_NAME);
+                file = loadFile(id, revision, expand);
                 getRESTEntityCache().add(file, revision);
             }
 
@@ -78,6 +79,7 @@ public class RESTFileProvider extends RESTDataProvider implements FileProvider {
         return RESTEntityWrapperBuilder.newBuilder()
                 .providerFactory(getProviderFactory())
                 .entity(getRESTFile(id, revision))
+                .expandedMethods(Arrays.asList("getLanguageFiles_OTM"))
                 .isRevision(revision != null)
                 .build();
     }

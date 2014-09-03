@@ -38,7 +38,8 @@ public class RESTUserV1Wrapper extends RESTBaseAuditedEntityWrapper<UserWrapper,
 
     @Override
     public UserWrapper clone(boolean deepCopy) {
-        return new RESTUserV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTUserV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

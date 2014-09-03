@@ -41,7 +41,8 @@ public class RESTFileV1Wrapper extends RESTBaseAuditedEntityWrapper<FileWrapper,
 
     @Override
     public RESTFileV1Wrapper clone(boolean deepCopy) {
-        return new RESTFileV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTFileV1Wrapper(getProviderFactory(), getEntity().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override

@@ -50,7 +50,8 @@ public class RESTStringConstantV1Wrapper extends RESTBaseAuditedEntityWrapper<St
 
     @Override
     public StringConstantWrapper clone(boolean deepCopy) {
-        return new RESTStringConstantV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity());
+        return new RESTStringConstantV1Wrapper(getProviderFactory(), unwrap().clone(deepCopy), isRevisionEntity(), isNewEntity(),
+                getProxyProcessedMethodNames());
     }
 
     @Override
